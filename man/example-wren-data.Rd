@@ -3,11 +3,14 @@
 \name{example-wren-data}
 \alias{example-wren-data}
 \alias{example_wren_habitat}
+\alias{example_wren_habitat_scenario}
 \alias{example_wren_barrier}
 \alias{example_wren_barrier_scenario}
 \title{Fair Wren Habitat, Barrier, and scenario Data from City of Knox.}
 \usage{
 example_wren_habitat()
+
+example_wren_habitat_scenario()
 
 example_wren_barrier()
 
@@ -30,6 +33,8 @@ functions provide easy access to example raster and shapefile data
 included with the package:
 \itemize{
 \item \code{example_wren_habitat()} Returns a raster of wren habitat data.
+\item \code{example_wren_habitat_scenario()} Returns a raster of wren habitat
+scenario data.
 \item \code{example_wren_barrier()} Returns a raster of wren barrier data.
 \item \code{example_wren_barrier_scenario()} Returns a raster of wren barrier
 scenario data.
