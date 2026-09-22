@@ -14,10 +14,6 @@
 #' @param connectivity data.frame of class "patch_size_tbl", obtained via
 #'   [patch_sizes()] from a `connectivity` object returned by
 #'   [habitat_connectivity()]. Contains area measurements of connected patches.
-#' @param connectivity_baseline Optional. data.frame of class
-#'   "patch_size_tbl", obtained via [patch_sizes()] from a `connectivity`
-#'   object returned by [habitat_connectivity()]. Contains baseline area
-#'   measurements of connected patches. Default is NULL.
 #' @param ... extra arguments to pass through for default method.
 #'
 #' @returns A tibble with connectivity metrics including number of patches,
@@ -40,7 +36,6 @@
 #' @export
 summarise_connectivity <- function(
   connectivity,
-  connectivity_baseline = NULL,
   ...
 ) {
   UseMethod("summarise_connectivity")
@@ -74,59 +69,50 @@ new_connectivity <- function(x) {
   )
 }
 
-#' @export
-summarise_connectivity.patch_size_tbl <- function(
-  connectivity,
-  connectivity_baseline = NULL,
-  ...
+#' Shared body for the `summarise_connectivity()` methods
+#'
+#' Builds the one-row `connectivity` summary from an `area` vector and its
+#' descriptors. The two methods differ only in where `area` and the descriptors
+#' come from; both delegate here so the metric/rounding logic lives in one place
+#' (via `connectivity_metric_row()`) and the column order in `new_connectivity()`.
+#'
+#' @param area Numeric vector of connected patch areas.
+#' @param interpatch_distance,data_resolution,species Scalars describing the run.
+#' @param patch_size Object stored in the `patch_size` list-column (the
+#'   `patch_size_tbl` for the `patch_size_tbl` method, the raw area vector for
+#'   the default method).
+#' @returns A `connectivity` object.
+#' @noRd
+summarise_connectivity_impl <- function(
+  area,
+  interpatch_distance,
+  data_resolution,
+  species,
+  patch_size
 ) {
-  # check distance, species, and res match
-  check_pc_match(connectivity, connectivity_baseline)
-  connectivity_baseline <- connectivity_baseline %||% connectivity
-
-  interpatch_distance <- pc_interpatch_distance(connectivity)
-  data_resolution <- pc_res(connectivity)
-  species <- pc_species(connectivity)
-
-  connectivity_area <- connectivity$area
-  connectivity_area_baseline <- connectivity_baseline$area
-
-  result <- connectivity_metrics(
-    area = connectivity_area,
-    area_baseline = connectivity_area_baseline
-  )
-
-  extras <- tibble::tibble(
-    interpatch_distance = interpatch_distance,
-    species = species,
-    patch_area_mean = mean_patch_size(connectivity_area),
-    patch_area_total_ha = total_habitat_area(connectivity_area),
-    data_resolution = data_resolution,
-  )
-
-  full_results <- dplyr::bind_cols(
-    result,
-    extras
-  ) |>
+  full_results <- connectivity_metric_row(area = area, area_baseline = area) |>
     dplyr::mutate(
-      prob_connectedness = round(prob_connectedness, 6)
-    ) |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = c(effective_mesh_ha, patch_area_mean, patch_area_total_ha),
-        round
-      )
-    ) |>
-    dplyr::relocate(
-      species,
-      interpatch_distance,
-      .before = dplyr::everything()
-    ) |>
-    dplyr::mutate(
-      patch_size = list(connectivity)
+      species = species,
+      interpatch_distance = interpatch_distance,
+      data_resolution = data_resolution,
+      patch_size = list(patch_size)
     )
 
   new_connectivity(full_results)
+}
+
+#' @export
+summarise_connectivity.patch_size_tbl <- function(
+  connectivity,
+  ...
+) {
+  summarise_connectivity_impl(
+    area = connectivity$area,
+    interpatch_distance = pc_interpatch_distance(connectivity),
+    data_resolution = pc_res(connectivity),
+    species = pc_species(connectivity),
+    patch_size = connectivity
+  )
 }
 
 #' @rdname summarise-connectivity
@@ -142,47 +128,16 @@ summarise_connectivity.patch_size_tbl <- function(
 #' @export
 summarise_connectivity.default <- function(
   connectivity,
-  connectivity_baseline = NULL,
   interpatch_distance,
   data_resolution,
   species,
   ...
 ) {
-  connectivity_baseline <- connectivity_baseline %||% connectivity
-  result <- connectivity_metrics(
+  summarise_connectivity_impl(
     area = connectivity,
-    area_baseline = connectivity_baseline
-  )
-
-  extras <- tibble::tibble(
     interpatch_distance = interpatch_distance,
-    species = species,
-    patch_area_mean = mean_patch_size(connectivity),
-    patch_area_total_ha = total_habitat_area(connectivity),
     data_resolution = data_resolution,
+    species = species,
+    patch_size = connectivity
   )
-
-  full_results <- dplyr::bind_cols(
-    result,
-    extras
-  ) |>
-    dplyr::mutate(
-      prob_connectedness = round(prob_connectedness, 6)
-    ) |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = c(effective_mesh_ha, patch_area_mean, patch_area_total_ha),
-        round
-      )
-    ) |>
-    dplyr::relocate(
-      species,
-      interpatch_distance,
-      .before = dplyr::everything()
-    ) |>
-    dplyr::mutate(
-      patch_size = list(connectivity)
-    )
-
-  new_connectivity(full_results)
 }

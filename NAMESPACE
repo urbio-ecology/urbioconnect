@@ -2,9 +2,8 @@
 
 S3method("[",patch_size_tbl)
 S3method("names<-",patch_size_tbl)
-S3method(compare_connectivity,default)
-S3method(compare_connectivity,patch_size_tbl)
 S3method(dplyr::dplyr_reconstruct,patch_size_tbl)
+S3method(print,compare_connectivity)
 S3method(print,patch_size_tbl)
 S3method(read_geometry,default)
 S3method(read_geometry,sf)

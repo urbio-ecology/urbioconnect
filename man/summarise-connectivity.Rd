@@ -6,11 +6,10 @@
 \alias{summarise_connectivity.default}
 \title{Summarise connectivity metrics}
 \usage{
-summarise_connectivity(connectivity, connectivity_baseline = NULL, ...)
+summarise_connectivity(connectivity, ...)
 
 \method{summarise_connectivity}{default}(
   connectivity,
-  connectivity_baseline = NULL,
   interpatch_distance,
   data_resolution,
   species,
@@ -21,11 +20,6 @@ summarise_connectivity(connectivity, connectivity_baseline = NULL, ...)
 \item{connectivity}{data.frame of class "patch_size_tbl", obtained via
 \code{\link[=patch_sizes]{patch_sizes()}} from a \code{connectivity} object returned by
 \code{\link[=habitat_connectivity]{habitat_connectivity()}}. Contains area measurements of connected patches.}
-
-\item{connectivity_baseline}{Optional. data.frame of class
-"patch_size_tbl", obtained via \code{\link[=patch_sizes]{patch_sizes()}} from a \code{connectivity}
-object returned by \code{\link[=habitat_connectivity]{habitat_connectivity()}}. Contains baseline area
-measurements of connected patches. Default is NULL.}
 
 \item{...}{extra arguments to pass through for default method.}
 

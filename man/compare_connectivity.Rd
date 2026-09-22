@@ -2,59 +2,56 @@
 % Please edit documentation in R/compare-connectivity.R
 \name{compare_connectivity}
 \alias{compare_connectivity}
-\alias{compare_connectivity.default}
-\title{Compare measurements the connectivity of different scenarios}
+\title{Compare the connectivity of two scenarios}
 \usage{
-compare_connectivity(connectivity, connectivity_baseline, ...)
-
-\method{compare_connectivity}{default}(
-  connectivity,
-  connectivity_baseline,
-  interpatch_distance = 10,
-  res = NA,
-  species = "blue-tongued lizard",
-  ...
-)
+compare_connectivity(scenario, baseline)
 }
 \arguments{
-\item{connectivity}{Numeric vector. Area of a connected patch.}
+\item{scenario}{A \code{connectivity} object (from \code{\link[=habitat_connectivity]{habitat_connectivity()}} or
+\code{\link[=summarise_connectivity]{summarise_connectivity()}}). The scenario to compare against \code{baseline}.
+Must be a single row.}
 
-\item{connectivity_baseline}{Numeric vector. Baseline area of a connected
-patch.}
-
-\item{...}{extra arguments to pass through for default method}
-
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250.}
-
-\item{res}{pixel resolution - relevant to rasters only}
-
-\item{species}{name of species}
+\item{baseline}{A \code{connectivity} object (from \code{\link[=habitat_connectivity]{habitat_connectivity()}} or
+\code{\link[=summarise_connectivity]{summarise_connectivity()}}). The reference the \code{scenario} is compared
+against. Must be a single row, and match \code{scenario} on species,
+interpatch_distance, and resolution.}
 }
 \value{
-tibble with "scenario", "interpatch_distance", "species",
-"n_patches", "effective_mesh_ha", and "prob_connectedness".
+A \code{compare_connectivity} object: a tibble with four rows
+(\code{baseline}, \code{scenario}, \code{change}, \code{pct_change}, in the \code{measure} column)
+and the same metric columns as \code{\link[=summarise_connectivity]{summarise_connectivity()}} output:
+\code{measure}, \code{species}, \code{interpatch_distance}, \code{n_patches},
+\code{effective_mesh_ha}, \code{prob_connectedness}, \code{patch_area_mean},
+\code{patch_area_total_ha}, and \code{data_resolution}. The \code{change} row is
+\code{scenario - baseline}, so a positive value means the scenario is higher
+than the baseline; the \code{pct_change} row expresses that same change as
+\code{100 * change / baseline}, which is the readable form for metrics whose
+absolute deltas are very small. Metric values are held at full precision —
+they are not rounded — so \code{change} is exact.
 }
 \description{
 We can measure the connectivity of a given habitat and barrier with
 \code{\link[=habitat_connectivity]{habitat_connectivity()}}. We can also compare the connectivity, say for
 example if you have the same area habitat and barrier, but you want to
 understand what the change in connectedness is when you remove, or add
-some habitat, or some barrier(s), or both. This function help you do that.
+some habitat, or some barrier(s). This function helps you do that, by
+comparing a "scenario" \code{connectivity} object against a "baseline"
+\code{connectivity} object (both created by \code{\link[=habitat_connectivity]{habitat_connectivity()}} or
+\code{\link[=summarise_connectivity]{summarise_connectivity()}}).
+}
+\details{
+If you have raster or vector layers rather than \code{connectivity} objects, use
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which runs \code{\link[=habitat_connectivity]{habitat_connectivity()}} on
+each scenario for you and then calls this function.
 }
 \examples{
-# for demonstration purposes - let's imagine the area decreases by 20\%
-baseline_areas <- round(lizard_areas_connected$area)
-new_areas <- baseline_areas[-1] * 0.8
-compare_connectivity(
-  connectivity = new_areas,
-  connectivity_baseline = baseline_areas,
-  interpatch_distance = 10,
-  species = "blue-tongued lizard"
-)
+# build `connectivity` objects cheaply (no spatial pipeline) and compare them
+baseline <- summarise_connectivity(lizard_areas_connected)
+# a scenario in which one connected patch (the first row) is lost
+scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
+compare_connectivity(scenario = scenario, baseline = baseline)
+}
+\seealso{
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} for a layer-in wrapper,
+\code{\link[=habitat_connectivity]{habitat_connectivity()}}, and \code{\link[=summarise_connectivity]{summarise_connectivity()}}.
 }
