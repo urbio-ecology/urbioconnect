@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/404.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/AGENTS.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/LICENSE.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/articles/index.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.html</loc></url>
@@ -27,6 +28,7 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/index.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/lizard_areas_connected.html</loc></url>

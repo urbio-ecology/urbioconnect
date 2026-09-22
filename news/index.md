@@ -2,6 +2,12 @@
 
 ## urbioconnect (development version)
 
+- urbioconnect now requires terra \>= 1.8-70. Earlier versions of
+  [`terra::identical()`](https://rspatial.github.io/terra/reference/identical.html)
+  ignore NA cells, so a scenario that only moved NA cells would compare
+  as unchanged.
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+
 - Use GPL (\>= 3) License.
 
 - drop `terra_` prefix and move `rast_` functions into `scratch` where
@@ -94,6 +100,28 @@
   freeing up the `patch_sizes` name for the new accessor above.
   ([\#138](https://github.com/urbio-ecology/urbioconnect/issues/138))
 
+- New
+  [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+  compares a scenario against a baseline, for one or more interpatch
+  distances (or buffer radii). Only one of habitat or barrier may differ
+  from the baseline, so any change can be attributed to that layer. It
+  errors if both differ, and warns if neither does.
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+
+- New example data
+  [`example_wren_habitat_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md),
+  a habitat scenario to pair with
+  [`example_wren_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md).
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+
+- [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)
+  and
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  now return metrics at full precision. `prob_connectedness` was rounded
+  to 6 decimal places, which was coarse enough to hide the small changes
+  a scenario produces.
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+
 ### Breaking changes
 
 - `interpatch_distance` is now the full edge-to-edge distance below
@@ -107,6 +135,21 @@
   (e.g. `habitat_connectivity(...)$area`) should instead use
   `patch_sizes(habitat_connectivity(...))[[1]]`.
   ([\#141](https://github.com/urbio-ecology/urbioconnect/issues/141))
+- [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+  is now `compare_connectivity(scenario, baseline)`. It takes two
+  one-row `connectivity` objects, such as the output of
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  or
+  [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md),
+  and returns four rows: `baseline`, `scenario`, `change` (scenario
+  minus baseline) and `pct_change`. It is no longer an S3 generic, and
+  its `patch_size_tbl` and default methods are gone.
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+- [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)
+  no longer takes `connectivity_baseline`. Use
+  [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+  to compare against a baseline instead.
+  ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
 
 ## urbioconnect 0.1.0
 

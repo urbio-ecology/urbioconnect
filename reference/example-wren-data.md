@@ -11,6 +11,8 @@ scenario piece of data.
 ``` r
 example_wren_habitat()
 
+example_wren_habitat_scenario()
+
 example_wren_barrier()
 
 example_wren_barrier_scenario()
@@ -28,6 +30,9 @@ functions provide easy access to example raster and shapefile data
 included with the package:
 
 - `example_wren_habitat()` Returns a raster of wren habitat data.
+
+- `example_wren_habitat_scenario()` Returns a raster of wren habitat
+  scenario data.
 
 - `example_wren_barrier()` Returns a raster of wren barrier data.
 

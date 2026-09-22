@@ -4,7 +4,7 @@
 
 library(urbioconnect)
 library(terra)
-#> terra 1.9.34
+#> terra 1.9.50
 ```
 
 ## Overview
@@ -340,7 +340,7 @@ results
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <dbl>, patch_size <list>
 ```
@@ -387,7 +387,7 @@ areas <- habitat_connectivity(
 #> ✔ Creating barrier mask [33ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [24ms]
+#> ✔ Removing habitat underneath barrier [25ms]
 #> 
 #> ℹ Adding 5m buffer (interpatch distance 10m)
 #> Warning: Buffer radius doesn't align with the raster resolution.
@@ -395,23 +395,23 @@ areas <- habitat_connectivity(
 #> ℹ It snaps to 4 m (interpatch distance 8 m).
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Adding 5m buffer (interpatch distance 10m) [313ms]
+#> ✔ Adding 5m buffer (interpatch distance 10m) [316ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [23ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [24ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [2s]
+#> ✔ Assigning patches ID to fragments [2.2s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [41ms]
+#> ✔ Summarising area in each patch [54ms]
 #> 
 
 areas
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
@@ -515,9 +515,9 @@ all_results
 #> # A tibble: 3 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
-#> 2 Blue-tongu…                  30       105                 4           0.000017
-#> 3 Blue-tongu…                  50        73                 4           0.000017
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
+#> 2 Blue-tongu…                  30       105              4.43          0.0000169
+#> 3 Blue-tongu…                  50        73              4.47          0.0000170
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```

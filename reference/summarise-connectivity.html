@@ -67,12 +67,11 @@ examples below.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">summarise_connectivity</span><span class="op">(</span><span class="va">connectivity</span>, connectivity_baseline <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">summarise_connectivity</span><span class="op">(</span><span class="va">connectivity</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Default S3 method</span></span>
 <span><span class="fu">summarise_connectivity</span><span class="op">(</span></span>
 <span>  <span class="va">connectivity</span>,</span>
-<span>  connectivity_baseline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">interpatch_distance</span>,</span>
 <span>  <span class="va">data_resolution</span>,</span>
 <span>  <span class="va">species</span>,</span>
@@ -88,13 +87,6 @@ examples below.</p>
 <dd><p>data.frame of class "patch_size_tbl", obtained via
 <code><a href="patch_sizes.html">patch_sizes()</a></code> from a <code>connectivity</code> object returned by
 <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>. Contains area measurements of connected patches.</p></dd>
-
-
-<dt id="arg-connectivity-baseline">connectivity_baseline<a class="anchor" aria-label="anchor" href="#arg-connectivity-baseline"></a></dt>
-<dd><p>Optional. data.frame of class
-"patch_size_tbl", obtained via <code><a href="patch_sizes.html">patch_sizes()</a></code> from a <code>connectivity</code>
-object returned by <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>. Contains baseline area
-measurements of connected patches. Default is NULL.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -135,7 +127,7 @@ areas.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  50        73                 4           0.000<span style="text-decoration: underline;">017</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  50        73              4.47          0.000<span style="text-decoration: underline;">017</span>0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -150,7 +142,7 @@ areas.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10        73                 4           0.000<span style="text-decoration: underline;">017</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10        73              4.47          0.000<span style="text-decoration: underline;">017</span>0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   data_resolution &lt;dbl&gt;, patch_size &lt;list&gt;</span></span>
 </code></pre></div>

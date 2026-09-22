@@ -71,7 +71,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://urbio-ecology.r-universe.dev/urbioconnect" class="external-link">urbioconnect</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.9.34</span></span></code></pre></div>
+<span><span class="co">#&gt; terra 1.9.50</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
@@ -361,7 +361,7 @@ computes a set of landscape-level connectivity metrics:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703                 4           0.000<span style="text-decoration: underline;">015</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;dbl&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>The two key metrics are:</p>
@@ -399,7 +399,7 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[33ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[24ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[25ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Adding 5m buffer (interpatch distance 10m)</span></span>
 <span><span class="co">#&gt; Warning: Buffer radius doesn't align with the raster resolution.</span></span>
@@ -407,23 +407,23 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 4 m (interpatch distance 8 m).</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Adding 5m buffer (interpatch distance 10m) <span style="color: #B2B2B2;">[313ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Adding 5m buffer (interpatch distance 10m) <span style="color: #B2B2B2;">[316ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[23ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[24ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[41ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[54ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703                 4           0.000<span style="text-decoration: underline;">015</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p><code>areas</code> is a <code>connectivity</code> object: a one-row
@@ -509,9 +509,9 @@ iterate, then <code><a href="https://purrr.tidyverse.org/reference/list_c.html" 
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703                 4           0.000<span style="text-decoration: underline;">015</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Blue-tongu…                  30       105                 4           0.000<span style="text-decoration: underline;">017</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Blue-tongu…                  50        73                 4           0.000<span style="text-decoration: underline;">017</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Blue-tongu…                  30       105              4.43          0.000<span style="text-decoration: underline;">016</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Blue-tongu…                  50        73              4.47          0.000<span style="text-decoration: underline;">017</span>0</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>Each call to <code><a href="../reference/habitat_connectivity.html">habitat_connectivity()</a></code> already returns a

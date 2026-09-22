@@ -40,7 +40,7 @@ fragment_patches <- assign_patches_to_fragments(
   fragment = fragmented
   )
 library(terra)
-#> terra 1.9.34
+#> terra 1.9.50
 add_patch_area(fragment_patches)
 #> class       : SpatRaster
 #> size        : 763, 766, 2  (nrow, ncol, nlyr)

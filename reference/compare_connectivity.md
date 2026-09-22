@@ -1,82 +1,97 @@
-# Compare measurements the connectivity of different scenarios
+# Compare the connectivity of two scenarios
 
 We can measure the connectivity of a given habitat and barrier with
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
 We can also compare the connectivity, say for example if you have the
 same area habitat and barrier, but you want to understand what the
 change in connectedness is when you remove, or add some habitat, or some
-barrier(s), or both. This function help you do that.
+barrier(s). This function helps you do that, by comparing a "scenario"
+`connectivity` object against a "baseline" `connectivity` object (both
+created by
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+or
+[`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)).
 
 ## Usage
 
 ``` r
-compare_connectivity(connectivity, connectivity_baseline, ...)
-
-# Default S3 method
-compare_connectivity(
-  connectivity,
-  connectivity_baseline,
-  interpatch_distance = 10,
-  res = NA,
-  species = "blue-tongued lizard",
-  ...
-)
+compare_connectivity(scenario, baseline)
 ```
 
 ## Arguments
 
-- connectivity:
+- scenario:
 
-  Numeric vector. Area of a connected patch.
+  A `connectivity` object (from
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  or
+  [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)).
+  The scenario to compare against `baseline`. Must be a single row.
 
-- connectivity_baseline:
+- baseline:
 
-  Numeric vector. Baseline area of a connected patch.
-
-- ...:
-
-  extra arguments to pass through for default method
-
-- interpatch_distance:
-
-  Numeric. The distance (in meters) where habitat patches are considered
-  connected. E.g., if set to 500, patches 498m apart are connected,
-  those 501m apart are not connected. This is passed internally to a
-  spatial operation known as "buffering", where this distance is used as
-  a radius from the edge of the habitat zone. This means the specified
-  `interpatch_distance` is halved exactly. So an interpatch distance of
-  500 will be converted to 250.
-
-- res:
-
-  pixel resolution - relevant to rasters only
-
-- species:
-
-  name of species
+  A `connectivity` object (from
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  or
+  [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)).
+  The reference the `scenario` is compared against. Must be a single
+  row, and match `scenario` on species, interpatch_distance, and
+  resolution.
 
 ## Value
 
-tibble with "scenario", "interpatch_distance", "species", "n_patches",
-"effective_mesh_ha", and "prob_connectedness".
+A `compare_connectivity` object: a tibble with four rows (`baseline`,
+`scenario`, `change`, `pct_change`, in the `measure` column) and the
+same metric columns as
+[`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)
+output: `measure`, `species`, `interpatch_distance`, `n_patches`,
+`effective_mesh_ha`, `prob_connectedness`, `patch_area_mean`,
+`patch_area_total_ha`, and `data_resolution`. The `change` row is
+`scenario - baseline`, so a positive value means the scenario is higher
+than the baseline; the `pct_change` row expresses that same change as
+`100 * change / baseline`, which is the readable form for metrics whose
+absolute deltas are very small. Metric values are held at full precision
+— they are not rounded — so `change` is exact.
+
+## Details
+
+If you have raster or vector layers rather than `connectivity` objects,
+use
+[`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md),
+which runs
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+on each scenario for you and then calls this function.
+
+## See also
+
+[`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+for a layer-in wrapper,
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
+and
+[`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md).
 
 ## Examples
 
 ``` r
-# for demonstration purposes - let's imagine the area decreases by 20%
-baseline_areas <- round(lizard_areas_connected$area)
-new_areas <- baseline_areas[-1] * 0.8
-compare_connectivity(
-  connectivity = new_areas,
-  connectivity_baseline = baseline_areas,
-  interpatch_distance = 10,
-  species = "blue-tongued lizard"
-)
-#> # A tibble: 3 × 7
-#>   scenario   interpatch_distance res   species       n_patches effective_mesh_ha
-#>   <chr>                    <dbl> <lgl> <chr>             <int>             <dbl>
-#> 1 baseline                    10 NA    blue-tongued…        73              4.47
-#> 2 new                         10 NA    blue-tongued…        72              2.86
-#> 3 difference                  10 NA    blue-tongued…        -1             -1.61
-#> # ℹ 1 more variable: prob_connectedness <dbl>
+# build `connectivity` objects cheaply (no spatial pipeline) and compare them
+baseline <- summarise_connectivity(lizard_areas_connected)
+# a scenario in which one connected patch (the first row) is lost
+scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
+compare_connectivity(scenario = scenario, baseline = baseline)
+#> # Connectivity comparison: baseline / scenario / change / pct_change
+#> # A tibble: 4 × 9
+#>   measure    species             interpatch_distance n_patches effective_mesh_ha
+#>   <chr>      <chr>                             <dbl>     <dbl>             <dbl>
+#> 1 baseline   Blue-tongued Lizard                  50     73            4.47     
+#> 2 scenario   Blue-tongued Lizard                  50     72            4.47     
+#> 3 change     Blue-tongued Lizard                  50     -1           -0.0000113
+#> 4 pct_change Blue-tongued Lizard                  50     -1.37        -0.000252 
+#>   prob_connectedness patch_area_mean patch_area_total_ha data_resolution
+#>                <dbl>           <dbl>               <dbl> <chr>          
+#> 1           1.70e- 5         3600.               26.3    2x2            
+#> 2           1.70e- 5         3648.               26.3    2x2            
+#> 3          -4.28e-11           47.6              -0.0172 2x2            
+#> 4          -2.52e- 4            1.32             -0.0654 2x2            
+#> # change = scenario - baseline (positive = scenario is higher)
+#> # pct_change = 100 * change / baseline
 ```

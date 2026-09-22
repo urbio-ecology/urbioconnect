@@ -7,7 +7,9 @@
 - [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)
   : Summarise connectivity metrics
 - [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
-  : Compare measurements the connectivity of different scenarios
+  : Compare the connectivity of two scenarios
+- [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+  : Compare habitat connectivity of a scenario against a baseline
 - [`effective_mesh_size()`](https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.md)
   : Calculate effective mesh size
 - [`connectivity_probability()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.md)
@@ -96,6 +98,7 @@
   [`example_barrier()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
   : Lizard Habitat and Barrier Data from Melbourne.
 - [`example_wren_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
+  [`example_wren_habitat_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
   [`example_wren_barrier()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
   [`example_wren_barrier_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
   : Fair Wren Habitat, Barrier, and scenario Data from City of Knox.

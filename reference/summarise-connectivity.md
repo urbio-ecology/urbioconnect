@@ -14,12 +14,11 @@ resolution, and species. See examples below.
 ## Usage
 
 ``` r
-summarise_connectivity(connectivity, connectivity_baseline = NULL, ...)
+summarise_connectivity(connectivity, ...)
 
 # Default S3 method
 summarise_connectivity(
   connectivity,
-  connectivity_baseline = NULL,
   interpatch_distance,
   data_resolution,
   species,
@@ -36,15 +35,6 @@ summarise_connectivity(
   from a `connectivity` object returned by
   [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
   Contains area measurements of connected patches.
-
-- connectivity_baseline:
-
-  Optional. data.frame of class "patch_size_tbl", obtained via
-  [`patch_sizes()`](https://urbio-ecology.github.io/urbioconnect/reference/patch_sizes.md)
-  from a `connectivity` object returned by
-  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
-  Contains baseline area measurements of connected patches. Default is
-  NULL.
 
 - ...:
 
@@ -84,7 +74,7 @@ summarise_connectivity(
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  50        73                 4           0.000017
+#> 1 Blue-tongu…                  50        73              4.47          0.0000170
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 
@@ -99,7 +89,7 @@ summarise_connectivity(
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10        73                 4           0.000017
+#> 1 Blue-tongu…                  10        73              4.47          0.0000170
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <dbl>, patch_size <list>
 ```

@@ -4,7 +4,7 @@
 
 library(urbioconnect)
 library(terra)
-#> terra 1.9.34
+#> terra 1.9.50
 library(sf)
 #> Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE
 ```
@@ -116,13 +116,13 @@ raster_result <- habitat_connectivity(
   verbose = FALSE
 )
 rast_time <- toc()
-#> 2.678 sec elapsed
+#> 2.858 sec elapsed
 
 raster_result
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
@@ -167,7 +167,7 @@ vector_result <- sf_habitat_connectivity(
   interpatch_distance = interpatch_dist
 )
 vect_time <- toc()
-#> 9.662 sec elapsed
+#> 10.362 sec elapsed
 
 vector_result
 #> # patch_size_tbl:      data.frame
@@ -213,10 +213,11 @@ exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.
 
-    #> [1] 2.678
+    #> [1] 2.858
 
 Timings for the methods are also important to consider. The raster
-approach took 2.678 seconds, and the vector approach took 9.662 seconds.
+approach took 2.858 seconds, and the vector approach took 10.362
+seconds.
 
 ## Summarising connectivity metrics
 
@@ -238,7 +239,7 @@ summarise_connectivity(connectivity = vector_result)
 #> # A tibble: 1 × 9
 #>   species interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                 <dbl>     <int>             <dbl>              <dbl>
-#> 1 lizard                   10       483                 4           0.000016
+#> 1 lizard                   10       483              4.18          0.0000160
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
@@ -251,7 +252,7 @@ raster_result
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
