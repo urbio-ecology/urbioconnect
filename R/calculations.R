@@ -115,8 +115,7 @@ connectivity_probability <- function(effective_mesh_size, area_baseline) {
 
 
 #' @noRd
-connectivity_metrics <- function(area, area_baseline = NULL) {
-  area_baseline <- area_baseline %||% area
+connectivity_metrics <- function(area, area_baseline) {
   metrics <- tibble::tibble(
     n_patches = n_patches(area),
     effective_mesh_ha = effective_mesh_size(
@@ -130,4 +129,31 @@ connectivity_metrics <- function(area, area_baseline = NULL) {
   )
 
   metrics
+}
+
+#' Build the shared connectivity metric columns
+#'
+#' The single source of truth for the metric set and column order shared by
+#' [summarise_connectivity()] and [compare_connectivity()]. Computes the metrics
+#' for `area` against the `area_baseline` reference denominator.
+#'
+#' Values are deliberately returned at full precision. [compare_connectivity()]
+#' subtracts two of these rows to build its `change` row, and rounding before
+#' that subtraction quantises the delta to the rounding step — for
+#' `prob_connectedness` (~1e-05) that step is larger than the changes being
+#' measured, so the delta collapses to zero or overshoots by an order of
+#' magnitude. Round at display time instead, never here.
+#'
+#' @param area,area_baseline Numeric vectors of connected patch areas.
+#' @returns A one-row tibble of metrics at full precision.
+#' @noRd
+connectivity_metric_row <- function(area, area_baseline) {
+  metrics <- connectivity_metrics(area = area, area_baseline = area_baseline)
+  tibble::tibble(
+    n_patches = metrics$n_patches,
+    effective_mesh_ha = metrics$effective_mesh_ha,
+    prob_connectedness = metrics$prob_connectedness,
+    patch_area_mean = mean_patch_size(area),
+    patch_area_total_ha = total_habitat_area(area)
+  )
 }

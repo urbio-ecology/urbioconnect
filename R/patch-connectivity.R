@@ -193,10 +193,6 @@ pc_interpatch_distance <- function(x) {
 #'   list, even for a single-row summary).
 #' @export
 patch_sizes <- function(x) {
-  if (!inherits(x, "connectivity")) {
-    cli::cli_abort(
-      "{.arg x} must be a {.cls connectivity} object, not {.cls {class(x)}}."
-    )
-  }
+  check_connectivity(x)
   x[["patch_size"]]
 }

@@ -118,3 +118,15 @@
       * connectivity = "1x1"
       * connectivity_baseline = "2x2"
 
+# check_pc_match reports the caller-supplied argument names
+
+    Code
+      check_pc_match(birds_r1_i8, cats_r1_i8, arg = "scenario", arg_baseline = "baseline")
+    Condition
+      Error:
+      ! `scenario` and `baseline` must have the same resolution, species, and interpatch_distance.
+      ! One or more of these do not match:
+      species
+      * scenario = "birds"
+      * baseline = "cats"
+

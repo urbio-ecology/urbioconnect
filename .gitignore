@@ -58,3 +58,6 @@ docs
 .pre-commit-config.yaml
 
 Rplots.pdf
+
+# dev notes
+dev/

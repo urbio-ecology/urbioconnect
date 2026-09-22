@@ -4,7 +4,8 @@
       resolve_buffer_radius(interpatch_distance = 250, buffer_radius = 125)
     Condition
       Error in `resolve_buffer_radius()`:
-      ! Specify only one of `interpatch_distance` or `buffer_radius`.
+      ! Specify exactly one of `interpatch_distance` or `buffer_radius`.
+      x Both were supplied.
 
 ---
 
@@ -12,7 +13,8 @@
       resolve_buffer_radius(interpatch_distance = NULL, buffer_radius = NULL)
     Condition
       Error in `resolve_buffer_radius()`:
-      ! Specify one of `interpatch_distance` or `buffer_radius`.
+      ! Specify exactly one of `interpatch_distance` or `buffer_radius`.
+      x Neither was supplied.
 
 # warn_buffer_resolution warns when the radius is smaller than one cell
 

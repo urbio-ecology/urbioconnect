@@ -23,8 +23,7 @@ rast_areas_connected <- habitat_connectivity(
 )
 
 connectivity_summary <- summarise_connectivity(
-  connectivity = rast_areas_connected,
-  connectivity_baseline = rast_areas_connected
+  connectivity = rast_areas_connected
 )
 
 # this is used later

@@ -11,6 +11,8 @@
 #'   functions provide easy access to example raster and shapefile data
 #'   included with the package:
 #'   * `example_wren_habitat()` Returns a raster of wren habitat data.
+#'   * `example_wren_habitat_scenario()` Returns a raster of wren habitat
+#'     scenario data.
 #'   * `example_wren_barrier()` Returns a raster of wren barrier data.
 #'   * `example_wren_barrier_scenario()` Returns a raster of wren barrier
 #'     scenario data.
@@ -60,6 +62,17 @@ example_wren_habitat <- function() {
   )
   wren_habitat <- terra::rast(habitat_file)
   wren_habitat
+}
+
+#' @rdname example-wren-data
+#' @export
+example_wren_habitat_scenario <- function() {
+  scenario_habitat_file <- system.file(
+    "ex/wren_habitat_scenario_rast.tif",
+    package = "urbioconnect"
+  )
+  wren_habitat_scenario <- terra::rast(scenario_habitat_file)
+  wren_habitat_scenario
 }
 
 #' @rdname example-wren-data

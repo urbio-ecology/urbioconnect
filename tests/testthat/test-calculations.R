@@ -71,24 +71,13 @@ test_that("summarise_connectivity returns a tibble with expected columns", {
   expect_snapshot(result)
 })
 
-test_that("summarise_connectivity rounds prob_connectedness to 6 decimal places", {
-  result <- summarise_connectivity(
-    connectivity = c(10000, 20000),
-    interpatch_distance = 200,
-    data_resolution = 10,
-    species = "Test"
-  )
-  expect_equal(result$prob_connectedness, round(result$prob_connectedness, 6))
-})
-
 test_that("summarise_connectivity works with patch_size data", {
   expect_snapshot(
     summarise_connectivity(lizard_areas_connected)
   )
   expect_snapshot(
     summarise_connectivity(
-      connectivity = lizard_areas_connected,
-      connectivity_baseline = lizard_areas_connected
+      connectivity = lizard_areas_connected
     )
   )
 })

@@ -27,20 +27,19 @@
       # A tibble: 1 x 9
         species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
         <chr>                     <dbl>     <int>             <dbl>              <dbl>
-      1 Blue-tongu~                  50        73                 4           0.000017
+      1 Blue-tongu~                  50        73              4.47          0.0000170
       # i 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
       #   data_resolution <chr>, patch_size <list>
 
 ---
 
     Code
-      summarise_connectivity(connectivity = lizard_areas_connected,
-        connectivity_baseline = lizard_areas_connected)
+      summarise_connectivity(connectivity = lizard_areas_connected)
     Output
       # A tibble: 1 x 9
         species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
         <chr>                     <dbl>     <int>             <dbl>              <dbl>
-      1 Blue-tongu~                  50        73                 4           0.000017
+      1 Blue-tongu~                  50        73              4.47          0.0000170
       # i 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
       #   data_resolution <chr>, patch_size <list>
 
