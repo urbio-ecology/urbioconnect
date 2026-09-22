@@ -1,22 +1,57 @@
+#' Require exactly one of interpatch_distance / buffer_radius
+#'
+#' Shared guard for the "one of these two distance arguments" rule, used by
+#' `resolve_buffer_radius()` and `habitat_connectivity_comparison()`. Aborts if
+#' zero or both are supplied, otherwise returns the name of the supplied
+#' argument. With `require_length = TRUE`, a zero-length value (e.g.
+#' `numeric(0)`) counts as *not* supplied.
+#'
+#' @param interpatch_distance,buffer_radius The two candidate arguments.
+#' @param require_length Logical. Treat zero-length values as not supplied.
+#' @param call Environment used for the error call.
+#' @returns `"interpatch_distance"` or `"buffer_radius"`.
+#' @noRd
+check_distance_arg <- function(
+  interpatch_distance = NULL,
+  buffer_radius = NULL,
+  require_length = FALSE,
+  call = rlang::caller_env()
+) {
+  has_id <- !is.null(interpatch_distance) &&
+    (!require_length || length(interpatch_distance) >= 1)
+  has_br <- !is.null(buffer_radius) &&
+    (!require_length || length(buffer_radius) >= 1)
+
+  if (has_id && has_br) {
+    cli::cli_abort(
+      c(
+        "Specify exactly one of {.arg interpatch_distance} or \\
+         {.arg buffer_radius}.",
+        "x" = "Both were supplied."
+      ),
+      call = call
+    )
+  }
+  if (!has_id && !has_br) {
+    cli::cli_abort(
+      c(
+        "Specify exactly one of {.arg interpatch_distance} or \\
+         {.arg buffer_radius}.",
+        "x" = "Neither was supplied."
+      ),
+      call = call
+    )
+  }
+
+  if (has_id) "interpatch_distance" else "buffer_radius"
+}
+
 #' @noRd
 resolve_buffer_radius <- function(
   interpatch_distance = NULL,
   buffer_radius = NULL
 ) {
-  has_id <- !is.null(interpatch_distance)
-  has_br <- !is.null(buffer_radius)
-  if (has_id && has_br) {
-    cli::cli_abort(
-      "Specify only one of {.arg interpatch_distance} or {.arg buffer_radius}."
-    )
-  }
-  if (!has_id && !has_br) {
-    cli::cli_abort(
-      "Specify one of {.arg interpatch_distance} or {.arg buffer_radius}."
-    )
-  }
-
-  supplied <- if (has_id) "interpatch_distance" else "buffer_radius"
+  supplied <- check_distance_arg(interpatch_distance, buffer_radius)
   buffer_radius <- switch(
     supplied,
     interpatch_distance = {

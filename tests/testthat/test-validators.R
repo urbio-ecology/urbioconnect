@@ -94,3 +94,68 @@ test_that("check_pc_match errors appropriately", {
     check_pc_match(birds_r1_i8, birds_r2_i8)
   )
 })
+
+test_that("check_pc_match reports the caller-supplied argument names", {
+  # compare_connectivity() passes arg = "scenario" / arg_baseline = "baseline"
+  # so the mismatch message names its public arguments, not the internals.
+  expect_snapshot(
+    error = TRUE,
+    check_pc_match(
+      birds_r1_i8,
+      cats_r1_i8,
+      arg = "scenario",
+      arg_baseline = "baseline"
+    )
+  )
+})
+
+# Helper: small raster with sequential values
+differ_rast <- function(nrows = 4, ncols = 4) {
+  terra::rast(nrows = nrows, ncols = ncols, vals = seq_len(nrows * ncols))
+}
+
+# Helper: simple 100x100m polygon
+differ_square <- function(xmin = 0, ymin = 0, size = 100) {
+  sf::st_sfc(
+    sf::st_polygon(list(cbind(
+      c(xmin, xmin + size, xmin + size, xmin, xmin),
+      c(ymin, ymin, ymin + size, ymin + size, ymin)
+    ))),
+    crs = 32754
+  )
+}
+
+test_that("layers_differ is FALSE for identical rasters", {
+  r <- differ_rast()
+  expect_false(layers_differ(r, terra::deepcopy(r)))
+})
+
+test_that("layers_differ is TRUE for value-perturbed rasters", {
+  r <- differ_rast()
+  r_perturbed <- terra::deepcopy(r)
+  r_perturbed[1, 1] <- 999
+  expect_true(layers_differ(r, r_perturbed))
+})
+
+test_that("layers_differ is TRUE for different-geometry rasters", {
+  r <- differ_rast(nrows = 4, ncols = 4)
+  r_bigger <- differ_rast(nrows = 5, ncols = 5)
+  expect_true(layers_differ(r, r_bigger))
+})
+
+test_that("layers_differ is FALSE for identical sf polygons", {
+  poly <- differ_square()
+  expect_false(layers_differ(poly, differ_square()))
+})
+
+test_that("layers_differ is TRUE for perturbed sf polygons", {
+  poly <- differ_square()
+  poly_perturbed <- differ_square(size = 200)
+  expect_true(layers_differ(poly, poly_perturbed))
+})
+
+test_that("layers_differ handles SpatVectors", {
+  v <- terra::vect(differ_square())
+  expect_false(layers_differ(v, terra::vect(differ_square())))
+  expect_true(layers_differ(v, terra::vect(differ_square(size = 200))))
+})
