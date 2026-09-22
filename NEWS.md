@@ -1,5 +1,6 @@
 # urbioconnect (development version)
 
+* urbioconnect now requires terra >= 1.8-70. Earlier versions of `terra::identical()` ignore NA cells, so a scenario that only moved NA cells would compare as unchanged. (#140)
 * Use GPL (>= 3) License.
 * drop `terra_` prefix and move `rast_` functions into `scratch` where we test the LOO method. * Add `sf_` prefix to vector based approaches.
 * Add datasets and dataset loading function
@@ -27,7 +28,6 @@
 * New `habitat_connectivity_comparison()` compares a scenario against a baseline, for one or more interpatch distances (or buffer radii). Only one of habitat or barrier may differ from the baseline, so any change can be attributed to that layer. It errors if both differ, and warns if neither does. (#140)
 * New example data `example_wren_habitat_scenario()`, a habitat scenario to pair with `example_wren_habitat()`. (#140)
 * `summarise_connectivity()` and `habitat_connectivity()` now return metrics at full precision. `prob_connectedness` was rounded to 6 decimal places, which was coarse enough to hide the small changes a scenario produces. (#140)
-* urbioconnect now requires terra >= 1.8-70. Earlier versions of `terra::identical()` ignore NA cells, so a scenario that only moved NA cells would compare as unchanged. (#140)
 
 ## Breaking changes
 
