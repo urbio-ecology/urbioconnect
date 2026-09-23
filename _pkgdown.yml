@@ -10,6 +10,7 @@ reference:
   - compare_connectivity
   - compare_scenarios
   - habitat_connectivity_comparison
+  - habitat_connectivity_scenarios
   - effective_mesh_size
   - connectivity_probability
   - mean_patch_size

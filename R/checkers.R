@@ -100,6 +100,44 @@ check_scenario_name <- function(
 #' fault.
 #'
 #' @noRd
+#' Check scenario names
+#'
+#' Shared by `check_scenarios()` (a list of `connectivity` objects) and
+#' `check_scenario_layers()` (lists of habitat and barrier layers). `x` is the
+#' names themselves, so the layer version can check both its lists at once.
+#'
+#' @noRd
+check_scenario_names <- function(
+  x,
+  arg,
+  call = rlang::caller_env()
+) {
+  unnamed <- x == ""
+  if (any(unnamed)) {
+    cli::cli_abort(
+      c(
+        "Every scenario in {.arg {arg}} must be named.",
+        "x" = "No name at position {.val {which(unnamed)}}.",
+        "i" = "Names become the {.field scenario_name} column."
+      ),
+      call = call
+    )
+  }
+
+  duplicates <- unique(x[duplicated(x)])
+  if (length(duplicates) > 0) {
+    cli::cli_abort(
+      c(
+        "Scenario names in {.arg {arg}} must be unique.",
+        "x" = "Duplicated: {.val {duplicates}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
 check_scenarios <- function(
   x,
   arg = rlang::caller_arg(x),
@@ -116,29 +154,7 @@ check_scenarios <- function(
   }
 
   scenario_names <- rlang::names2(x)
-
-  unnamed <- scenario_names == ""
-  if (any(unnamed)) {
-    cli::cli_abort(
-      c(
-        "Every scenario in {.arg {arg}} must be named.",
-        "x" = "No name at position {.val {which(unnamed)}}.",
-        "i" = "Names become the {.field scenario_name} column."
-      ),
-      call = call
-    )
-  }
-
-  duplicates <- unique(scenario_names[duplicated(scenario_names)])
-  if (length(duplicates) > 0) {
-    cli::cli_abort(
-      c(
-        "Scenario names in {.arg {arg}} must be unique.",
-        "x" = "Duplicated: {.val {duplicates}}."
-      ),
-      call = call
-    )
-  }
+  check_scenario_names(scenario_names, arg = arg, call = call)
 
   is_connectivity <- purrr::map_lgl(x, inherits, "connectivity")
   if (!all(is_connectivity)) {
@@ -152,6 +168,57 @@ check_scenarios <- function(
   }
 
   invisible(x)
+}
+
+#' Check the two scenario layer lists
+#'
+#' At least one list must be supplied, and names must be unique across both,
+#' since a name identifies a scenario in the output whichever layer it changed.
+#'
+#' @returns The combined names, in habitat-then-barrier order.
+#' @noRd
+check_scenario_layers <- function(
+  habitat_scenarios,
+  barrier_scenarios,
+  call = rlang::caller_env()
+) {
+  scenarios <- c(habitat_scenarios, barrier_scenarios)
+
+  if (length(scenarios) == 0) {
+    cli::cli_abort(
+      c(
+        "Supply {.arg habitat_scenarios}, {.arg barrier_scenarios}, or both.",
+        "i" = "Each is a named list of layers, one element per scenario."
+      ),
+      call = call
+    )
+  }
+
+  # each list by its own name, so the message points at the right argument
+  check_scenario_names(
+    rlang::names2(habitat_scenarios),
+    arg = "habitat_scenarios",
+    call = call
+  )
+  check_scenario_names(
+    rlang::names2(barrier_scenarios),
+    arg = "barrier_scenarios",
+    call = call
+  )
+
+  used_twice <- intersect(names(habitat_scenarios), names(barrier_scenarios))
+  if (length(used_twice) > 0) {
+    cli::cli_abort(
+      c(
+        "Scenario names must be unique across {.arg habitat_scenarios} and
+         {.arg barrier_scenarios}.",
+        "x" = "Used in both: {.val {used_twice}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(names(scenarios))
 }
 
 #' @noRd
