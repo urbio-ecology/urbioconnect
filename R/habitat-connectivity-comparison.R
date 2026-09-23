@@ -34,6 +34,10 @@
 #' @param buffer_radius Numeric. The radius in metres around the habitat, an
 #'   alternative to `interpatch_distance`. Provide exactly one of
 #'   `interpatch_distance` or `buffer_radius`. See [habitat_connectivity()].
+#' @param scenario_name Character. An optional label for the scenario, for
+#'   example "Bentley Project". Passed to [compare_connectivity()], and appears
+#'   in the `scenario_name` column on every row. Defaults to `NULL`, which
+#'   gives `NA`.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `compare_connectivity` object: a tibble with four rows
@@ -64,8 +68,11 @@ habitat_connectivity_comparison <- function(
   species,
   interpatch_distance = NULL,
   buffer_radius = NULL,
+  scenario_name = NULL,
   verbose = TRUE
 ) {
+  check_scenario_name(scenario_name)
+
   # Require exactly one of interpatch_distance / buffer_radius (length-aware, so
   # numeric(0) counts as "not supplied"). Shared with resolve_buffer_radius().
   # The return value names whichever argument was supplied, which the sweep
@@ -130,7 +137,11 @@ habitat_connectivity_comparison <- function(
       verbose = verbose,
       !!!distance_arg
     )
-    compare_connectivity(scenario = scen_conn, baseline = base_conn)
+    compare_connectivity(
+      scenario = scen_conn,
+      baseline = base_conn,
+      scenario_name = scenario_name
+    )
   })
 
   new_compare_connectivity(dplyr::bind_rows(comparisons))

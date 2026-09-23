@@ -34,6 +34,21 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_comparison() passes scenario_name through", {
+  results <- habitat_connectivity_comparison(
+    habitat_scenario = wren_habitat,
+    barrier_scenario = wren_barrier_scenario,
+    habitat_baseline = wren_habitat,
+    barrier_baseline = wren_barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 200,
+    scenario_name = "Bentley Project",
+    verbose = FALSE
+  )
+
+  expect_equal(results$scenario_name, rep("Bentley Project", 4))
+})
+
 test_that("habitat_connectivity_comparison() sweeps buffer_radius too", {
   # buffer_radius = 100 is the same run as interpatch_distance = 200, so this
   # snapshot should match the scalar-distance one above value for value.

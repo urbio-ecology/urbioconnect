@@ -12,6 +12,7 @@ habitat_connectivity_comparison(
   species,
   interpatch_distance = NULL,
   buffer_radius = NULL,
+  scenario_name = NULL,
   verbose = TRUE
 )
 }
@@ -35,6 +36,11 @@ the interpatch distance / buffer radius relationship.}
 \item{buffer_radius}{Numeric. The radius in metres around the habitat, an
 alternative to \code{interpatch_distance}. Provide exactly one of
 \code{interpatch_distance} or \code{buffer_radius}. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
+
+\item{scenario_name}{Character. An optional label for the scenario, for
+example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears
+in the \code{scenario_name} column on every row. Defaults to \code{NULL}, which
+gives \code{NA}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
