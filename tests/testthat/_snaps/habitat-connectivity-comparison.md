@@ -66,6 +66,34 @@
       # change = scenario - baseline (positive = scenario is higher)
       # pct_change = 100 * change / baseline
 
+# habitat_connectivity_comparison() sweeps buffer_radius too
+
+    Code
+      results
+    Output
+      # Connectivity comparison: baseline / scenario / change / pct_change
+      # A tibble: 4 x 10
+        scenario_name measure    species           interpatch_distance n_patches
+        <chr>         <chr>      <chr>                           <dbl>     <dbl>
+      1 <NA>          baseline   Superb Fairy Wren                 200   282    
+      2 <NA>          scenario   Superb Fairy Wren                 200   283    
+      3 <NA>          change     Superb Fairy Wren                 200     1    
+      4 <NA>          pct_change Superb Fairy Wren                 200     0.355
+        effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
+                    <dbl>              <dbl>           <dbl>               <dbl>
+      1           334.          0.0000225           52556.               1482.  
+      2           333.          0.0000224           51828.               1467.  
+      3            -0.965      -0.0000000651         -728.                -15.3 
+      4            -0.289      -0.289                  -1.38               -1.04
+        data_resolution 
+        <chr>           
+      1 9.99673x10.00151
+      2 9.99673x10.00151
+      3 9.99673x10.00151
+      4 9.99673x10.00151
+      # change = scenario - baseline (positive = scenario is higher)
+      # pct_change = 100 * change / baseline
+
 # habitat_connectivity_comparison() aborts when neither distance nor buffer supplied
 
     Code

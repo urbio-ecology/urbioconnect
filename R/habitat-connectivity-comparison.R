@@ -68,7 +68,13 @@ habitat_connectivity_comparison <- function(
 ) {
   # Require exactly one of interpatch_distance / buffer_radius (length-aware, so
   # numeric(0) counts as "not supplied"). Shared with resolve_buffer_radius().
-  check_distance_arg(interpatch_distance, buffer_radius, require_length = TRUE)
+  # The return value names whichever argument was supplied, which the sweep
+  # below uses to pass it back to habitat_connectivity() under that same name.
+  supplied <- check_distance_arg(
+    interpatch_distance,
+    buffer_radius,
+    require_length = TRUE
+  )
 
   # One variable at a time: compute both layer differences once, then guard.
   hab_diff <- layers_differ(habitat_scenario, habitat_baseline)
@@ -98,46 +104,34 @@ habitat_connectivity_comparison <- function(
 
   # Distance sweep. Written as a plain purrr::map() (no for loop) so it can
   # later swap to a parallel backend without restructuring. Each inner call
-  # gets a scalar, so habitat_connectivity() validates it as usual. If
-  # buffer_radius is supplied we map over that instead; habitat_connectivity()
-  # enforces exactly one of interpatch_distance / buffer_radius.
-  if (!is.null(buffer_radius)) {
-    comparisons <- purrr::map(buffer_radius, function(b) {
-      base_conn <- habitat_connectivity(
-        habitat_baseline,
-        barrier_baseline,
-        species = species,
-        buffer_radius = b,
-        verbose = verbose
-      )
-      scen_conn <- habitat_connectivity(
-        habitat_scenario,
-        barrier_scenario,
-        species = species,
-        buffer_radius = b,
-        verbose = verbose
-      )
-      compare_connectivity(scenario = scen_conn, baseline = base_conn)
-    })
+  # gets a scalar, so habitat_connectivity() validates it as usual.
+  distances <- if (supplied == "buffer_radius") {
+    buffer_radius
   } else {
-    comparisons <- purrr::map(interpatch_distance, function(d) {
-      base_conn <- habitat_connectivity(
-        habitat_baseline,
-        barrier_baseline,
-        species = species,
-        interpatch_distance = d,
-        verbose = verbose
-      )
-      scen_conn <- habitat_connectivity(
-        habitat_scenario,
-        barrier_scenario,
-        species = species,
-        interpatch_distance = d,
-        verbose = verbose
-      )
-      compare_connectivity(scenario = scen_conn, baseline = base_conn)
-    })
+    interpatch_distance
   }
+
+  comparisons <- purrr::map(distances, function(distance) {
+    distance_arg <- rlang::set_names(list(distance), supplied)
+
+    base_conn <- rlang::exec(
+      habitat_connectivity,
+      habitat_baseline,
+      barrier_baseline,
+      species = species,
+      verbose = verbose,
+      !!!distance_arg
+    )
+    scen_conn <- rlang::exec(
+      habitat_connectivity,
+      habitat_scenario,
+      barrier_scenario,
+      species = species,
+      verbose = verbose,
+      !!!distance_arg
+    )
+    compare_connectivity(scenario = scen_conn, baseline = base_conn)
+  })
 
   new_compare_connectivity(dplyr::bind_rows(comparisons))
 }
