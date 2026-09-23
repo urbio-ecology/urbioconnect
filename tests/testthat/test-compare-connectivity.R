@@ -86,3 +86,20 @@ test_that("compare_connectivity() rejects non-connectivity input", {
     error = TRUE
   )
 })
+
+test_that("compare_connectivity() works on default-method connectivity", {
+  base <- summarise_connectivity(
+    connectivity = c(100, 200, 300),
+    interpatch_distance = 10,
+    data_resolution = 2,
+    species = "Test Species"
+  )
+  scen <- summarise_connectivity(
+    connectivity = c(100, 200),
+    interpatch_distance = 10,
+    data_resolution = 2,
+    species = "Test Species"
+  )
+
+  expect_snapshot(compare_connectivity(scenario = scen, baseline = base))
+})

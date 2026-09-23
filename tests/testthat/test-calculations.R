@@ -71,6 +71,21 @@ test_that("summarise_connectivity returns a tibble with expected columns", {
   expect_snapshot(result)
 })
 
+test_that("summarise_connectivity stores a patch_size_tbl whichever method runs", {
+  from_numeric <- summarise_connectivity(
+    connectivity = c(100, 200, 300),
+    interpatch_distance = 10,
+    data_resolution = 2,
+    species = "Test Species"
+  )
+
+  expect_s3_class(patch_sizes(from_numeric)[[1]], "patch_size_tbl")
+  expect_s3_class(
+    patch_sizes(summarise_connectivity(lizard_areas_connected))[[1]],
+    "patch_size_tbl"
+  )
+})
+
 test_that("summarise_connectivity works with patch_size data", {
   expect_snapshot(
     summarise_connectivity(lizard_areas_connected)

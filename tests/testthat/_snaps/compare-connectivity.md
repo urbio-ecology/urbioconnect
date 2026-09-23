@@ -59,3 +59,25 @@
       Error in `compare_connectivity()`:
       ! `scenario` must be a <connectivity> object, not <numeric>.
 
+# compare_connectivity() works on default-method connectivity
+
+    Code
+      compare_connectivity(scenario = scen, baseline = base)
+    Output
+      # Connectivity comparison: baseline / scenario / change / pct_change
+      # A tibble: 4 x 9
+        measure    species      interpatch_distance n_patches effective_mesh_ha
+        <chr>      <chr>                      <dbl>     <dbl>             <dbl>
+      1 baseline   Test Species                  10       3             0.0233 
+      2 scenario   Test Species                  10       2             0.00833
+      3 change     Test Species                  10      -1            -0.015  
+      4 pct_change Test Species                  10     -33.3         -64.3    
+        prob_connectedness patch_area_mean patch_area_total_ha data_resolution
+                     <dbl>           <dbl>               <dbl>           <dbl>
+      1          0.0000389             200                0.06               2
+      2          0.0000139             150                0.03               2
+      3         -0.000025              -50               -0.03               2
+      4        -64.3                   -25              -50                  2
+      # change = scenario - baseline (positive = scenario is higher)
+      # pct_change = 100 * change / baseline
+

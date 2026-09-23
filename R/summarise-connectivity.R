@@ -133,11 +133,23 @@ summarise_connectivity.default <- function(
   species,
   ...
 ) {
+  # Store areas as patch_size_tbl so `patch_sizes()` returns one shape 
+  # regardless of method, else compare_connectivity() fails looking for `$area`
+  patch_size <- patch_size_tbl(
+    data = tibble::tibble(
+      patch_id = seq_along(connectivity),
+      area = connectivity
+    ),
+    species = species,
+    interpatch_distance = interpatch_distance,
+    res = data_resolution
+  )
+
   summarise_connectivity_impl(
     area = connectivity,
     interpatch_distance = interpatch_distance,
     data_resolution = data_resolution,
     species = species,
-    patch_size = connectivity
+    patch_size = patch_size
   )
 }
