@@ -22,7 +22,7 @@ check_numeric <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  check_class(x, is.numeric, "numeric")
+  check_class(x, is.numeric, "numeric", arg, call)
 }
 
 check_character <- function(
@@ -30,7 +30,7 @@ check_character <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  check_class(x, is.character, "character")
+  check_class(x, is.character, "character", arg, call)
 }
 
 check_scalar <- function(
@@ -69,6 +69,25 @@ check_scalar_character <- function(
 ) {
   check_character(x, arg, call)
   check_scalar(x, arg, call)
+  invisible(x)
+}
+
+#' Check a scenario label
+#'
+#' `NULL` means "no label", and becomes `NA_character_` in the output. Anything
+#' else must be a single string.
+#'
+#' @noRd
+check_scenario_name <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (is.null(x)) {
+    return(invisible(x))
+  }
+
+  check_scalar_character(x, arg, call)
   invisible(x)
 }
 

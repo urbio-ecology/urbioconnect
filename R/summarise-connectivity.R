@@ -78,9 +78,9 @@ new_connectivity <- function(x) {
 #'
 #' @param area Numeric vector of connected patch areas.
 #' @param interpatch_distance,data_resolution,species Scalars describing the run.
-#' @param patch_size Object stored in the `patch_size` list-column (the
-#'   `patch_size_tbl` for the `patch_size_tbl` method, the raw area vector for
-#'   the default method).
+#' @param patch_size The `patch_size_tbl` stored in the `patch_size`
+#'   list-column. Both methods store one: the `patch_size_tbl` method passes
+#'   its input through, the default method builds one from the area vector.
 #' @returns A `connectivity` object.
 #' @noRd
 summarise_connectivity_impl <- function(
@@ -133,7 +133,7 @@ summarise_connectivity.default <- function(
   species,
   ...
 ) {
-  # Store areas as patch_size_tbl so `patch_sizes()` returns one shape 
+  # Store areas as patch_size_tbl so `patch_sizes()` returns one shape
   # regardless of method, else compare_connectivity() fails looking for `$area`
   patch_size <- patch_size_tbl(
     data = tibble::tibble(
