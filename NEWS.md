@@ -28,6 +28,12 @@
 * New `habitat_connectivity_comparison()` compares a scenario against a baseline, for one or more interpatch distances (or buffer radii). Only one of habitat or barrier may differ from the baseline, so any change can be attributed to that layer. It errors if both differ, and warns if neither does. (#140)
 * New example data `example_wren_habitat_scenario()`, a habitat scenario to pair with `example_wren_habitat()`. (#140)
 * `summarise_connectivity()` and `habitat_connectivity()` now return metrics at full precision. `prob_connectedness` was rounded to 6 decimal places, which was coarse enough to hide the small changes a scenario produces. (#140)
+* Argument checks use call and arg to name the function and argument that failed, and that they are called in.
+* `compare_connectivity()` gains a `scenario_name` argument: an optional label, e.g. "Scenario A", that appears as the first column on every row. It is `NA` when not supplied, so labelled and unlabelled comparisons stack. (#35)
+* New `compare_scenarios()` compares several scenarios against one baseline, taking a named list of `connectivity` objects where the names become the labels, and returning four rows per scenario. (#35)
+* `habitat_connectivity_comparison()` gains `scenario_name`, passed through to `compare_connectivity()`. (#35)
+* New `habitat_connectivity_scenarios()` compares several scenarios against one baseline starting from layers, taking named lists of habitat and barrier scenario layers. A scenario changes exactly one layer, and the baseline is computed once per distance and shared by every scenario. (#35)
+* `summarise_connectivity()`'s default method now stores a `patch_size_tbl` in `patch_size`, the same as its `patch_size_tbl` method, so `compare_connectivity()` works on a `connectivity` object built from a plain vector of areas. (#35)
 
 ## Breaking changes
 
