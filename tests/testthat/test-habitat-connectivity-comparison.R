@@ -35,13 +35,15 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
 })
 
 test_that("habitat_connectivity_comparison() passes scenario_name through", {
+  layers <- scenario_test_layers()
+
   results <- habitat_connectivity_comparison(
-    habitat_scenario = wren_habitat,
-    barrier_scenario = wren_barrier_scenario,
-    habitat_baseline = wren_habitat,
-    barrier_baseline = wren_barrier,
-    species = "Superb Fairy Wren",
-    interpatch_distance = 200,
+    habitat_scenario = layers$habitat,
+    barrier_scenario = layers$barrier_scenario,
+    habitat_baseline = layers$habitat,
+    barrier_baseline = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = 40,
     scenario_name = "Bentley Project",
     verbose = FALSE
   )
@@ -50,21 +52,26 @@ test_that("habitat_connectivity_comparison() passes scenario_name through", {
 })
 
 test_that("habitat_connectivity_comparison() sweeps buffer_radius too", {
-  # buffer_radius = 100 is the same run as interpatch_distance = 200, so this
-  # snapshot should match the scalar-distance one above value for value.
-  results <- habitat_connectivity_comparison(
-    habitat_scenario = wren_habitat,
-    barrier_scenario = wren_barrier_scenario,
-    habitat_baseline = wren_habitat,
-    barrier_baseline = wren_barrier,
-    species = "Superb Fairy Wren",
-    buffer_radius = 100,
-    verbose = FALSE
-  )
+  layers <- scenario_test_layers()
 
-  expect_s3_class(results, "compare_connectivity")
-  expect_equal(nrow(results), 4)
-  expect_snapshot(results)
+  comparison_at <- function(...) {
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat,
+      barrier_scenario = layers$barrier_scenario,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      verbose = FALSE,
+      ...
+    )
+  }
+
+  by_radius <- comparison_at(buffer_radius = 20)
+
+  expect_s3_class(by_radius, "compare_connectivity")
+  expect_equal(nrow(by_radius), 4)
+  # a buffer radius is half an interpatch distance, so these are the same run
+  expect_equal(by_radius, comparison_at(interpatch_distance = 40))
 })
 
 test_that("habitat_connectivity_comparison() aborts when neither distance nor buffer supplied", {

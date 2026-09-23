@@ -91,17 +91,10 @@ check_scenario_name <- function(
   invisible(x)
 }
 
-#' Check a named list of scenarios
+#' Check scenario names
 #'
 #' The names become the `scenario_name` column, so every scenario needs one,
 #' and two scenarios sharing a name would be indistinguishable in the output.
-#' Checking the elements here, rather than leaving it to
-#' `compare_connectivity()`, means the error can say which scenario is at
-#' fault.
-#'
-#' @noRd
-#' Check scenario names
-#'
 #' Shared by `check_scenarios()` (a list of `connectivity` objects) and
 #' `check_scenario_layers()` (lists of habitat and barrier layers). `x` is the
 #' names themselves, so the layer version can check both its lists at once.
@@ -138,17 +131,23 @@ check_scenario_names <- function(
   invisible(x)
 }
 
+#' Check a named list of `connectivity` scenarios
+#'
+#' Checking the elements here, rather than leaving it to
+#' `compare_connectivity()`, means the error can say which scenario is at
+#' fault.
+#'
+#' @noRd
 check_scenarios <- function(
   x,
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  if (!is.list(x) || length(x) == 0) {
+  check_scenario_list(x, arg = arg, call = call)
+
+  if (length(x) == 0) {
     cli::cli_abort(
-      c(
-        "{.arg {arg}} must be a non-empty list of {.cls connectivity} objects.",
-        "i" = "You supplied: {.obj_type_friendly {x}}."
-      ),
+      "{.arg {arg}} must contain at least one {.cls connectivity} object.",
       call = call
     )
   }
@@ -170,21 +169,49 @@ check_scenarios <- function(
   invisible(x)
 }
 
+#' Check one scenario layer argument
+#'
+#' A list, or `NULL` for "none supplied". A single layer passed bare is the
+#' likely mistake, so the message says how to wrap it.
+#'
+#' @noRd
+check_scenario_list <- function(
+  x,
+  arg,
+  call = rlang::caller_env()
+) {
+  if (is.null(x) || is.list(x)) {
+    return(invisible(x))
+  }
+
+  cli::cli_abort(
+    c(
+      "{.arg {arg}} must be a named list, one element per scenario.",
+      "i" = "You supplied: {.obj_type_friendly {x}}.",
+      "i" = "For a single scenario: {.code {arg} = list(\"name\" = x)}."
+    ),
+    call = call
+  )
+}
+
 #' Check the two scenario layer lists
 #'
 #' At least one list must be supplied, and names must be unique across both,
 #' since a name identifies a scenario in the output whichever layer it changed.
 #'
-#' @returns The combined names, in habitat-then-barrier order.
 #' @noRd
 check_scenario_layers <- function(
   habitat_scenarios,
   barrier_scenarios,
   call = rlang::caller_env()
 ) {
-  scenarios <- c(habitat_scenarios, barrier_scenarios)
+  # Check each argument before combining them: c() on a SpatRaster binds layers
+  # rather than erroring, so a bare layer passed instead of a list would
+  # otherwise pass every check below and be labelled with its terra layer name.
+  check_scenario_list(habitat_scenarios, arg = "habitat_scenarios", call = call)
+  check_scenario_list(barrier_scenarios, arg = "barrier_scenarios", call = call)
 
-  if (length(scenarios) == 0) {
+  if (length(habitat_scenarios) + length(barrier_scenarios) == 0) {
     cli::cli_abort(
       c(
         "Supply {.arg habitat_scenarios}, {.arg barrier_scenarios}, or both.",
@@ -218,7 +245,7 @@ check_scenario_layers <- function(
     )
   }
 
-  invisible(names(scenarios))
+  invisible(NULL)
 }
 
 #' @noRd

@@ -49,6 +49,27 @@
       Scenarios identical to the baseline: "No change".
       i Every change value will be zero for them.
 
+# habitat_connectivity_scenarios() rejects a layer passed outside a list
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = "Test Species", habitat_scenarios = layers$
+        habitat_scenario, interpatch_distance = 40, verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `habitat_scenarios` must be a named list, one element per scenario.
+      i You supplied: a <SpatRaster> object.
+      i For a single scenario: `habitat_scenarios = list("name" = x)`.
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = "Test Species", barrier_scenarios = layers$
+        barrier_scenario, interpatch_distance = 40, verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `barrier_scenarios` must be a named list, one element per scenario.
+      i You supplied: a <SpatRaster> object.
+      i For a single scenario: `barrier_scenarios = list("name" = x)`.
+
 # habitat_connectivity_scenarios() rejects missing or clashing names
 
     Code

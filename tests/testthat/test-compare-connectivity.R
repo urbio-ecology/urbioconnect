@@ -1,22 +1,24 @@
-wren_habitat <- example_wren_habitat()
-wren_barrier <- example_wren_barrier()
-wren_barrier_scenario <- example_wren_barrier_scenario()
-
-wren_connectivity_baseline <- habitat_connectivity(
-  habitat = wren_habitat,
-  barrier = wren_barrier,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200
-)
-
-wren_connectivity_scenario <- habitat_connectivity(
-  habitat = wren_habitat,
-  barrier = wren_barrier_scenario,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200
-)
-
 test_that("compare_connectivity() identifies changes in baseline/scenario", {
+  # the only test in this file that needs the real landscape: two pipeline runs
+  # at ~4.7s each, where every other test uses lizard_areas_connected
+  wren_habitat <- example_wren_habitat()
+
+  wren_connectivity_baseline <- habitat_connectivity(
+    habitat = wren_habitat,
+    barrier = example_wren_barrier(),
+    species = "Superb Fairy Wren",
+    interpatch_distance = 200,
+    verbose = FALSE
+  )
+
+  wren_connectivity_scenario <- habitat_connectivity(
+    habitat = wren_habitat,
+    barrier = example_wren_barrier_scenario(),
+    species = "Superb Fairy Wren",
+    interpatch_distance = 200,
+    verbose = FALSE
+  )
+
   results_compare <- compare_connectivity(
     scenario = wren_connectivity_scenario,
     baseline = wren_connectivity_baseline

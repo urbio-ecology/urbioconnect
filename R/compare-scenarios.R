@@ -177,43 +177,33 @@ habitat_connectivity_scenarios <- function(
     barrier_baseline
   )
 
-  distances <- if (supplied == "buffer_radius") {
-    buffer_radius
-  } else {
-    interpatch_distance
-  }
+  distances <- distance_values(supplied, interpatch_distance, buffer_radius)
 
   comparisons <- purrr::map(distances, function(distance) {
-    distance_arg <- rlang::set_names(list(distance), supplied)
-
     # Computed once per distance, then reused by every scenario below.
-    base_conn <- rlang::exec(
-      habitat_connectivity,
+    base_conn <- connectivity_at_distance(
       habitat_baseline,
       barrier_baseline,
-      species = species,
-      verbose = verbose,
-      !!!distance_arg
+      species,
+      distance,
+      supplied,
+      verbose
     )
 
-    # bind here: bind_rows() doesn't flatten a nested list of tibbles, so the
-    # per-distance results have to be one tibble before the outer bind
-    purrr::imap(scenario_layers, function(layers, scenario_name) {
-      scen_conn <- rlang::exec(
-        habitat_connectivity,
+    # map() keeps the names, so compare_scenarios() does the labelling and
+    # stacking rather than this function repeating it
+    scenario_connectivity <- purrr::map(scenario_layers, function(layers) {
+      connectivity_at_distance(
         layers$habitat,
         layers$barrier,
-        species = species,
-        verbose = verbose,
-        !!!distance_arg
+        species,
+        distance,
+        supplied,
+        verbose
       )
-      compare_connectivity(
-        scenario = scen_conn,
-        baseline = base_conn,
-        scenario_name = scenario_name
-      )
-    }) |>
-      dplyr::bind_rows()
+    })
+
+    compare_scenarios(baseline = base_conn, scenarios = scenario_connectivity)
   })
 
   new_compare_connectivity(dplyr::bind_rows(comparisons))

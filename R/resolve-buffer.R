@@ -46,6 +46,44 @@ check_distance_arg <- function(
   if (has_id) "interpatch_distance" else "buffer_radius"
 }
 
+#' The distances to sweep over
+#'
+#' `supplied` is `check_distance_arg()`'s return value, naming whichever of the
+#' two arguments the caller used. This picks that one's values.
+#'
+#' @noRd
+distance_values <- function(supplied, interpatch_distance, buffer_radius) {
+  switch(
+    supplied,
+    interpatch_distance = interpatch_distance,
+    buffer_radius = buffer_radius
+  )
+}
+
+#' Run the connectivity pipeline at one distance
+#'
+#' Passes `distance` back to [habitat_connectivity()] under the name the caller
+#' used, so a sweep doesn't have to branch on which argument that was.
+#'
+#' @noRd
+connectivity_at_distance <- function(
+  habitat,
+  barrier,
+  species,
+  distance,
+  supplied,
+  verbose
+) {
+  rlang::exec(
+    habitat_connectivity,
+    habitat,
+    barrier,
+    species = species,
+    verbose = verbose,
+    !!!rlang::set_names(list(distance), supplied)
+  )
+}
+
 #' @noRd
 resolve_buffer_radius <- function(
   interpatch_distance = NULL,

@@ -64,8 +64,7 @@
       compare_scenarios(baseline, list())
     Condition
       Error in `compare_scenarios()`:
-      ! `scenarios` must be a non-empty list of <connectivity> objects.
-      i You supplied: an empty list.
+      ! `scenarios` must contain at least one <connectivity> object.
 
 # compare_scenarios() rejects scenarios that aren't connectivity
 

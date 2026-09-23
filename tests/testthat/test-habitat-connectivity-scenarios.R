@@ -107,6 +107,31 @@ test_that("habitat_connectivity_scenarios() warns on a scenario matching baselin
   expect_equal(results$n_patches[results$measure == "change"], 0)
 })
 
+test_that("habitat_connectivity_scenarios() rejects a layer passed outside a list", {
+  layers <- scenario_test_layers()
+
+  # c() binds SpatRaster layers rather than erroring, so a bare layer used to
+  # pass every name check and come back labelled "lyr.1"
+  expect_snapshot(error = TRUE, {
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      habitat_scenarios = layers$habitat_scenario,
+      interpatch_distance = 40,
+      verbose = FALSE
+    )
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      barrier_scenarios = layers$barrier_scenario,
+      interpatch_distance = 40,
+      verbose = FALSE
+    )
+  })
+})
+
 test_that("habitat_connectivity_scenarios() rejects missing or clashing names", {
   layers <- scenario_test_layers()
 

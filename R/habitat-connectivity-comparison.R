@@ -101,7 +101,9 @@ habitat_connectivity_comparison <- function(
 
   # Identical-inputs warning: the scenario matches the baseline, so the
   # comparison is valid but every `change` value will be zero.
-  if (!hab_diff && !bar_diff) {
+  scenario_is_baseline <- !hab_diff && !bar_diff
+
+  if (scenario_is_baseline) {
     cli::cli_warn(
       c(
         "The scenario is identical to the baseline.",
@@ -113,31 +115,32 @@ habitat_connectivity_comparison <- function(
   # Distance sweep. Written as a plain purrr::map() (no for loop) so it can
   # later swap to a parallel backend without restructuring. Each inner call
   # gets a scalar, so habitat_connectivity() validates it as usual.
-  distances <- if (supplied == "buffer_radius") {
-    buffer_radius
-  } else {
-    interpatch_distance
-  }
+  distances <- distance_values(supplied, interpatch_distance, buffer_radius)
 
   comparisons <- purrr::map(distances, function(distance) {
-    distance_arg <- rlang::set_names(list(distance), supplied)
-
-    base_conn <- rlang::exec(
-      habitat_connectivity,
+    base_conn <- connectivity_at_distance(
       habitat_baseline,
       barrier_baseline,
-      species = species,
-      verbose = verbose,
-      !!!distance_arg
+      species,
+      distance,
+      supplied,
+      verbose
     )
-    scen_conn <- rlang::exec(
-      habitat_connectivity,
-      habitat_scenario,
-      barrier_scenario,
-      species = species,
-      verbose = verbose,
-      !!!distance_arg
-    )
+    # identical layers give an identical result, so don't run the pipeline
+    # (~5s on a real landscape) a second time to produce it
+    scen_conn <- if (scenario_is_baseline) {
+      base_conn
+    } else {
+      connectivity_at_distance(
+        habitat_scenario,
+        barrier_scenario,
+        species,
+        distance,
+        supplied,
+        verbose
+      )
+    }
+
     compare_connectivity(
       scenario = scen_conn,
       baseline = base_conn,
