@@ -8,6 +8,7 @@ reference:
   - habitat_connectivity
   - summarise_connectivity
   - compare_connectivity
+  - compare_scenarios
   - habitat_connectivity_comparison
   - effective_mesh_size
   - connectivity_probability

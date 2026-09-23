@@ -91,6 +91,69 @@ check_scenario_name <- function(
   invisible(x)
 }
 
+#' Check a named list of scenarios
+#'
+#' The names become the `scenario_name` column, so every scenario needs one,
+#' and two scenarios sharing a name would be indistinguishable in the output.
+#' Checking the elements here, rather than leaving it to
+#' `compare_connectivity()`, means the error can say which scenario is at
+#' fault.
+#'
+#' @noRd
+check_scenarios <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (!is.list(x) || length(x) == 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be a non-empty list of {.cls connectivity} objects.",
+        "i" = "You supplied: {.obj_type_friendly {x}}."
+      ),
+      call = call
+    )
+  }
+
+  scenario_names <- rlang::names2(x)
+
+  unnamed <- scenario_names == ""
+  if (any(unnamed)) {
+    cli::cli_abort(
+      c(
+        "Every scenario in {.arg {arg}} must be named.",
+        "x" = "No name at position {.val {which(unnamed)}}.",
+        "i" = "Names become the {.field scenario_name} column."
+      ),
+      call = call
+    )
+  }
+
+  duplicates <- unique(scenario_names[duplicated(scenario_names)])
+  if (length(duplicates) > 0) {
+    cli::cli_abort(
+      c(
+        "Scenario names in {.arg {arg}} must be unique.",
+        "x" = "Duplicated: {.val {duplicates}}."
+      ),
+      call = call
+    )
+  }
+
+  is_connectivity <- purrr::map_lgl(x, inherits, "connectivity")
+  if (!all(is_connectivity)) {
+    cli::cli_abort(
+      c(
+        "Every scenario in {.arg {arg}} must be a {.cls connectivity} object.",
+        "x" = "Not connectivity: {.val {scenario_names[!is_connectivity]}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
 #' @noRd
 check_connectivity <- function(
   x,

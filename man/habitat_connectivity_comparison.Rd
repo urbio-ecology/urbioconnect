@@ -52,7 +52,8 @@ twelve rows (four per distance). See \code{\link[=compare_connectivity]{compare_
 columns.
 }
 \description{
-A spatial-in wrapper around \code{\link[=compare_connectivity]{compare_connectivity()}}. Give it a scenario
+Starts from habitat and barrier layers, rather than the \code{connectivity}
+objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) and
 compares them. Provide either an \code{interpatch_distance} or a \code{buffer_radius}

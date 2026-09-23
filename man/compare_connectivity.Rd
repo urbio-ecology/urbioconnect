@@ -63,6 +63,7 @@ compare_connectivity(
 )
 }
 \seealso{
-\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} for a layer-in wrapper,
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which starts from habitat and
+barrier layers instead of \code{connectivity} objects,
 \code{\link[=habitat_connectivity]{habitat_connectivity()}}, and \code{\link[=summarise_connectivity]{summarise_connectivity()}}.
 }

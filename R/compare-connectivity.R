@@ -35,7 +35,8 @@
 #'   `100 * change / baseline`, which is the readable form for metrics whose
 #'   absolute deltas are very small. Metric values are held at full precision —
 #'   they are not rounded — so `change` is exact.
-#' @seealso [habitat_connectivity_comparison()] for a layer-in wrapper,
+#' @seealso [habitat_connectivity_comparison()], which starts from habitat and
+#'   barrier layers instead of `connectivity` objects,
 #'   [habitat_connectivity()], and [summarise_connectivity()].
 #' @export
 #'

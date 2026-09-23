@@ -1,6 +1,7 @@
 #' Compare habitat connectivity of a scenario against a baseline
 #'
-#' A spatial-in wrapper around [compare_connectivity()]. Give it a scenario
+#' Starts from habitat and barrier layers, rather than the `connectivity`
+#'   objects [compare_connectivity()] takes. Give it a scenario
 #'   habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 #'   full connectivity pipeline on each (via [habitat_connectivity()]) and
 #'   compares them. Provide either an `interpatch_distance` or a `buffer_radius`
