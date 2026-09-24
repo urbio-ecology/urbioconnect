@@ -203,8 +203,12 @@ development of the methods and software.
   : Summarise connectivity metrics
 - [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
   : Compare the connectivity of two scenarios
+- [`compare_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.md)
+  : Compare several scenarios against one baseline
 - [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
   : Compare habitat connectivity of a scenario against a baseline
+- [`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+  : Compare several scenarios against one baseline, starting from layers
 - [`effective_mesh_size()`](https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.md)
   : Calculate effective mesh size
 - [`connectivity_probability()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.md)

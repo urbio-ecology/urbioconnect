@@ -166,7 +166,7 @@ the <code>tictoc</code> package</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rast_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2.858 sec elapsed</span></span>
+<span><span class="co">#&gt; 3.006 sec elapsed</span></span>
 <span></span>
 <span><span class="va">raster_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
@@ -212,7 +212,7 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_dist</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vect_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 10.362 sec elapsed</span></span>
+<span><span class="co">#&gt; 10.529 sec elapsed</span></span>
 <span></span>
 <span><span class="va">vector_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span></span>
@@ -253,9 +253,9 @@ approximated at the chosen resolution. The vector approach preserves
 exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.</p>
-<pre><code><span><span class="co">#&gt; [1] 2.858</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 3.006</span></span></code></pre>
 <p>Timings for the methods are also important to consider. The raster
-approach took 2.858 seconds, and the vector approach took 10.362
+approach took 3.006 seconds, and the vector approach took 10.529
 seconds.</p>
 </div>
 <div class="section level2">

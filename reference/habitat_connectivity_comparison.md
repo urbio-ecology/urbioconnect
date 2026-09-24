@@ -1,9 +1,11 @@
 # Compare habitat connectivity of a scenario against a baseline
 
-A spatial-in wrapper around
-[`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md).
-Give it a scenario habitat/barrier pair and a baseline habitat/barrier
-pair and it runs the full connectivity pipeline on each (via
+Starts from habitat and barrier layers, rather than the `connectivity`
+objects
+[`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+takes. Give it a scenario habitat/barrier pair and a baseline
+habitat/barrier pair and it runs the full connectivity pipeline on each
+(via
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md))
 and compares them. Provide either an `interpatch_distance` or a
 `buffer_radius` (as with
@@ -22,6 +24,7 @@ habitat_connectivity_comparison(
   species,
   interpatch_distance = NULL,
   buffer_radius = NULL,
+  scenario_name = NULL,
   verbose = TRUE
 )
 ```
@@ -63,6 +66,14 @@ habitat_connectivity_comparison(
   `interpatch_distance`. Provide exactly one of `interpatch_distance` or
   `buffer_radius`. See
   [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
+
+- scenario_name:
+
+  Character. An optional label for the scenario, for example "Bentley
+  Project". Passed to
+  [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md),
+  and appears in the `scenario_name` column on every row. Defaults to
+  `NULL`, which gives `NA`.
 
 - verbose:
 
@@ -110,19 +121,25 @@ habitat_connectivity_comparison(
   verbose = FALSE
 )
 #> # Connectivity comparison: baseline / scenario / change / pct_change
-#> # A tibble: 4 × 9
-#>   measure    species           interpatch_distance n_patches effective_mesh_ha
-#>   <chr>      <chr>                           <dbl>     <dbl>             <dbl>
-#> 1 baseline   Superb Fairy Wren                 200   282               334.   
-#> 2 scenario   Superb Fairy Wren                 200   283               333.   
-#> 3 change     Superb Fairy Wren                 200     1                -0.965
-#> 4 pct_change Superb Fairy Wren                 200     0.355            -0.289
-#>   prob_connectedness patch_area_mean patch_area_total_ha data_resolution 
-#>                <dbl>           <dbl>               <dbl> <chr>           
-#> 1       0.0000225           52556.               1482.   9.99673x10.00151
-#> 2       0.0000224           51828.               1467.   9.99673x10.00151
-#> 3      -0.0000000651         -728.                -15.3  9.99673x10.00151
-#> 4      -0.289                  -1.38               -1.04 9.99673x10.00151
+#> # A tibble: 4 × 10
+#>   scenario_name measure    species           interpatch_distance n_patches
+#>   <chr>         <chr>      <chr>                           <dbl>     <dbl>
+#> 1 NA            baseline   Superb Fairy Wren                 200   282    
+#> 2 NA            scenario   Superb Fairy Wren                 200   283    
+#> 3 NA            change     Superb Fairy Wren                 200     1    
+#> 4 NA            pct_change Superb Fairy Wren                 200     0.355
+#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
+#>               <dbl>              <dbl>           <dbl>               <dbl>
+#> 1           334.          0.0000225           52556.               1482.  
+#> 2           333.          0.0000224           51828.               1467.  
+#> 3            -0.965      -0.0000000651         -728.                -15.3 
+#> 4            -0.289      -0.289                  -1.38               -1.04
+#>   data_resolution 
+#>   <chr>           
+#> 1 9.99673x10.00151
+#> 2 9.99673x10.00151
+#> 3 9.99673x10.00151
+#> 4 9.99673x10.00151
 #> # change = scenario - baseline (positive = scenario is higher)
 #> # pct_change = 100 * change / baseline
 # }

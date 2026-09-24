@@ -122,6 +122,42 @@
   a scenario produces.
   ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
 
+- Argument checks use call and arg to name the function and argument
+  that failed, and that they are called in.
+
+- [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+  gains a `scenario_name` argument: an optional label, e.g. “Scenario
+  A”, that appears as the first column on every row. It is `NA` when not
+  supplied, so labelled and unlabelled comparisons stack.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- New
+  [`compare_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.md)
+  compares several scenarios against one baseline, taking a named list
+  of `connectivity` objects where the names become the labels, and
+  returning four rows per scenario.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+  gains `scenario_name`, passed through to
+  [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md).
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- New
+  [`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+  compares several scenarios against one baseline starting from layers,
+  taking named lists of habitat and barrier scenario layers. A scenario
+  changes exactly one layer, and the baseline is computed once per
+  distance and shared by every scenario.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)’s
+  default method now stores a `patch_size_tbl` in `patch_size`, the same
+  as its `patch_size_tbl` method, so
+  [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+  works on a `connectivity` object built from a plain vector of areas.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
 ### Breaking changes
 
 - `interpatch_distance` is now the full edge-to-edge distance below
