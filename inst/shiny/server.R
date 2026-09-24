@@ -70,6 +70,16 @@ server <- function(input, output, session) {
     distances
   })
 
+  # Tidy the resolution for display ----
+  # habitat_connectivity() reports the raster's real resolution, which after
+  # reprojection is something like "9.99673x10.00151". That is the truth and
+  # the downloads keep it, but on screen it reads as noise.
+  format_resolution <- function(x) {
+    map_chr(strsplit(x, "x", fixed = TRUE), function(sides) {
+      paste(round(as.numeric(sides), 1), collapse = " x ")
+    })
+  }
+
   # Read uploaded files ----
   read_uploaded_file <- function(file_input) {
     req(file_input)
@@ -417,6 +427,7 @@ server <- function(input, output, session) {
       # patch_size is a list-column of per-patch tables: useful to carry
       # around, not something DT can render
       select(-patch_size) |>
+      mutate(data_resolution = format_resolution(data_resolution)) |>
       datatable(
         options = list(
           pageLength = 10,
@@ -443,6 +454,7 @@ server <- function(input, output, session) {
 
     results$results_connect_habitat |>
       select(-patch_size) |>
+      mutate(data_resolution = format_resolution(data_resolution)) |>
       pivot_longer(
         cols = -c(species, interpatch_distance, data_resolution)
       ) |>
