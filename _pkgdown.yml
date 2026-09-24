@@ -53,11 +53,15 @@ reference:
   contents:
   - starts_with("example")
   - lizard_areas_connected
+- title: Downloads and reporting
+  contents:
+  - write_connectivity_assets
+  - zip_connectivity_assets
+  - generate_connectivity_report
 - title: General
   contents:
   - clean
   - empty_grid
-  - generate_connectivity_report
   - col2hex
 - title: Shiny app
   contents:

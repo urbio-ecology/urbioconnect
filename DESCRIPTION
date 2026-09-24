@@ -44,6 +44,8 @@ Imports:
     tibble,
     tidyr,
     tidyterra,
+    utils,
+    zip,
     stats,
     grDevices,
     cli,
