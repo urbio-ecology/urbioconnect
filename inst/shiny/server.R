@@ -311,7 +311,9 @@ server <- function(input, output, session) {
       }
     )
 
-    do.call(navset_tab, c(id = "barrier_habitat_tabs", tab_panels))
+    # unname: the layer lists are named by distance, and navset_tab() takes
+    # its panels as unnamed arguments
+    do.call(navset_tab, c(id = "barrier_habitat_tabs", unname(tab_panels)))
   })
 
   # Render each barrier/habitat/interpatch plot dynamically ----
@@ -363,7 +365,7 @@ server <- function(input, output, session) {
       }
     )
 
-    do.call(navset_tab, c(id = "patch_tabs", tab_panels))
+    do.call(navset_tab, c(id = "patch_tabs", unname(tab_panels)))
   })
 
   # Render each patch plot dynamically ----

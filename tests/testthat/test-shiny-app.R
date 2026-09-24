@@ -41,6 +41,10 @@ test_that("the app's analysis path runs and every result output renders", {
       "results_connect_habitat_table",
       "results_connect_habitat_longer_table",
       "plot_connectivity_output",
+      # the tab containers: these broke when the layer lists gained names,
+      # because navset_tab() wants its panels unnamed
+      "gg_barrier_habitat_buffer_tabs",
+      "plot_patches_tabs",
       "barrier_habitat_interpatch_200",
       "patch_plot_200"
     )
