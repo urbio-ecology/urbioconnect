@@ -213,6 +213,26 @@ ui <- page_navbar(
         )
       ),
 
+      # Everything, in one archive
+      layout_columns(
+        col_widths = 12,
+        card(
+          card_header("Download your results"),
+          card_body(
+            p(
+              "One archive holding every map, table and GIS layer below,",
+              "in a folder for each interpatch distance, with a README",
+              "explaining each file."
+            ),
+            downloadButton(
+              "download_everything",
+              "Download everything (ZIP)",
+              class = "btn-primary btn-lg w-100"
+            )
+          )
+        )
+      ),
+
       # Area and patch information for each interpatch distance
       layout_columns(
         col_widths = 12,

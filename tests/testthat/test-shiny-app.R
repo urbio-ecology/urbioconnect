@@ -101,3 +101,46 @@ test_that("the app's downloads produce files with content", {
     expect_s4_class(patch_raster, "SpatRaster")
   })
 })
+
+test_that("the app's download-everything button returns the asset bundle", {
+  skip_on_cran()
+  skip_if_not_installed("shiny")
+  skip_if_not_installed("DT")
+  skip_if_not_installed("bslib")
+  skip_if_not_installed("conflicted")
+  skip_if_not_installed("fasterize")
+  skip_if_not_installed("shinyjs")
+
+  app_dir <- system.file("shiny", package = "urbioconnect")
+  skip_if(app_dir == "", "shiny app directory not found")
+
+  suppressMessages({
+    source(file.path(app_dir, "packages.R"))
+    source(file.path(app_dir, "colours.R"))
+    source(file.path(app_dir, "server.R"), local = TRUE)
+  })
+
+  shiny::testServer(server, {
+    session$setInputs(
+      use_example_data = TRUE,
+      species = "Superb Fairy Wren",
+      data_resolution = 10,
+      target_resolution = 500,
+      interpatch_distances = "200",
+      run_analysis = 1
+    )
+
+    expect_s3_class(results$report_data, "connectivity_report_data")
+
+    contents <- zip::zip_list(output$download_everything)$filename
+    folder <- paste0("superb-fairy-wren-connectivity-", Sys.Date())
+
+    expect_true(paste0(folder, "/README.md") %in% contents)
+    expect_true(
+      paste0(folder, "/interpatch-200m/gis/patches.gpkg") %in% contents
+    )
+    expect_true(
+      paste0(folder, "/summary/connectivity-summary.csv") %in% contents
+    )
+  })
+})
