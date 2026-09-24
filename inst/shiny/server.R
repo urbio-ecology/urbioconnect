@@ -1,15 +1,3 @@
-library(fasterize)
-library(glue)
-library(sf)
-library(stringr)
-library(terra)
-library(tidyterra)
-library(tidyverse)
-library(urbioconnect)
-
-conflicts_prefer(dplyr::filter)
-conflicts_prefer(dplyr::select)
-
 server <- function(input, output, session) {
   # Define file paths
   data_dir <- system.file(
@@ -214,10 +202,10 @@ server <- function(input, output, session) {
           # Run connectivity analysis for each interpatch distance
           # Use _full version to get intermediate results for plotting
           results_list <- map(
-            .x = buffer_dists,
+            .x = interpatch_dists,
             .f = function(distance) {
               incProgress(
-                0.1 / length(buffer_dists),
+                0.1 / length(interpatch_dists),
                 message = paste(
                   "Processing interpatch distance:",
                   distance,
@@ -253,10 +241,10 @@ server <- function(input, output, session) {
           # Summarise connectivity for each interpatch distance
           results$results_connect_habitat <- map2(
             .x = areas_list,
-            .y = buffer_dists,
+            .y = interpatch_dists,
             .f = function(areas, dist) {
               summarise_connectivity(
-                area = areas$area,
+                connectivity = areas$area,
                 interpatch_distance = dist,
                 data_resolution = base_res,
                 species = input$species
@@ -364,14 +352,6 @@ server <- function(input, output, session) {
   observe({
     req(results$ready)
 
-    urbio_pal <- scico::scico(n = 11, palette = "tofino")
-    urbio_pal_cut <- urbio_pal[c(6:11)]
-    urbio_cols <- list(
-      habitat = urbio_pal_cut[2],
-      interpatch_distance = urbio_pal_cut[5],
-      barrier = "#FFFFFF"
-    )
-
     walk2(
       .x = results$buffered_habitat,
       .y = results$interpatch_distances,
@@ -379,7 +359,7 @@ server <- function(input, output, session) {
         output_name <- paste0("barrier_habitat_interpatch_", distance)
         local({
           my_buffered <- buffered_habitat
-          my_distance <- interpatch_distance
+          my_distance <- distance
           output[[output_name]] <- renderPlot({
             # review: this is the re-use section, set up module
             gg_barrier_habitat_interpatch_dist(
@@ -436,7 +416,7 @@ server <- function(input, output, session) {
           output[[output_name]] <- renderPlot({
             plot_patches(
               patch_id = my_patch_id,
-              interpatch_distance = interpatch_distance,
+              interpatch_distance = my_interpatch_distance,
               species = my_species
             )
           })
@@ -465,24 +445,28 @@ server <- function(input, output, session) {
   output$results_connect_habitat_table <- renderDT({
     req(results$results_connect_habitat)
 
-    datatable(
-      results$results_connect_habitat,
-      options = list(
-        pageLength = 10,
-        scrollX = TRUE,
-        dom = "tip"
-      ),
-      rownames = FALSE
-    ) |>
+    results$results_connect_habitat |>
+      # patch_size is a list-column of per-patch tables: useful to carry
+      # around, not something DT can render
+      select(-patch_size) |>
+      datatable(
+        options = list(
+          pageLength = 10,
+          scrollX = TRUE,
+          dom = "tip"
+        ),
+        rownames = FALSE
+      ) |>
       formatRound(
         columns = c(
-          "prob_connectedness",
           "effective_mesh_ha",
           "patch_area_mean",
           "patch_area_total_ha"
         ),
         digits = 3
-      )
+      ) |>
+      # prob_connectedness is ~1e-5, so three decimal places reads as 0.000
+      formatSignif(columns = "prob_connectedness", digits = 3)
   })
 
   # Output: Longer format prob connectedness table ----
@@ -490,8 +474,9 @@ server <- function(input, output, session) {
     req(results$results_connect_habitat)
 
     results$results_connect_habitat |>
+      select(-patch_size) |>
       pivot_longer(
-        cols = -c(species, interpatch_distance)
+        cols = -c(species, interpatch_distance, data_resolution)
       ) |>
       datatable(
         options = list(
@@ -499,7 +484,10 @@ server <- function(input, output, session) {
           scrollX = TRUE
         ),
         rownames = FALSE
-      )
+      ) |>
+      # one column now holds metrics of very different magnitudes, from
+      # ~1e-5 to the thousands, so significant figures rather than decimals
+      formatSignif(columns = "value", digits = 3)
   })
 
   # Output: Visualization of connectivity changes ----
@@ -587,7 +575,11 @@ server <- function(input, output, session) {
       paste0("connectivity_summary_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write_csv(results$results_connect_habitat, file)
+      # patch_size is a list-column of per-patch tables; it writes as an empty
+      # column. The per-patch data has its own download.
+      results$results_connect_habitat |>
+        select(-patch_size) |>
+        write_csv(file)
     }
   )
 
