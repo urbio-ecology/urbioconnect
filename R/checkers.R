@@ -22,7 +22,7 @@ check_numeric <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  check_class(x, is.numeric, "numeric")
+  check_class(x, is.numeric, "numeric", arg, call)
 }
 
 check_character <- function(
@@ -30,7 +30,7 @@ check_character <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  check_class(x, is.character, "character")
+  check_class(x, is.character, "character", arg, call)
 }
 
 check_scalar <- function(
@@ -70,6 +70,182 @@ check_scalar_character <- function(
   check_character(x, arg, call)
   check_scalar(x, arg, call)
   invisible(x)
+}
+
+#' Check a scenario label
+#'
+#' `NULL` means "no label", and becomes `NA_character_` in the output. Anything
+#' else must be a single string.
+#'
+#' @noRd
+check_scenario_name <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (is.null(x)) {
+    return(invisible(x))
+  }
+
+  check_scalar_character(x, arg, call)
+  invisible(x)
+}
+
+#' Check scenario names
+#'
+#' The names become the `scenario_name` column, so every scenario needs one,
+#' and two scenarios sharing a name would be indistinguishable in the output.
+#' Shared by `check_scenarios()` (a list of `connectivity` objects) and
+#' `check_scenario_layers()` (lists of habitat and barrier layers). `x` is the
+#' names themselves, so the layer version can check both its lists at once.
+#'
+#' @noRd
+check_scenario_names <- function(
+  x,
+  arg,
+  call = rlang::caller_env()
+) {
+  unnamed <- x == ""
+  if (any(unnamed)) {
+    cli::cli_abort(
+      c(
+        "Every scenario in {.arg {arg}} must be named.",
+        "x" = "No name at position {.val {which(unnamed)}}.",
+        "i" = "Names become the {.field scenario_name} column."
+      ),
+      call = call
+    )
+  }
+
+  duplicates <- unique(x[duplicated(x)])
+  if (length(duplicates) > 0) {
+    cli::cli_abort(
+      c(
+        "Scenario names in {.arg {arg}} must be unique.",
+        "x" = "Duplicated: {.val {duplicates}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
+#' Check a named list of `connectivity` scenarios
+#'
+#' Checking the elements here, rather than leaving it to
+#' `compare_connectivity()`, means the error can say which scenario is at
+#' fault.
+#'
+#' @noRd
+check_scenarios <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  check_scenario_list(x, arg = arg, call = call)
+
+  if (length(x) == 0) {
+    cli::cli_abort(
+      "{.arg {arg}} must contain at least one {.cls connectivity} object.",
+      call = call
+    )
+  }
+
+  scenario_names <- rlang::names2(x)
+  check_scenario_names(scenario_names, arg = arg, call = call)
+
+  is_connectivity <- purrr::map_lgl(x, inherits, "connectivity")
+  if (!all(is_connectivity)) {
+    cli::cli_abort(
+      c(
+        "Every scenario in {.arg {arg}} must be a {.cls connectivity} object.",
+        "x" = "Not connectivity: {.val {scenario_names[!is_connectivity]}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
+#' Check one scenario layer argument
+#'
+#' A list, or `NULL` for "none supplied". A single layer passed bare is the
+#' likely mistake, so the message says how to wrap it.
+#'
+#' @noRd
+check_scenario_list <- function(
+  x,
+  arg,
+  call = rlang::caller_env()
+) {
+  if (is.null(x) || is.list(x)) {
+    return(invisible(x))
+  }
+
+  cli::cli_abort(
+    c(
+      "{.arg {arg}} must be a named list, one element per scenario.",
+      "i" = "You supplied: {.obj_type_friendly {x}}.",
+      "i" = "For a single scenario: {.code {arg} = list(\"name\" = x)}."
+    ),
+    call = call
+  )
+}
+
+#' Check the two scenario layer lists
+#'
+#' At least one list must be supplied, and names must be unique across both,
+#' since a name identifies a scenario in the output whichever layer it changed.
+#'
+#' @noRd
+check_scenario_layers <- function(
+  habitat_scenarios,
+  barrier_scenarios,
+  call = rlang::caller_env()
+) {
+  # Check each argument before combining them: c() on a SpatRaster binds layers
+  # rather than erroring, so a bare layer passed instead of a list would
+  # otherwise pass every check below and be labelled with its terra layer name.
+  check_scenario_list(habitat_scenarios, arg = "habitat_scenarios", call = call)
+  check_scenario_list(barrier_scenarios, arg = "barrier_scenarios", call = call)
+
+  if (length(habitat_scenarios) + length(barrier_scenarios) == 0) {
+    cli::cli_abort(
+      c(
+        "Supply {.arg habitat_scenarios}, {.arg barrier_scenarios}, or both.",
+        "i" = "Each is a named list of layers, one element per scenario."
+      ),
+      call = call
+    )
+  }
+
+  # each list by its own name, so the message points at the right argument
+  check_scenario_names(
+    rlang::names2(habitat_scenarios),
+    arg = "habitat_scenarios",
+    call = call
+  )
+  check_scenario_names(
+    rlang::names2(barrier_scenarios),
+    arg = "barrier_scenarios",
+    call = call
+  )
+
+  used_twice <- intersect(names(habitat_scenarios), names(barrier_scenarios))
+  if (length(used_twice) > 0) {
+    cli::cli_abort(
+      c(
+        "Scenario names must be unique across {.arg habitat_scenarios} and
+         {.arg barrier_scenarios}.",
+        "x" = "Used in both: {.val {used_twice}}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(NULL)
 }
 
 #' @noRd

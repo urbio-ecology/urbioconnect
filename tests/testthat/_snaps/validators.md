@@ -23,8 +23,8 @@
     Code
       validate_patch_size_tbl(iris)
     Condition
-      Error in `check_character()`:
-      ! `x` must be <character>, not <NULL>.
+      Error in `validate_patch_size_tbl()`:
+      ! `species` must be <character>, not <NULL>.
       i You supplied: NULL
 
 ---

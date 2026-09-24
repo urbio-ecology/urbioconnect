@@ -1,22 +1,24 @@
-wren_habitat <- example_wren_habitat()
-wren_barrier <- example_wren_barrier()
-wren_barrier_scenario <- example_wren_barrier_scenario()
-
-wren_connectivity_baseline <- habitat_connectivity(
-  habitat = wren_habitat,
-  barrier = wren_barrier,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200
-)
-
-wren_connectivity_scenario <- habitat_connectivity(
-  habitat = wren_habitat,
-  barrier = wren_barrier_scenario,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200
-)
-
 test_that("compare_connectivity() identifies changes in baseline/scenario", {
+  # the only test in this file that needs the real landscape: two pipeline runs
+  # at ~4.7s each, where every other test uses lizard_areas_connected
+  wren_habitat <- example_wren_habitat()
+
+  wren_connectivity_baseline <- habitat_connectivity(
+    habitat = wren_habitat,
+    barrier = example_wren_barrier(),
+    species = "Superb Fairy Wren",
+    interpatch_distance = 200,
+    verbose = FALSE
+  )
+
+  wren_connectivity_scenario <- habitat_connectivity(
+    habitat = wren_habitat,
+    barrier = example_wren_barrier_scenario(),
+    species = "Superb Fairy Wren",
+    interpatch_distance = 200,
+    verbose = FALSE
+  )
+
   results_compare <- compare_connectivity(
     scenario = wren_connectivity_scenario,
     baseline = wren_connectivity_baseline
@@ -85,4 +87,68 @@ test_that("compare_connectivity() rejects non-connectivity input", {
     ),
     error = TRUE
   )
+})
+
+test_that("compare_connectivity() labels every row with scenario_name", {
+  base <- summarise_connectivity(lizard_areas_connected)
+  scen <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  labelled <- compare_connectivity(
+    scen,
+    base,
+    scenario_name = "Bentley Project"
+  )
+
+  expect_equal(labelled$scenario_name, rep("Bentley Project", 4))
+  expect_snapshot(names(labelled))
+})
+
+test_that("compare_connectivity() gives NA when no scenario_name is supplied", {
+  base <- summarise_connectivity(lizard_areas_connected)
+  scen <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  unlabelled <- compare_connectivity(scen, base)
+
+  expect_equal(unlabelled$scenario_name, rep(NA_character_, 4))
+})
+
+test_that("compare_connectivity() rejects a scenario_name that isn't one string", {
+  base <- summarise_connectivity(lizard_areas_connected)
+  scen <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  expect_snapshot(error = TRUE, {
+    compare_connectivity(scen, base, scenario_name = c("one", "two"))
+    compare_connectivity(scen, base, scenario_name = 1)
+  })
+})
+
+test_that("labelled and unlabelled comparisons stack", {
+  base <- summarise_connectivity(lizard_areas_connected)
+  scen <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  stacked <- dplyr::bind_rows(
+    compare_connectivity(scen, base, scenario_name = "Bentley Project"),
+    compare_connectivity(scen, base)
+  )
+
+  expect_s3_class(stacked, "compare_connectivity")
+  expect_equal(nrow(stacked), 8)
+  expect_equal(unique(stacked$scenario_name), c("Bentley Project", NA))
+})
+
+test_that("compare_connectivity() works on default-method connectivity", {
+  base <- summarise_connectivity(
+    connectivity = c(100, 200, 300),
+    interpatch_distance = 10,
+    data_resolution = 2,
+    species = "Test Species"
+  )
+  scen <- summarise_connectivity(
+    connectivity = c(100, 200),
+    interpatch_distance = 10,
+    data_resolution = 2,
+    species = "Test Species"
+  )
+
+  expect_snapshot(compare_connectivity(scenario = scen, baseline = base))
 })

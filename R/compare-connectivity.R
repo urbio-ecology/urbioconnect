@@ -20,11 +20,14 @@
 #'   [summarise_connectivity()]). The reference the `scenario` is compared
 #'   against. Must be a single row, and match `scenario` on species,
 #'   interpatch_distance, and resolution.
+#' @param scenario_name Character. An optional label for the scenario, for
+#'   example "Bentley Project". Appears in the `scenario_name` column on every
+#'   row. Defaults to `NULL`, which gives `NA`.
 #'
 #' @returns A `compare_connectivity` object: a tibble with four rows
 #'   (`baseline`, `scenario`, `change`, `pct_change`, in the `measure` column)
 #'   and the same metric columns as [summarise_connectivity()] output:
-#'   `measure`, `species`, `interpatch_distance`, `n_patches`,
+#'   `scenario_name`, `measure`, `species`, `interpatch_distance`, `n_patches`,
 #'   `effective_mesh_ha`, `prob_connectedness`, `patch_area_mean`,
 #'   `patch_area_total_ha`, and `data_resolution`. The `change` row is
 #'   `scenario - baseline`, so a positive value means the scenario is higher
@@ -32,7 +35,8 @@
 #'   `100 * change / baseline`, which is the readable form for metrics whose
 #'   absolute deltas are very small. Metric values are held at full precision —
 #'   they are not rounded — so `change` is exact.
-#' @seealso [habitat_connectivity_comparison()] for a layer-in wrapper,
+#' @seealso [habitat_connectivity_comparison()], which starts from habitat and
+#'   barrier layers instead of `connectivity` objects,
 #'   [habitat_connectivity()], and [summarise_connectivity()].
 #' @export
 #'
@@ -42,9 +46,17 @@
 #' # a scenario in which one connected patch (the first row) is lost
 #' scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
 #' compare_connectivity(scenario = scenario, baseline = baseline)
-compare_connectivity <- function(scenario, baseline) {
+#'
+#' # label the scenario so it can be told apart from others
+#' compare_connectivity(
+#'   scenario = scenario,
+#'   baseline = baseline,
+#'   scenario_name = "Bentley Project"
+#' )
+compare_connectivity <- function(scenario, baseline, scenario_name = NULL) {
   check_connectivity(scenario)
   check_connectivity(baseline)
+  check_scenario_name(scenario_name)
 
   if (!(nrow(scenario) == 1L && nrow(baseline) == 1L)) {
     cli::cli_abort(
@@ -98,11 +110,15 @@ compare_connectivity <- function(scenario, baseline) {
     .id = "measure"
   ) |>
     dplyr::mutate(
+      # NULL becomes NA so the column is always present, and labelled and
+      # unlabelled comparisons stack without any reshaping
+      scenario_name = scenario_name %||% NA_character_,
       species = species,
       interpatch_distance = interpatch_distance,
       data_resolution = data_resolution
     ) |>
     dplyr::relocate(
+      scenario_name,
       measure,
       species,
       interpatch_distance,

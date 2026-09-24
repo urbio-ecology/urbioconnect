@@ -12,6 +12,7 @@ habitat_connectivity_comparison(
   species,
   interpatch_distance = NULL,
   buffer_radius = NULL,
+  scenario_name = NULL,
   verbose = TRUE
 )
 }
@@ -36,6 +37,11 @@ the interpatch distance / buffer radius relationship.}
 alternative to \code{interpatch_distance}. Provide exactly one of
 \code{interpatch_distance} or \code{buffer_radius}. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
 
+\item{scenario_name}{Character. An optional label for the scenario, for
+example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears
+in the \code{scenario_name} column on every row. Defaults to \code{NULL}, which
+gives \code{NA}.}
+
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
 \value{
@@ -46,7 +52,8 @@ twelve rows (four per distance). See \code{\link[=compare_connectivity]{compare_
 columns.
 }
 \description{
-A spatial-in wrapper around \code{\link[=compare_connectivity]{compare_connectivity()}}. Give it a scenario
+Starts from habitat and barrier layers, rather than the \code{connectivity}
+objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) and
 compares them. Provide either an \code{interpatch_distance} or a \code{buffer_radius}

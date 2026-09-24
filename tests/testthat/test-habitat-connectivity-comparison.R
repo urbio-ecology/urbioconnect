@@ -34,6 +34,46 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_comparison() passes scenario_name through", {
+  layers <- scenario_test_layers()
+
+  results <- habitat_connectivity_comparison(
+    habitat_scenario = layers$habitat,
+    barrier_scenario = layers$barrier_scenario,
+    habitat_baseline = layers$habitat,
+    barrier_baseline = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = 40,
+    scenario_name = "Bentley Project",
+    verbose = FALSE
+  )
+
+  expect_equal(results$scenario_name, rep("Bentley Project", 4))
+})
+
+test_that("habitat_connectivity_comparison() sweeps buffer_radius too", {
+  layers <- scenario_test_layers()
+
+  comparison_at <- function(...) {
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat,
+      barrier_scenario = layers$barrier_scenario,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      verbose = FALSE,
+      ...
+    )
+  }
+
+  by_radius <- comparison_at(buffer_radius = 20)
+
+  expect_s3_class(by_radius, "compare_connectivity")
+  expect_equal(nrow(by_radius), 4)
+  # a buffer radius is half an interpatch distance, so these are the same run
+  expect_equal(by_radius, comparison_at(interpatch_distance = 40))
+})
+
 test_that("habitat_connectivity_comparison() aborts when neither distance nor buffer supplied", {
   expect_snapshot(
     habitat_connectivity_comparison(

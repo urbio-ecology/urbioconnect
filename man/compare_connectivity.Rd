@@ -4,7 +4,7 @@
 \alias{compare_connectivity}
 \title{Compare the connectivity of two scenarios}
 \usage{
-compare_connectivity(scenario, baseline)
+compare_connectivity(scenario, baseline, scenario_name = NULL)
 }
 \arguments{
 \item{scenario}{A \code{connectivity} object (from \code{\link[=habitat_connectivity]{habitat_connectivity()}} or
@@ -15,12 +15,16 @@ Must be a single row.}
 \code{\link[=summarise_connectivity]{summarise_connectivity()}}). The reference the \code{scenario} is compared
 against. Must be a single row, and match \code{scenario} on species,
 interpatch_distance, and resolution.}
+
+\item{scenario_name}{Character. An optional label for the scenario, for
+example "Bentley Project". Appears in the \code{scenario_name} column on every
+row. Defaults to \code{NULL}, which gives \code{NA}.}
 }
 \value{
 A \code{compare_connectivity} object: a tibble with four rows
 (\code{baseline}, \code{scenario}, \code{change}, \code{pct_change}, in the \code{measure} column)
 and the same metric columns as \code{\link[=summarise_connectivity]{summarise_connectivity()}} output:
-\code{measure}, \code{species}, \code{interpatch_distance}, \code{n_patches},
+\code{scenario_name}, \code{measure}, \code{species}, \code{interpatch_distance}, \code{n_patches},
 \code{effective_mesh_ha}, \code{prob_connectedness}, \code{patch_area_mean},
 \code{patch_area_total_ha}, and \code{data_resolution}. The \code{change} row is
 \code{scenario - baseline}, so a positive value means the scenario is higher
@@ -50,8 +54,16 @@ baseline <- summarise_connectivity(lizard_areas_connected)
 # a scenario in which one connected patch (the first row) is lost
 scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
 compare_connectivity(scenario = scenario, baseline = baseline)
+
+# label the scenario so it can be told apart from others
+compare_connectivity(
+  scenario = scenario,
+  baseline = baseline,
+  scenario_name = "Bentley Project"
+)
 }
 \seealso{
-\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} for a layer-in wrapper,
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which starts from habitat and
+barrier layers instead of \code{connectivity} objects,
 \code{\link[=habitat_connectivity]{habitat_connectivity()}}, and \code{\link[=summarise_connectivity]{summarise_connectivity()}}.
 }
