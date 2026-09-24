@@ -185,15 +185,17 @@ write_asset_tables <- function(x, dir) {
     dplyr::select(-"patch_size") |>
     readr::write_csv(file.path(dir, "summary", "connectivity-summary.csv"))
 
-  patch_sizes(x$connectivity) |>
-    rlang::set_names(x$interpatch_distance) |>
-    purrr::list_rbind(names_to = "interpatch_distance") |>
+  # the summary already carries the per-patch tables and the distance they
+  # belong to, so unnesting beats stacking them back together by hand
+  x$connectivity |>
+    dplyr::select("species", "interpatch_distance", "patch_size") |>
+    tidyr::unnest("patch_size") |>
     readr::write_csv(file.path(dir, "summary", "patch-areas.csv"))
 }
 
 #' @noRd
 write_asset_plots <- function(x, dir) {
-  colours <- asset_colours()
+  colours <- urbio_colours()
 
   purrr::walk2(
     x$buffered_habitat,
@@ -311,7 +313,7 @@ write_asset_readme <- function(x, manifest, dir) {
         sep = ", ",
         last = " and "
       ),
-      resolution = paste(round(terra::res(x$habitat), 2), collapse = " x "),
+      resolution = format_resolution(terra::res(x$habitat)),
       crs = terra::crs(x$habitat, describe = TRUE)$name,
       date = format(Sys.Date()),
       version = as.character(utils::packageVersion("urbioconnect")),
@@ -319,21 +321,6 @@ write_asset_readme <- function(x, manifest, dir) {
     )
 
   writeLines(readme, file.path(dir, "README.md"))
-}
-
-#' The bundle's map colours
-#'
-#' The palette the Shiny app uses, so downloaded maps match what was on screen.
-#'
-#' @noRd
-asset_colours <- function() {
-  palette <- scico::scico(n = 11, palette = "tofino")[6:11]
-
-  list(
-    habitat = palette[2],
-    interpatch_distance = palette[5],
-    barrier = "#FFFFFF"
-  )
 }
 
 #' @noRd

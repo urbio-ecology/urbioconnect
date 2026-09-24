@@ -70,16 +70,6 @@ server <- function(input, output, session) {
     distances
   })
 
-  # Tidy the resolution for display ----
-  # habitat_connectivity() reports the raster's real resolution, which after
-  # reprojection is something like "9.99673x10.00151". That is the truth and
-  # the downloads keep it, but on screen it reads as noise.
-  format_resolution <- function(x) {
-    map_chr(strsplit(x, "x", fixed = TRUE), function(sides) {
-      paste(round(as.numeric(sides), 1), collapse = " x ")
-    })
-  }
-
   # Read uploaded files ----
   read_uploaded_file <- function(file_input) {
     req(file_input)
@@ -297,33 +287,19 @@ server <- function(input, output, session) {
   output$gg_barrier_habitat_buffer_tabs <- renderUI({
     req(results$ready)
 
-    # Create color palette
-    urbio_pal <- scico::scico(n = 11, palette = "tofino")
-    urbio_pal_cut <- urbio_pal[c(6:11)]
-    urbio_cols <- list(
-      habitat = urbio_pal_cut[2],
-      interpatch = urbio_pal_cut[5],
-      barrier = "#FFFFFF"
-    )
-
-    # Create tabs for each interpatch distance
-    tab_panels <- map2(
-      .x = results$buffered_habitat,
-      .y = results$interpatch_distances,
-      .f = function(interpatch_distance, distance) {
-        nav_panel(
-          title = paste0("Interpatch: ", distance, "m"),
-          plotOutput(
-            outputId = paste0("barrier_habitat_interpatch_", distance),
-            height = "500px"
-          )
+    # one panel per distance; the rasters are only needed by the plots
+    # themselves, rendered in the observer below
+    tab_panels <- map(results$interpatch_distances, function(distance) {
+      nav_panel(
+        title = paste0("Interpatch: ", distance, "m"),
+        plotOutput(
+          outputId = paste0("barrier_habitat_interpatch_", distance),
+          height = "500px"
         )
-      }
-    )
+      )
+    })
 
-    # unname: the layer lists are named by distance, and navset_tab() takes
-    # its panels as unnamed arguments
-    do.call(navset_tab, c(id = "barrier_habitat_tabs", unname(tab_panels)))
+    do.call(navset_tab, c(id = "barrier_habitat_tabs", tab_panels))
   })
 
   # Render each barrier/habitat/interpatch plot dynamically ----
@@ -361,10 +337,9 @@ server <- function(input, output, session) {
   output$plot_patches_tabs <- renderUI({
     req(results$ready)
 
-    tab_panels <- map2(
-      .x = results$patch_id_raster,
-      .y = results$interpatch_distances,
-      .f = function(patch_id, interpatch_distance) {
+    tab_panels <- map(
+      results$interpatch_distances,
+      function(interpatch_distance) {
         nav_panel(
           title = paste0("Interpatch Distance: ", interpatch_distance, "m"),
           plotOutput(
@@ -375,7 +350,7 @@ server <- function(input, output, session) {
       }
     )
 
-    do.call(navset_tab, c(id = "patch_tabs", unname(tab_panels)))
+    do.call(navset_tab, c(id = "patch_tabs", tab_panels))
   })
 
   # Render each patch plot dynamically ----

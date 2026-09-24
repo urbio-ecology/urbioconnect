@@ -64,7 +64,14 @@ connectivity_report_data <- function(
   }
 
   runs <- purrr::map(distances, function(distance) {
-    full_at_distance(habitat, barrier, distance, supplied, verbose)
+    exec_at_distance(
+      habitat_connectivity_full,
+      habitat,
+      barrier,
+      distance,
+      supplied,
+      verbose = verbose
+    )
   })
   runs <- rlang::set_names(runs, as.character(interpatch_distances))
 
@@ -91,21 +98,6 @@ connectivity_report_data <- function(
     patch_id_raster = purrr::map(runs, "patch_id_raster"),
     species = species,
     interpatch_distance = interpatch_distances
-  )
-}
-
-#' Run the full pipeline at one distance
-#'
-#' As `connectivity_at_distance()`, but keeping the intermediate rasters.
-#'
-#' @noRd
-full_at_distance <- function(habitat, barrier, distance, supplied, verbose) {
-  rlang::exec(
-    habitat_connectivity_full,
-    habitat,
-    barrier,
-    verbose = verbose,
-    !!!rlang::set_names(list(distance), supplied)
   )
 }
 

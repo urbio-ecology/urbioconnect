@@ -60,10 +60,24 @@ distance_values <- function(supplied, interpatch_distance, buffer_radius) {
   )
 }
 
-#' Run the connectivity pipeline at one distance
+#' Run a connectivity function at one distance
 #'
-#' Passes `distance` back to [habitat_connectivity()] under the name the caller
-#' used, so a sweep doesn't have to branch on which argument that was.
+#' Passes `distance` back to `.f` under the name the caller used, so a sweep
+#' doesn't have to branch on which of the two distance arguments that was.
+#' Everything else goes through `...`.
+#'
+#' @noRd
+exec_at_distance <- function(.f, habitat, barrier, distance, supplied, ...) {
+  rlang::exec(
+    .f,
+    habitat,
+    barrier,
+    ...,
+    !!!rlang::set_names(list(distance), supplied)
+  )
+}
+
+#' Run the connectivity pipeline at one distance
 #'
 #' @noRd
 connectivity_at_distance <- function(
@@ -74,13 +88,14 @@ connectivity_at_distance <- function(
   supplied,
   verbose
 ) {
-  rlang::exec(
+  exec_at_distance(
     habitat_connectivity,
     habitat,
     barrier,
+    distance,
+    supplied,
     species = species,
-    verbose = verbose,
-    !!!rlang::set_names(list(distance), supplied)
+    verbose = verbose
   )
 }
 

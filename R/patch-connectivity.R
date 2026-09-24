@@ -176,6 +176,35 @@ pc_res <- function(x) {
   paste(round(x_res, 5), collapse = "x")
 }
 
+#' Format a raster resolution for reading
+#'
+#' A reprojected raster rarely has round cells: a nominally 10m grid comes out
+#'   as `9.99673 x 10.00151`. That precision matters in the data and reads as
+#'   noise on a screen, so round it for display.
+#'
+#' @param res Either the numeric pair [terra::res()] returns, or the
+#'   `"9.99673x10.00151"` string carried in a `connectivity` object's
+#'   `data_resolution` column.
+#' @param digits Decimal places to round to. Default 1.
+#'
+#' @returns A character vector, e.g. `"10 x 10"`.
+#' @export
+#'
+#' @examples
+#' format_resolution(c(9.99673, 10.00151))
+#' format_resolution("9.99673x10.00151")
+format_resolution <- function(res, digits = 1) {
+  sides <- if (is.character(res)) {
+    strsplit(res, "x", fixed = TRUE)
+  } else {
+    list(res)
+  }
+
+  purrr::map_chr(sides, function(side) {
+    paste(round(as.numeric(side), digits), collapse = " x ")
+  })
+}
+
 #' @rdname pc-getters
 #' @export
 pc_interpatch_distance <- function(x) {

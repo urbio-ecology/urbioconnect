@@ -1,15 +1,3 @@
-test_asset_bundle <- function(interpatch_distance = 40) {
-  layers <- scenario_test_layers()
-
-  connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Superb Fairy Wren",
-    interpatch_distance = interpatch_distance,
-    verbose = FALSE
-  )
-}
-
 test_that("asset_manifest() lays out one folder per distance", {
   expect_snapshot(asset_manifest(test_asset_bundle(c(40, 80)))$path)
 })

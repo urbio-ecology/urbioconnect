@@ -23,6 +23,7 @@ reference:
   - patch_sizes
   - pc-getters
   - new_patch_size_tbl
+  - format_resolution
 - title: Raster functions
   contents:
   - create_barrier_mask
@@ -57,12 +58,13 @@ reference:
   contents:
   - write_connectivity_assets
   - zip_connectivity_assets
-  - generate_connectivity_report
 - title: General
   contents:
   - clean
   - empty_grid
   - col2hex
+  - urbio_colours
+  - generate_connectivity_report
 - title: Shiny app
   contents:
   - run_connectivity_app
