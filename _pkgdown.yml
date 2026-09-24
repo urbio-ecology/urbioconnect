@@ -17,6 +17,7 @@ reference:
   - n_patches
   - total_habitat_area
   - habitat_connectivity_full
+  - connectivity_report_data
 - title: Patch connectivity class
   contents:
   - patch_sizes
