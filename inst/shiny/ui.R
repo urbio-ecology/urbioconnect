@@ -10,7 +10,6 @@ library(urbioconnect)
 
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::select)
-source("colours.R")
 ui <- page_navbar(
   title = "Urban Connectedness",
   theme = urbio_theme(),

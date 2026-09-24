@@ -364,14 +364,6 @@ server <- function(input, output, session) {
   observe({
     req(results$ready)
 
-    urbio_pal <- scico::scico(n = 11, palette = "tofino")
-    urbio_pal_cut <- urbio_pal[c(6:11)]
-    urbio_cols <- list(
-      habitat = urbio_pal_cut[2],
-      interpatch_distance = urbio_pal_cut[5],
-      barrier = "#FFFFFF"
-    )
-
     walk2(
       .x = results$buffered_habitat,
       .y = results$interpatch_distances,
@@ -595,7 +587,11 @@ server <- function(input, output, session) {
       paste0("connectivity_summary_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write_csv(results$results_connect_habitat, file)
+      # patch_size is a list-column of per-patch tables; it writes as an empty
+      # column. The per-patch data has its own download.
+      results$results_connect_habitat |>
+        select(-patch_size) |>
+        write_csv(file)
     }
   )
 

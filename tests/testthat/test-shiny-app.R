@@ -13,9 +13,10 @@ test_that("the app's analysis path runs and every result output renders", {
   app_dir <- system.file("shiny", package = "urbioconnect")
   skip_if(app_dir == "", "shiny app directory not found")
 
-  # packages.R attaches what the app expects; server.R then defines `server`
+  # the same sources app.R uses, minus ui.R, which testServer doesn't need
   suppressMessages({
     source(file.path(app_dir, "packages.R"))
+    source(file.path(app_dir, "colours.R"))
     source(file.path(app_dir, "server.R"), local = TRUE)
   })
 
@@ -47,5 +48,56 @@ test_that("the app's analysis path runs and every result output renders", {
     purrr::walk(outputs, function(output_name) {
       expect_no_error(output[[output_name]])
     })
+  })
+})
+
+test_that("the app's downloads produce files with content", {
+  skip_on_cran()
+  skip_if_not_installed("shiny")
+  skip_if_not_installed("DT")
+  skip_if_not_installed("bslib")
+  skip_if_not_installed("conflicted")
+  skip_if_not_installed("fasterize")
+  skip_if_not_installed("shinyjs")
+
+  app_dir <- system.file("shiny", package = "urbioconnect")
+  skip_if(app_dir == "", "shiny app directory not found")
+
+  suppressMessages({
+    source(file.path(app_dir, "packages.R"))
+    source(file.path(app_dir, "colours.R"))
+    source(file.path(app_dir, "server.R"), local = TRUE)
+  })
+
+  shiny::testServer(server, {
+    session$setInputs(
+      use_example_data = TRUE,
+      species = "Superb Fairy Wren",
+      data_resolution = 10,
+      target_resolution = 500,
+      interpatch_distances = "200",
+      run_analysis = 1
+    )
+
+    summary_csv <- readr::read_csv(
+      output$download_summary_csv,
+      show_col_types = FALSE
+    )
+    patches_csv <- readr::read_csv(
+      output$download_patches_csv,
+      show_col_types = FALSE
+    )
+
+    # the summary used to carry an empty patch_size column, from the
+    # list-column of per-patch tables
+    expect_false("patch_size" %in% names(summary_csv))
+    expect_equal(nrow(summary_csv), 1)
+    expect_snapshot(names(summary_csv))
+
+    expect_true(all(c("area", "interpatch_distance") %in% names(patches_csv)))
+    expect_gt(nrow(patches_csv), 1)
+
+    patch_raster <- terra::rast(output$download_raster)
+    expect_s4_class(patch_raster, "SpatRaster")
   })
 })
