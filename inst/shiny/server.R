@@ -1,15 +1,3 @@
-library(fasterize)
-library(glue)
-library(sf)
-library(stringr)
-library(terra)
-library(tidyterra)
-library(tidyverse)
-library(urbioconnect)
-
-conflicts_prefer(dplyr::filter)
-conflicts_prefer(dplyr::select)
-
 server <- function(input, output, session) {
   # Define file paths
   data_dir <- system.file(

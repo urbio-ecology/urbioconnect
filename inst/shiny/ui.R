@@ -1,15 +1,3 @@
-library(bslib)
-library(colorspace)
-library(conflicted)
-library(DT)
-library(shiny)
-library(shinyjs)
-library(scico)
-library(tidyverse)
-library(urbioconnect)
-
-conflicts_prefer(dplyr::filter)
-conflicts_prefer(dplyr::select)
 ui <- page_navbar(
   title = "Urban Connectedness",
   theme = urbio_theme(),
