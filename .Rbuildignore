@@ -18,3 +18,5 @@
 ^\.pre-commit-config\.yaml$
 ^dev$
 ^AGENTS\.md$
+^[.]?air[.]toml$
+^\.vscode$
