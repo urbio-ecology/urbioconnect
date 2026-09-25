@@ -152,45 +152,6 @@ ui <- page_navbar(
     conditionalPanel(
       condition = "output.results_ready",
 
-      # Analysis Metadata ----
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header(
-            class = "bg-info text-white",
-            "Analysis Information"
-          ),
-          card_body(
-            layout_columns(
-              col_widths = c(4, 4, 4),
-              div(
-                strong("Species: "),
-                textOutput("analysis_species", inline = TRUE)
-              ),
-              div(
-                strong("Run Time: "),
-                textOutput("analysis_timestamp", inline = TRUE)
-              ),
-              div(
-                strong("Session: "),
-                textOutput("analysis_session", inline = TRUE)
-              )
-            ),
-            layout_columns(
-              col_widths = c(6, 6),
-              div(
-                strong("Interpatch Distances: "),
-                textOutput("analysis_buffers", inline = TRUE)
-              ),
-              div(
-                strong("Working Directory: "),
-                code(textOutput("analysis_workdir", inline = TRUE))
-              )
-            )
-          )
-        )
-      ),
-
       # Habitat, Buffered Habitat, and Barrier
       layout_columns(
         col_widths = 12,
@@ -209,26 +170,6 @@ ui <- page_navbar(
           card_header("Patch ID"),
           card_body(
             uiOutput("plot_patches_tabs")
-          )
-        )
-      ),
-
-      # Everything, in one archive
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header("Download your results"),
-          card_body(
-            p(
-              "One archive holding every map, table and GIS layer below,",
-              "in a folder for each interpatch distance, with a README",
-              "explaining each file."
-            ),
-            downloadButton(
-              "download_everything",
-              "Download everything (ZIP)",
-              class = "btn-primary btn-lg w-100"
-            )
           )
         )
       ),
@@ -305,33 +246,92 @@ ui <- page_navbar(
             )
           )
         )
-      ),
+      )
+    ),
 
-      # Spatial Downloads
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header("Spatial Data Downloads"),
-          card_body(
-            p("Download spatial layers for use in GIS software:"),
-            layout_columns(
-              col_widths = c(4, 4, 4),
-              downloadButton(
-                "download_raster",
-                "Download Raster (GeoTIFF)",
-                class = "btn-outline-primary w-100"
-              ),
-              downloadButton(
-                "download_report_html",
-                "Download Report (HTML)",
-                class = "btn-outline-success w-100"
-              ),
-              downloadButton(
-                "download_report_pdf",
-                "Download Report (PDF)",
-                class = "btn-outline-success w-100"
-              )
+    # Analysis Metadata ----
+    layout_columns(
+      col_widths = 12,
+      card(
+        card_header(
+          class = "bg-info text-white",
+          "Analysis Information"
+        ),
+        card_body(
+          layout_columns(
+            col_widths = c(4, 4, 4),
+            div(
+              strong("Species: "),
+              textOutput("analysis_species", inline = TRUE)
+            ),
+            div(
+              strong("Run Time: "),
+              textOutput("analysis_timestamp", inline = TRUE)
+            ),
+            div(
+              strong("Session: "),
+              textOutput("analysis_session", inline = TRUE)
             )
+          ),
+          layout_columns(
+            col_widths = c(4, 8),
+            div(
+              strong("Interpatch Distances: "),
+              textOutput("analysis_buffers", inline = TRUE)
+            ),
+            div(
+              strong("Working Directory: "),
+              code(textOutput("analysis_workdir", inline = TRUE))
+            )
+          )
+        )
+      )
+    )
+  ),
+
+  nav_panel(
+    title = "Downloads",
+    icon = icon("download"),
+    # Spatial Downloads
+    layout_columns(
+      col_widths = 12,
+      card(
+        card_header("Spatial Data Downloads"),
+        card_body(
+          p("Download spatial layers for use in GIS software:"),
+          layout_columns(
+            col_widths = c(4, 4, 4),
+            downloadButton(
+              "download_raster",
+              "Download Raster (GeoTIFF)",
+              class = "btn-outline-primary w-100"
+            ),
+            downloadButton(
+              "download_report_html",
+              "Download Report (HTML)",
+              class = "btn-outline-success w-100"
+            ),
+            downloadButton(
+              "download_report_pdf",
+              "Download Report (PDF)",
+              class = "btn-outline-success w-100"
+            )
+          )
+        )
+      ),
+      # Everything, in one archive
+      card(
+        card_header("Download your results"),
+        card_body(
+          p(
+            "One archive holding every map, table and GIS layer below,",
+            "in a folder for each interpatch distance, with a README",
+            "explaining each file."
+          ),
+          downloadButton(
+            "download_everything",
+            "Download everything (ZIP)",
+            class = "btn-primary btn-lg w-100"
           )
         )
       )
@@ -506,5 +506,5 @@ ui <- page_navbar(
         )
       )
     )
-  ),
+  )
 )
