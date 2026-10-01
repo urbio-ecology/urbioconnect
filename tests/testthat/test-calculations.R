@@ -15,7 +15,7 @@ test_that("effective_mesh_size computes correctly in hectares", {
 })
 
 test_that("effective_mesh_size is smaller for fragmented habitat", {
-  # One big patch vs two halves — fragmentation reduces effective mesh size
+  # One big patch vs two halves - fragmentation reduces effective mesh size
   unfrag <- effective_mesh_size(area = 10000)
   frag <- effective_mesh_size(area = c(5000, 5000))
   expect_gt(unfrag, frag)

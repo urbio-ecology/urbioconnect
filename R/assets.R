@@ -301,7 +301,7 @@ write_asset_readme <- function(x, manifest, dir) {
     system.file("templates", "bundle-README.md", package = "urbioconnect")
   )
 
-  file_list <- glue::glue_data(manifest, "- `{path}` — {description}")
+  file_list <- glue::glue_data(manifest, "- `{path}` - {description}")
 
   readme <- glue::glue_collapse(template, sep = "\n") |>
     glue::glue(

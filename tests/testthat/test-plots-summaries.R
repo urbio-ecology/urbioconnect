@@ -8,7 +8,7 @@ remaining <- drop_habitat_under_barrier(lizard_habitat, barrier_mask)
 patch_id_raster <- assign_patches_to_fragments(remaining, fragmented) |>
   add_patch_area()
 
-# Small rasters for results_connect — plot_connectivity only needs summary
+# Small rasters for results_connect - plot_connectivity only needs summary
 # stats, not realistic habitat geometry
 small_habitat <- terra::rast(
   nrows = 20,

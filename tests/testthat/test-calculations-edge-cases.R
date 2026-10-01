@@ -27,7 +27,7 @@ test_that("mean_patch_size with identical patches equals that patch size", {
 })
 
 test_that("summarise_connectivity with multiple Interpatch distance distances stays one row each", {
-  # Called once per interpatch distance — should always return exactly 1 row
+  # Called once per interpatch distance - should always return exactly 1 row
   purrr::walk(c(50, 100, 200), function(dist) {
     result <- summarise_connectivity(
       connectivity = c(5000, 5000),

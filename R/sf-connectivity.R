@@ -14,7 +14,7 @@
 #' @param buffer_radius Numeric. The radius in metres around the habitat.
 #'   Specify it as half the interpatch distance (see [habitat_buffer()]).
 #'   Because vector buffering is done in continuous space, there is no minimum
-#'   representable radius — unlike the raster path, there is no resolution below
+#'   representable radius - unlike the raster path, there is no resolution below
 #'   which the buffer becomes a no-op.
 #'
 #' @returns SF object with buffered and unioned habitat geometry.

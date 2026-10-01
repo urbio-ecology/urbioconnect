@@ -2,7 +2,7 @@
 
 * The shiny app gains a "Download everything" button, returning one archive of every map, table and GIS layer, and its analysis now builds a single `connectivity_report_data()` rather than assembling the pieces itself. (#153)
 * New `connectivity_report_data()` holds everything one analysis produces: the summary for every interpatch distance, plus the buffered habitat and patch-ID raster each distance produced. (#153)
-* New `write_connectivity_assets()` writes the downloadable assets — maps, tables, and patch polygons as GeoPackage and shapefile — in folders by interpatch distance, with a README describing each file and the run that produced it. (#153)
+* New `write_connectivity_assets()` writes the downloadable assets - maps, tables, and patch polygons as GeoPackage and shapefile - in folders by interpatch distance, with a README describing each file and the run that produced it. (#153)
 * New `zip_connectivity_assets()` archives those assets under a folder named for the species and date. (#153)
 * New `urbio_colours()` and `format_resolution()`: the map palette and the raster resolution formatting, so the app and the downloads can't drift apart. (#153)
 * urbioconnect now requires terra >= 1.8-70. Earlier versions of `terra::identical()` ignore NA cells, so a scenario that only moved NA cells would compare as unchanged. (#140)
