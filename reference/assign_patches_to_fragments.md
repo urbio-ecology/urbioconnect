@@ -28,9 +28,9 @@ Terra SpatRaster with patch IDs.
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
 buffered_habitat <- habitat_buffer(lizard_habitat, 5)
-#> Warning: Buffer radius doesn't align with the raster resolution.
-#> ✖ 5 m isn't a multiple of 2 m.
-#> ℹ It snaps to 4 m (interpatch distance 8 m).
+#> Warning: `interpatch_distance` doesn't align with the raster resolution.
+#> ✖ 10 m isn't a multiple of 4 m.
+#> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
 barrier_mask <- create_barrier_mask(lizard_barrier)

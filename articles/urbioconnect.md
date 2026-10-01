@@ -178,9 +178,9 @@ buffered_habitat <- habitat_buffer(
   habitat = remaining_habitat,
   buffer_radius = buffer_radius
 )
-#> Warning: Buffer radius doesn't align with the raster resolution.
-#> ✖ 5 m isn't a multiple of 2 m.
-#> ℹ It snaps to 4 m (interpatch distance 8 m).
+#> Warning: `interpatch_distance` doesn't align with the raster resolution.
+#> ✖ 10 m isn't a multiple of 4 m.
+#> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
 
@@ -384,27 +384,27 @@ areas <- habitat_connectivity(
   verbose = TRUE
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [32ms]
+#> ✔ Creating barrier mask [27ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [23ms]
+#> ✔ Removing habitat underneath barrier [20ms]
 #> 
-#> ℹ Adding 5m buffer (interpatch distance 10m)
-#> Warning: Buffer radius doesn't align with the raster resolution.
-#> ✖ 5 m isn't a multiple of 2 m.
-#> ℹ It snaps to 4 m (interpatch distance 8 m).
+#> ℹ Buffering habitat for an interpatch distance of 10m
+#> Warning: `interpatch_distance` doesn't align with the raster resolution.
+#> ✖ 10 m isn't a multiple of 4 m.
+#> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Adding 5m buffer (interpatch distance 10m) [294ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [231ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [30ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [17ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [2.1s]
+#> ✔ Assigning patches ID to fragments [1.8s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [40ms]
+#> ✔ Summarising area in each patch [43ms]
 #> 
 
 areas

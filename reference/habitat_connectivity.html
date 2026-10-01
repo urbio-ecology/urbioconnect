@@ -74,8 +74,7 @@ The steps are:</p><ul><li><p><code><a href="create_barrier_mask.html">create_bar
 <span>  <span class="va">habitat</span>,</span>
 <span>  <span class="va">barrier</span>,</span>
 <span>  <span class="va">species</span>,</span>
-<span>  interpatch_distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  buffer_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">interpatch_distance</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -109,19 +108,6 @@ below that the buffer is a no-op and a warning is raised. See
 <code><a href="../articles/interpatch-distance-and-resolution.html">vignette("interpatch-distance-and-resolution")</a></code>.</p></dd>
 
 
-<dt id="arg-buffer-radius">buffer_radius<a class="anchor" aria-label="anchor" href="#arg-buffer-radius"></a></dt>
-<dd><p>Numeric. The radius in metres around the habitat.
-Since patches of habitat will be connected when their edge-to-edge gap is
-&lt;= 2 * <code>buffer radius</code>, we recommend you specify <code>buffer_radius</code> to be
-half the "interpatch distance". This is the distance past which habitat
-patches are no longer considered connected. For example, if your
-interpatch distance is 500m, set <code>buffer_radius = 250</code>. The buffer can only
-be represented if it is at least one raster cell, i.e. keep
-<code>resolution &lt;= interpatch_distance / 2</code>. Below that the buffer is a no-op:
-<code><a href="habitat_buffer.html">habitat_buffer()</a></code> warns and returns the habitat unchanged. See
-<code><a href="../articles/interpatch-distance-and-resolution.html">vignette("interpatch-distance-and-resolution")</a></code>.</p></dd>
-
-
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Display progress messages (default: TRUE).</p></dd>
 
@@ -152,22 +138,22 @@ relationship between interpatch distance, buffer radius, and resolution.</p></di
 <span class="r-in"><span>    interpatch_distance <span class="op">=</span> <span class="fl">12</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[30ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[24ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[23ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[19ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adding 6m buffer (interpatch distance 12m)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adding 6m buffer (interpatch distance 12m) <span style="color: #B2B2B2;">[214ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 12m</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 12m <span style="color: #B2B2B2;">[171ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[24ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[18ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.3s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[52ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[88ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">connectivity</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>

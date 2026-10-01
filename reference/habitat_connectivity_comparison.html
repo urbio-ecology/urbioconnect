@@ -3,17 +3,15 @@
 objects compare_connectivity() takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via habitat_connectivity()) and
-compares them. Provide either an interpatch_distance or a buffer_radius
-(as with habitat_connectivity()); interpatch_distance may be a vector,
-in which case the comparison is run once per distance and the per-distance
-results are stacked."><meta property="og:description" content="Starts from habitat and barrier layers, rather than the connectivity
+compares them. interpatch_distance may be a vector, in which case the
+comparison is run once per distance and the per-distance results are
+stacked."><meta property="og:description" content="Starts from habitat and barrier layers, rather than the connectivity
 objects compare_connectivity() takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via habitat_connectivity()) and
-compares them. Provide either an interpatch_distance or a buffer_radius
-(as with habitat_connectivity()); interpatch_distance may be a vector,
-in which case the comparison is run once per distance and the per-distance
-results are stacked."></head><body>
+compares them. interpatch_distance may be a vector, in which case the
+comparison is run once per distance and the per-distance results are
+stacked."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -59,10 +57,9 @@ results are stacked."></head><body>
 objects <code><a href="compare_connectivity.html">compare_connectivity()</a></code> takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>) and
-compares them. Provide either an <code>interpatch_distance</code> or a <code>buffer_radius</code>
-(as with <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>); <code>interpatch_distance</code> may be a vector,
-in which case the comparison is run once per distance and the per-distance
-results are stacked.</p>
+compares them. <code>interpatch_distance</code> may be a vector, in which case the
+comparison is run once per distance and the per-distance results are
+stacked.</p>
     </div>
 
     <div class="section level2">
@@ -73,8 +70,7 @@ results are stacked.</p>
 <span>  <span class="va">habitat_baseline</span>,</span>
 <span>  <span class="va">barrier_baseline</span>,</span>
 <span>  <span class="va">species</span>,</span>
-<span>  interpatch_distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  buffer_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">interpatch_distance</span>,</span>
 <span>  scenario_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -107,15 +103,7 @@ results are stacked.</p>
 <dt id="arg-interpatch-distance">interpatch_distance<a class="anchor" aria-label="anchor" href="#arg-interpatch-distance"></a></dt>
 <dd><p>Numeric. The distance (in metres) at which habitat
 patches are considered connected. May be a scalar or a vector; a vector
-runs the comparison once per distance. Provide exactly one of
-<code>interpatch_distance</code> or <code>buffer_radius</code>. See <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code> for
-the interpatch distance / buffer radius relationship.</p></dd>
-
-
-<dt id="arg-buffer-radius">buffer_radius<a class="anchor" aria-label="anchor" href="#arg-buffer-radius"></a></dt>
-<dd><p>Numeric. The radius in metres around the habitat, an
-alternative to <code>interpatch_distance</code>. Provide exactly one of
-<code>interpatch_distance</code> or <code>buffer_radius</code>. See <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>.</p></dd>
+runs the comparison once per distance. See <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>.</p></dd>
 
 
 <dt id="arg-scenario-name">scenario_name<a class="anchor" aria-label="anchor" href="#arg-scenario-name"></a></dt>

@@ -18,6 +18,11 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
 
 ### Code
 
+- **The package is pre-release, and we are not keeping backwards
+  compatibility.** Always prefer the best API over the existing one.
+  Change signatures outright, update the tests, snapshots, docs and app
+  in the same commit, and skip deprecation cycles. Don’t carry an
+  awkward argument because something already calls it.
 - `connectivity` and `patch_size_tbl` are S3 tibble subclasses. Keep
   them S3; don’t use S7 or R6 or S4.
 - For S3 dispatch on input type, write a `.default` method rather than a
@@ -119,6 +124,8 @@ desirability:
 
 ### Code style
 
+- Never ever use nonAscii contents in files
+- Never use ” — ” always use “-”
 - Follow the tidyverse style guide
 - Always run `air format .` after generating code. (air is bundled with
   Positron so look there if you can’t otherwise find it.)
@@ -153,6 +160,8 @@ desirability:
 
 ### Documentation
 
+- Never ever use nonAscii contents in files
+- Never use ” — ” always use “-”
 - Every user-facing function should be exported and have roxygen2
   documentation.
 - Internal functions may have roxygen blocks, as long as they use
@@ -167,6 +176,8 @@ desirability:
 
 ### `NEWS.md`
 
+- Never ever use nonAscii contents in files
+- Never use ” — ” always use “-”
 - Every user-facing change should be given a bullet in `NEWS.md`.
 - Changes that shouldn’t get a bullet:
   - Small documentation changes.
@@ -209,6 +220,8 @@ desirability:
 
 ## Writing
 
+- Never ever use nonAscii contents in files
+- Never use ” — ” always use “-”
 - Use sentence case for headings.
 - Use Australian English.
 

@@ -52,13 +52,7 @@ areas of connected patches.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sf_habitat_connectivity</span><span class="op">(</span></span>
-<span>  <span class="va">habitat</span>,</span>
-<span>  <span class="va">barrier</span>,</span>
-<span>  <span class="va">species</span>,</span>
-<span>  interpatch_distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  buffer_radius <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sf_habitat_connectivity</span><span class="op">(</span><span class="va">habitat</span>, <span class="va">barrier</span>, <span class="va">species</span>, <span class="va">interpatch_distance</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -84,22 +78,7 @@ are connected, those 501m apart are not connected. This is passed
 internally to a spatial operation known as "buffering", where this
 distance is used as a radius from the edge of the habitat zone. This means
 the specified <code>interpatch_distance</code> is halved exactly. So an interpatch
-distance of 500 will be converted to 250. Note that
-<code>interpatch_distance</code> is mutually exclusive to <code>habitat_buffer</code>, so you
-can only specify either <code>interpatch_distance</code> or  <code>habitat_buffer</code>, and
-never both.</p></dd>
-
-
-<dt id="arg-buffer-radius">buffer_radius<a class="anchor" aria-label="anchor" href="#arg-buffer-radius"></a></dt>
-<dd><p>Numeric. The radius in metres around the habitat.
-Since patches of habitat will be connected when their edge-to-edge gap is
-&lt;= 2 * <code>buffer radius</code>, we recommend you specify <code>buffer_radius</code> to be
-half the "interpatch distance". This is the distance past which habitat
-patches are no longer considered connected. For example, if your
-interpatch distance is 500m, set <code>buffer_radius = 250</code>. Note that
-<code>interpatch_distance</code> is mutually exclusive to <code>habitat_buffer</code>, so you
-can only specify either <code>interpatch_distance</code> or  <code>habitat_buffer</code>, and
-never both.</p></dd>
+distance of 500 will be converted to a 250m buffer radius.</p></dd>
 
 </dl></div>
     <div class="section level2">

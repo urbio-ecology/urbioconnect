@@ -12,8 +12,7 @@ reporting.
 habitat_connectivity_full(
   habitat,
   barrier,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 ```
@@ -39,21 +38,6 @@ habitat_connectivity_full(
   500 will be converted to 250. For the buffer to be representable on
   the raster, keep `resolution <= interpatch_distance / 2`; below that
   the buffer is a no-op and a warning is raised. See
-  [`vignette("interpatch-distance-and-resolution")`](https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.md).
-
-- buffer_radius:
-
-  Numeric. The radius in metres around the habitat. Since patches of
-  habitat will be connected when their edge-to-edge gap is \<= 2 \*
-  `buffer radius`, we recommend you specify `buffer_radius` to be half
-  the "interpatch distance". This is the distance past which habitat
-  patches are no longer considered connected. For example, if your
-  interpatch distance is 500m, set `buffer_radius = 250`. The buffer can
-  only be represented if it is at least one raster cell, i.e. keep
-  `resolution <= interpatch_distance / 2`. Below that the buffer is a
-  no-op:
-  [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
-  warns and returns the habitat unchanged. See
   [`vignette("interpatch-distance-and-resolution")`](https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.md).
 
 - verbose:

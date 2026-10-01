@@ -103,9 +103,8 @@ hab[5, 5] <- 1
 
 # sub-cell: warns, no-op
 b50 <- habitat_buffer(hab, buffer_radius = 50) 
-#> Warning: Can't represent the buffer at a resolution of 100m.
-#> ✖ Buffer radius (50m) is smaller than one raster cell.
-#> ℹ This radius corresponds to an `interpatch_distance` of 100m.
+#> Warning: Can't represent an `interpatch_distance` of 100m at a resolution of 100m.
+#> ✖ Half that distance (50m) is smaller than one raster cell.
 #> ℹ Gaps between patches aren't bridged; only touching patches are linked.
 #> ℹ Rule of thumb: keep resolution <= interpatch_distance / 2 (use finer cells,
 #>   or a larger interpatch distance).

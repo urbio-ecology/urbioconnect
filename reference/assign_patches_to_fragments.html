@@ -71,9 +71,9 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">lizard_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lizard_barrier</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">buffered_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_buffer.html">habitat_buffer</a></span><span class="op">(</span><span class="va">lizard_habitat</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Buffer radius doesn't align with the raster resolution.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> 5 m isn't a multiple of 2 m.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> It snaps to 4 m (interpatch distance 8 m).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`interpatch_distance` doesn't align with the raster resolution.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> 10 m isn't a multiple of 4 m.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span>
 <span class="r-in"><span><span class="va">barrier_mask</span> <span class="op">&lt;-</span> <span class="fu"><a href="create_barrier_mask.html">create_barrier_mask</a></span><span class="op">(</span><span class="va">lizard_barrier</span><span class="op">)</span></span></span>

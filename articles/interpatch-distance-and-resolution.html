@@ -155,9 +155,8 @@ letting <code><a href="https://rspatial.github.io/terra/reference/focal.html" cl
 <span></span>
 <span><span class="co"># sub-cell: warns, no-op</span></span>
 <span><span class="va">b50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/habitat_buffer.html">habitat_buffer</a></span><span class="op">(</span><span class="va">hab</span>, buffer_radius <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> </span>
-<span><span class="co">#&gt; Warning: Can't represent the buffer at a resolution of 100m.</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Buffer radius (50m) is smaller than one raster cell.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> This radius corresponds to an `interpatch_distance` of 100m.</span></span>
+<span><span class="co">#&gt; Warning: Can't represent an `interpatch_distance` of 100m at a resolution of 100m.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Half that distance (50m) is smaller than one raster cell.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Gaps between patches aren't bridged; only touching patches are linked.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Rule of thumb: keep resolution &lt;= interpatch_distance / 2 (use finer cells,</span></span>
 <span><span class="co">#&gt;   or a larger interpatch distance).</span></span>

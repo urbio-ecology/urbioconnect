@@ -58,8 +58,7 @@ connectivity pipeline on each and compares them all against that baseline.</p>
 <span>  <span class="va">species</span>,</span>
 <span>  habitat_scenarios <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  barrier_scenarios <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  interpatch_distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  buffer_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">interpatch_distance</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,13 +94,7 @@ across the two.</p></dd>
 <dt id="arg-interpatch-distance">interpatch_distance<a class="anchor" aria-label="anchor" href="#arg-interpatch-distance"></a></dt>
 <dd><p>Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
-vector runs every scenario once per distance. Provide exactly one of
-<code>interpatch_distance</code> or <code>buffer_radius</code>.</p></dd>
-
-
-<dt id="arg-buffer-radius">buffer_radius<a class="anchor" aria-label="anchor" href="#arg-buffer-radius"></a></dt>
-<dd><p>Numeric. The radius in metres around the habitat, an
-alternative to <code>interpatch_distance</code>.</p></dd>
+vector runs every scenario once per distance.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

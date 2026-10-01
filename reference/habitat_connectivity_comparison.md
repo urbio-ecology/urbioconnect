@@ -7,11 +7,9 @@ takes. Give it a scenario habitat/barrier pair and a baseline
 habitat/barrier pair and it runs the full connectivity pipeline on each
 (via
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md))
-and compares them. Provide either an `interpatch_distance` or a
-`buffer_radius` (as with
-[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md));
-`interpatch_distance` may be a vector, in which case the comparison is
-run once per distance and the per-distance results are stacked.
+and compares them. `interpatch_distance` may be a vector, in which case
+the comparison is run once per distance and the per-distance results are
+stacked.
 
 ## Usage
 
@@ -22,8 +20,7 @@ habitat_connectivity_comparison(
   habitat_baseline,
   barrier_baseline,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   scenario_name = NULL,
   verbose = TRUE
 )
@@ -55,16 +52,7 @@ habitat_connectivity_comparison(
 
   Numeric. The distance (in metres) at which habitat patches are
   considered connected. May be a scalar or a vector; a vector runs the
-  comparison once per distance. Provide exactly one of
-  `interpatch_distance` or `buffer_radius`. See
-  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
-  for the interpatch distance / buffer radius relationship.
-
-- buffer_radius:
-
-  Numeric. The radius in metres around the habitat, an alternative to
-  `interpatch_distance`. Provide exactly one of `interpatch_distance` or
-  `buffer_radius`. See
+  comparison once per distance. See
   [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
 
 - scenario_name:

@@ -28,8 +28,7 @@ habitat_connectivity(
   habitat,
   barrier,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 ```
@@ -59,21 +58,6 @@ habitat_connectivity(
   500 will be converted to 250. For the buffer to be representable on
   the raster, keep `resolution <= interpatch_distance / 2`; below that
   the buffer is a no-op and a warning is raised. See
-  [`vignette("interpatch-distance-and-resolution")`](https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.md).
-
-- buffer_radius:
-
-  Numeric. The radius in metres around the habitat. Since patches of
-  habitat will be connected when their edge-to-edge gap is \<= 2 \*
-  `buffer radius`, we recommend you specify `buffer_radius` to be half
-  the "interpatch distance". This is the distance past which habitat
-  patches are no longer considered connected. For example, if your
-  interpatch distance is 500m, set `buffer_radius = 250`. The buffer can
-  only be represented if it is at least one raster cell, i.e. keep
-  `resolution <= interpatch_distance / 2`. Below that the buffer is a
-  no-op:
-  [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
-  warns and returns the habitat unchanged. See
   [`vignette("interpatch-distance-and-resolution")`](https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.md).
 
 - verbose:
@@ -107,22 +91,22 @@ connectivity <- habitat_connectivity(
     interpatch_distance = 12
   )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [30ms]
+#> ✔ Creating barrier mask [24ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [23ms]
+#> ✔ Removing habitat underneath barrier [19ms]
 #> 
-#> ℹ Adding 6m buffer (interpatch distance 12m)
-#> ✔ Adding 6m buffer (interpatch distance 12m) [214ms]
+#> ℹ Buffering habitat for an interpatch distance of 12m
+#> ✔ Buffering habitat for an interpatch distance of 12m [171ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [24ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [18ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [2.3s]
+#> ✔ Assigning patches ID to fragments [2s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [52ms]
+#> ✔ Summarising area in each patch [88ms]
 #> 
 connectivity
 #> # A tibble: 1 × 9

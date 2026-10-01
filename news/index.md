@@ -2,6 +2,24 @@
 
 ## urbioconnect (development version)
 
+- [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
+  [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md),
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md),
+  [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md),
+  [`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+  and
+  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  now take `interpatch_distance` only. The buffer radius is half the
+  interpatch distance, so offering both was two ways to say the same
+  thing;
+  [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
+  and
+  [`sf_habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_buffer.md)
+  still take `buffer_radius`, since that is the operation they perform.
+
+- Warnings about a distance that the raster resolution can’t represent
+  now talk in interpatch distances, matching the argument you supplied.
+
 - The shiny app gains a “Download everything” button, returning one
   archive of every map, table and GIS layer, and its analysis now builds
   a single
@@ -194,17 +212,24 @@
 
 ### Breaking changes
 
+- `buffer_radius` is gone from every function above
+  [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md).
+  Code passing `buffer_radius = r` should pass
+  `interpatch_distance = 2 * r`.
+
 - `interpatch_distance` is now the full edge-to-edge distance below
   which two patches count as connected. It is halved internally to the
   buffer radius, so connectivity results differ from previous versions;
   reproduce old output by passing `buffer_radius =` the old value.
   ([\#131](https://github.com/urbio-ecology/urbioconnect/issues/131))
+
 - [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
   return type changed from a per-patch `patch_size_tbl` to a one-row
   `connectivity` summary. Code relying on per-patch columns
   (e.g. `habitat_connectivity(...)$area`) should instead use
   `patch_sizes(habitat_connectivity(...))[[1]]`.
   ([\#141](https://github.com/urbio-ecology/urbioconnect/issues/141))
+
 - [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
   is now `compare_connectivity(scenario, baseline)`. It takes two
   one-row `connectivity` objects, such as the output of
@@ -215,6 +240,7 @@
   minus baseline) and `pct_change`. It is no longer an S3 generic, and
   its `patch_size_tbl` and default methods are gone.
   ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
+
 - [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)
   no longer takes `connectivity_baseline`. Use
   [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)

@@ -14,8 +14,7 @@ connectivity_report_data(
   habitat,
   barrier,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 ```
@@ -37,13 +36,8 @@ connectivity_report_data(
 - interpatch_distance:
 
   Numeric. The distance (in metres) at which habitat patches are
-  considered connected. May be a scalar or a vector. Provide exactly one
-  of `interpatch_distance` or `buffer_radius`.
-
-- buffer_radius:
-
-  Numeric. The radius in metres around the habitat, an alternative to
-  `interpatch_distance`.
+  considered connected. May be a scalar or a vector; a vector runs the
+  pipeline once per distance.
 
 - verbose:
 

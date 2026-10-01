@@ -15,8 +15,7 @@ habitat_connectivity_scenarios(
   species,
   habitat_scenarios = NULL,
   barrier_scenarios = NULL,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 ```
@@ -50,13 +49,7 @@ habitat_connectivity_scenarios(
 
   Numeric. The distance (in metres) at which habitat patches are
   considered connected. May be a scalar or a vector; a vector runs every
-  scenario once per distance. Provide exactly one of
-  `interpatch_distance` or `buffer_radius`.
-
-- buffer_radius:
-
-  Numeric. The radius in metres around the habitat, an alternative to
-  `interpatch_distance`.
+  scenario once per distance.
 
 - verbose:
 
