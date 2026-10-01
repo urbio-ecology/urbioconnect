@@ -139,7 +139,7 @@ connectivity_metrics <- function(area, area_baseline) {
 #'
 #' Values are deliberately returned at full precision. [compare_connectivity()]
 #' subtracts two of these rows to build its `change` row, and rounding before
-#' that subtraction quantises the delta to the rounding step — for
+#' that subtraction quantises the delta to the rounding step - for
 #' `prob_connectedness` (~1e-05) that step is larger than the changes being
 #' measured, so the delta collapses to zero or overshoots by an order of
 #' magnitude. Round at display time instead, never here.

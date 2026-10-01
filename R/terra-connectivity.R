@@ -127,7 +127,7 @@ habitat_buffer <- function(habitat, buffer_radius) {
   )
   # A sub-cell radius rounds to zero rings: terra::focalMat() returns a 1x1
   # window and terra::focal() errors ("not a meaningful window"). The buffer is a
-  # no-op at this resolution, so return the habitat unchanged — the warning above
+  # no-op at this resolution, so return the habitat unchanged - the warning above
   # has already explained the consequence (only touching patches are linked).
   if (buffer_radius < resolution) {
     return(habitat)

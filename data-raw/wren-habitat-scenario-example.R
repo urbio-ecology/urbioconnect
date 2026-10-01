@@ -1,5 +1,5 @@
 # Derive a synthetic *habitat scenario* from the baseline wren habitat by
-# removing a corner patch of habitat — a legible "a development removes a patch
+# removing a corner patch of habitat - a legible "a development removes a patch
 # of habitat" change. Only the habitat values change: the CRS, extent and
 # resolution are inherited unchanged from `example_wren_habitat()`, mirroring
 # the barrier scenario in `wren-example.R`.

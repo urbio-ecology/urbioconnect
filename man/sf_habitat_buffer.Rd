@@ -12,7 +12,7 @@ sf_habitat_buffer(habitat, buffer_radius)
 \item{buffer_radius}{Numeric. The radius in metres around the habitat.
 Specify it as half the interpatch distance (see \code{\link[=habitat_buffer]{habitat_buffer()}}).
 Because vector buffering is done in continuous space, there is no minimum
-representable radius — unlike the raster path, there is no resolution below
+representable radius - unlike the raster path, there is no resolution below
 which the buffer becomes a no-op.}
 }
 \value{

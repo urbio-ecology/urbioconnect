@@ -312,15 +312,23 @@ plot_connectivity <- function(results_connect_habitat) {
     "tan",
     "offwhite"
   )
-  results_connect_habitat |>
+
+  results_for_plot <- results_connect_habitat |>
     dplyr::select(
       species:patch_area_total_ha,
       -effective_mesh_ha
     ) |>
     tidyr::pivot_longer(
       cols = -c(species, interpatch_distance)
-    ) |>
-    ggplot2::ggplot(ggplot2::aes(x = interpatch_distance, y = value)) +
+    )
+
+  ggplot2::ggplot(
+    data = results_for_plot,
+    ggplot2::aes(
+      x = interpatch_distance,
+      y = value
+    )
+  ) +
     ggplot2::geom_point() +
     ggplot2::geom_line(colour = geo_cols$dark_green) +
     ggplot2::facet_wrap(
@@ -339,7 +347,7 @@ plot_connectivity <- function(results_connect_habitat) {
     ggplot2::labs(
       x = "Interpatch distance (m)"
     ) +
-    ggplot2::theme_minimal() +
+    ggplot2::theme_bw() +
     ggplot2::theme_sub_panel(
       border = ggplot2::element_rect(
         colour = "grey85",

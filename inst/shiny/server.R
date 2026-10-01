@@ -41,6 +41,7 @@ server <- function(input, output, session) {
   # Reactive values to store results ----
   results <- reactiveValues(
     ready = FALSE,
+    report_data = NULL,
     habitat_raster = NULL,
     barrier_raster = NULL,
     buffered_habitat = NULL,
@@ -199,59 +200,24 @@ server <- function(input, output, session) {
 
           incProgress(0.3, message = "Calculating connectivity...")
 
-          # Run connectivity analysis for each interpatch distance
-          # Use _full version to get intermediate results for plotting
-          results_list <- map(
-            .x = interpatch_dists,
-            .f = function(distance) {
-              incProgress(
-                0.1 / length(interpatch_dists),
-                message = paste(
-                  "Processing interpatch distance:",
-                  distance,
-                  "m"
-                )
-              )
-              habitat_connectivity_full(
-                habitat = results$habitat_raster,
-                barrier = results$barrier_raster,
-                interpatch_distance = distance,
-                verbose = FALSE
-              )
-            }
+          # One object holding the whole analysis: the summary, and the layers
+          # each distance produced. The tables, plots and downloads below all
+          # read from it, and it is what the asset bundle is written from.
+          report_data <- connectivity_report_data(
+            habitat = results$habitat_raster,
+            barrier = results$barrier_raster,
+            species = input$species,
+            interpatch_distance = interpatch_dists,
+            verbose = FALSE
           )
 
-          # Extract the areas connected for summary
-          areas_list <- map(results_list, ~ .$areas_connected)
-          results$areas_connected <- areas_list
+          incProgress(0.5, message = "Summarising results...")
 
-          # Store buffered_habitat and patch_id for the first interpatch
-          # distance (for plotting)
-          results$buffered_habitat <- map(
-            results_list,
-            ~ .$buffered_habitat
-          )
-          results$patch_id_raster <- map(
-            results_list,
-            ~ .$patch_id_raster
-          )
-
-          incProgress(0.4, message = "Summarizing results...")
-
-          # Summarise connectivity for each interpatch distance
-          results$results_connect_habitat <- map2(
-            .x = areas_list,
-            .y = interpatch_dists,
-            .f = function(areas, dist) {
-              summarise_connectivity(
-                connectivity = areas$area,
-                interpatch_distance = dist,
-                data_resolution = base_res,
-                species = input$species
-              )
-            }
-          ) |>
-            list_rbind()
+          results$report_data <- report_data
+          results$results_connect_habitat <- report_data$connectivity
+          results$buffered_habitat <- report_data$buffered_habitat
+          results$patch_id_raster <- report_data$patch_id_raster
+          results$areas_connected <- patch_sizes(report_data$connectivity)
 
           incProgress(0.9, message = "Finalizing...")
 
@@ -321,29 +287,17 @@ server <- function(input, output, session) {
   output$gg_barrier_habitat_buffer_tabs <- renderUI({
     req(results$ready)
 
-    # Create color palette
-    urbio_pal <- scico::scico(n = 11, palette = "tofino")
-    urbio_pal_cut <- urbio_pal[c(6:11)]
-    urbio_cols <- list(
-      habitat = urbio_pal_cut[2],
-      interpatch = urbio_pal_cut[5],
-      barrier = "#FFFFFF"
-    )
-
-    # Create tabs for each interpatch distance
-    tab_panels <- map2(
-      .x = results$buffered_habitat,
-      .y = results$interpatch_distances,
-      .f = function(interpatch_distance, distance) {
-        nav_panel(
-          title = paste0("Interpatch: ", distance, "m"),
-          plotOutput(
-            outputId = paste0("barrier_habitat_interpatch_", distance),
-            height = "500px"
-          )
+    # one panel per distance; the rasters are only needed by the plots
+    # themselves, rendered in the observer below
+    tab_panels <- map(results$interpatch_distances, function(distance) {
+      nav_panel(
+        title = paste0("Interpatch: ", distance, "m"),
+        plotOutput(
+          outputId = paste0("barrier_habitat_interpatch_", distance),
+          height = "500px"
         )
-      }
-    )
+      )
+    })
 
     do.call(navset_tab, c(id = "barrier_habitat_tabs", tab_panels))
   })
@@ -383,10 +337,9 @@ server <- function(input, output, session) {
   output$plot_patches_tabs <- renderUI({
     req(results$ready)
 
-    tab_panels <- map2(
-      .x = results$patch_id_raster,
-      .y = results$interpatch_distances,
-      .f = function(patch_id, interpatch_distance) {
+    tab_panels <- map(
+      results$interpatch_distances,
+      function(interpatch_distance) {
         nav_panel(
           title = paste0("Interpatch Distance: ", interpatch_distance, "m"),
           plotOutput(
@@ -449,6 +402,7 @@ server <- function(input, output, session) {
       # patch_size is a list-column of per-patch tables: useful to carry
       # around, not something DT can render
       select(-patch_size) |>
+      mutate(data_resolution = format_resolution(data_resolution)) |>
       datatable(
         options = list(
           pageLength = 10,
@@ -475,6 +429,7 @@ server <- function(input, output, session) {
 
     results$results_connect_habitat |>
       select(-patch_size) |>
+      mutate(data_resolution = format_resolution(data_resolution)) |>
       pivot_longer(
         cols = -c(species, interpatch_distance, data_resolution)
       ) |>
@@ -792,6 +747,20 @@ server <- function(input, output, session) {
         setNames(results$interpatch_distances) |>
         bind_rows(.id = "interpatch") |>
         write_csv(file)
+    }
+  )
+
+  # Everything: maps, tables and GIS layers, laid out by interpatch distance
+  output$download_everything <- downloadHandler(
+    filename = function() {
+      paste0("connectivity-", Sys.Date(), ".zip")
+    },
+    content = function(file) {
+      req(results$report_data)
+
+      withProgress(message = "Preparing your download...", value = 0.3, {
+        zip_connectivity_assets(results$report_data, file)
+      })
     }
   )
 }

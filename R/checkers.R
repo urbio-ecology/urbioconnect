@@ -249,6 +249,25 @@ check_scenario_layers <- function(
 }
 
 #' @noRd
+check_report_data <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (!inherits(x, "connectivity_report_data")) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be a {.cls connectivity_report_data} object, not
+         {.cls {class(x)}}.",
+        "i" = "Build one with {.fn connectivity_report_data}."
+      ),
+      call = call
+    )
+  }
+  invisible(x)
+}
+
+#' @noRd
 check_connectivity <- function(
   x,
   arg = rlang::caller_arg(x),

@@ -17,11 +17,13 @@ reference:
   - n_patches
   - total_habitat_area
   - habitat_connectivity_full
+  - connectivity_report_data
 - title: Patch connectivity class
   contents:
   - patch_sizes
   - pc-getters
   - new_patch_size_tbl
+  - format_resolution
 - title: Raster functions
   contents:
   - create_barrier_mask
@@ -52,12 +54,17 @@ reference:
   contents:
   - starts_with("example")
   - lizard_areas_connected
+- title: Downloads and reporting
+  contents:
+  - write_connectivity_assets
+  - zip_connectivity_assets
 - title: General
   contents:
   - clean
   - empty_grid
-  - generate_connectivity_report
   - col2hex
+  - urbio_colours
+  - generate_connectivity_report
 - title: Shiny app
   contents:
   - run_connectivity_app

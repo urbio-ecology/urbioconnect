@@ -2,8 +2,8 @@ library(urbioconnect)
 library(terra)
 
 # This tutorial walks through comparing a *scenario* against a *baseline*. A
-# scenario isolates a single change — either the habitat layer OR the barrier
-# layer — so its effect on connectivity can be measured cleanly. We demonstrate
+# scenario isolates a single change - either the habitat layer OR the barrier
+# layer - so its effect on connectivity can be measured cleanly. We demonstrate
 # both the barrier-change case and the symmetric habitat-change case.
 
 # Load the baseline habitat and barrier rasters
@@ -131,7 +131,7 @@ habitat_connectivity_comparison(
 # One variable at a time: a comparison must isolate a single change. If BOTH the
 # habitat AND the barrier differ from baseline, the wrapper aborts. The call
 # below intentionally errors ("Both habitat and barrier differ from baseline.
-# Change only one at a time.") — `try()` lets the tutorial run past it so you can
+# Change only one at a time.") - `try()` lets the tutorial run past it so you can
 # see the error message.
 try(
   habitat_connectivity_comparison(

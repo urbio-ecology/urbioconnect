@@ -5,12 +5,8 @@
 urbio_pal <- scico::scico(n = 11, palette = "tofino")
 urbio_pal_cut <- urbio_pal[c(6:11)]
 
-# Define color variables for plotting
-urbio_cols <- list(
-  habitat = urbio_pal_cut[2], # Dark green: #1B5E20
-  interpatch_distance = urbio_pal_cut[5], # Light green: #43A047
-  barrier = "#FFFFFF" # White
-)
+# The map colours come from the package, so downloaded maps match the screen
+urbio_cols <- urbio_colours()
 
 # Define UI color variables
 urbio_ui_cols <- list(

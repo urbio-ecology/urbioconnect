@@ -41,6 +41,10 @@ test_that("the app's analysis path runs and every result output renders", {
       "results_connect_habitat_table",
       "results_connect_habitat_longer_table",
       "plot_connectivity_output",
+      # the tab containers: these broke when the layer lists gained names,
+      # because navset_tab() wants its panels unnamed
+      "gg_barrier_habitat_buffer_tabs",
+      "plot_patches_tabs",
       "barrier_habitat_interpatch_200",
       "patch_plot_200"
     )
@@ -99,5 +103,20 @@ test_that("the app's downloads produce files with content", {
 
     patch_raster <- terra::rast(output$download_raster)
     expect_s4_class(patch_raster, "SpatRaster")
+
+    # download everything: the same analysis, archived. Asserted here rather
+    # than in its own test, which would re-run the pipeline for the same state
+    expect_s3_class(results$report_data, "connectivity_report_data")
+
+    contents <- zip::zip_list(output$download_everything)$filename
+    folder <- paste0("superb-fairy-wren-connectivity-", Sys.Date())
+
+    expect_true(paste0(folder, "/README.md") %in% contents)
+    expect_true(
+      paste0(folder, "/interpatch-200m/gis/patches.gpkg") %in% contents
+    )
+    expect_true(
+      paste0(folder, "/summary/connectivity-summary.csv") %in% contents
+    )
   })
 })

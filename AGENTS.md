@@ -145,7 +145,8 @@ There are three possible ways to run code, listed in rough order of desirability
 ## Git
 
 - Never commit, push or merge without explicit approval for that specific commit. Approval for one commit does not carry over to the next.
-- If the user asks you to commit, use markdown in the commit message, and don't line wrap. The structure is a one-sentence header, a blank line, then a single paragraph. No bullet lists or multi-paragraph bodies.
+- If the user asks you to commit, use markdown in the commit message, and don't line wrap.
+- Draft commit messages should be terse, and state the changes made clearly. One sentence as a heading, then bulleted lists to describe changes
 - If the commit fixes an issue, include `Fixes #num.` on its own line.
 - Only push when the user explicitly requests it.
 
