@@ -47,21 +47,6 @@ test_that("connectivity_report_data() matches habitat_connectivity()", {
   expect_equal(report_data$connectivity, direct)
 })
 
-test_that("connectivity_report_data() takes buffer_radius", {
-  layers <- scenario_test_layers()
-
-  by_radius <- connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Test Species",
-    buffer_radius = 20,
-    verbose = FALSE
-  )
-
-  # labelled by the interpatch distance, which is twice the radius
-  expect_equal(by_radius$interpatch_distance, 40)
-  expect_named(by_radius$patch_id_raster, "40")
-})
 
 test_that("connectivity_report_data() checks its arguments", {
   layers <- scenario_test_layers()

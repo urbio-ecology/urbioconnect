@@ -14,8 +14,7 @@
       species = "Test Species", verbose = FALSE)
     Condition
       Error in `connectivity_report_data()`:
-      ! Specify exactly one of `interpatch_distance` or `buffer_radius`.
-      x Neither was supplied.
+      ! `interpatch_distance` is absent but must be supplied.
     Code
       connectivity_report_data(habitat = layers$habitat, barrier = layers$barrier,
       species = c("one", "two"), interpatch_distance = 40, verbose = FALSE)

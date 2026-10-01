@@ -51,7 +51,7 @@ test_that("habitat_connectivity_comparison() passes scenario_name through", {
   expect_equal(results$scenario_name, rep("Bentley Project", 4))
 })
 
-test_that("habitat_connectivity_comparison() sweeps buffer_radius too", {
+test_that("habitat_connectivity_comparison() rejects a missing or empty distance", {
   layers <- scenario_test_layers()
 
   comparison_at <- function(...) {
@@ -66,42 +66,10 @@ test_that("habitat_connectivity_comparison() sweeps buffer_radius too", {
     )
   }
 
-  by_radius <- comparison_at(buffer_radius = 20)
-
-  expect_s3_class(by_radius, "compare_connectivity")
-  expect_equal(nrow(by_radius), 4)
-  # a buffer radius is half an interpatch distance, so these are the same run
-  expect_equal(by_radius, comparison_at(interpatch_distance = 40))
-})
-
-test_that("habitat_connectivity_comparison() aborts when neither distance nor buffer supplied", {
-  expect_snapshot(
-    habitat_connectivity_comparison(
-      habitat_scenario = wren_habitat,
-      barrier_scenario = wren_barrier_scenario,
-      habitat_baseline = wren_habitat,
-      barrier_baseline = wren_barrier,
-      species = "Superb Fairy Wren",
-      verbose = FALSE
-    ),
-    error = TRUE
-  )
-})
-
-test_that("habitat_connectivity_comparison() aborts when both distance and buffer supplied", {
-  expect_snapshot(
-    habitat_connectivity_comparison(
-      habitat_scenario = wren_habitat,
-      barrier_scenario = wren_barrier_scenario,
-      habitat_baseline = wren_habitat,
-      barrier_baseline = wren_barrier,
-      species = "Superb Fairy Wren",
-      interpatch_distance = 200,
-      buffer_radius = 100,
-      verbose = FALSE
-    ),
-    error = TRUE
-  )
+  expect_snapshot(error = TRUE, {
+    comparison_at()
+    comparison_at(interpatch_distance = numeric(0))
+  })
 })
 
 test_that("habitat_connectivity_comparison() warns and returns zero change when scenario equals baseline", {

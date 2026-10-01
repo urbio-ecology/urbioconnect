@@ -1,80 +1,25 @@
-#' Require exactly one of interpatch_distance / buffer_radius
+#' The buffer radius for an interpatch distance
 #'
-#' Shared guard for the "one of these two distance arguments" rule, used by
-#' `resolve_buffer_radius()` and `habitat_connectivity_comparison()`. Aborts if
-#' zero or both are supplied, otherwise returns the name of the supplied
-#' argument. With `require_length = TRUE`, a zero-length value (e.g.
-#' `numeric(0)`) counts as *not* supplied.
+#' Two patches are connected when their edge-to-edge gap is at most the
+#' interpatch distance, which happens when each is buffered by half of it. The
+#' radius is an implementation detail of the buffering: `habitat_buffer()` takes
+#' one, nothing above it does.
 #'
-#' @param interpatch_distance,buffer_radius The two candidate arguments.
-#' @param require_length Logical. Treat zero-length values as not supplied.
-#' @param call Environment used for the error call.
-#' @returns `"interpatch_distance"` or `"buffer_radius"`.
 #' @noRd
-check_distance_arg <- function(
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
-  require_length = FALSE,
+buffer_radius_from <- function(
+  interpatch_distance,
+  arg = rlang::caller_arg(interpatch_distance),
   call = rlang::caller_env()
 ) {
-  has_id <- !is.null(interpatch_distance) &&
-    (!require_length || length(interpatch_distance) >= 1)
-  has_br <- !is.null(buffer_radius) &&
-    (!require_length || length(buffer_radius) >= 1)
-
-  if (has_id && has_br) {
+  if (rlang::is_missing(rlang::maybe_missing(interpatch_distance))) {
     cli::cli_abort(
-      c(
-        "Specify exactly one of {.arg interpatch_distance} or \\
-         {.arg buffer_radius}.",
-        "x" = "Both were supplied."
-      ),
-      call = call
-    )
-  }
-  if (!has_id && !has_br) {
-    cli::cli_abort(
-      c(
-        "Specify exactly one of {.arg interpatch_distance} or \\
-         {.arg buffer_radius}.",
-        "x" = "Neither was supplied."
-      ),
+      "{.arg {arg}} is absent but must be supplied.",
       call = call
     )
   }
 
-  if (has_id) "interpatch_distance" else "buffer_radius"
-}
-
-#' The distances to sweep over
-#'
-#' `supplied` is `check_distance_arg()`'s return value, naming whichever of the
-#' two arguments the caller used. This picks that one's values.
-#'
-#' @noRd
-distance_values <- function(supplied, interpatch_distance, buffer_radius) {
-  switch(
-    supplied,
-    interpatch_distance = interpatch_distance,
-    buffer_radius = buffer_radius
-  )
-}
-
-#' Run a connectivity function at one distance
-#'
-#' Passes `distance` back to `.f` under the name the caller used, so a sweep
-#' doesn't have to branch on which of the two distance arguments that was.
-#' Everything else goes through `...`.
-#'
-#' @noRd
-exec_at_distance <- function(.f, habitat, barrier, distance, supplied, ...) {
-  rlang::exec(
-    .f,
-    habitat,
-    barrier,
-    ...,
-    !!!rlang::set_names(list(distance), supplied)
-  )
+  check_scalar_numeric(interpatch_distance, arg, call)
+  interpatch_distance / 2
 }
 
 #' Run the connectivity pipeline at one distance
@@ -84,42 +29,19 @@ connectivity_at_distance <- function(
   habitat,
   barrier,
   species,
-  distance,
-  supplied,
+  interpatch_distance,
   verbose
 ) {
-  exec_at_distance(
-    habitat_connectivity,
-    habitat,
-    barrier,
-    distance,
-    supplied,
+  habitat_connectivity(
+    habitat = habitat,
+    barrier = barrier,
     species = species,
+    interpatch_distance = interpatch_distance,
     verbose = verbose
   )
 }
 
-#' @noRd
-resolve_buffer_radius <- function(
-  interpatch_distance = NULL,
-  buffer_radius = NULL
-) {
-  supplied <- check_distance_arg(interpatch_distance, buffer_radius)
-  buffer_radius <- switch(
-    supplied,
-    interpatch_distance = {
-      check_scalar_numeric(interpatch_distance)
-      interpatch_distance / 2
-    },
-    buffer_radius = {
-      check_scalar_numeric(buffer_radius)
-      buffer_radius
-    }
-  )
-  buffer_radius
-}
-
-# warn if the radius can't be represented at this res
+# warn if the distance can't be represented at this res
 #' @noRd
 warn_buffer_resolution <- function(buffer_radius, resolution) {
   # terra::focalMat() includes a cell when its CENTRE is within `buffer_radius`,
@@ -128,13 +50,16 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
   # Assumes square cells (callers pass terra::res(habitat)[1]).
   n_rings <- floor(buffer_radius / resolution)
 
+  # the radius is internal: these warnings reach users through
+  # habitat_connectivity(), so they talk in interpatch distances
+  interpatch_distance <- buffer_radius * 2
+
   if (n_rings < 1) {
     cli::cli_warn(c(
-      "Can't represent the buffer at a resolution of {resolution}m.",
-      "x" = "Buffer radius ({buffer_radius}m) is smaller than one raster \\
+      "Can't represent an {.arg interpatch_distance} of \\
+      {interpatch_distance}m at a resolution of {resolution}m.",
+      "x" = "Half that distance ({buffer_radius}m) is smaller than one raster \\
       cell.",
-      "i" = "This radius corresponds to an {.arg interpatch_distance} of \\
-      {buffer_radius * 2}m.",
       "i" = "Gaps between patches aren't bridged; only touching patches are \\
       linked.",
       "i" = "Rule of thumb: keep resolution <= interpatch_distance / 2 (use \\
@@ -147,10 +72,9 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
   effective_radius <- n_rings * resolution
   if (!isTRUE(all.equal(effective_radius, buffer_radius))) {
     cli::cli_warn(c(
-      "Buffer radius doesn't align with the raster resolution.",
-      "x" = "{buffer_radius} m isn't a multiple of {resolution} m.",
-      "i" = "It snaps to {effective_radius} m (interpatch distance \\
-      {2 * effective_radius} m).",
+      "{.arg interpatch_distance} doesn't align with the raster resolution.",
+      "x" = "{interpatch_distance} m isn't a multiple of {2 * resolution} m.",
+      "i" = "It snaps to {2 * effective_radius} m.",
       "i" = "Connectivity may shift for patches near the cut-off.",
       "i" = "See {.vignette urbioconnect::interpatch-distance-and-resolution}."
     ))

@@ -66,28 +66,19 @@
       # change = scenario - baseline (positive = scenario is higher)
       # pct_change = 100 * change / baseline
 
-# habitat_connectivity_comparison() aborts when neither distance nor buffer supplied
+# habitat_connectivity_comparison() rejects a missing or empty distance
 
     Code
-      habitat_connectivity_comparison(habitat_scenario = wren_habitat,
-        barrier_scenario = wren_barrier_scenario, habitat_baseline = wren_habitat,
-        barrier_baseline = wren_barrier, species = "Superb Fairy Wren", verbose = FALSE)
+      comparison_at()
     Condition
       Error in `habitat_connectivity_comparison()`:
-      ! Specify exactly one of `interpatch_distance` or `buffer_radius`.
-      x Neither was supplied.
-
-# habitat_connectivity_comparison() aborts when both distance and buffer supplied
-
+      ! `interpatch_distance` is absent but must be supplied.
     Code
-      habitat_connectivity_comparison(habitat_scenario = wren_habitat,
-        barrier_scenario = wren_barrier_scenario, habitat_baseline = wren_habitat,
-        barrier_baseline = wren_barrier, species = "Superb Fairy Wren",
-        interpatch_distance = 200, buffer_radius = 100, verbose = FALSE)
+      comparison_at(interpatch_distance = numeric(0))
     Condition
       Error in `habitat_connectivity_comparison()`:
-      ! Specify exactly one of `interpatch_distance` or `buffer_radius`.
-      x Both were supplied.
+      ! `interpatch_distance` must contain at least one distance.
+      x You supplied a zero-length value.
 
 # habitat_connectivity_comparison() aborts when both layers differ
 

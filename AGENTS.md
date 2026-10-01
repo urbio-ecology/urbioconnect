@@ -13,6 +13,7 @@ urbioconnect analyses habitat connectivity in urban landscapes, and ships a Shin
 
 ### Code
 
+- **The package is pre-release, and we are not keeping backwards compatibility.** Always prefer the best API over the existing one. Change signatures outright, update the tests, snapshots, docs and app in the same commit, and skip deprecation cycles. Don't carry an awkward argument because something already calls it.
 - `connectivity` and `patch_size_tbl` are S3 tibble subclasses. Keep them S3; don't use S7 or R6 or S4.
 - For S3 dispatch on input type, write a `.default` method rather than a `character` method.
 
@@ -95,6 +96,8 @@ There are three possible ways to run code, listed in rough order of desirability
 
 ### Code style
 
+- Never ever use nonAscii contents in files
+- Never use " — " always use "-"
 - Follow the tidyverse style guide
 - Always run `air format .` after generating code. (air is bundled with Positron so look there if you can't otherwise find it.)
 - Use the base pipe operator (`|>`), not the magrittr pipe (`%>%`).
@@ -115,6 +118,8 @@ There are three possible ways to run code, listed in rough order of desirability
 
 ### Documentation
 
+- Never ever use nonAscii contents in files
+- Never use " — " always use "-"
 - Every user-facing function should be exported and have roxygen2 documentation.
 - Internal functions may have roxygen blocks, as long as they use `@noRd`.
 - Wrap roxygen2 comments to 80 characters.
@@ -124,6 +129,8 @@ There are three possible ways to run code, listed in rough order of desirability
 
 ### `NEWS.md`
 
+- Never ever use nonAscii contents in files
+- Never use " — " always use "-"
 - Every user-facing change should be given a bullet in `NEWS.md`.
 - Changes that shouldn't get a bullet:
     - Small documentation changes.
@@ -152,6 +159,8 @@ There are three possible ways to run code, listed in rough order of desirability
 
 ## Writing
 
+- Never ever use nonAscii contents in files
+- Never use " — " always use "-"
 - Use sentence case for headings.
 - Use Australian English.
 

@@ -108,10 +108,7 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   across the two.
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
-#'   vector runs every scenario once per distance. Provide exactly one of
-#'   `interpatch_distance` or `buffer_radius`.
-#' @param buffer_radius Numeric. The radius in metres around the habitat, an
-#'   alternative to `interpatch_distance`.
+#'   vector runs every scenario once per distance.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `compare_connectivity` object with four rows per scenario per
@@ -146,15 +143,10 @@ habitat_connectivity_scenarios <- function(
   species,
   habitat_scenarios = NULL,
   barrier_scenarios = NULL,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 ) {
-  supplied <- check_distance_arg(
-    interpatch_distance,
-    buffer_radius,
-    require_length = TRUE
-  )
+  check_distances(interpatch_distance)
   check_scenario_layers(habitat_scenarios, barrier_scenarios)
 
   # Each scenario swaps exactly one layer; the other comes from the baseline.
@@ -177,16 +169,13 @@ habitat_connectivity_scenarios <- function(
     barrier_baseline
   )
 
-  distances <- distance_values(supplied, interpatch_distance, buffer_radius)
-
-  comparisons <- purrr::map(distances, function(distance) {
+  comparisons <- purrr::map(interpatch_distance, function(distance) {
     # Computed once per distance, then reused by every scenario below.
     base_conn <- connectivity_at_distance(
       habitat_baseline,
       barrier_baseline,
       species,
       distance,
-      supplied,
       verbose
     )
 
@@ -198,7 +187,6 @@ habitat_connectivity_scenarios <- function(
         layers$barrier,
         species,
         distance,
-        supplied,
         verbose
       )
     })

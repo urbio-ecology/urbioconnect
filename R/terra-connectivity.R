@@ -347,16 +347,6 @@ aggregate_connected_patches <- function(raster) {
 #'   representable on the raster, keep `resolution <= interpatch_distance / 2`;
 #'   below that the buffer is a no-op and a warning is raised. See
 #'   `vignette("interpatch-distance-and-resolution")`.
-#' @param buffer_radius Numeric. The radius in metres around the habitat.
-#'   Since patches of habitat will be connected when their edge-to-edge gap is
-#'   <= 2 * `buffer radius`, we recommend you specify `buffer_radius` to be
-#'   half the "interpatch distance". This is the distance past which habitat
-#'   patches are no longer considered connected. For example, if your
-#'   interpatch distance is 500m, set `buffer_radius = 250`. The buffer can only
-#'   be represented if it is at least one raster cell, i.e. keep
-#'   `resolution <= interpatch_distance / 2`. Below that the buffer is a no-op:
-#'   `habitat_buffer()` warns and returns the habitat unchanged. See
-#'   `vignette("interpatch-distance-and-resolution")`.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #' @returns A `connectivity` object (one row): a tibble of landscape-level
 #'  connectivity metrics (patch count, effective mesh size, probability of
@@ -385,12 +375,10 @@ habitat_connectivity <- function(
   habitat,
   barrier,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 ) {
-  # check all arguments are there first?
-  buffer_radius <- resolve_buffer_radius(interpatch_distance, buffer_radius)
+  buffer_radius <- buffer_radius_from(interpatch_distance)
   if (verbose) {
     habitat_connectivity <- .habitat_connectivity(
       habitat,
@@ -411,8 +399,7 @@ habitat_connectivity <- function(
   habitat_connectivity <- patch_size_tbl(
     data = habitat_connectivity,
     species = species,
-    # store the FULL distance
-    interpatch_distance = buffer_radius * 2,
+    interpatch_distance = interpatch_distance,
     res = terra::res(habitat)
   )
 
@@ -434,7 +421,7 @@ habitat_connectivity <- function(
   )
 
   cli::cli_progress_step(
-    "Adding {buffer_radius}m buffer (interpatch distance {2 * buffer_radius}m)"
+    "Buffering habitat for an interpatch distance of {2 * buffer_radius}m"
   )
   buffered_habitat <- habitat_buffer(
     habitat = remaining_habitat,
@@ -483,11 +470,10 @@ habitat_connectivity <- function(
 habitat_connectivity_full <- function(
   habitat,
   barrier,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 ) {
-  buffer_radius <- resolve_buffer_radius(interpatch_distance, buffer_radius)
+  buffer_radius <- buffer_radius_from(interpatch_distance)
   if (!verbose) {
     quiet_fun <- purrr::quietly(.habitat_connectivity_full)
     res <- quiet_fun(habitat, barrier, buffer_radius)
@@ -510,7 +496,7 @@ habitat_connectivity_full <- function(
   )
 
   cli::cli_progress_step(
-    "Adding buffer of {buffer_radius}m to habitat layer"
+    "Buffering habitat for an interpatch distance of {2 * buffer_radius}m"
   )
   buffered_habitat <- habitat_buffer(
     habitat = remaining_habitat,

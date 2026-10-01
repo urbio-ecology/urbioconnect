@@ -1,5 +1,8 @@
 # urbioconnect (development version)
 
+* `habitat_connectivity()`, `habitat_connectivity_full()`, `sf_habitat_connectivity()`, `habitat_connectivity_comparison()`, `habitat_connectivity_scenarios()` and `connectivity_report_data()` now take `interpatch_distance` only. The buffer radius is half the interpatch distance, so offering both was two ways to say the same thing; `habitat_buffer()` and `sf_habitat_buffer()` still take `buffer_radius`, since that is the operation they perform.
+* Warnings about a distance that the raster resolution can't represent now talk in interpatch distances, matching the argument you supplied.
+
 * The shiny app gains a "Download everything" button, returning one archive of every map, table and GIS layer, and its analysis now builds a single `connectivity_report_data()` rather than assembling the pieces itself. (#153)
 * New `connectivity_report_data()` holds everything one analysis produces: the summary for every interpatch distance, plus the buffered habitat and patch-ID raster each distance produced. (#153)
 * New `write_connectivity_assets()` writes the downloadable assets - maps, tables, and patch polygons as GeoPackage and shapefile - in folders by interpatch distance, with a README describing each file and the run that produced it. (#153)
@@ -41,6 +44,8 @@
 * `summarise_connectivity()`'s default method now stores a `patch_size_tbl` in `patch_size`, the same as its `patch_size_tbl` method, so `compare_connectivity()` works on a `connectivity` object built from a plain vector of areas. (#35)
 
 ## Breaking changes
+
+* `buffer_radius` is gone from every function above `habitat_buffer()`. Code passing `buffer_radius = r` should pass `interpatch_distance = 2 * r`.
 
 * `interpatch_distance` is now the full edge-to-edge distance below which two patches count as connected. It is halved internally to the buffer radius, so connectivity results differ from previous versions; reproduce old output by passing `buffer_radius =` the old value. (#131)
 * `habitat_connectivity()` return type changed from a per-patch `patch_size_tbl` to a one-row `connectivity` summary. Code relying on per-patch columns (e.g. `habitat_connectivity(...)$area`) should instead use `patch_sizes(habitat_connectivity(...))[[1]]`. (#141)
