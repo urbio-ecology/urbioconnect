@@ -4,10 +4,9 @@
 #'   objects [compare_connectivity()] takes. Give it a scenario
 #'   habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 #'   full connectivity pipeline on each (via [habitat_connectivity()]) and
-#'   compares them. Provide either an `interpatch_distance` or a `buffer_radius`
-#'   (as with [habitat_connectivity()]); `interpatch_distance` may be a vector,
-#'   in which case the comparison is run once per distance and the per-distance
-#'   results are stacked.
+#'   compares them. `interpatch_distance` may be a vector, in which case the
+#'   comparison is run once per distance and the per-distance results are
+#'   stacked.
 #'
 #' @details
 #' Change exactly one layer between baseline and scenario so the difference is
@@ -29,12 +28,7 @@
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which habitat
 #'   patches are considered connected. May be a scalar or a vector; a vector
-#'   runs the comparison once per distance. Provide exactly one of
-#'   `interpatch_distance` or `buffer_radius`. See [habitat_connectivity()] for
-#'   the interpatch distance / buffer radius relationship.
-#' @param buffer_radius Numeric. The radius in metres around the habitat, an
-#'   alternative to `interpatch_distance`. Provide exactly one of
-#'   `interpatch_distance` or `buffer_radius`. See [habitat_connectivity()].
+#'   runs the comparison once per distance. See [habitat_connectivity()].
 #' @param scenario_name Character. An optional label for the scenario, for
 #'   example "Bentley Project". Passed to [compare_connectivity()], and appears
 #'   in the `scenario_name` column on every row. Defaults to `NULL`, which
@@ -67,22 +61,12 @@ habitat_connectivity_comparison <- function(
   habitat_baseline,
   barrier_baseline,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   scenario_name = NULL,
   verbose = TRUE
 ) {
   check_scenario_name(scenario_name)
-
-  # Require exactly one of interpatch_distance / buffer_radius (length-aware, so
-  # numeric(0) counts as "not supplied"). Shared with resolve_buffer_radius().
-  # The return value names whichever argument was supplied, which the sweep
-  # below uses to pass it back to habitat_connectivity() under that same name.
-  supplied <- check_distance_arg(
-    interpatch_distance,
-    buffer_radius,
-    require_length = TRUE
-  )
+  check_distances(interpatch_distance)
 
   # One variable at a time: compute both layer differences once, then guard.
   hab_diff <- layers_differ(habitat_scenario, habitat_baseline)
@@ -115,15 +99,12 @@ habitat_connectivity_comparison <- function(
   # Distance sweep. Written as a plain purrr::map() (no for loop) so it can
   # later swap to a parallel backend without restructuring. Each inner call
   # gets a scalar, so habitat_connectivity() validates it as usual.
-  distances <- distance_values(supplied, interpatch_distance, buffer_radius)
-
-  comparisons <- purrr::map(distances, function(distance) {
+  comparisons <- purrr::map(interpatch_distance, function(distance) {
     base_conn <- connectivity_at_distance(
       habitat_baseline,
       barrier_baseline,
       species,
       distance,
-      supplied,
       verbose
     )
     # identical layers give an identical result, so don't run the pipeline
@@ -136,7 +117,6 @@ habitat_connectivity_comparison <- function(
         barrier_scenario,
         species,
         distance,
-        supplied,
         verbose
       )
     }

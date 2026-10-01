@@ -7,8 +7,7 @@
 habitat_connectivity_full(
   habitat,
   barrier,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 }
@@ -26,17 +25,6 @@ the specified \code{interpatch_distance} is halved exactly. So an interpatch
 distance of 500 will be converted to 250. For the buffer to be
 representable on the raster, keep \code{resolution <= interpatch_distance / 2};
 below that the buffer is a no-op and a warning is raised. See
-\code{vignette("interpatch-distance-and-resolution")}.}
-
-\item{buffer_radius}{Numeric. The radius in metres around the habitat.
-Since patches of habitat will be connected when their edge-to-edge gap is
-<= 2 * \verb{buffer radius}, we recommend you specify \code{buffer_radius} to be
-half the "interpatch distance". This is the distance past which habitat
-patches are no longer considered connected. For example, if your
-interpatch distance is 500m, set \code{buffer_radius = 250}. The buffer can only
-be represented if it is at least one raster cell, i.e. keep
-\code{resolution <= interpatch_distance / 2}. Below that the buffer is a no-op:
-\code{habitat_buffer()} warns and returns the habitat unchanged. See
 \code{vignette("interpatch-distance-and-resolution")}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}

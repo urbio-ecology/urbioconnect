@@ -103,7 +103,7 @@ test_that("sf_habitat_connectivity returns a data frame with expected columns", 
     habitat = habitat,
     barrier = barrier,
     species = "lizard",
-    buffer_radius = 200
+    interpatch_distance = 400
   )
 
   expect_s3_class(result, "patch_size_tbl")

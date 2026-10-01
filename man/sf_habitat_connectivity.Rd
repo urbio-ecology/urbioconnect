@@ -4,13 +4,7 @@
 \alias{sf_habitat_connectivity}
 \title{Calculate habitat connectivity}
 \usage{
-sf_habitat_connectivity(
-  habitat,
-  barrier,
-  species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL
-)
+sf_habitat_connectivity(habitat, barrier, species, interpatch_distance)
 }
 \arguments{
 \item{habitat}{SF object. Original habitat spatial data.}
@@ -25,20 +19,7 @@ are connected, those 501m apart are not connected. This is passed
 internally to a spatial operation known as "buffering", where this
 distance is used as a radius from the edge of the habitat zone. This means
 the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250. Note that
-\code{interpatch_distance} is mutually exclusive to \code{habitat_buffer}, so you
-can only specify either \code{interpatch_distance} or  \code{habitat_buffer}, and
-never both.}
-
-\item{buffer_radius}{Numeric. The radius in metres around the habitat.
-Since patches of habitat will be connected when their edge-to-edge gap is
-<= 2 * \verb{buffer radius}, we recommend you specify \code{buffer_radius} to be
-half the "interpatch distance". This is the distance past which habitat
-patches are no longer considered connected. For example, if your
-interpatch distance is 500m, set \code{buffer_radius = 250}. Note that
-\code{interpatch_distance} is mutually exclusive to \code{habitat_buffer}, so you
-can only specify either \code{interpatch_distance} or  \code{habitat_buffer}, and
-never both.}
+distance of 500 will be converted to a 250m buffer radius.}
 }
 \value{
 Data frame with connectivity metrics for each connected patch,

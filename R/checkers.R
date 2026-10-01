@@ -267,6 +267,41 @@ check_report_data <- function(
   invisible(x)
 }
 
+#' Check a vector of interpatch distances
+#'
+#' A sweep over `numeric(0)` returns no rows and no error, which is how a
+#' zero-length distance once produced an empty comparison table.
+#'
+#' @noRd
+check_distances <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  # a missing argument forwards here as a missing promise, so this reports it
+  # rather than letting R's bare "argument ... is missing" through
+  if (rlang::is_missing(rlang::maybe_missing(x))) {
+    cli::cli_abort(
+      "{.arg {arg}} is absent but must be supplied.",
+      call = call
+    )
+  }
+
+  check_numeric(x, arg, call)
+
+  if (length(x) == 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must contain at least one distance.",
+        "x" = "You supplied a zero-length value."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
 #' @noRd
 check_connectivity <- function(
   x,

@@ -185,19 +185,7 @@ sf_aggregate_connected_patches <- function(patch_areas) {
 #'   internally to a spatial operation known as "buffering", where this
 #'   distance is used as a radius from the edge of the habitat zone. This means
 #'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250. Note that
-#'   `interpatch_distance` is mutually exclusive to `habitat_buffer`, so you
-#'    can only specify either `interpatch_distance` or  `habitat_buffer`, and
-#'    never both.
-#' @param buffer_radius Numeric. The radius in metres around the habitat.
-#'   Since patches of habitat will be connected when their edge-to-edge gap is
-#'   <= 2 * `buffer radius`, we recommend you specify `buffer_radius` to be
-#'   half the "interpatch distance". This is the distance past which habitat
-#'   patches are no longer considered connected. For example, if your
-#'   interpatch distance is 500m, set `buffer_radius = 250`. Note that
-#'   `interpatch_distance` is mutually exclusive to `habitat_buffer`, so you
-#'    can only specify either `interpatch_distance` or  `habitat_buffer`, and
-#'    never both.
+#'   distance of 500 will be converted to a 250m buffer radius.
 
 #'
 #' @returns Data frame with connectivity metrics for each connected patch,
@@ -222,10 +210,9 @@ sf_habitat_connectivity <- function(
   habitat,
   barrier,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL
+  interpatch_distance
 ) {
-  buffer_radius <- resolve_buffer_radius(interpatch_distance, buffer_radius)
+  buffer_radius <- buffer_radius_from(interpatch_distance)
   # buffer the habitat layer by the buffer_radius
   buffer <- sf_habitat_buffer(habitat, buffer_radius)
   # create fragmentation geometry

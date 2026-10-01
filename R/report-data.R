@@ -10,10 +10,8 @@
 #' @param barrier Terra SpatRaster. The barrier layer.
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which
-#'   habitat patches are considered connected. May be a scalar or a vector.
-#'   Provide exactly one of `interpatch_distance` or `buffer_radius`.
-#' @param buffer_radius Numeric. The radius in metres around the habitat, an
-#'   alternative to `interpatch_distance`.
+#'   habitat patches are considered connected. May be a scalar or a vector; a
+#'   vector runs the pipeline once per distance.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `connectivity_report_data` object: a list of
@@ -42,42 +40,25 @@ connectivity_report_data <- function(
   habitat,
   barrier,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 ) {
-  supplied <- check_distance_arg(
-    interpatch_distance,
-    buffer_radius,
-    require_length = TRUE
-  )
+  check_distances(interpatch_distance)
   check_scalar_character(species)
 
-  distances <- distance_values(supplied, interpatch_distance, buffer_radius)
-
-  # a buffer radius is half an interpatch distance; the object is labelled with
-  # the interpatch distance whichever argument the caller used
-  interpatch_distances <- if (supplied == "buffer_radius") {
-    distances * 2
-  } else {
-    distances
-  }
-
-  runs <- purrr::map(distances, function(distance) {
-    exec_at_distance(
-      habitat_connectivity_full,
-      habitat,
-      barrier,
-      distance,
-      supplied,
+  runs <- purrr::map(interpatch_distance, function(distance) {
+    habitat_connectivity_full(
+      habitat = habitat,
+      barrier = barrier,
+      interpatch_distance = distance,
       verbose = verbose
     )
   })
-  runs <- rlang::set_names(runs, as.character(interpatch_distances))
+  runs <- rlang::set_names(runs, as.character(interpatch_distance))
 
   connectivity <- purrr::map2(
     runs,
-    interpatch_distances,
+    interpatch_distance,
     function(run, interpatch_distance) {
       patch_size_tbl(
         data = run$areas_connected,
@@ -97,7 +78,7 @@ connectivity_report_data <- function(
     buffered_habitat = purrr::map(runs, "buffered_habitat"),
     patch_id_raster = purrr::map(runs, "patch_id_raster"),
     species = species,
-    interpatch_distance = interpatch_distances
+    interpatch_distance = interpatch_distance
   )
 }
 

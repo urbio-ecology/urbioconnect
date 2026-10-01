@@ -10,8 +10,7 @@ habitat_connectivity_scenarios(
   species,
   habitat_scenarios = NULL,
   barrier_scenarios = NULL,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   verbose = TRUE
 )
 }
@@ -32,11 +31,7 @@ across the two.}
 
 \item{interpatch_distance}{Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
-vector runs every scenario once per distance. Provide exactly one of
-\code{interpatch_distance} or \code{buffer_radius}.}
-
-\item{buffer_radius}{Numeric. The radius in metres around the habitat, an
-alternative to \code{interpatch_distance}.}
+vector runs every scenario once per distance.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }

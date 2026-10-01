@@ -10,8 +10,7 @@ habitat_connectivity_comparison(
   habitat_baseline,
   barrier_baseline,
   species,
-  interpatch_distance = NULL,
-  buffer_radius = NULL,
+  interpatch_distance,
   scenario_name = NULL,
   verbose = TRUE
 )
@@ -29,13 +28,7 @@ habitat_connectivity_comparison(
 
 \item{interpatch_distance}{Numeric. The distance (in metres) at which habitat
 patches are considered connected. May be a scalar or a vector; a vector
-runs the comparison once per distance. Provide exactly one of
-\code{interpatch_distance} or \code{buffer_radius}. See \code{\link[=habitat_connectivity]{habitat_connectivity()}} for
-the interpatch distance / buffer radius relationship.}
-
-\item{buffer_radius}{Numeric. The radius in metres around the habitat, an
-alternative to \code{interpatch_distance}. Provide exactly one of
-\code{interpatch_distance} or \code{buffer_radius}. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
+runs the comparison once per distance. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
 
 \item{scenario_name}{Character. An optional label for the scenario, for
 example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears
@@ -56,10 +49,9 @@ Starts from habitat and barrier layers, rather than the \code{connectivity}
 objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give it a scenario
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) and
-compares them. Provide either an \code{interpatch_distance} or a \code{buffer_radius}
-(as with \code{\link[=habitat_connectivity]{habitat_connectivity()}}); \code{interpatch_distance} may be a vector,
-in which case the comparison is run once per distance and the per-distance
-results are stacked.
+compares them. \code{interpatch_distance} may be a vector, in which case the
+comparison is run once per distance and the per-distance results are
+stacked.
 }
 \details{
 Change exactly one layer between baseline and scenario so the difference is
