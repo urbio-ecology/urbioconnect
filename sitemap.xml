@@ -18,12 +18,14 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/create_barrier_mask.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/drop_habitat_under_barrier.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/empty_grid.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/format_resolution.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/fragment_habitat.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.html</loc></url>
@@ -54,6 +56,9 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/total_habitat_area.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/urbioconnect-package.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.html</loc></url>
 </urlset>
 

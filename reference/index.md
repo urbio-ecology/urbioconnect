@@ -26,6 +26,8 @@
   : Calculate total habitat area
 - [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md)
   : Calculate habitat connectivity with visualization data
+- [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  : Everything one connectivity analysis produces
 
 ## Patch connectivity class
 
@@ -45,6 +47,9 @@
 - [`new_patch_size_tbl()`](https://urbio-ecology.github.io/urbioconnect/reference/new_patch_size_tbl.md)
   [`patch_size_tbl()`](https://urbio-ecology.github.io/urbioconnect/reference/new_patch_size_tbl.md)
   : A set of connected habitat patches
+
+- [`format_resolution()`](https://urbio-ecology.github.io/urbioconnect/reference/format_resolution.md)
+  : Format a raster resolution for reading
 
 ## Raster functions
 
@@ -109,16 +114,25 @@
 - [`lizard_areas_connected`](https://urbio-ecology.github.io/urbioconnect/reference/lizard_areas_connected.md)
   : Connected habitat patch areas for Blue-tongued Lizard
 
+## Downloads and reporting
+
+- [`write_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.md)
+  : Write the downloadable assets for one analysis
+- [`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
+  : Write the downloadable assets as a single zip
+
 ## General
 
 - [`clean()`](https://urbio-ecology.github.io/urbioconnect/reference/clean.md)
   : Clean any spatial data layer (shape file)
 - [`empty_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/empty_grid.md)
   : Create Empty terra raster grid
-- [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
-  : Generate Connectivity Report
 - [`col2hex()`](https://urbio-ecology.github.io/urbioconnect/reference/col2hex.md)
   : Convert color name to hexadecimal
+- [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md)
+  : The urbioconnect map colours
+- [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+  : Generate Connectivity Report
 
 ## Shiny app
 

@@ -2,6 +2,40 @@
 
 ## urbioconnect (development version)
 
+- The shiny app gains a “Download everything” button, returning one
+  archive of every map, table and GIS layer, and its analysis now builds
+  a single
+  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  rather than assembling the pieces itself.
+  ([\#153](https://github.com/urbio-ecology/urbioconnect/issues/153))
+
+- New
+  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  holds everything one analysis produces: the summary for every
+  interpatch distance, plus the buffered habitat and patch-ID raster
+  each distance produced.
+  ([\#153](https://github.com/urbio-ecology/urbioconnect/issues/153))
+
+- New
+  [`write_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.md)
+  writes the downloadable assets - maps, tables, and patch polygons as
+  GeoPackage and shapefile - in folders by interpatch distance, with a
+  README describing each file and the run that produced it.
+  ([\#153](https://github.com/urbio-ecology/urbioconnect/issues/153))
+
+- New
+  [`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
+  archives those assets under a folder named for the species and date.
+  ([\#153](https://github.com/urbio-ecology/urbioconnect/issues/153))
+
+- New
+  [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md)
+  and
+  [`format_resolution()`](https://urbio-ecology.github.io/urbioconnect/reference/format_resolution.md):
+  the map palette and the raster resolution formatting, so the app and
+  the downloads can’t drift apart.
+  ([\#153](https://github.com/urbio-ecology/urbioconnect/issues/153))
+
 - urbioconnect now requires terra \>= 1.8-70. Earlier versions of
   [`terra::identical()`](https://rspatial.github.io/terra/reference/identical.html)
   ignore NA cells, so a scenario that only moved NA cells would compare

@@ -57,7 +57,7 @@ output: `scenario_name`, `measure`, `species`, `interpatch_distance`,
 scenario is higher than the baseline; the `pct_change` row expresses
 that same change as `100 * change / baseline`, which is the readable
 form for metrics whose absolute deltas are very small. Metric values are
-held at full precision — they are not rounded — so `change` is exact.
+held at full precision - they are not rounded - so `change` is exact.
 
 ## Details
 

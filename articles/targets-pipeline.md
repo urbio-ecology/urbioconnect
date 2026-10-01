@@ -23,7 +23,7 @@ issue by only running code that has been changed. You can think of this
 as a kind of **intelligent caching**: it tracks every input and output
 in your pipeline and only re-runs the steps whose inputs have changed.
 If you add a new interpatch distance, targets re-runs only the
-connectivity step for that distance — not the data preparation or the
+connectivity step for that distance - not the data preparation or the
 other interpatch distances.
 
 `urbioconnect` is works well in a targets pipeline, and this vignette

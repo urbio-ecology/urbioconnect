@@ -31,7 +31,7 @@ sf_habitat_buffer(habitat, buffer_radius)
   the interpatch distance (see
   [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)).
   Because vector buffering is done in continuous space, there is no
-  minimum representable radius — unlike the raster path, there is no
+  minimum representable radius - unlike the raster path, there is no
   resolution below which the buffer becomes a no-op.
 
 ## Value

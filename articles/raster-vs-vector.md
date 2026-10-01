@@ -116,7 +116,7 @@ raster_result <- habitat_connectivity(
   verbose = FALSE
 )
 rast_time <- toc()
-#> 2.845 sec elapsed
+#> 2.823 sec elapsed
 
 raster_result
 #> # A tibble: 1 × 9
@@ -167,7 +167,7 @@ vector_result <- sf_habitat_connectivity(
   interpatch_distance = interpatch_dist
 )
 vect_time <- toc()
-#> 10.129 sec elapsed
+#> 9.375 sec elapsed
 
 vector_result
 #> # patch_size_tbl:      data.frame
@@ -213,11 +213,10 @@ exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.
 
-    #> [1] 2.845
+    #> [1] 2.823
 
 Timings for the methods are also important to consider. The raster
-approach took 2.845 seconds, and the vector approach took 10.129
-seconds.
+approach took 2.823 seconds, and the vector approach took 9.375 seconds.
 
 ## Summarising connectivity metrics
 
@@ -257,8 +256,8 @@ raster_result
 #> #   data_resolution <chr>, patch_size <list>
 ```
 
-The metrics — effective mesh size, probability of connectedness, mean
-patch area — will be close but not identical between the two approaches,
+The metrics - effective mesh size, probability of connectedness, mean
+patch area - will be close but not identical between the two approaches,
 reflecting the geometric differences described above.
 
 ## Which approach should you use?
@@ -326,7 +325,7 @@ the raster approach.
 
 ## Analysis step-by-step
 
-Both approaches expose individual functions if you need finer control —
+Both approaches expose individual functions if you need finer control -
 for example, to inspect intermediate outputs or to substitute a custom
 step.
 
