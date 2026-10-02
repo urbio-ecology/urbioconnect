@@ -1,7 +1,7 @@
-test_that("generate_connectivity_report() rejects anything but a bundle", {
+test_that("generate_connectivity_report() rejects anything else", {
   expect_snapshot(error = TRUE, {
     generate_connectivity_report(lizard_areas_connected)
-    generate_connectivity_report(test_asset_bundle(), output_format = "word")
+    generate_connectivity_report(test_report_data(), output_format = "word")
   })
 })
 
@@ -15,14 +15,14 @@ test_that("generate_connectivity_report() writes both formats of a report", {
 
   paths <- suppressMessages(
     generate_connectivity_report(
-      test_asset_bundle(c(40, 80)),
+      test_report_data(c(40, 80)),
       output_format = "both",
       output_dir = nested
     )
   )
 
-  # the file name defaults to the species and the date, matching the asset
-  # bundle's folder name
+  # the file name defaults to the species and the date, matching the download
+  # folder's name
   expect_equal(
     basename(paths),
     paste0("superb-fairy-wren-connectivity-", Sys.Date(), c(".html", ".pdf"))
@@ -50,7 +50,7 @@ test_that("the change-over-distance section needs more than one distance", {
 
   path <- suppressMessages(
     generate_connectivity_report(
-      test_asset_bundle(40),
+      test_report_data(40),
       output_format = "html",
       output_dir = dir,
       output_file = "report"

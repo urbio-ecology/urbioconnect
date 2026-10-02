@@ -3,14 +3,15 @@
 \name{write_report_data}
 \alias{write_report_data}
 \alias{read_report_data}
-\title{Save a bundle to a file}
+\title{Save and reload a connectivity analysis}
 \usage{
 write_report_data(x, path)
 
 read_report_data(path)
 }
 \arguments{
-\item{x}{A \code{connectivity_report_data} object.}
+\item{x}{A \code{connectivity_report_data} object from
+\code{\link[=connectivity_report_data]{connectivity_report_data()}}.}
 
 \item{path}{File to write to, or read from.}
 }
@@ -19,9 +20,19 @@ read_report_data(path)
 \code{read_report_data()} returns the \code{connectivity_report_data}.
 }
 \description{
-\code{SpatRaster} objects are external pointers, so they are packed with
-\code{\link[terra:wrap]{terra::wrap()}} on the way out and unpacked on the way back in. This is
-how a bundle reaches the separate R session Quarto renders the report in.
+Writes a \code{connectivity_report_data} object to an \code{.rds} file, and reads it
+back. The summary, the habitat and barrier layers, and the patch raster
+for each distance all travel together in the one file.
+}
+\details{
+\code{\link[base:saveRDS]{base::saveRDS()}} on its own isn't enough. A \code{SpatRaster} points at
+memory or at a file on disk rather than carrying its own values, so it
+saves as a null pointer and comes back unusable. \code{\link[terra:wrap]{terra::wrap()}} packs
+the values into the object on the way out, and \code{\link[terra:unwrap]{terra::unwrap()}} restores
+them on the way in.
+
+This is also how an analysis reaches the separate R session that Quarto
+renders the report in.
 }
 \examples{
 \donttest{

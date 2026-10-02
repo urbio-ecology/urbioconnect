@@ -1,7 +1,7 @@
 # asset_manifest() lays out one folder per distance
 
     Code
-      asset_manifest(test_asset_bundle(c(40, 80)))$path
+      asset_manifest(test_report_data(c(40, 80)))$path
     Output
        [1] "README.md"                                     
        [2] "summary/connectivity-summary.csv"              
@@ -27,7 +27,7 @@
       [4] "effective_mesh_ha"   "prob_connectedness"  "patch_area_mean"    
       [7] "patch_area_total_ha" "data_resolution"    
 
-# asset writing rejects anything but a bundle
+# asset writing rejects anything but a connectivity_report_data
 
     Code
       write_connectivity_assets(lizard_areas_connected, dir)

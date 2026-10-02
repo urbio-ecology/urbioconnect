@@ -1,6 +1,6 @@
-# A bundle built from the synthetic layers: ~0.1s per distance, against ~4.7s
-# per distance on the wren rasters.
-test_asset_bundle <- function(interpatch_distance = 40) {
+# A connectivity_report_data built from the synthetic layers: ~0.1s per
+# distance, against ~4.7s per distance on the wren rasters.
+test_report_data <- function(interpatch_distance = 40) {
   layers <- scenario_test_layers()
 
   connectivity_report_data(

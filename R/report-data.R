@@ -82,13 +82,23 @@ connectivity_report_data <- function(
   )
 }
 
-#' Save a bundle to a file
+#' Save and reload a connectivity analysis
 #'
-#' `SpatRaster` objects are external pointers, so they are packed with
-#'   [terra::wrap()] on the way out and unpacked on the way back in. This is
-#'   how a bundle reaches the separate R session Quarto renders the report in.
+#' Writes a `connectivity_report_data` object to an `.rds` file, and reads it
+#'   back. The summary, the habitat and barrier layers, and the patch raster
+#'   for each distance all travel together in the one file.
 #'
-#' @param x A `connectivity_report_data` object.
+#'   [base::saveRDS()] on its own isn't enough. A `SpatRaster` points at
+#'   memory or at a file on disk rather than carrying its own values, so it
+#'   saves as a null pointer and comes back unusable. [terra::wrap()] packs
+#'   the values into the object on the way out, and [terra::unwrap()] restores
+#'   them on the way in.
+#'
+#'   This is also how an analysis reaches the separate R session that Quarto
+#'   renders the report in.
+#'
+#' @param x A `connectivity_report_data` object from
+#'   [connectivity_report_data()].
 #' @param path File to write to, or read from.
 #'
 #' @returns `write_report_data()` returns `path` invisibly;
@@ -111,7 +121,8 @@ connectivity_report_data <- function(
 #' }
 write_report_data <- function(x, path) {
   check_report_data(x)
-  saveRDS(map_report_rasters(x, terra::wrap), path)
+  report_rasters <- map_report_rasters(x, terra::wrap)
+  saveRDS(report_rasters, path)
   invisible(path)
 }
 
@@ -119,7 +130,7 @@ write_report_data <- function(x, path) {
 #' @export
 read_report_data <- function(path) {
   # checked before unwrapping: an rds of something else would otherwise fail
-  # deep inside terra, or quietly produce a malformed bundle
+  # deep inside terra, or quietly come back malformed
   x <- readRDS(path)
 
   if (!is_report_data(x)) {
@@ -134,25 +145,25 @@ read_report_data <- function(path) {
   map_report_rasters(x, terra::unwrap)
 }
 
-#' Is this a bundle?
+#' Is this a `connectivity_report_data` object?
 #'
 #' @noRd
 is_report_data <- function(x) {
   inherits(x, "connectivity_report_data")
 }
 
-#' Does this bundle have more than one distance to compare?
+#' Is there more than one distance to compare?
 #'
 #' A single distance gives a single point, so the over-distance plot has
 #' nothing to show. Asked by both the manifest and the report, so that the
-#' rule lives with the bundle rather than in each renderer.
+#' rule lives with the analysis rather than in each renderer.
 #'
 #' @noRd
 has_over_distance_plot <- function(x) {
   length(x$interpatch_distance) > 1
 }
 
-#' Apply a function to every raster a bundle holds
+#' Apply a function to every raster in a `connectivity_report_data`
 #'
 #' @noRd
 map_report_rasters <- function(x, f) {

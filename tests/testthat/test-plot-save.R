@@ -33,3 +33,17 @@ test_that("plot_barrier_habitat_interpatch_dist saves a file and returns a named
     expect_named(result, "10")
   })
 })
+
+test_that("plot_barrier_habitat_interpatch_dist defaults colours and slugs", {
+  withr::with_tempdir({
+    result <- plot_barrier_habitat_interpatch_dist(
+      barrier = small_barrier,
+      buffered = buffered,
+      habitat = small_habitat,
+      interpatch_distance = 10,
+      species = "Blue Tongue Lizard"
+    )
+    expect_true(file.exists(result))
+    expect_snapshot(unname(result))
+  })
+})

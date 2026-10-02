@@ -1,5 +1,10 @@
 # urbioconnect (development version)
 
+* New `generate_connectivity_report()` renders one document holding the maps, tables and summary for an analysis, as HTML or PDF. The PDF goes through Typst, so no LaTeX is needed, and the figures are drawn from the data rather than embedded as images. Needs the Quarto command line tool. (#54)
+* `gg_barrier_habitat_interpatch_dist()` and `plot_barrier_habitat_interpatch_dist()` now default `col_barrier`, `col_interpatch_dist` and `col_habitat` to the package palette, so the app, the downloads and the report can't drift apart. (#54)
+* `plot_barrier_habitat_interpatch_dist()` now saves at the shared figure size rather than whatever size the last graphics device happened to be, and slugifies the species in the file name, so a species with a space no longer produces a file name with one. (#54)
+* New `urbio_figure_size()` gives the figure width, height and resolution the downloadable PNGs and the report share. (#54)
+* New `write_report_data()` and `read_report_data()` save a `connectivity_report_data()` to a file and read it back, packing the rasters so they survive the trip. This is how an analysis reaches the separate R session the report renders in. (#54)
 * `habitat_connectivity()`, `habitat_connectivity_full()`, `sf_habitat_connectivity()`, `habitat_connectivity_comparison()`, `habitat_connectivity_scenarios()` and `connectivity_report_data()` now take `interpatch_distance` only. The buffer radius is half the interpatch distance, so offering both was two ways to say the same thing; `habitat_buffer()` and `sf_habitat_buffer()` still take `buffer_radius`, since that is the operation they perform.
 * Warnings about a distance that the raster resolution can't represent now talk in interpatch distances, matching the argument you supplied.
 

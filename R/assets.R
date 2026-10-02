@@ -90,7 +90,7 @@ zip_connectivity_assets <- function(x, path) {
   invisible(path)
 }
 
-#' The bundle's folder name: species and date
+#' The download folder's name: species and date
 #'
 #' @noRd
 bundle_dir_name <- function(x) {
@@ -110,7 +110,7 @@ slugify <- function(x) {
     stringr::str_remove_all("^-|-$")
 }
 
-#' What a bundle contains
+#' What the download contains
 #'
 #' The single source of truth for the layout: the writer uses it to know where
 #' files go, and the README lists it, so the two can't drift.
