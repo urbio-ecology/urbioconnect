@@ -5,8 +5,7 @@ test_that("generate_connectivity_report() rejects anything else", {
   })
 })
 
-# Each render costs ~15s, so the properties of one report are asserted together
-# rather than rendered once apiece.
+# a render costs ~15s, so one report's properties are asserted together
 test_that("generate_connectivity_report() writes both formats of a report", {
   skip_if_no_quarto()
 
@@ -21,8 +20,7 @@ test_that("generate_connectivity_report() writes both formats of a report", {
     )
   )
 
-  # the file name defaults to the species and the date, matching the download
-  # folder's name
+  # defaults to the species and date, matching the download folder
   expect_equal(
     basename(paths),
     paste0("superb-fairy-wren-connectivity-", Sys.Date(), c(".html", ".pdf"))
@@ -30,8 +28,7 @@ test_that("generate_connectivity_report() writes both formats of a report", {
   expect_true(all(file.exists(paths)))
   expect_gt(file.size(paths[[2]]), 0)
 
-  # output_dir is created, and the paths come back absolute so they survive a
-  # change of working directory
+  # output_dir is created, and the paths come back absolute
   expect_true(dir.exists(nested))
   expect_equal(paths, normalizePath(paths, winslash = "/"))
 

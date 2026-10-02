@@ -36,9 +36,16 @@
       ! `x` must be a <connectivity_report_data> object, not <patch_size_tbl/tbl_df/tbl/data.frame>.
       i Build one with `connectivity_report_data()`.
     Code
-      zip_connectivity_assets("not a bundle", tempfile(fileext = ".zip"))
+      zip_connectivity_assets("not report data", tempfile(fileext = ".zip"))
     Condition
       Error in `zip_connectivity_assets()`:
       ! `x` must be a <connectivity_report_data> object, not <character>.
       i Build one with `connectivity_report_data()`.
+    Code
+      zip_connectivity_assets(test_report_data(40), "no/such/dir/out.zip")
+    Condition
+      Error in `zip_connectivity_assets()`:
+      ! Can't write `path` to 'no/such/dir/out.zip'.
+      x The directory 'no/such/dir' doesn't exist.
+      i Create it first, or give a path in a directory that exists.
 

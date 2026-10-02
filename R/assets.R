@@ -57,7 +57,7 @@ write_connectivity_assets <- function(x, dir) {
 #'   [connectivity_report_data()].
 #' @param path Path to write the `.zip` to.
 #'
-#' @returns `path`, invisibly.
+#' @returns The absolute path written, invisibly.
 #' @seealso [write_connectivity_assets()] to write the files without archiving.
 #' @export
 #'
@@ -77,17 +77,47 @@ write_connectivity_assets <- function(x, dir) {
 zip_connectivity_assets <- function(x, path) {
   check_report_data(x)
 
-  # staged in a temp directory so the archive contains one named folder rather
-  # than a scatter of files
+  # staged so the archive holds one named folder, not a scatter of files
   staging <- tempfile("urbioconnect-assets")
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
   folder <- bundle_dir_name(x)
   write_connectivity_assets(x, file.path(staging, folder))
 
+  # zip::zip() resolves `zipfile` against `root`, so a relative path would be
+  # written into the staging directory and lost with it
+  path <- absolute_path(path)
+
   zip::zip(zipfile = path, files = folder, root = staging)
 
   invisible(path)
+}
+
+#' Make a path to a not-yet-existing file absolute
+#'
+#' `normalizePath()` leaves a path alone when the file isn't there yet, so the
+#' directory is normalised and the file name put back on.
+#'
+#' @noRd
+absolute_path <- function(
+  path,
+  arg = rlang::caller_arg(path),
+  call = rlang::caller_env()
+) {
+  dir <- dirname(path)
+
+  if (!dir.exists(dir)) {
+    cli::cli_abort(
+      c(
+        "Can't write {.arg {arg}} to {.path {path}}.",
+        "x" = "The directory {.path {dir}} doesn't exist.",
+        "i" = "Create it first, or give a path in a directory that exists."
+      ),
+      call = call
+    )
+  }
+
+  file.path(normalizePath(dir, winslash = "/"), basename(path))
 }
 
 #' The download folder's name: species and date
@@ -184,8 +214,8 @@ write_asset_tables <- function(x, dir) {
     dplyr::select(-"patch_size") |>
     readr::write_csv(file.path(dir, "summary", "connectivity-summary.csv"))
 
-  # the summary already carries the per-patch tables and the distance they
-  # belong to, so unnesting beats stacking them back together by hand
+  # the summary already carries the per-patch tables, so unnest rather than
+  # stack them back together
   x$connectivity |>
     dplyr::select("species", "interpatch_distance", "patch_size") |>
     tidyr::unnest("patch_size") |>

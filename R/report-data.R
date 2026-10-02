@@ -129,8 +129,7 @@ write_report_data <- function(x, path) {
 #' @rdname write_report_data
 #' @export
 read_report_data <- function(path) {
-  # checked before unwrapping: an rds of something else would otherwise fail
-  # deep inside terra, or quietly come back malformed
+  # checked before unwrapping, which would otherwise fail inside terra
   x <- readRDS(path)
 
   if (!is_report_data(x)) {
@@ -154,9 +153,8 @@ is_report_data <- function(x) {
 
 #' Is there more than one distance to compare?
 #'
-#' A single distance gives a single point, so the over-distance plot has
-#' nothing to show. Asked by both the manifest and the report, so that the
-#' rule lives with the analysis rather than in each renderer.
+#' A single distance is a single point, so there is nothing to plot. Asked by
+#' both the manifest and the writer, so the rule has one home.
 #'
 #' @noRd
 has_over_distance_plot <- function(x) {

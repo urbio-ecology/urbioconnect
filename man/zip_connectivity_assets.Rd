@@ -13,7 +13,7 @@ zip_connectivity_assets(x, path)
 \item{path}{Path to write the \code{.zip} to.}
 }
 \value{
-\code{path}, invisibly.
+The absolute path written, invisibly.
 }
 \description{
 \code{\link[=write_connectivity_assets]{write_connectivity_assets()}} into a folder named for the species and the

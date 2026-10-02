@@ -46,9 +46,8 @@ generate_connectivity_report <- function(
 
   output_file <- output_file %||% bundle_dir_name(x)
 
-  # Quarto writes its output beside its input and runs the template in its own
-  # directory, so the template, the data it draws and the rendered file all
-  # live in one staging directory, and only the result is copied out.
+  # Quarto renders beside its input, so the template, its data and the result
+  # share one directory and only the result is copied out
   staging <- tempfile("urbioconnect-report")
   dir.create(staging, recursive = TRUE)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
@@ -81,9 +80,8 @@ generate_connectivity_report <- function(
 
 #' Render the staged template in one format and move the result out
 #'
-#' Driven by the extension the caller asked for, since that is also the file
-#' name Quarto writes. Only the Quarto format name differs: a `.pdf` comes out
-#' of the `typst` format.
+#' Driven by the extension, which is also the file name Quarto writes. Only
+#' the format name differs: a `.pdf` comes out of the `typst` format.
 #'
 #' @noRd
 render_report <- function(template, extension, output_dir, output_file) {
@@ -91,25 +89,37 @@ render_report <- function(template, extension, output_dir, output_file) {
 
   size <- urbio_figure_size()
 
-  quarto::quarto_render(
-    input = template,
-    output_format = switch(extension, html = "html", pdf = "typst"),
-    # passed in rather than written into the template, so the report and the
-    # downloadable PNGs take their size from one place
-    metadata = list(
-      `fig-width` = size$width,
-      `fig-height` = size$height,
-      `fig-dpi` = size$dpi
-    ),
-    quiet = TRUE
+  render <- function(quiet) {
+    quarto::quarto_render(
+      input = template,
+      output_format = switch(extension, html = "html", pdf = "typst"),
+      # passed in, not written into the template, so the size has one home
+      metadata = list(
+        `fig-width` = size$width,
+        `fig-height` = size$height,
+        `fig-dpi` = size$dpi
+      ),
+      quiet = quiet
+    )
+  }
+
+  # a quiet render discards the reason it failed, so retry loudly to show it
+  rlang::try_fetch(
+    render(quiet = TRUE),
+    error = function(cnd) {
+      cli::cli_inform("Render failed. Retrying to show Quarto's output.")
+      render(quiet = FALSE)
+      cli::cli_abort(
+        "Quarto couldn't render the {.field {extension}} report.",
+        parent = cnd
+      )
+    }
   )
 
-  # Quarto writes its output beside its input, under the same stem
   staging <- dirname(template)
   rendered <- sub("\\.qmd$", paste0(".", extension), template)
 
-  # Quarto reported success, so a missing file here means it wrote something we
-  # didn't expect. Fail rather than hand back a path to nothing.
+  # don't hand back a path to nothing
   if (!file.exists(rendered)) {
     cli::cli_abort(c(
       "Quarto rendered no {.field {extension}} file.",
@@ -127,7 +137,7 @@ render_report <- function(template, extension, output_dir, output_file) {
     )
   }
 
-  # absolute, so the path stays valid if the caller's working directory moves
+  # absolute, so it survives a change of working directory
   destination <- normalizePath(destination, winslash = "/")
   cli::cli_inform("Wrote {.path {destination}}")
 

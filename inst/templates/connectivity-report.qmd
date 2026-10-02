@@ -9,6 +9,9 @@ format:
     embed-resources: true
   typst:
     toc: true
+    # not Typst's default SVG: that device needs cairo or svglite, which an R
+    # install may not have
+    fig-format: png
 execute:
   echo: false
   warning: false
@@ -23,7 +26,7 @@ report <- read_report_data(params$report_data)
 connectivity <- report$connectivity
 distances <- report$interpatch_distance
 
-# draw tabs, for each buffer distance, with blank ending line, for pandoc
+# draw tabs, one per interpatch distance, with blank ending line, for pandoc
 distance_tabs <- function(draw) {
   cat("\n::: {.panel-tabset}\n")
 
@@ -90,16 +93,15 @@ row, and are given above.
 
 ```{r}
 #| label: summary-table
-# each column is named where it is computed, so a renamed or reordered column
-# upstream fails here rather than quietly mislabelling a number
+# short labels: the PDF hyphenates long headings across the column boundary
 connectivity |>
   dplyr::mutate(
-    `Interpatch distance (m)` = interpatch_distance,
+    `Distance (m)` = interpatch_distance,
     Patches = n_patches,
-    `Effective mesh (ha)` = round(effective_mesh_ha, 2),
+    `Mesh (ha)` = round(effective_mesh_ha, 2),
     `P(connected)` = signif(prob_connectedness, 3),
-    `Mean patch area (m2)` = round(patch_area_mean, 1),
-    `Total patch area (ha)` = round(patch_area_total_ha, 2),
+    `Mean area (m2)` = round(patch_area_mean, 1),
+    `Total area (ha)` = round(patch_area_total_ha, 2),
     .keep = "none"
   ) |>
   knitr::kable()

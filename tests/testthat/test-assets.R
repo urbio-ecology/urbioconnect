@@ -57,8 +57,7 @@ test_that("patch polygons carry patch_id and area, in both formats", {
   # one polygon per patch in the summary
   expect_equal(nrow(gpkg), report_data$connectivity$n_patches)
 
-  # the CRS survives the round-trip, which is what makes these usable in a GIS.
-  # compared with same.crs(), since writing rewrites the WKT text
+  # same.crs(), not equality: writing rewrites the WKT text
   expect_true(terra::same.crs(gpkg, report_data$habitat))
   expect_true(terra::same.crs(shp, report_data$habitat))
 })
@@ -95,11 +94,25 @@ test_that("zip_connectivity_assets() archives one named folder", {
   )
 })
 
+test_that("zip_connectivity_assets() takes a relative path", {
+  report_data <- test_report_data(40)
+
+  withr::with_tempdir({
+    dir.create("out")
+    path <- zip_connectivity_assets(report_data, "out/wren.zip")
+
+    expect_equal(basename(path), "wren.zip")
+    expect_equal(path, normalizePath(path, winslash = "/"))
+    expect_true(file.exists("out/wren.zip"))
+  })
+})
+
 test_that("asset writing rejects anything but a connectivity_report_data", {
   dir <- withr::local_tempdir()
 
   expect_snapshot(error = TRUE, {
     write_connectivity_assets(lizard_areas_connected, dir)
-    zip_connectivity_assets("not a bundle", tempfile(fileext = ".zip"))
+    zip_connectivity_assets("not report data", tempfile(fileext = ".zip"))
+    zip_connectivity_assets(test_report_data(40), "no/such/dir/out.zip")
   })
 })
