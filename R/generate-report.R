@@ -1,129 +1,166 @@
-#' Generate Connectivity Report
+#' Render a connectivity report
 #'
-#' Creates a parameterised Quarto report from connectivity analysis results.
+#' One document holding the maps, tables and summary for an analysis: the same
+#'   figures [write_connectivity_assets()] writes, laid out to read. HTML is a
+#'   single self-contained file; PDF is rendered through Typst, so no LaTeX is
+#'   needed.
 #'
-#' @param species_name Character. Name of the species being analysed.
-#' @param interpatch_distances Numeric. The distances (in meters) where habitat
-#'   patches are considered connected. E.g., if set to 500, patches 498m apart
-#'   are connected, those 501m apart are not connected. This is passed
-#'   internally to a spatial operation known as "buffering", where this
-#'   distance is used as a radius from the edge of the habitat zone. This means
-#'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250.
-#' @param results_connect_habitat Data frame. Connectivity summary results.
-#' @param areas_connected List of data frames. Connected patch areas for each
-#'   interpatch distance.
-#' @param habitat SF object. Habitat spatial data (optional, for mapping).
-#' @param barrier SF object. Barrier spatial data (optional, for mapping).
-#' @param habitat_raster Terra SpatRaster. Habitat raster (optional, for
-#' mapping).
-#' @param data_resolution Numeric. Data resolution in meters.
-#' @param output_file Character. Output filename (without extension).
-#' @param output_format Character. Output format: "html" (default), "pdf", or
-#' "both".
-#' @param output_dir Character. Directory to save the report (default: current
-#' directory).
+#'   The report covers the tabular and visual results. The GIS layers travel
+#'   with [zip_connectivity_assets()], since a GeoTIFF can't live inside a
+#'   document.
 #'
-#' @return Character vector of generated report file path(s).
+#' @param x A `connectivity_report_data` object from
+#'   [connectivity_report_data()].
+#' @param output_format One of `"html"`, `"pdf"`, or `"both"`.
+#' @param output_dir Directory to write the report to, defaulting to the
+#'   working directory. Created if it doesn't exist.
+#' @param output_file File name, without extension. Defaults to the species and
+#'   today's date, matching the asset bundle's folder name.
+#'
+#' @returns The absolute path(s) written, invisibly.
+#' @seealso [connectivity_report_data()] to build `x`, and
+#'   [zip_connectivity_assets()] for the GIS layers and full tables.
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' report_path <- generate_connectivity_report(
-#'   species_name = "Superb Fairy Wren",
-#'   interpatch_distances = c(100, 250, 400),
-#'   results_connect_habitat = results_df,
-#'   areas_connected = patches_list,
-#'   output_format = "html"
+#' \donttest{
+#' report_data <- connectivity_report_data(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
 #' )
+#'
+#' generate_connectivity_report(report_data, output_dir = tempdir())
 #' }
 generate_connectivity_report <- function(
-  species_name,
-  interpatch_distances,
-  results_connect_habitat,
-  areas_connected,
-  habitat = NULL,
-  barrier = NULL,
-  habitat_raster = NULL,
-  data_resolution = 10,
-  output_file = NULL,
+  x,
   output_format = c("html", "pdf", "both"),
-  output_dir = getwd()
+  output_dir = ".",
+  output_file = NULL
 ) {
-  # Match argument
+  check_report_data(x)
   output_format <- rlang::arg_match(output_format)
+  check_quarto()
 
-  rlang::check_installed("quarto")
+  output_file <- output_file %||% bundle_dir_name(x)
 
-  # Look for template in inst/templates
-  template_path <- here::here("inst/templates/connectivity-report.qmd")
+  # Quarto renders beside its input, so the template, its data and the result
+  # share one directory and only the result is copied out
+  staging <- tempfile("urbioconnect-report")
+  dir.create(staging, recursive = TRUE)
+  on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  report_template_not_found <- !file.exists(template_path)
-  if (report_template_not_found) {
-    cli::cli_abort("Report template not found at: {.path {template_path}}")
-  }
+  write_report_data(x, file.path(staging, "report-data.rds"))
 
-  # Create output directory if needed
+  template <- system.file(
+    "templates",
+    "connectivity-report.qmd",
+    package = "urbioconnect"
+  )
+  staged_template <- file.path(staging, basename(template))
+  file.copy(template, staged_template)
+
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
   }
 
-  # Generate default filename if not provided
-  if (is.null(output_file)) {
-    species_slug <- gsub("[^A-Za-z0-9]+", "-", tolower(species_name))
-    output_file <- glue::glue(
-      "connectivity-report_{species_slug}_{format(Sys.Date(), '%Y%m%d')}"
-    )
-  }
+  extensions <- if (output_format == "both") c("html", "pdf") else output_format
 
-  # Prepare parameters
-  params <- list(
-    species_name = species_name,
-    interpatch_distances = interpatch_distances,
-    results_connect_habitat = results_connect_habitat,
-    areas_connected = areas_connected,
-    habitat = habitat,
-    barrier = barrier,
-    habitat_raster = habitat_raster,
-    data_resolution = data_resolution
+  paths <- purrr::map_chr(
+    extensions,
+    function(extension) {
+      render_report(staged_template, extension, output_dir, output_file)
+    }
   )
 
-  # Render report(s)
-  output_files <- c()
+  invisible(paths)
+}
 
-  if (output_format %in% c("html", "both")) {
-    cli::cli_inform("Rendering HTML report...")
-    html_file <- file.path(output_dir, paste0(output_file, ".html"))
+#' Render the staged template in one format and move the result out
+#'
+#' Driven by the extension, which is also the file name Quarto writes. Only
+#' the format name differs: a `.pdf` comes out of the `typst` format.
+#'
+#' @noRd
+render_report <- function(template, extension, output_dir, output_file) {
+  cli::cli_inform("Rendering {.field {extension}} report...")
 
+  size <- urbio_figure_size()
+
+  render <- function(quiet) {
     quarto::quarto_render(
-      input = template_path,
-      output_format = "html",
-      output_file = basename(html_file),
-      execute_dir = output_dir,
-      execute_params = params,
-      quiet = FALSE
+      input = template,
+      output_format = switch(extension, html = "html", pdf = "typst"),
+      # passed in, not written into the template, so the size has one home
+      metadata = list(
+        `fig-width` = size$width,
+        `fig-height` = size$height,
+        `fig-dpi` = size$dpi
+      ),
+      quiet = quiet
     )
-
-    output_files <- c(output_files, html_file)
-    cli::cli_inform("HTML report created: {.path {html_file}}")
   }
 
-  if (output_format %in% c("pdf", "both")) {
-    cli::cli_inform("Rendering PDF report...")
-    pdf_file <- file.path(output_dir, paste0(output_file, ".pdf"))
+  # a quiet render discards the reason it failed, so retry loudly to show it
+  rlang::try_fetch(
+    render(quiet = TRUE),
+    error = function(cnd) {
+      cli::cli_inform("Render failed. Retrying to show Quarto's output.")
+      render(quiet = FALSE)
+      cli::cli_abort(
+        "Quarto couldn't render the {.field {extension}} report.",
+        parent = cnd
+      )
+    }
+  )
 
-    quarto::quarto_render(
-      input = template_path,
-      output_format = "pdf",
-      output_file = basename(pdf_file),
-      execute_dir = output_dir,
-      execute_params = params,
-      quiet = FALSE
-    )
+  staging <- dirname(template)
+  rendered <- sub("\\.qmd$", paste0(".", extension), template)
 
-    output_files <- c(output_files, pdf_file)
-    cli::cli_inform("PDF report created: {.path {pdf_file}}")
+  # don't hand back a path to nothing
+  if (!file.exists(rendered)) {
+    cli::cli_abort(c(
+      "Quarto rendered no {.field {extension}} file.",
+      "i" = "Expected {.path {basename(rendered)}} in the render directory.",
+      "i" = "Found: {.path {basename(list.files(staging))}}."
+    ))
   }
 
-  invisible(output_files)
+  destination <- file.path(output_dir, paste0(output_file, ".", extension))
+  copied <- file.copy(rendered, destination, overwrite = TRUE)
+
+  if (!copied) {
+    cli::cli_abort(
+      "Couldn't write the report to {.path {destination}}."
+    )
+  }
+
+  # absolute, so it survives a change of working directory
+  destination <- normalizePath(destination, winslash = "/")
+  cli::cli_inform("Wrote {.path {destination}}")
+
+  destination
+}
+
+#' Check Quarto is available
+#'
+#' The R package is an Import, but it shells out to the Quarto CLI, which is
+#' separate software and may not be installed.
+#'
+#' @noRd
+check_quarto <- function(call = rlang::caller_env()) {
+  if (!quarto::quarto_available()) {
+    cli::cli_abort(
+      c(
+        "Can't find the Quarto command line tool.",
+        "i" = "Install it from {.url https://quarto.org/docs/get-started/}.",
+        "i" = "The assets alone need no Quarto: see
+               {.fn write_connectivity_assets}."
+      ),
+      call = call
+    )
+  }
+  invisible(TRUE)
 }

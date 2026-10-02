@@ -10,9 +10,9 @@ gg_barrier_habitat_interpatch_dist(
   habitat,
   interpatch_distance,
   species,
-  col_barrier,
-  col_interpatch_dist,
-  col_habitat,
+  col_barrier = urbio_colours()$barrier,
+  col_interpatch_dist = urbio_colours()$interpatch_distance,
+  col_habitat = urbio_colours()$habitat,
   col_paper = NA
 )
 }
@@ -33,11 +33,13 @@ distance of 500 will be converted to 250.}
 
 \item{species}{Character. Species name for plot title.}
 
-\item{col_barrier}{Character. Color for barrier layer.}
+\item{col_barrier}{Character. Colour for barrier layer. Defaults to the
+package palette, so a map drawn here matches the app, the downloads and
+the report. See \code{\link[=urbio_colours]{urbio_colours()}}.}
 
-\item{col_interpatch_dist}{Character. Color for interpatch distance zone.}
+\item{col_interpatch_dist}{Character. Colour for interpatch distance zone.}
 
-\item{col_habitat}{Character. Color for habitat patches.}
+\item{col_habitat}{Character. Colour for habitat patches.}
 
 \item{col_paper}{Character. Background color (default: "white").}
 }

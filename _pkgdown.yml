@@ -58,13 +58,15 @@ reference:
   contents:
   - write_connectivity_assets
   - zip_connectivity_assets
+  - generate_connectivity_report
+  - write_report_data
 - title: General
   contents:
   - clean
   - empty_grid
   - col2hex
   - urbio_colours
-  - generate_connectivity_report
+  - urbio_figure_size
 - title: Shiny app
   contents:
   - run_connectivity_app

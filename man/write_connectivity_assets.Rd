@@ -25,10 +25,10 @@ what the Shiny app's download button uses.
 \examples{
 \donttest{
 report_data <- connectivity_report_data(
-  habitat = example_wren_habitat(),
-  barrier = example_wren_barrier(),
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 

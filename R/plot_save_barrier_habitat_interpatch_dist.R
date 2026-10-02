@@ -1,12 +1,16 @@
 #' Save barrier habitat interpatch distance plot
 #'
-#' Saved a plot created by [gg_barrier_habitat_interpatch_dist()] to file.
+#' Draws the plot [gg_barrier_habitat_interpatch_dist()] makes and writes it to
+#'   a PNG in the working directory, at the shared size from
+#'   [urbio_figure_size()]. Returns the file path, which is what a
+#'   `targets::tar_file()` target wants.
 #'
 #' @param barrier barrier layer
 #' @param habitat habitat layer
 #' @param buffered buffered layer
 #' @param species character, species name, e.g., "Superb Fairy Wren"
-#' @param col_barrier colour to colour the barrier layer
+#' @param col_barrier colour to colour the barrier layer. Defaults to the
+#'   package palette, see [urbio_colours()].
 #' @param col_interpatch_dist colour to colour the interpatch distance layer
 #' @param col_habitat colour to colour the habitat layer
 #' @param col_paper colour to colour the paper layer of ggplot
@@ -45,12 +49,18 @@ plot_barrier_habitat_interpatch_dist <- function(
   habitat,
   interpatch_distance,
   species,
-  col_barrier,
-  col_interpatch_dist,
-  col_habitat,
-  col_paper
+  col_barrier = urbio_colours()$barrier,
+  col_interpatch_dist = urbio_colours()$interpatch_distance,
+  col_habitat = urbio_colours()$habitat,
+  col_paper = NA
 ) {
-  plot_barrier_habitat <- gg_barrier_habitat_interpatch_dist(
+  # slugified, so a species with a space in it still gives a clean file name
+  path <- as.character(glue::glue(
+    "plot-barrier-interpatch-distance-habitat-\\
+     {slugify(species)}-{interpatch_distance}.png"
+  ))
+
+  gg_barrier_habitat_interpatch_dist(
     barrier = barrier,
     habitat = habitat,
     buffered = buffered,
@@ -60,17 +70,8 @@ plot_barrier_habitat_interpatch_dist <- function(
     col_interpatch_dist = col_interpatch_dist,
     col_habitat = col_habitat,
     col_paper = col_paper
-  )
+  ) |>
+    save_asset_plot(path)
 
-  plot_barrier_habitat_name <- glue::glue(
-    "plot-barrier-interpatch-distance-habitat-{species}-\\
-    -{interpatch_distance}.png"
-  )
-
-  ggplot2::ggsave(
-    filename = plot_barrier_habitat_name,
-    plot = plot_barrier_habitat
-  )
-
-  stats::setNames(plot_barrier_habitat_name, interpatch_distance)
+  stats::setNames(path, interpatch_distance)
 }

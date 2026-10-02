@@ -59,35 +59,6 @@ test_that("to_sentence converts snake_case to sentence case", {
   expect_snapshot(to_sentence(c("n_patches", "patch_area_mean")))
 })
 
-# show_tabs -------------------------------------------------------------
-
-test_that("show_tabs outputs markdown headers and calls print", {
-  plots <- list(
-    "100m" = ggplot2::ggplot(),
-    "200m" = ggplot2::ggplot()
-  )
-  expect_output(
-    show_tabs(plots, message = "Interpatch distance"),
-    "## Interpatch distance 100m"
-  )
-})
-
-# show_image_tabs -------------------------------------------------------
-
-test_that("show_image_tabs outputs markdown headers", {
-  tmp <- withr::local_tempfile(fileext = ".png")
-  png(tmp)
-  plot(1)
-  dev.off()
-  images <- c("100m" = tmp)
-  suppressWarnings(
-    expect_output(
-      show_image_tabs(images, message = "Interpatch Distance"),
-      "## Interpatch Distance 100m"
-    )
-  )
-})
-
 # gg_barrier_habitat_interpatch_dist ---------------------------------------------
 
 gg_buffer_plot <- gg_barrier_habitat_interpatch_dist(
@@ -104,6 +75,21 @@ gg_buffer_plot <- gg_barrier_habitat_interpatch_dist(
 
 test_that("gg_barrier_habitat_interpatch_dist returns a ggplot", {
   expect_s3_class(gg_buffer_plot, "ggplot")
+})
+
+test_that("gg_barrier_habitat_interpatch_dist defaults to the palette", {
+  # the app, the downloads and the report all rely on this default rather than
+  # passing the colours themselves
+  defaults <- formals(gg_barrier_habitat_interpatch_dist)
+
+  expect_equal(
+    purrr::map(
+      defaults[c("col_barrier", "col_interpatch_dist", "col_habitat")],
+      eval
+    ),
+    urbio_colours()[c("barrier", "interpatch_distance", "habitat")],
+    ignore_attr = "names"
+  )
 })
 
 test_that("gg_barrier_habitat_interpatch_dist renders correctly", {

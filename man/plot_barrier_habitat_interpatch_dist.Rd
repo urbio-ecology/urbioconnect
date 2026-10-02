@@ -10,10 +10,10 @@ plot_barrier_habitat_interpatch_dist(
   habitat,
   interpatch_distance,
   species,
-  col_barrier,
-  col_interpatch_dist,
-  col_habitat,
-  col_paper
+  col_barrier = urbio_colours()$barrier,
+  col_interpatch_dist = urbio_colours()$interpatch_distance,
+  col_habitat = urbio_colours()$habitat,
+  col_paper = NA
 )
 }
 \arguments{
@@ -33,7 +33,8 @@ distance of 500 will be converted to 250.}
 
 \item{species}{character, species name, e.g., "Superb Fairy Wren"}
 
-\item{col_barrier}{colour to colour the barrier layer}
+\item{col_barrier}{colour to colour the barrier layer. Defaults to the
+package palette, see \code{\link[=urbio_colours]{urbio_colours()}}.}
 
 \item{col_interpatch_dist}{colour to colour the interpatch distance layer}
 
@@ -46,7 +47,10 @@ Named character vector. The file path, named by the interpatch
 distance.
 }
 \description{
-Saved a plot created by \code{\link[=gg_barrier_habitat_interpatch_dist]{gg_barrier_habitat_interpatch_dist()}} to file.
+Draws the plot \code{\link[=gg_barrier_habitat_interpatch_dist]{gg_barrier_habitat_interpatch_dist()}} makes and writes it to
+a PNG in the working directory, at the shared size from
+\code{\link[=urbio_figure_size]{urbio_figure_size()}}. Returns the file path, which is what a
+\code{targets::tar_file()} target wants.
 }
 \examples{
 \dontrun{

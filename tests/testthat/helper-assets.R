@@ -1,6 +1,5 @@
-# A bundle built from the synthetic layers: ~0.1s per distance, against ~4.7s
-# per distance on the wren rasters.
-test_asset_bundle <- function(interpatch_distance = 40) {
+# synthetic layers: ~0.1s per distance, against ~4.7s on the wren rasters
+test_report_data <- function(interpatch_distance = 40) {
   layers <- scenario_test_layers()
 
   connectivity_report_data(
@@ -10,4 +9,13 @@ test_asset_bundle <- function(interpatch_distance = 40) {
     interpatch_distance = interpatch_distance,
     verbose = FALSE
   )
+}
+
+skip_if_no_quarto <- function() {
+  skip_on_cran()
+  skip_if_not(quarto::quarto_available(), "the Quarto CLI is not installed")
+}
+
+test_report_text <- function(path) {
+  paste(readLines(path, warn = FALSE), collapse = " ")
 }
