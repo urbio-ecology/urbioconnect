@@ -28,9 +28,11 @@ col2hex <- function(color_name) {
 #'   the specified `interpatch_distance` is halved exactly. So an interpatch
 #'   distance of 500 will be converted to 250.
 #' @param species Character. Species name for plot title.
-#' @param col_barrier Character. Color for barrier layer.
-#' @param col_interpatch_dist Character. Color for interpatch distance zone.
-#' @param col_habitat Character. Color for habitat patches.
+#' @param col_barrier Character. Colour for barrier layer. Defaults to the
+#'   package palette, so a map drawn here matches the app, the downloads and
+#'   the report. See [urbio_colours()].
+#' @param col_interpatch_dist Character. Colour for interpatch distance zone.
+#' @param col_habitat Character. Colour for habitat patches.
 #' @param col_paper Character. Background color (default: "white").
 #'
 #' @returns A ggplot2 object.
@@ -65,9 +67,9 @@ gg_barrier_habitat_interpatch_dist <- function(
   habitat,
   interpatch_distance,
   species,
-  col_barrier,
-  col_interpatch_dist,
-  col_habitat,
+  col_barrier = urbio_colours()$barrier,
+  col_interpatch_dist = urbio_colours()$interpatch_distance,
+  col_habitat = urbio_colours()$habitat,
   col_paper = NA
 ) {
   # First, reclassify your rasters to assign actual color values
@@ -114,53 +116,6 @@ gg_barrier_habitat_interpatch_dist <- function(
       grid.major = ggplot2::element_blank(),
       grid.minor = ggplot2::element_blank()
     )
-}
-
-#' Display plots in tabs
-#'
-#' Helper function to display a list of plots with tab headers in R Markdown
-#' documents.
-#'
-#' @param the_list Named list. List of plot objects.
-#' @param message Character. Prefix message for each tab heading.
-#'
-#' @returns Invisible NULL. Prints plots with markdown headers.
-#' @examples
-#' plots <- list("100m" = ggplot2::ggplot(), "200m" = ggplot2::ggplot())
-#' show_tabs(plots, message = "interpatch distance")
-#' @noRd
-#' @note internal
-show_tabs <- function(the_list, message = NULL) {
-  for (iplot in names(the_list)) {
-    cat(sprintf("## %s %s\n", message, iplot))
-    print(the_list[[iplot]])
-    cat("\n\n")
-  }
-}
-
-#' Display images in tabs
-#'
-#' Helper function to display a list of image paths with tab headers in R
-#' Markdown documents.
-#'
-#' @param images Named character vector. Paths to image files.
-#' @param message Character. Prefix message for each tab heading.
-#'
-#' @returns Invisible NULL. Includes images with markdown headers.
-#' @examples
-#' \dontrun{
-#' # Typically used inside a knitr/quarto document
-#' image_paths <- c("100m" = "plot-100m.png", "200m" = "plot-200m.png")
-#' show_image_tabs(image_paths, message = "interpatch distance")
-#' }
-#' @noRd
-#' @note internal
-show_image_tabs <- function(images, message = NULL) {
-  for (iplot in names(images)) {
-    cat(sprintf("## %s %s\n", message, iplot))
-    knitr::include_graphics(images[[iplot]])
-    cat("\n\n")
-  }
 }
 
 #' Convert snake_case to sentence case

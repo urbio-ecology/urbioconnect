@@ -82,6 +82,87 @@ connectivity_report_data <- function(
   )
 }
 
+#' Save a bundle to a file
+#'
+#' `SpatRaster` objects are external pointers, so they are packed with
+#'   [terra::wrap()] on the way out and unpacked on the way back in. This is
+#'   how a bundle reaches the separate R session Quarto renders the report in.
+#'
+#' @param x A `connectivity_report_data` object.
+#' @param path File to write to, or read from.
+#'
+#' @returns `write_report_data()` returns `path` invisibly;
+#'   `read_report_data()` returns the `connectivity_report_data`.
+#' @seealso [connectivity_report_data()]
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' report_data <- connectivity_report_data(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
+#' )
+#'
+#' path <- write_report_data(report_data, tempfile(fileext = ".rds"))
+#' read_report_data(path)$connectivity
+#' }
+write_report_data <- function(x, path) {
+  check_report_data(x)
+  saveRDS(map_report_rasters(x, terra::wrap), path)
+  invisible(path)
+}
+
+#' @rdname write_report_data
+#' @export
+read_report_data <- function(path) {
+  # checked before unwrapping: an rds of something else would otherwise fail
+  # deep inside terra, or quietly produce a malformed bundle
+  x <- readRDS(path)
+
+  if (!is_report_data(x)) {
+    cli::cli_abort(c(
+      "{.path {basename(path)}} doesn't hold a
+       {.cls connectivity_report_data} object.",
+      "x" = "It holds {.obj_type_friendly {x}}.",
+      "i" = "Write one with {.fn write_report_data}."
+    ))
+  }
+
+  map_report_rasters(x, terra::unwrap)
+}
+
+#' Is this a bundle?
+#'
+#' @noRd
+is_report_data <- function(x) {
+  inherits(x, "connectivity_report_data")
+}
+
+#' Does this bundle have more than one distance to compare?
+#'
+#' A single distance gives a single point, so the over-distance plot has
+#' nothing to show. Asked by both the manifest and the report, so that the
+#' rule lives with the bundle rather than in each renderer.
+#'
+#' @noRd
+has_over_distance_plot <- function(x) {
+  length(x$interpatch_distance) > 1
+}
+
+#' Apply a function to every raster a bundle holds
+#'
+#' @noRd
+map_report_rasters <- function(x, f) {
+  x$habitat <- f(x$habitat)
+  x$barrier <- f(x$barrier)
+  x$buffered_habitat <- purrr::map(x$buffered_habitat, f)
+  x$patch_id_raster <- purrr::map(x$patch_id_raster, f)
+  x
+}
+
 #' Construct a `connectivity_report_data` object
 #'
 #' @noRd

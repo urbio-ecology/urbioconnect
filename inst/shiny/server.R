@@ -322,9 +322,6 @@ server <- function(input, output, session) {
               habitat = results$habitat_raster,
               interpatch_distance = my_distance,
               species = input$species,
-              col_barrier = urbio_cols$barrier,
-              col_interpatch_dist = urbio_cols$interpatch_distance,
-              col_habitat = urbio_cols$habitat,
               col_paper = "grey96"
             )
           })
@@ -727,12 +724,15 @@ server <- function(input, output, session) {
       paste0(input$species, "_connectivity_plot_", Sys.Date(), ".png")
     },
     content = function(file) {
+      # the same size the zip and the report use, from urbio_figure_size()
+      size <- urbio_figure_size()
       ggsave(
         filename = file,
         plot = plot_connectivity(results$results_connect_habitat),
-        width = 12,
-        height = 10,
-        dpi = 300
+        width = size$width,
+        height = size$tall_height,
+        dpi = size$dpi,
+        bg = "white"
       )
     }
   )

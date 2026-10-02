@@ -1,0 +1,151 @@
+---
+title: "Habitat connectivity report"
+date: today
+params:
+  report_data: "report-data.rds"
+format:
+  html:
+    toc: true
+    embed-resources: true
+  typst:
+    toc: true
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+library(urbioconnect)
+
+report <- read_report_data(params$report_data)
+
+connectivity <- report$connectivity
+distances <- report$interpatch_distance
+
+# draw tabs, for each buffer distance, with blank ending line, for pandoc
+distance_tabs <- function(draw) {
+  cat("\n::: {.panel-tabset}\n")
+
+  purrr::walk(distances, function(distance) {
+    cat("\n## ", distance, "m\n\n", sep = "")
+    print(draw(distance))
+    cat("\n")
+  })
+
+  cat("\n:::\n")
+}
+```
+
+**Species:** `r report$species`
+
+**Interpatch distances:** `r paste0(distances, "m", collapse = ", ")`
+
+**Data resolution:** `r format_resolution(terra::res(report$habitat))` m
+
+Two habitat patches count as connected when the gap between them is no more
+than the interpatch distance. Each distance below is a separate analysis of the
+same landscape.
+
+# Habitat, interpatch zone and barrier
+
+The habitat, the zone within half an interpatch distance of it, and the
+barriers that break connections.
+
+```{r}
+#| label: maps-habitat
+#| output: asis
+distance_tabs(function(distance) {
+  gg_barrier_habitat_interpatch_dist(
+    barrier = report$barrier,
+    buffered = report$buffered_habitat[[as.character(distance)]],
+    habitat = report$habitat,
+    interpatch_distance = distance,
+    species = report$species
+  )
+})
+```
+
+# Connected patches
+
+Habitat coloured by the patch it belongs to. Patches sharing a colour are
+connected at this distance.
+
+```{r}
+#| label: maps-patches
+#| output: asis
+distance_tabs(function(distance) {
+  plot_patches(
+    patch_id = report$patch_id_raster[[as.character(distance)]],
+    interpatch_distance = distance,
+    species = report$species
+  )
+})
+```
+
+# Connectivity summary
+
+One row per interpatch distance. Species and resolution are the same for every
+row, and are given above.
+
+```{r}
+#| label: summary-table
+# each column is named where it is computed, so a renamed or reordered column
+# upstream fails here rather than quietly mislabelling a number
+connectivity |>
+  dplyr::mutate(
+    `Interpatch distance (m)` = interpatch_distance,
+    Patches = n_patches,
+    `Effective mesh (ha)` = round(effective_mesh_ha, 2),
+    `P(connected)` = signif(prob_connectedness, 3),
+    `Mean patch area (m2)` = round(patch_area_mean, 1),
+    `Total patch area (ha)` = round(patch_area_total_ha, 2),
+    .keep = "none"
+  ) |>
+  knitr::kable()
+```
+
+# Largest patches
+
+The ten largest patches at each distance. Every patch is in the summary folder
+of the accompanying download.
+
+```{r}
+#| label: patch-tables
+#| output: asis
+patches_by_distance <- rlang::set_names(
+  patch_sizes(connectivity),
+  as.character(distances)
+)
+
+distance_tabs(function(distance) {
+  patches_by_distance[[as.character(distance)]] |>
+    dplyr::arrange(dplyr::desc(area)) |>
+    head(10) |>
+    dplyr::mutate(
+      `Patch ID` = patch_id,
+      `Area (m2)` = round(area, 1),
+      .keep = "none"
+    ) |>
+    knitr::kable(row.names = FALSE)
+})
+```
+
+```{r}
+#| label: over-distance
+#| output: asis
+#| fig-height: !expr urbioconnect::urbio_figure_size()$tall_height
+# a single distance is a single point, so there is nothing to plot
+if (length(distances) > 1) {
+  cat("# Change over distance\n\n")
+  cat("How the metrics move as the interpatch distance grows.\n\n")
+  print(plot_connectivity(connectivity))
+}
+```
+
+# The spatial files
+
+The download accompanying this report holds the patch raster as a GeoTIFF and
+the patch polygons as both a GeoPackage and a shapefile, ready to open in QGIS
+or ArcGIS, for each interpatch distance. Its `README.md` lists every file.
+Patch areas are in square metres.

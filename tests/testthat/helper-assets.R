@@ -11,3 +11,14 @@ test_asset_bundle <- function(interpatch_distance = 40) {
     verbose = FALSE
   )
 }
+
+skip_if_no_quarto <- function() {
+  skip_on_cran()
+  skip_if_not(quarto::quarto_available(), "the Quarto CLI is not installed")
+}
+
+# A rendered report, read back as one string. Each render costs ~15s, so tests
+# share one where they can.
+test_report_text <- function(path) {
+  paste(readLines(path, warn = FALSE), collapse = " ")
+}

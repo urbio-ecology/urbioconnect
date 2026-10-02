@@ -7,6 +7,16 @@
       [4] "buffered_habitat"    "patch_id_raster"     "species"            
       [7] "interpatch_distance"
 
+# read_report_data() rejects an rds that isn't a bundle
+
+    Code
+      read_report_data(path)
+    Condition
+      Error in `read_report_data()`:
+      ! 'not-a-bundle.rds' doesn't hold a <connectivity_report_data> object.
+      x It holds a list.
+      i Write one with `write_report_data()`.
+
 # connectivity_report_data() checks its arguments
 
     Code

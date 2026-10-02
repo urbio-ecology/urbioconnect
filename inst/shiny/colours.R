@@ -5,8 +5,8 @@
 urbio_pal <- scico::scico(n = 11, palette = "tofino")
 urbio_pal_cut <- urbio_pal[c(6:11)]
 
-# The map colours come from the package, so downloaded maps match the screen
-urbio_cols <- urbio_colours()
+# The map colours live in the package: urbio_colours() is the default for the
+# plotting functions, so the app doesn't pass them and they can't drift here.
 
 # Define UI color variables
 urbio_ui_cols <- list(
@@ -16,9 +16,6 @@ urbio_ui_cols <- list(
 )
 
 # Export individual colors for easy access
-col_habitat <- urbio_cols$habitat
-col_interpatch_distance <- urbio_cols$interpatch_distance
-col_barrier <- urbio_cols$barrier
 col_primary <- urbio_ui_cols$primary
 col_success <- urbio_ui_cols$success
 col_accent <- urbio_ui_cols$accent

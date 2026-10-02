@@ -2,69 +2,55 @@
 % Please edit documentation in R/generate-report.R
 \name{generate_connectivity_report}
 \alias{generate_connectivity_report}
-\title{Generate Connectivity Report}
+\title{Render a connectivity report}
 \usage{
 generate_connectivity_report(
-  species_name,
-  interpatch_distances,
-  results_connect_habitat,
-  areas_connected,
-  habitat = NULL,
-  barrier = NULL,
-  habitat_raster = NULL,
-  data_resolution = 10,
-  output_file = NULL,
+  x,
   output_format = c("html", "pdf", "both"),
-  output_dir = getwd()
+  output_dir = ".",
+  output_file = NULL
 )
 }
 \arguments{
-\item{species_name}{Character. Name of the species being analysed.}
+\item{x}{A \code{connectivity_report_data} object from
+\code{\link[=connectivity_report_data]{connectivity_report_data()}}.}
 
-\item{interpatch_distances}{Numeric. The distances (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250.}
+\item{output_format}{One of \code{"html"}, \code{"pdf"}, or \code{"both"}.}
 
-\item{results_connect_habitat}{Data frame. Connectivity summary results.}
+\item{output_dir}{Directory to write the report to, defaulting to the
+working directory. Created if it doesn't exist.}
 
-\item{areas_connected}{List of data frames. Connected patch areas for each
-interpatch distance.}
-
-\item{habitat}{SF object. Habitat spatial data (optional, for mapping).}
-
-\item{barrier}{SF object. Barrier spatial data (optional, for mapping).}
-
-\item{habitat_raster}{Terra SpatRaster. Habitat raster (optional, for
-mapping).}
-
-\item{data_resolution}{Numeric. Data resolution in meters.}
-
-\item{output_file}{Character. Output filename (without extension).}
-
-\item{output_format}{Character. Output format: "html" (default), "pdf", or
-"both".}
-
-\item{output_dir}{Character. Directory to save the report (default: current
-directory).}
+\item{output_file}{File name, without extension. Defaults to the species and
+today's date, matching the asset bundle's folder name.}
 }
 \value{
-Character vector of generated report file path(s).
+The absolute path(s) written, invisibly.
 }
 \description{
-Creates a parameterised Quarto report from connectivity analysis results.
+One document holding the maps, tables and summary for an analysis: the same
+figures \code{\link[=write_connectivity_assets]{write_connectivity_assets()}} writes, laid out to read. HTML is a
+single self-contained file; PDF is rendered through Typst, so no LaTeX is
+needed.
+}
+\details{
+The report covers the tabular and visual results. The GIS layers travel
+with \code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}}, since a GeoTIFF can't live inside a
+document.
 }
 \examples{
-\dontrun{
-report_path <- generate_connectivity_report(
-  species_name = "Superb Fairy Wren",
-  interpatch_distances = c(100, 250, 400),
-  results_connect_habitat = results_df,
-  areas_connected = patches_list,
-  output_format = "html"
+\donttest{
+report_data <- connectivity_report_data(
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
+  verbose = FALSE
 )
+
+generate_connectivity_report(report_data, output_dir = tempdir())
 }
+}
+\seealso{
+\code{\link[=connectivity_report_data]{connectivity_report_data()}} to build \code{x}, and
+\code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}} for the GIS layers and full tables.
 }

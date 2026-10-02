@@ -1,87 +1,66 @@
-test_that("generate_connectivity_report errors with an unrecognised output_format", {
-  expect_error(
-    generate_connectivity_report(
-      species = "Test",
-      interpatch_distances = 100,
-      results_connect_habitat = data.frame(),
-      areas_connected = list(),
-      output_format = "word"
-    ),
-    class = "rlang_error"
-  )
+test_that("generate_connectivity_report() rejects anything but a bundle", {
+  expect_snapshot(error = TRUE, {
+    generate_connectivity_report(lizard_areas_connected)
+    generate_connectivity_report(test_asset_bundle(), output_format = "word")
+  })
 })
 
-test_that("generate_connectivity_report errors when report template is missing", {
-  # inst/templates/connectivity-report.qmd does not exist in this repo,
-  # so the function should abort after passing arg_match and check_installed.
-  skip_if_not_installed("quarto")
-  expect_error(
+# Each render costs ~15s, so the properties of one report are asserted together
+# rather than rendered once apiece.
+test_that("generate_connectivity_report() writes both formats of a report", {
+  skip_if_no_quarto()
+
+  dir <- withr::local_tempdir()
+  nested <- file.path(dir, "reports", "today")
+
+  paths <- suppressMessages(
     generate_connectivity_report(
-      species = "Test",
-      interpatch_distances = 100,
-      results_connect_habitat = data.frame(),
-      areas_connected = list(),
-      output_format = "html"
-    ),
-    class = "rlang_error"
+      test_asset_bundle(c(40, 80)),
+      output_format = "both",
+      output_dir = nested
+    )
   )
+
+  # the file name defaults to the species and the date, matching the asset
+  # bundle's folder name
+  expect_equal(
+    basename(paths),
+    paste0("superb-fairy-wren-connectivity-", Sys.Date(), c(".html", ".pdf"))
+  )
+  expect_true(all(file.exists(paths)))
+  expect_gt(file.size(paths[[2]]), 0)
+
+  # output_dir is created, and the paths come back absolute so they survive a
+  # change of working directory
+  expect_true(dir.exists(nested))
+  expect_equal(paths, normalizePath(paths, winslash = "/"))
+
+  html <- test_report_text(paths[[1]])
+
+  # the figures are embedded, so the file stands alone
+  expect_match(html, "data:image/png", fixed = TRUE)
+  expect_match(html, "Superb Fairy Wren", fixed = TRUE)
+  expect_match(html, "Change over distance", fixed = TRUE)
 })
 
-test_that("generate_connectivity_report renders html with mocked quarto", {
-  skip_if_not_installed("quarto")
+test_that("the change-over-distance section needs more than one distance", {
+  skip_if_no_quarto()
 
-  tmp_template <- withr::local_tempfile(fileext = ".qmd")
-  writeLines("---\nformat: html\n---\n\nTest template", tmp_template)
+  dir <- withr::local_tempdir()
 
-  local_mocked_bindings(
-    here = function(...) tmp_template,
-    .package = "here"
-  )
-  local_mocked_bindings(
-    quarto_render = function(...) invisible(NULL),
-    .package = "quarto"
-  )
-
-  result <- withr::with_tempdir(
+  path <- suppressMessages(
     generate_connectivity_report(
-      species = "Superb Fairy Wren",
-      interpatch_distances = c(100, 200),
-      results_connect_habitat = data.frame(),
-      areas_connected = list(),
+      test_asset_bundle(40),
       output_format = "html",
-      output_dir = "reports/new"
+      output_dir = dir,
+      output_file = "report"
     )
   )
 
-  expect_type(result, "character")
-  expect_true(grepl("\\.html$", result))
-})
-
-test_that("generate_connectivity_report renders pdf with mocked quarto", {
-  skip_if_not_installed("quarto")
-
-  tmp_template <- withr::local_tempfile(fileext = ".qmd")
-  writeLines("---\nformat: pdf\n---\n\nTest template", tmp_template)
-
-  local_mocked_bindings(
-    here = function(...) tmp_template,
-    .package = "here"
+  expect_equal(basename(path), "report.html")
+  expect_no_match(
+    test_report_text(path),
+    "Change over distance",
+    fixed = TRUE
   )
-  local_mocked_bindings(
-    quarto_render = function(...) invisible(NULL),
-    .package = "quarto"
-  )
-
-  result <- withr::with_tempdir(
-    generate_connectivity_report(
-      species = "Superb Fairy Wren",
-      interpatch_distances = 100,
-      results_connect_habitat = data.frame(),
-      areas_connected = list(),
-      output_format = "pdf"
-    )
-  )
-
-  expect_type(result, "character")
-  expect_true(grepl("\\.pdf$", result))
 })

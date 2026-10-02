@@ -17,10 +17,10 @@
 #' @examples
 #' \donttest{
 #' report_data <- connectivity_report_data(
-#'   habitat = example_wren_habitat(),
-#'   barrier = example_wren_barrier(),
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
@@ -64,10 +64,10 @@ write_connectivity_assets <- function(x, dir) {
 #' @examples
 #' \donttest{
 #' report_data <- connectivity_report_data(
-#'   habitat = example_wren_habitat(),
-#'   barrier = example_wren_barrier(),
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
@@ -133,7 +133,6 @@ asset_manifest <- function(x) {
     )
   )
 
-  # a single distance gives a single point, so there is nothing to plot
   over_distance <- tibble::tibble(
     path = "summary/connectivity-over-distance.png",
     kind = "plot",
@@ -145,7 +144,7 @@ asset_manifest <- function(x) {
 
   dplyr::bind_rows(
     shared,
-    if (length(distances) > 1) over_distance,
+    if (has_over_distance_plot(x)) over_distance,
     per_distance
   )
 }
@@ -195,8 +194,6 @@ write_asset_tables <- function(x, dir) {
 
 #' @noRd
 write_asset_plots <- function(x, dir) {
-  colours <- urbio_colours()
-
   purrr::walk2(
     x$buffered_habitat,
     x$interpatch_distance,
@@ -206,10 +203,7 @@ write_asset_plots <- function(x, dir) {
         buffered = buffered,
         habitat = x$habitat,
         interpatch_distance = distance,
-        species = x$species,
-        col_barrier = colours$barrier,
-        col_interpatch_dist = colours$interpatch_distance,
-        col_habitat = colours$habitat
+        species = x$species
       ) |>
         save_asset_plot(distance_file(
           dir,
@@ -233,11 +227,11 @@ write_asset_plots <- function(x, dir) {
     }
   )
 
-  if (length(x$interpatch_distance) > 1) {
+  if (has_over_distance_plot(x)) {
     plot_connectivity(x$connectivity) |>
       save_asset_plot(
         file.path(dir, "summary", "connectivity-over-distance.png"),
-        height = 8
+        height = urbio_figure_size()$tall_height
       )
   }
 }
@@ -329,13 +323,15 @@ distance_file <- function(dir, distance, folder, file) {
 }
 
 #' @noRd
-save_asset_plot <- function(plot, path, width = 8, height = 6) {
+save_asset_plot <- function(plot, path, height = NULL) {
+  size <- urbio_figure_size()
+
   ggplot2::ggsave(
     filename = path,
     plot = plot,
-    width = width,
-    height = height,
-    dpi = 150,
+    width = size$width,
+    height = height %||% size$height,
+    dpi = size$dpi,
     bg = "white"
   )
 }
