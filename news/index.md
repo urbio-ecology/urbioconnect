@@ -2,6 +2,45 @@
 
 ## urbioconnect (development version)
 
+- New
+  [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+  renders one document holding the maps, tables and summary for an
+  analysis, as HTML or PDF. The PDF goes through Typst, so no LaTeX is
+  needed, and the figures are drawn from the data rather than embedded
+  as images. Needs the Quarto command line tool.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- [`gg_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.md)
+  and
+  [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
+  now default `col_barrier`, `col_interpatch_dist` and `col_habitat` to
+  the package palette, so the app, the downloads and the report can’t
+  drift apart.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
+  now saves at the shared figure size rather than whatever size the last
+  graphics device happened to be, and slugifies the species in the file
+  name, so a species with a space no longer produces a file name with
+  one. ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- New
+  [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)
+  gives the figure width, height and resolution the downloadable PNGs
+  and the report share.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- New
+  [`write_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  and
+  [`read_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  save a
+  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  to a file and read it back, packing the rasters so they survive the
+  trip. This is how an analysis reaches the separate R session the
+  report renders in.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
 - [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
   [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md),
   [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md),

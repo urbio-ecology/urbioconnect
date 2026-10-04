@@ -55,9 +55,9 @@ using terra rasters.</p>
 <span>  <span class="va">habitat</span>,</span>
 <span>  <span class="va">interpatch_distance</span>,</span>
 <span>  <span class="va">species</span>,</span>
-<span>  <span class="va">col_barrier</span>,</span>
-<span>  <span class="va">col_interpatch_dist</span>,</span>
-<span>  <span class="va">col_habitat</span>,</span>
+<span>  col_barrier <span class="op">=</span> <span class="fu"><a href="urbio_colours.html">urbio_colours</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">barrier</span>,</span>
+<span>  col_interpatch_dist <span class="op">=</span> <span class="fu"><a href="urbio_colours.html">urbio_colours</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">interpatch_distance</span>,</span>
+<span>  col_habitat <span class="op">=</span> <span class="fu"><a href="urbio_colours.html">urbio_colours</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">habitat</span>,</span>
 <span>  col_paper <span class="op">=</span> <span class="cn">NA</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -93,15 +93,17 @@ distance of 500 will be converted to 250.</p></dd>
 
 
 <dt id="arg-col-barrier">col_barrier<a class="anchor" aria-label="anchor" href="#arg-col-barrier"></a></dt>
-<dd><p>Character. Color for barrier layer.</p></dd>
+<dd><p>Character. Colour for barrier layer. Defaults to the
+package palette, so a map drawn here matches the app, the downloads and
+the report. See <code><a href="urbio_colours.html">urbio_colours()</a></code>.</p></dd>
 
 
 <dt id="arg-col-interpatch-dist">col_interpatch_dist<a class="anchor" aria-label="anchor" href="#arg-col-interpatch-dist"></a></dt>
-<dd><p>Character. Color for interpatch distance zone.</p></dd>
+<dd><p>Character. Colour for interpatch distance zone.</p></dd>
 
 
 <dt id="arg-col-habitat">col_habitat<a class="anchor" aria-label="anchor" href="#arg-col-habitat"></a></dt>
-<dd><p>Character. Color for habitat patches.</p></dd>
+<dd><p>Character. Colour for habitat patches.</p></dd>
 
 
 <dt id="arg-col-paper">col_paper<a class="anchor" aria-label="anchor" href="#arg-col-paper"></a></dt>

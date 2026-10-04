@@ -120,6 +120,11 @@
   : Write the downloadable assets for one analysis
 - [`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
   : Write the downloadable assets as a single zip
+- [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+  : Render a connectivity report
+- [`write_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  [`read_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  : Save and reload a connectivity analysis
 
 ## General
 
@@ -131,8 +136,8 @@
   : Convert color name to hexadecimal
 - [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md)
   : The urbioconnect map colours
-- [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
-  : Generate Connectivity Report
+- [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)
+  : The default figure size for urbioconnect maps and plots
 
 ## Shiny app
 

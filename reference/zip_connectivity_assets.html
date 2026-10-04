@@ -67,7 +67,7 @@ date, archived. This is what the Shiny app's download button returns.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>path</code>, invisibly.</p>
+    <p>The absolute path written, invisibly.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -78,36 +78,36 @@ date, archived. This is what the Shiny app's download button returns.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">report_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="connectivity_report_data.html">connectivity_report_data</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-wren-data.html">example_wren_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-wren-data.html">example_wren_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Superb Fairy Wren"</span>,</span></span>
-<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue Tongue Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">zip_path</span> <span class="op">&lt;-</span> <span class="fu">zip_connectivity_assets</span><span class="op">(</span><span class="va">report_data</span>, <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".zip"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500688</span> cells.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500688</span> cells.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500688</span> cells.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500688</span> cells.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
 <span class="r-in"><span><span class="fu">zip</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/zip/reference/zip_list.html" class="external-link">zip_list</a></span><span class="op">(</span><span class="va">zip_path</span><span class="op">)</span><span class="op">$</span><span class="va">filename</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "superb-fairy-wren-connectivity-2026-10-01/"                                               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "superb-fairy-wren-connectivity-2026-10-01/README.md"                                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/"                               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.cpg"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.dbf"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.gpkg"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.prj"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.shp"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.shx"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.tif"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/habitat-buffer-barrier.png"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/patches.png"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "superb-fairy-wren-connectivity-2026-10-01/summary/"                                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "superb-fairy-wren-connectivity-2026-10-01/summary/connectivity-summary.csv"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "superb-fairy-wren-connectivity-2026-10-01/summary/patch-areas.csv"                        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "blue-tongue-lizard-connectivity-2026-10-04/"                                              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "blue-tongue-lizard-connectivity-2026-10-04/README.md"                                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/"                               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/"                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.cpg"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.dbf"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.gpkg"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.prj"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.shp"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.shx"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.tif"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/"                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/habitat-buffer-barrier.png"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/patches.png"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "blue-tongue-lizard-connectivity-2026-10-04/summary/"                                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "blue-tongue-lizard-connectivity-2026-10-04/summary/connectivity-summary.csv"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "blue-tongue-lizard-connectivity-2026-10-04/summary/patch-areas.csv"                       </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

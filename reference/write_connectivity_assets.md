@@ -39,26 +39,26 @@ one row per file written, with paths relative to `dir`.
 ``` r
 # \donttest{
 report_data <- connectivity_report_data(
-  habitat = example_wren_habitat(),
-  barrier = example_wren_barrier(),
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 
 assets <- write_connectivity_assets(report_data, dir = tempfile())
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
 assets$path
-#> [1] "README.md"                                      
-#> [2] "summary/connectivity-summary.csv"               
-#> [3] "summary/patch-areas.csv"                        
-#> [4] "interpatch-200m/maps/habitat-buffer-barrier.png"
-#> [5] "interpatch-200m/maps/patches.png"               
-#> [6] "interpatch-200m/gis/patches.tif"                
-#> [7] "interpatch-200m/gis/patches.gpkg"               
-#> [8] "interpatch-200m/gis/patches.shp"                
+#> [1] "README.md"                                     
+#> [2] "summary/connectivity-summary.csv"              
+#> [3] "summary/patch-areas.csv"                       
+#> [4] "interpatch-20m/maps/habitat-buffer-barrier.png"
+#> [5] "interpatch-20m/maps/patches.png"               
+#> [6] "interpatch-20m/gis/patches.tif"                
+#> [7] "interpatch-20m/gis/patches.gpkg"               
+#> [8] "interpatch-20m/gis/patches.shp"                
 # }
 ```

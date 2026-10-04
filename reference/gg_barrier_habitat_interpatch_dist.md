@@ -12,9 +12,9 @@ gg_barrier_habitat_interpatch_dist(
   habitat,
   interpatch_distance,
   species,
-  col_barrier,
-  col_interpatch_dist,
-  col_habitat,
+  col_barrier = urbio_colours()$barrier,
+  col_interpatch_dist = urbio_colours()$interpatch_distance,
+  col_habitat = urbio_colours()$habitat,
   col_paper = NA
 )
 ```
@@ -49,15 +49,17 @@ gg_barrier_habitat_interpatch_dist(
 
 - col_barrier:
 
-  Character. Color for barrier layer.
+  Character. Colour for barrier layer. Defaults to the package palette,
+  so a map drawn here matches the app, the downloads and the report. See
+  [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md).
 
 - col_interpatch_dist:
 
-  Character. Color for interpatch distance zone.
+  Character. Colour for interpatch distance zone.
 
 - col_habitat:
 
-  Character. Color for habitat patches.
+  Character. Colour for habitat patches.
 
 - col_paper:
 

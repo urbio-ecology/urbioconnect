@@ -23,7 +23,7 @@ zip_connectivity_assets(x, path)
 
 ## Value
 
-`path`, invisibly.
+The absolute path written, invisibly.
 
 ## See also
 
@@ -35,35 +35,35 @@ to write the files without archiving.
 ``` r
 # \donttest{
 report_data <- connectivity_report_data(
-  habitat = example_wren_habitat(),
-  barrier = example_wren_barrier(),
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 
 zip_path <- zip_connectivity_assets(report_data, tempfile(fileext = ".zip"))
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
-#> <SpatRaster> resampled to 500688 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
+#> <SpatRaster> resampled to 500554 cells.
 zip::zip_list(zip_path)$filename
-#>  [1] "superb-fairy-wren-connectivity-2026-10-01/"                                               
-#>  [2] "superb-fairy-wren-connectivity-2026-10-01/README.md"                                      
-#>  [3] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/"                               
-#>  [4] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/"                           
-#>  [5] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.cpg"                
-#>  [6] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.dbf"                
-#>  [7] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.gpkg"               
-#>  [8] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.prj"                
-#>  [9] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.shp"                
-#> [10] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.shx"                
-#> [11] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/gis/patches.tif"                
-#> [12] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/"                          
-#> [13] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/habitat-buffer-barrier.png"
-#> [14] "superb-fairy-wren-connectivity-2026-10-01/interpatch-200m/maps/patches.png"               
-#> [15] "superb-fairy-wren-connectivity-2026-10-01/summary/"                                       
-#> [16] "superb-fairy-wren-connectivity-2026-10-01/summary/connectivity-summary.csv"               
-#> [17] "superb-fairy-wren-connectivity-2026-10-01/summary/patch-areas.csv"                        
+#>  [1] "blue-tongue-lizard-connectivity-2026-10-04/"                                              
+#>  [2] "blue-tongue-lizard-connectivity-2026-10-04/README.md"                                     
+#>  [3] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/"                               
+#>  [4] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/"                           
+#>  [5] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.cpg"                
+#>  [6] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.dbf"                
+#>  [7] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.gpkg"               
+#>  [8] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.prj"                
+#>  [9] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.shp"                
+#> [10] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.shx"                
+#> [11] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/gis/patches.tif"                
+#> [12] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/"                          
+#> [13] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/habitat-buffer-barrier.png"
+#> [14] "blue-tongue-lizard-connectivity-2026-10-04/interpatch-20m/maps/patches.png"               
+#> [15] "blue-tongue-lizard-connectivity-2026-10-04/summary/"                                      
+#> [16] "blue-tongue-lizard-connectivity-2026-10-04/summary/connectivity-summary.csv"              
+#> [17] "blue-tongue-lizard-connectivity-2026-10-04/summary/patch-areas.csv"                       
 # }
 ```
