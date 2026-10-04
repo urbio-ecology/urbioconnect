@@ -254,7 +254,7 @@ check_report_data <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  if (!inherits(x, "connectivity_report_data")) {
+  if (!is_report_data(x)) {
     cli::cli_abort(
       c(
         "{.arg {arg}} must be a {.cls connectivity_report_data} object, not
@@ -294,6 +294,19 @@ check_distances <- function(
       c(
         "{.arg {arg}} must contain at least one distance.",
         "x" = "You supplied a zero-length value."
+      ),
+      call = call
+    )
+  }
+
+  # a repeated distance gives two identical result rows, and two layers under
+  # the same name, which later lookups can't tell apart
+  duplicates <- unique(x[duplicated(x)])
+  if (length(duplicates) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must not repeat a distance.",
+        "x" = "Repeated: {.val {duplicates}}."
       ),
       call = call
     )

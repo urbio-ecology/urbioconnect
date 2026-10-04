@@ -82,6 +82,96 @@ connectivity_report_data <- function(
   )
 }
 
+#' Save and reload a connectivity analysis
+#'
+#' Writes a `connectivity_report_data` object to an `.rds` file, and reads it
+#'   back. The summary, the habitat and barrier layers, and the patch raster
+#'   for each distance all travel together in the one file.
+#'
+#'   [base::saveRDS()] on its own isn't enough. A `SpatRaster` points at
+#'   memory or at a file on disk rather than carrying its own values, so it
+#'   saves as a null pointer and comes back unusable. [terra::wrap()] packs
+#'   the values into the object on the way out, and [terra::unwrap()] restores
+#'   them on the way in.
+#'
+#'   This is also how an analysis reaches the separate R session that Quarto
+#'   renders the report in.
+#'
+#' @param x A `connectivity_report_data` object from
+#'   [connectivity_report_data()].
+#' @param path File to write to, or read from.
+#'
+#' @returns `write_report_data()` returns `path` invisibly;
+#'   `read_report_data()` returns the `connectivity_report_data`.
+#' @seealso [connectivity_report_data()]
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' report_data <- connectivity_report_data(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
+#' )
+#'
+#' path <- write_report_data(report_data, tempfile(fileext = ".rds"))
+#' read_report_data(path)$connectivity
+#' }
+write_report_data <- function(x, path) {
+  check_report_data(x)
+  report_rasters <- map_report_rasters(x, terra::wrap)
+  saveRDS(report_rasters, path)
+  invisible(path)
+}
+
+#' @rdname write_report_data
+#' @export
+read_report_data <- function(path) {
+  # checked before unwrapping, which would otherwise fail inside terra
+  x <- readRDS(path)
+
+  if (!is_report_data(x)) {
+    cli::cli_abort(c(
+      "{.path {basename(path)}} doesn't hold a
+       {.cls connectivity_report_data} object.",
+      "x" = "It holds {.obj_type_friendly {x}}.",
+      "i" = "Write one with {.fn write_report_data}."
+    ))
+  }
+
+  map_report_rasters(x, terra::unwrap)
+}
+
+#' Is this a `connectivity_report_data` object?
+#'
+#' @noRd
+is_report_data <- function(x) {
+  inherits(x, "connectivity_report_data")
+}
+
+#' Is there more than one distance to compare?
+#'
+#' A single distance is a single point, so there is nothing to plot. Asked by
+#' both the manifest and the writer, so the rule has one home.
+#'
+#' @noRd
+has_over_distance_plot <- function(x) {
+  length(x$interpatch_distance) > 1
+}
+
+#' Apply a function to every raster in a `connectivity_report_data`
+#'
+#' @noRd
+map_report_rasters <- function(x, f) {
+  x$habitat <- f(x$habitat)
+  x$barrier <- f(x$barrier)
+  x$buffered_habitat <- purrr::map(x$buffered_habitat, f)
+  x$patch_id_raster <- purrr::map(x$patch_id_raster, f)
+  x
+}
+
 #' Construct a `connectivity_report_data` object
 #'
 #' @noRd

@@ -17,10 +17,10 @@
 #' @examples
 #' \donttest{
 #' report_data <- connectivity_report_data(
-#'   habitat = example_wren_habitat(),
-#'   barrier = example_wren_barrier(),
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
@@ -57,17 +57,17 @@ write_connectivity_assets <- function(x, dir) {
 #'   [connectivity_report_data()].
 #' @param path Path to write the `.zip` to.
 #'
-#' @returns `path`, invisibly.
+#' @returns The absolute path written, invisibly.
 #' @seealso [write_connectivity_assets()] to write the files without archiving.
 #' @export
 #'
 #' @examples
 #' \donttest{
 #' report_data <- connectivity_report_data(
-#'   habitat = example_wren_habitat(),
-#'   barrier = example_wren_barrier(),
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
@@ -77,20 +77,50 @@ write_connectivity_assets <- function(x, dir) {
 zip_connectivity_assets <- function(x, path) {
   check_report_data(x)
 
-  # staged in a temp directory so the archive contains one named folder rather
-  # than a scatter of files
+  # staged so the archive holds one named folder, not a scatter of files
   staging <- tempfile("urbioconnect-assets")
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
   folder <- bundle_dir_name(x)
   write_connectivity_assets(x, file.path(staging, folder))
 
+  # zip::zip() resolves `zipfile` against `root`, so a relative path would be
+  # written into the staging directory and lost with it
+  path <- absolute_path(path)
+
   zip::zip(zipfile = path, files = folder, root = staging)
 
   invisible(path)
 }
 
-#' The bundle's folder name: species and date
+#' Make a path to a not-yet-existing file absolute
+#'
+#' `normalizePath()` leaves a path alone when the file isn't there yet, so the
+#' directory is normalised and the file name put back on.
+#'
+#' @noRd
+absolute_path <- function(
+  path,
+  arg = rlang::caller_arg(path),
+  call = rlang::caller_env()
+) {
+  dir <- dirname(path)
+
+  if (!dir.exists(dir)) {
+    cli::cli_abort(
+      c(
+        "Can't write {.arg {arg}} to {.path {path}}.",
+        "x" = "The directory {.path {dir}} doesn't exist.",
+        "i" = "Create it first, or give a path in a directory that exists."
+      ),
+      call = call
+    )
+  }
+
+  file.path(normalizePath(dir, winslash = "/"), basename(path))
+}
+
+#' The download folder's name: species and date
 #'
 #' @noRd
 bundle_dir_name <- function(x) {
@@ -110,7 +140,7 @@ slugify <- function(x) {
     stringr::str_remove_all("^-|-$")
 }
 
-#' What a bundle contains
+#' What the download contains
 #'
 #' The single source of truth for the layout: the writer uses it to know where
 #' files go, and the README lists it, so the two can't drift.
@@ -133,7 +163,6 @@ asset_manifest <- function(x) {
     )
   )
 
-  # a single distance gives a single point, so there is nothing to plot
   over_distance <- tibble::tibble(
     path = "summary/connectivity-over-distance.png",
     kind = "plot",
@@ -145,7 +174,7 @@ asset_manifest <- function(x) {
 
   dplyr::bind_rows(
     shared,
-    if (length(distances) > 1) over_distance,
+    if (has_over_distance_plot(x)) over_distance,
     per_distance
   )
 }
@@ -185,8 +214,8 @@ write_asset_tables <- function(x, dir) {
     dplyr::select(-"patch_size") |>
     readr::write_csv(file.path(dir, "summary", "connectivity-summary.csv"))
 
-  # the summary already carries the per-patch tables and the distance they
-  # belong to, so unnesting beats stacking them back together by hand
+  # the summary already carries the per-patch tables, so unnest rather than
+  # stack them back together
   x$connectivity |>
     dplyr::select("species", "interpatch_distance", "patch_size") |>
     tidyr::unnest("patch_size") |>
@@ -195,8 +224,6 @@ write_asset_tables <- function(x, dir) {
 
 #' @noRd
 write_asset_plots <- function(x, dir) {
-  colours <- urbio_colours()
-
   purrr::walk2(
     x$buffered_habitat,
     x$interpatch_distance,
@@ -206,10 +233,7 @@ write_asset_plots <- function(x, dir) {
         buffered = buffered,
         habitat = x$habitat,
         interpatch_distance = distance,
-        species = x$species,
-        col_barrier = colours$barrier,
-        col_interpatch_dist = colours$interpatch_distance,
-        col_habitat = colours$habitat
+        species = x$species
       ) |>
         save_asset_plot(distance_file(
           dir,
@@ -233,11 +257,11 @@ write_asset_plots <- function(x, dir) {
     }
   )
 
-  if (length(x$interpatch_distance) > 1) {
+  if (has_over_distance_plot(x)) {
     plot_connectivity(x$connectivity) |>
       save_asset_plot(
         file.path(dir, "summary", "connectivity-over-distance.png"),
-        height = 8
+        height = urbio_figure_size()$tall_height
       )
   }
 }
@@ -329,13 +353,15 @@ distance_file <- function(dir, distance, folder, file) {
 }
 
 #' @noRd
-save_asset_plot <- function(plot, path, width = 8, height = 6) {
+save_asset_plot <- function(plot, path, height = NULL) {
+  size <- urbio_figure_size()
+
   ggplot2::ggsave(
     filename = path,
     plot = plot,
-    width = width,
-    height = height,
-    dpi = 150,
+    width = size$width,
+    height = height %||% size$height,
+    dpi = size$dpi,
     bg = "white"
   )
 }

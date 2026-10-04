@@ -13,7 +13,7 @@ zip_connectivity_assets(x, path)
 \item{path}{Path to write the \code{.zip} to.}
 }
 \value{
-\code{path}, invisibly.
+The absolute path written, invisibly.
 }
 \description{
 \code{\link[=write_connectivity_assets]{write_connectivity_assets()}} into a folder named for the species and the
@@ -22,10 +22,10 @@ date, archived. This is what the Shiny app's download button returns.
 \examples{
 \donttest{
 report_data <- connectivity_report_data(
-  habitat = example_wren_habitat(),
-  barrier = example_wren_barrier(),
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 
