@@ -4,27 +4,22 @@
 \alias{generate_connectivity_report}
 \title{Render a connectivity report}
 \usage{
-generate_connectivity_report(
-  x,
-  output_format = c("html", "pdf", "both"),
-  output_dir = ".",
-  output_file = NULL
-)
+generate_connectivity_report(x, path = NULL, format = report_format(path))
 }
 \arguments{
 \item{x}{A \code{connectivity_report_data} object from
 \code{\link[=connectivity_report_data]{connectivity_report_data()}}.}
 
-\item{output_format}{One of \code{"html"}, \code{"pdf"}, or \code{"both"}.}
+\item{path}{File to write. The extension sets the format. Defaults to the
+species, today's date and \code{.html}, in the working directory. The
+directory must already exist.}
 
-\item{output_dir}{Directory to write the report to, defaulting to the
-working directory. Created if it doesn't exist.}
-
-\item{output_file}{File name, without extension. Defaults to the species and
-today's date, matching the asset bundle's folder name.}
+\item{format}{The Quarto format, when \code{path} can't say. Taken from \code{path}'s
+extension by default, which is what you want unless the destination is a
+name something else chose, as \code{shiny::downloadHandler()} does.}
 }
 \value{
-The absolute path(s) written, invisibly.
+The absolute path written, invisibly.
 }
 \description{
 One document holding the maps, tables and summary for an analysis: the same
@@ -33,9 +28,27 @@ single self-contained file; PDF is rendered through Typst, so no LaTeX is
 needed.
 }
 \details{
+\code{\link[=write_connectivity_report]{write_connectivity_report()}} then \code{\link[=render_connectivity_report]{render_connectivity_report()}}, in one
+call, through a temporary directory. Use those two instead when you want
+the Quarto source to keep or to change.
+
 The report covers the tabular and visual results. The GIS layers travel
 with \code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}}, since a GeoTIFF can't live inside a
 document.
+
+The format comes from \code{path}'s extension, as it does for
+\code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}: \code{"report.pdf"} writes a PDF and \code{"report.html"} an
+HTML file. Write both by calling this twice.
+
+Any format Quarto can write to a single file works, so \code{"report.docx"}
+and \code{"report.rtf"} also do what they look like. The Shiny app offers HTML
+and PDF only. A \code{.pdf} renders through Typst rather than Quarto's
+LaTeX-based \code{pdf} format, so no TeX install is needed.
+
+Formats that keep their figures in a folder beside the document, such as
+\code{.md}, are refused: a report has to be one file, and copying the document
+alone would lose every figure. Note too that the tabbed sections are
+HTML-only and fall back to plain headings everywhere else.
 }
 \examples{
 \donttest{
@@ -47,10 +60,17 @@ report_data <- connectivity_report_data(
   verbose = FALSE
 )
 
-generate_connectivity_report(report_data, output_dir = tempdir())
+# rendering needs the Quarto command line tool
+if (quarto_available()) {
+  generate_connectivity_report(
+    report_data,
+    file.path(tempdir(), "lizard-report.html")
+  )
+}
 }
 }
 \seealso{
-\code{\link[=connectivity_report_data]{connectivity_report_data()}} to build \code{x}, and
+\code{\link[=connectivity_report_data]{connectivity_report_data()}} to build \code{x},
+\code{\link[=write_connectivity_report]{write_connectivity_report()}} for the Quarto source, and
 \code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}} for the GIS layers and full tables.
 }

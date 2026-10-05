@@ -13,7 +13,7 @@ test_report_data <- function(interpatch_distance = 40) {
 
 skip_if_no_quarto <- function() {
   skip_on_cran()
-  skip_if_not(quarto::quarto_available(), "the Quarto CLI is not installed")
+  skip_if_not(quarto_available(), "the Quarto CLI is not installed")
 }
 
 test_report_text <- function(path) {

@@ -2,7 +2,7 @@
 title: "Habitat connectivity report"
 date: today
 params:
-  report_data: "report-data.rds"
+  report_data: null
 format:
   html:
     toc: true
@@ -21,7 +21,21 @@ execute:
 #| label: setup
 library(urbioconnect)
 
-report <- read_report_data(params$report_data)
+# set here, not in the YAML, so rendering this document yourself gives the
+# same figures the package does
+size <- urbio_figure_size()
+knitr::opts_chunk$set(
+  fig.width = size$width,
+  fig.height = size$height,
+  dpi = size$dpi
+)
+
+# the analysis sits beside this document, named after it, so a copy of the
+# pair renders anywhere. `report_data` overrides that if you move the data.
+data_file <- params$report_data %||%
+  paste0(tools::file_path_sans_ext(knitr::current_input()), "-data.rds")
+
+report <- read_report_data(data_file)
 
 connectivity <- report$connectivity
 distances <- report$interpatch_distance
@@ -136,7 +150,7 @@ distance_tabs(function(distance) {
 ```{r}
 #| label: over-distance
 #| output: asis
-#| fig-height: !expr urbioconnect::urbio_figure_size()$tall_height
+#| fig-height: !expr size$tall_height
 # a single distance is a single point, so there is nothing to plot
 if (length(distances) > 1) {
   cat("# Change over distance\n\n")
