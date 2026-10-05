@@ -4,24 +4,28 @@
 \alias{render_connectivity_report}
 \title{Render a connectivity report's source}
 \usage{
-render_connectivity_report(input, path = NULL)
+render_connectivity_report(input, path = NULL, format = report_format(path))
 }
 \arguments{
-\item{input}{The \code{.qmd} to render, from \code{\link[=write_connectivity_report]{write_connectivity_report()}}.}
+\item{input}{The \code{.qmd} to render, from \code{\link[=write_connectivity_report]{write_connectivity_report()}}. Its
+\code{-data.rds} must still be beside it.}
 
 \item{path}{File to write. The extension sets the format, as it does for
 \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}. Defaults to \code{input} with a \code{.html} extension. The
 directory must already exist.}
+
+\item{format}{The Quarto format, when \code{path} can't say. See
+\code{\link[=generate_connectivity_report]{generate_connectivity_report()}}.}
 }
 \value{
 The absolute path written, invisibly.
 }
 \description{
-Renders a \code{.qmd} from \code{\link[=write_connectivity_report]{write_connectivity_report()}}, with the figure sizes
-and the Typst routing the package uses. Rendering the document yourself,
-with the Render button or \code{\link[quarto:quarto_render]{quarto::quarto_render()}}, gives the same
-result; this adds the choice of format by extension and puts the output
-where you ask.
+Renders a \code{.qmd} from \code{\link[=write_connectivity_report]{write_connectivity_report()}}. The document carries
+its own figure sizes, so rendering it yourself with the Render button or
+\code{\link[quarto:quarto_render]{quarto::quarto_render()}} gives the same figures; this adds the choice of
+format by extension, the Typst routing for a \code{.pdf}, and puts the output
+where you ask rather than beside the input.
 }
 \examples{
 \donttest{
@@ -38,7 +42,10 @@ qmd <- write_connectivity_report(
   file.path(tempdir(), "lizard-report.qmd")
 )
 
-render_connectivity_report(qmd)
+# rendering needs the Quarto command line tool
+if (quarto_available()) {
+  render_connectivity_report(qmd)
+}
 }
 }
 \seealso{

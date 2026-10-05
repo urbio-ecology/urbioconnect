@@ -1,34 +1,12 @@
 test_that("the app's analysis path runs and every result output renders", {
   # CI never ran inst/shiny/, so an API rename broke Run Analysis three times
-  # without anything noticing. This is the regression guard. It costs ~10s,
-  # since it runs the real pipeline on the example wren data.
-  skip_on_cran()
-  skip_if_not_installed("shiny")
-  skip_if_not_installed("DT")
-  skip_if_not_installed("bslib")
-  skip_if_not_installed("conflicted")
-  skip_if_not_installed("fasterize")
-  skip_if_not_installed("shinyjs")
-
-  app_dir <- system.file("shiny", package = "urbioconnect")
-  skip_if(app_dir == "", "shiny app directory not found")
-
-  # the same sources app.R uses, minus ui.R, which testServer doesn't need
-  suppressMessages({
-    source(file.path(app_dir, "packages.R"))
-    source(file.path(app_dir, "colours.R"))
-    source(file.path(app_dir, "server.R"), local = TRUE)
-  })
+  # without anything noticing. This is the regression guard, on the real
+  # pipeline and the example wren data.
+  skip_if_no_app()
+  local_app_server()
 
   shiny::testServer(server, {
-    session$setInputs(
-      use_example_data = TRUE,
-      species = "Superb Fairy Wren",
-      data_resolution = 10,
-      target_resolution = 500,
-      interpatch_distances = "200",
-      run_analysis = 1
-    )
+    rlang::exec(session$setInputs, !!!app_example_inputs())
 
     expect_true(results$ready)
     expect_equal(nrow(results$results_connect_habitat), 1)
@@ -56,32 +34,24 @@ test_that("the app's analysis path runs and every result output renders", {
 })
 
 test_that("the app's downloads produce files with content", {
-  skip_on_cran()
-  skip_if_not_installed("shiny")
-  skip_if_not_installed("DT")
-  skip_if_not_installed("bslib")
-  skip_if_not_installed("conflicted")
-  skip_if_not_installed("fasterize")
-  skip_if_not_installed("shinyjs")
+  skip_if_no_app()
+  local_app_server()
 
-  app_dir <- system.file("shiny", package = "urbioconnect")
-  skip_if(app_dir == "", "shiny app directory not found")
-
-  suppressMessages({
-    source(file.path(app_dir, "packages.R"))
-    source(file.path(app_dir, "colours.R"))
-    source(file.path(app_dir, "server.R"), local = TRUE)
-  })
+  # the reports are rendered for real by test-assets.R; here the point is that
+  # the handlers are wired, so stand in for the 17s of Quarto. quarto_available
+  # is pinned too, so the archive holds the reports either way.
+  local_mocked_bindings(
+    quarto_available = function() TRUE,
+    render_asset_reports = function(x, dir) {
+      purrr::walk(
+        file.path(dir, paste0("report.", c("html", "pdf"))),
+        function(path) writeLines("stand-in for a rendered report", path)
+      )
+    }
+  )
 
   shiny::testServer(server, {
-    session$setInputs(
-      use_example_data = TRUE,
-      species = "Superb Fairy Wren",
-      data_resolution = 10,
-      target_resolution = 500,
-      interpatch_distances = "200",
-      run_analysis = 1
-    )
+    rlang::exec(session$setInputs, !!!app_example_inputs())
 
     summary_csv <- readr::read_csv(
       output$download_summary_csv,
@@ -109,14 +79,57 @@ test_that("the app's downloads produce files with content", {
     expect_s3_class(results$report_data, "connectivity_report_data")
 
     contents <- zip::zip_list(output$download_everything)$filename
-    folder <- paste0("superb-fairy-wren-connectivity-", Sys.Date())
+    folder <- connectivity_file_stem(results$report_data)
 
-    expect_true(paste0(folder, "/README.md") %in% contents)
-    expect_true(
-      paste0(folder, "/interpatch-200m/gis/patches.gpkg") %in% contents
+    expect_in(
+      paste0(
+        folder,
+        "/",
+        c(
+          "README.md",
+          "interpatch-200m/gis/patches.gpkg",
+          "summary/connectivity-summary.csv",
+          # the reports travel in the archive too
+          "report.html",
+          "report.pdf"
+        )
+      ),
+      contents
     )
-    expect_true(
-      paste0(folder, "/summary/connectivity-summary.csv") %in% contents
+  })
+})
+
+test_that("the app's report buttons render a report", {
+  skip_if_no_app()
+  skip_if_no_quarto()
+  local_app_server()
+
+  shiny::testServer(server, {
+    rlang::exec(session$setInputs, !!!app_example_inputs())
+
+    # one render, not three: reading an output runs its handler, and the PDF
+    # and zip buttons are the same path with a different format
+    expect_match(
+      paste(
+        readLines(output$download_report_html, warn = FALSE),
+        collapse = ""
+      ),
+      "Superb Fairy Wren",
+      fixed = TRUE
+    )
+  })
+})
+
+test_that("the report buttons do nothing before an analysis has run", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    # filename runs before content, so a missing req() there used to abort in
+    # the browser rather than quietly doing nothing
+    purrr::walk(
+      c("download_report_html", "download_report_pdf", "download_reports_zip"),
+      function(id) expect_error(output[[id]], class = "shiny.silent.error")
     )
   })
 })

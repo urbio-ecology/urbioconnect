@@ -4,13 +4,19 @@
 \alias{write_connectivity_assets}
 \title{Write the downloadable assets for one analysis}
 \usage{
-write_connectivity_assets(x, dir)
+write_connectivity_assets(x, dir, reports = quarto_available())
 }
 \arguments{
 \item{x}{A \code{connectivity_report_data} object from
 \code{\link[=connectivity_report_data]{connectivity_report_data()}}.}
 
 \item{dir}{Directory to write into. Created if it doesn't exist.}
+
+\item{reports}{Also render the HTML and PDF reports into \code{dir}. Defaults to
+whether the Quarto command line tool is installed, since it is the one
+thing here that needs it: without Quarto the maps, tables and GIS layers
+are still written, and a message says the reports were skipped. Costs
+about 15 seconds per format.}
 }
 \value{
 The manifest, invisibly: a tibble of \code{path}, \code{kind} and
@@ -32,10 +38,15 @@ report_data <- connectivity_report_data(
   verbose = FALSE
 )
 
-assets <- write_connectivity_assets(report_data, dir = tempfile())
+assets <- write_connectivity_assets(
+  report_data,
+  dir = tempfile(),
+  reports = FALSE
+)
 assets$path
 }
 }
 \seealso{
-\code{\link[=connectivity_report_data]{connectivity_report_data()}}, \code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}}
+\code{\link[=connectivity_report_data]{connectivity_report_data()}}, \code{\link[=zip_connectivity_assets]{zip_connectivity_assets()}}, and
+\code{\link[=generate_connectivity_report]{generate_connectivity_report()}} for one report on its own.
 }

@@ -511,7 +511,7 @@ server <- function(input, output, session) {
       theme_minimal() +
       labs(
         x = "Interpatch Distance (m)",
-        y = "Mean Patch Area (m²)"
+        y = "Mean Patch Area (m2)"
       ) +
       theme(
         axis.title = element_text(size = 10)
@@ -631,7 +631,7 @@ server <- function(input, output, session) {
             title = "Connected Habitat Patches by Size",
             subtitle = paste("Interpatch distance:", first_buffer, "m"),
             x = "Patch Rank (by size)",
-            y = "Patch Area (m²)",
+            y = "Patch Area (m2)",
             fill = "Category"
           ) +
           theme(
@@ -707,7 +707,7 @@ server <- function(input, output, session) {
         theme_minimal() +
         labs(
           x = "Interpatch Distance (m)",
-          y = "Mean Patch Area (m²)"
+          y = "Mean Patch Area (m2)"
         ) +
         theme(
           axis.title = element_text(size = 10)
@@ -750,7 +750,7 @@ server <- function(input, output, session) {
     }
   )
 
-  # Everything: maps, tables and GIS layers, laid out by interpatch distance
+  # Everything: maps, tables, GIS layers and the reports
   output$download_everything <- downloadHandler(
     filename = function() {
       paste0("connectivity-", Sys.Date(), ".zip")
@@ -760,6 +760,51 @@ server <- function(input, output, session) {
 
       withProgress(message = "Preparing your download...", value = 0.3, {
         zip_connectivity_assets(results$report_data, file)
+      })
+    }
+  )
+
+  # Reports ----
+
+  # shiny names the download file itself, with no extension to read a format
+  # from, so the format is passed explicitly and the report renders straight
+  # into it
+  report_download <- function(extension) {
+    force(extension)
+
+    downloadHandler(
+      filename = function() {
+        # filename runs before content, so req() has to be here too
+        req(results$report_data)
+        paste0(connectivity_file_stem(results$report_data), ".", extension)
+      },
+      content = function(file) {
+        req(results$report_data)
+
+        withProgress(message = "Rendering your report...", value = 0.3, {
+          generate_connectivity_report(
+            results$report_data,
+            file,
+            format = extension
+          )
+        })
+      }
+    )
+  }
+
+  output$download_report_html <- report_download("html")
+  output$download_report_pdf <- report_download("pdf")
+
+  output$download_reports_zip <- downloadHandler(
+    filename = function() {
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), "-reports.zip")
+    },
+    content = function(file) {
+      req(results$report_data)
+
+      withProgress(message = "Rendering both reports...", value = 0.3, {
+        zip_connectivity_reports(results$report_data, file)
       })
     }
   )

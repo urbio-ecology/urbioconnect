@@ -1,3 +1,13 @@
+# Quarto is separate software and may not be installed where the app runs.
+# Asked once here, not per session: it can't change while the app is up.
+has_quarto <- quarto_available()
+
+# A download button that is dead unless Quarto is there to render with
+report_button <- function(id, label) {
+  button <- downloadButton(id, label, class = "btn-outline-success w-100")
+  if (has_quarto) button else shinyjs::disabled(button)
+}
+
 ui <- page_navbar(
   title = "Urban Connectedness",
   theme = urbio_theme(),
@@ -299,24 +309,43 @@ ui <- page_navbar(
         card_header("Spatial Data Downloads"),
         card_body(
           p("Download spatial layers for use in GIS software:"),
+          downloadButton(
+            "download_raster",
+            "Download Raster (GeoTIFF)",
+            class = "btn-outline-primary w-100"
+          )
+        )
+      ),
+      # Reports. These are the only downloads that need Quarto, so they are
+      # the only ones switched off without it; everything else still works.
+      card(
+        card_header("Reports"),
+        card_body(
+          p(
+            "One document holding every map, table and summary.",
+            "Rendering takes a moment."
+          ),
           layout_columns(
             col_widths = c(4, 4, 4),
-            downloadButton(
-              "download_raster",
-              "Download Raster (GeoTIFF)",
-              class = "btn-outline-primary w-100"
-            ),
-            downloadButton(
-              "download_report_html",
-              "Download Report (HTML)",
-              class = "btn-outline-success w-100"
-            ),
-            downloadButton(
-              "download_report_pdf",
-              "Download Report (PDF)",
-              class = "btn-outline-success w-100"
+            report_button("download_report_html", "Report (HTML)"),
+            report_button("download_report_pdf", "Report (PDF)"),
+            report_button("download_reports_zip", "Both (ZIP)")
+          ),
+          if (!has_quarto) {
+            div(
+              class = "alert alert-warning mt-2 mb-0",
+              strong("Reports need Quarto."),
+              " It isn't installed where this app is running, so the three",
+              " buttons above are switched off. Every other download works.",
+              " See ",
+              a(
+                href = "https://quarto.org/docs/get-started/",
+                target = "_blank",
+                "quarto.org"
+              ),
+              "."
             )
-          )
+          }
         )
       ),
       # Everything, in one archive

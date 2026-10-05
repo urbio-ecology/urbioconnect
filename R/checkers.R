@@ -33,6 +33,30 @@ check_character <- function(
   check_class(x, is.character, "character", arg, call)
 }
 
+#' Check a single TRUE or FALSE
+#'
+#' `1` is not `TRUE` here: a toggle that silently accepts a number accepts a
+#' typo too.
+#'
+#' @noRd
+check_bool <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (!is.logical(x) || length(x) != 1 || is.na(x)) {
+    cli::cli_abort(
+      message = c(
+        "{.arg {arg}} must be {.code TRUE} or {.code FALSE}, not
+         {.obj_type_friendly {x}}.",
+        "x" = "You supplied {.val {x}}."
+      ),
+      call = call
+    )
+  }
+  invisible(x)
+}
+
 check_scalar <- function(
   x,
   arg = rlang::caller_arg(x),

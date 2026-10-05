@@ -59,3 +59,14 @@
       ! `input` doesn't exist: 'absent.qmd'.
       i Write one with `write_connectivity_report()`.
 
+# a format whose figures sit in a folder is refused, not mangled
+
+    Code
+      suppressMessages(generate_connectivity_report(test_report_data(40), file.path(
+        dir, "report.md")))
+    Condition
+      Error in `render_report()`:
+      ! Can't write a md report.
+      x md keeps its figures in a separate folder, and a report has to be one file.
+      i Use a self-contained format: '.html', '.pdf', '.docx' or '.rtf'.
+

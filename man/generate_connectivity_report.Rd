@@ -4,7 +4,7 @@
 \alias{generate_connectivity_report}
 \title{Render a connectivity report}
 \usage{
-generate_connectivity_report(x, path = NULL)
+generate_connectivity_report(x, path = NULL, format = report_format(path))
 }
 \arguments{
 \item{x}{A \code{connectivity_report_data} object from
@@ -13,6 +13,10 @@ generate_connectivity_report(x, path = NULL)
 \item{path}{File to write. The extension sets the format. Defaults to the
 species, today's date and \code{.html}, in the working directory. The
 directory must already exist.}
+
+\item{format}{The Quarto format, when \code{path} can't say. Taken from \code{path}'s
+extension by default, which is what you want unless the destination is a
+name something else chose, as \code{shiny::downloadHandler()} does.}
 }
 \value{
 The absolute path written, invisibly.
@@ -36,11 +40,15 @@ The format comes from \code{path}'s extension, as it does for
 \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}: \code{"report.pdf"} writes a PDF and \code{"report.html"} an
 HTML file. Write both by calling this twice.
 
-Any format Quarto can write works, so \code{"report.docx"} and \code{"report.rtf"}
-also do what they look like. The Shiny app offers HTML and PDF only. A
-\code{.pdf} renders through Typst rather than Quarto's LaTeX-based \code{pdf}
-format, so no TeX install is needed. Note that the tabbed sections are
-HTML-only, and fall back to plain headings everywhere else.
+Any format Quarto can write to a single file works, so \code{"report.docx"}
+and \code{"report.rtf"} also do what they look like. The Shiny app offers HTML
+and PDF only. A \code{.pdf} renders through Typst rather than Quarto's
+LaTeX-based \code{pdf} format, so no TeX install is needed.
+
+Formats that keep their figures in a folder beside the document, such as
+\code{.md}, are refused: a report has to be one file, and copying the document
+alone would lose every figure. Note too that the tabbed sections are
+HTML-only and fall back to plain headings everywhere else.
 }
 \examples{
 \donttest{
@@ -52,10 +60,13 @@ report_data <- connectivity_report_data(
   verbose = FALSE
 )
 
-generate_connectivity_report(
-  report_data,
-  file.path(tempdir(), "lizard-report.html")
-)
+# rendering needs the Quarto command line tool
+if (quarto_available()) {
+  generate_connectivity_report(
+    report_data,
+    file.path(tempdir(), "lizard-report.html")
+  )
+}
 }
 }
 \seealso{

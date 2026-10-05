@@ -40,31 +40,33 @@
 write_connectivity_report <- function(x, path = NULL) {
   check_report_data(x)
 
-  path <- path %||% paste0(bundle_dir_name(x), ".qmd")
+  path <- path %||% paste0(connectivity_file_stem(x), ".qmd")
   check_qmd_path(path)
 
   qmd <- absolute_path(path)
-  stem <- tools::file_path_sans_ext(basename(qmd))
-  data_file <- paste0(stem, "-data.rds")
+  data_file <- paste0(tools::file_path_sans_ext(qmd), "-data.rds")
 
-  write_report_data(x, file.path(dirname(qmd), data_file))
-  writeLines(report_source(data_file), qmd)
+  write_report_data(x, data_file)
+  file.copy(report_template(), qmd, overwrite = TRUE)
 
   invisible(qmd)
 }
 
 #' Render a connectivity report's source
 #'
-#' Renders a `.qmd` from [write_connectivity_report()], with the figure sizes
-#'   and the Typst routing the package uses. Rendering the document yourself,
-#'   with the Render button or [quarto::quarto_render()], gives the same
-#'   result; this adds the choice of format by extension and puts the output
-#'   where you ask.
+#' Renders a `.qmd` from [write_connectivity_report()]. The document carries
+#'   its own figure sizes, so rendering it yourself with the Render button or
+#'   [quarto::quarto_render()] gives the same figures; this adds the choice of
+#'   format by extension, the Typst routing for a `.pdf`, and puts the output
+#'   where you ask rather than beside the input.
 #'
-#' @param input The `.qmd` to render, from [write_connectivity_report()].
+#' @param input The `.qmd` to render, from [write_connectivity_report()]. Its
+#'   `-data.rds` must still be beside it.
 #' @param path File to write. The extension sets the format, as it does for
 #'   [ggplot2::ggsave()]. Defaults to `input` with a `.html` extension. The
 #'   directory must already exist.
+#' @param format The Quarto format, when `path` can't say. See
+#'   [generate_connectivity_report()].
 #'
 #' @returns The absolute path written, invisibly.
 #' @seealso [write_connectivity_report()] to write the source.
@@ -85,9 +87,16 @@ write_connectivity_report <- function(x, path = NULL) {
 #'   file.path(tempdir(), "lizard-report.qmd")
 #' )
 #'
-#' render_connectivity_report(qmd)
+#' # rendering needs the Quarto command line tool
+#' if (quarto_available()) {
+#'   render_connectivity_report(qmd)
 #' }
-render_connectivity_report <- function(input, path = NULL) {
+#' }
+render_connectivity_report <- function(
+  input,
+  path = NULL,
+  format = report_format(path)
+) {
   check_scalar_character(input)
   check_quarto()
 
@@ -99,7 +108,6 @@ render_connectivity_report <- function(input, path = NULL) {
   }
 
   path <- path %||% paste0(tools::file_path_sans_ext(input), ".html")
-  format <- report_format(path)
 
   invisible(render_report(input, format, absolute_path(path)))
 }
@@ -123,17 +131,24 @@ render_connectivity_report <- function(input, path = NULL) {
 #'   [ggplot2::ggsave()]: `"report.pdf"` writes a PDF and `"report.html"` an
 #'   HTML file. Write both by calling this twice.
 #'
-#'   Any format Quarto can write works, so `"report.docx"` and `"report.rtf"`
-#'   also do what they look like. The Shiny app offers HTML and PDF only. A
-#'   `.pdf` renders through Typst rather than Quarto's LaTeX-based `pdf`
-#'   format, so no TeX install is needed. Note that the tabbed sections are
-#'   HTML-only, and fall back to plain headings everywhere else.
+#'   Any format Quarto can write to a single file works, so `"report.docx"`
+#'   and `"report.rtf"` also do what they look like. The Shiny app offers HTML
+#'   and PDF only. A `.pdf` renders through Typst rather than Quarto's
+#'   LaTeX-based `pdf` format, so no TeX install is needed.
+#'
+#'   Formats that keep their figures in a folder beside the document, such as
+#'   `.md`, are refused: a report has to be one file, and copying the document
+#'   alone would lose every figure. Note too that the tabbed sections are
+#'   HTML-only and fall back to plain headings everywhere else.
 #'
 #' @param x A `connectivity_report_data` object from
 #'   [connectivity_report_data()].
 #' @param path File to write. The extension sets the format. Defaults to the
 #'   species, today's date and `.html`, in the working directory. The
 #'   directory must already exist.
+#' @param format The Quarto format, when `path` can't say. Taken from `path`'s
+#'   extension by default, which is what you want unless the destination is a
+#'   name something else chose, as `shiny::downloadHandler()` does.
 #'
 #' @returns The absolute path written, invisibly.
 #' @seealso [connectivity_report_data()] to build `x`,
@@ -151,63 +166,55 @@ render_connectivity_report <- function(input, path = NULL) {
 #'   verbose = FALSE
 #' )
 #'
-#' generate_connectivity_report(
-#'   report_data,
-#'   file.path(tempdir(), "lizard-report.html")
-#' )
+#' # rendering needs the Quarto command line tool
+#' if (quarto_available()) {
+#'   generate_connectivity_report(
+#'     report_data,
+#'     file.path(tempdir(), "lizard-report.html")
+#'   )
 #' }
-generate_connectivity_report <- function(x, path = NULL) {
+#' }
+generate_connectivity_report <- function(
+  x,
+  path = NULL,
+  format = report_format(path)
+) {
   check_report_data(x)
   check_quarto()
 
-  path <- path %||% paste0(bundle_dir_name(x), ".html")
+  path <- path %||% paste0(connectivity_file_stem(x), ".html")
 
-  # checked before the analysis is written out, so a bad path fails on the
+  # resolved before the analysis is written out, so a bad path fails on the
   # path the caller gave rather than deep inside the render
-  report_format(path)
+  force(format)
   destination <- absolute_path(path)
 
   staging <- tempfile("urbioconnect-report")
-  dir.create(staging, recursive = TRUE)
   on.exit(unlink(staging, recursive = TRUE), add = TRUE)
 
-  qmd <- write_connectivity_report(
-    x,
-    file.path(staging, "connectivity-report.qmd")
-  )
-
-  render_connectivity_report(qmd, destination)
+  invisible(render_report(stage_report_qmd(x, staging), format, destination))
 }
 
-#' The shipped template, with its data file name substituted in
-#'
-#' The document names its data in one YAML scalar, so that a copy written
-#' beside its own `.rds` renders on its own. The substitution is checked,
-#' because a template whose `params` block moved would otherwise write a
-#' document pointing at a file that isn't there.
+#' Write the report source into a directory the caller owns and cleans up
 #'
 #' @noRd
-report_source <- function(data_file) {
-  template <- system.file(
+stage_report_qmd <- function(x, staging) {
+  dir.create(staging, recursive = TRUE, showWarnings = FALSE)
+  write_connectivity_report(x, file.path(staging, "connectivity-report.qmd"))
+}
+
+#' The shipped report template
+#'
+#' Copied verbatim. The document works out its own data file name from its
+#' own, so nothing has to be written into it.
+#'
+#' @noRd
+report_template <- function() {
+  system.file(
     "templates",
     "connectivity-report.qmd",
     package = "urbioconnect"
   )
-
-  lines <- readLines(template)
-  pattern <- '^(\\s*report_data:\\s*).*$'
-  found <- grepl(pattern, lines)
-
-  if (sum(found) != 1) {
-    cli::cli_abort(c(
-      "Can't find the {.field report_data} parameter in the report template.",
-      "x" = "Matched {sum(found)} lines, expected exactly 1.",
-      "i" = "This is a bug in urbioconnect."
-    ))
-  }
-
-  lines[found] <- sub(pattern, paste0('\\1"', data_file, '"'), lines[found])
-  lines
 }
 
 #' @noRd
@@ -235,16 +242,17 @@ check_qmd_path <- function(
 
 #' Render a document and move the result to `destination`
 #'
+#' `format` is the extension to write, not Quarto's name for it, because
+#' `destination` may be a name Shiny chose with no extension at all.
+#'
 #' @noRd
 render_report <- function(input, format, destination) {
-  extension <- tolower(tools::file_ext(destination))
-
-  cli::cli_inform("Rendering {.field {extension}} report...")
+  cli::cli_inform("Rendering {.field {format}} report...")
 
   render <- function(quiet) {
     quarto::quarto_render(
       input = input,
-      output_format = format,
+      output_format = quarto_format(format),
       quiet = quiet
     )
   }
@@ -256,21 +264,42 @@ render_report <- function(input, format, destination) {
       cli::cli_inform("Render failed. Retrying to show Quarto's output.")
       render(quiet = FALSE)
       cli::cli_abort(
-        "Quarto couldn't render the {.field {extension}} report.",
+        "Quarto couldn't render the {.field {format}} report.",
         parent = cnd
       )
     }
   )
 
   # Quarto writes beside its input, under the same stem
-  rendered <- paste0(tools::file_path_sans_ext(input), ".", extension)
+  rendered <- paste0(tools::file_path_sans_ext(input), ".", format)
 
   # don't hand back a path to nothing
   if (!file.exists(rendered)) {
     cli::cli_abort(c(
-      "Quarto rendered no {.field {extension}} file.",
+      "Quarto rendered no {.field {format}} file.",
       "i" = "Expected {.path {basename(rendered)}} in {.path {dirname(input)}}.",
       "i" = "Found: {.path {basename(list.files(dirname(input)))}}."
+    ))
+  }
+
+  # A self-contained format cleans up its figure folder; one that needs the
+  # figures on disk leaves it behind, named `<stem>.<format>_files`. Copying
+  # the one document out would lose every figure, so refuse instead of
+  # handing back a report with no pictures.
+  beside <- list.dirs(dirname(input), recursive = FALSE)
+  sidecars <- beside[grepl(
+    paste0("^", tools::file_path_sans_ext(basename(input)), ".*_files$"),
+    basename(beside)
+  )]
+
+  if (length(sidecars) > 0) {
+    unlink(c(rendered, sidecars), recursive = TRUE)
+    cli::cli_abort(c(
+      "Can't write a {.field {format}} report.",
+      "x" = "{.field {format}} keeps its figures in a separate folder, and a
+             report has to be one file.",
+      "i" = "Use a self-contained format: {.path .html}, {.path .pdf},
+             {.path .docx} or {.path .rtf}."
     ))
   }
 
@@ -280,6 +309,10 @@ render_report <- function(input, format, destination) {
     if (!copied) {
       cli::cli_abort("Couldn't write the report to {.path {destination}}.")
     }
+
+    # Quarto wrote this beside the input, which on the public render path is
+    # the caller's own directory
+    unlink(rendered)
   }
 
   cli::cli_inform("Wrote {.path {destination}}")
@@ -287,12 +320,7 @@ render_report <- function(input, format, destination) {
   destination
 }
 
-#' The Quarto format for a report path, from its extension
-#'
-#' The extension is Quarto's format name for most of its outputs, so it is
-#' passed straight through and Quarto reports anything it can't write. These
-#' are the three where the two names differ. Quarto's own `pdf` is LaTeX; a
-#' `.pdf` goes through Typst instead, so no TeX install is needed.
+#' A report path's format: its extension, lower case
 #'
 #' @noRd
 report_format <- function(
@@ -315,7 +343,37 @@ report_format <- function(
     )
   }
 
-  switch(extension, pdf = "typst", md = "gfm", tex = "latex", extension)
+  extension
+}
+
+#' Quarto's name for a format
+#'
+#' The extension is Quarto's own name for most of its outputs, so it passes
+#' straight through and Quarto reports anything it can't write. `pdf` is the
+#' one that differs: Quarto's own `pdf` is LaTeX, and this goes through Typst
+#' instead so no TeX install is needed.
+#'
+#' @noRd
+quarto_format <- function(format) {
+  switch(format, pdf = "typst", format)
+}
+
+#' Is the Quarto command line tool installed?
+#'
+#' Quarto is separate software, not an R package, so it can be missing. The
+#'   reports need it; nothing else in urbioconnect does. Ask this to decide
+#'   what to offer: the Shiny app disables its report buttons when it returns
+#'   `FALSE`, and `reports` defaults to it in
+#'   [write_connectivity_assets()].
+#'
+#' @returns `TRUE` or `FALSE`.
+#' @seealso [generate_connectivity_report()], which needs it.
+#' @export
+#'
+#' @examples
+#' quarto_available()
+quarto_available <- function() {
+  quarto::quarto_available()
 }
 
 #' Check Quarto is available
@@ -325,7 +383,7 @@ report_format <- function(
 #'
 #' @noRd
 check_quarto <- function(call = rlang::caller_env()) {
-  if (!quarto::quarto_available()) {
+  if (!quarto_available()) {
     cli::cli_abort(
       c(
         "Can't find the Quarto command line tool.",

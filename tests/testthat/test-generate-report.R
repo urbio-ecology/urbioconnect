@@ -18,8 +18,16 @@ test_that("write_connectivity_report() writes a qmd beside its data", {
   expect_equal(basename(qmd), "wren.qmd")
   expect_snapshot(sort(basename(list.files(dir))))
 
-  # the document names its own data file, so the pair renders on its own
-  expect_true(any(grepl('report_data: "wren-data.rds"', readLines(qmd))))
+  # the template is copied verbatim: the document works out its own data file
+  # name from its own, so nothing is written into it
+  expect_equal(
+    readLines(qmd),
+    readLines(system.file(
+      "templates",
+      "connectivity-report.qmd",
+      package = "urbioconnect"
+    ))
+  )
 
   # and that data is the analysis, readable back
   read <- read_report_data(file.path(dir, "wren-data.rds"))
@@ -42,19 +50,19 @@ test_that("render_connectivity_report() needs a file that exists", {
   expect_snapshot(render_connectivity_report("absent.qmd"), error = TRUE)
 })
 
-test_that("the extension picks the format", {
+test_that("the format is the path's extension", {
   expect_equal(report_format("report.html"), "html")
   expect_equal(report_format("REPORT.HTML"), "html")
   expect_equal(report_format("~/reports/my.report.v2.html"), "html")
-
-  # the three where the extension and Quarto's format name differ
-  expect_equal(report_format("report.pdf"), "typst")
-  expect_equal(report_format("report.md"), "gfm")
-  expect_equal(report_format("report.tex"), "latex")
-
-  # anything else goes to Quarto as-is, which writes it or complains itself
   expect_equal(report_format("report.docx"), "docx")
-  expect_equal(report_format("report.rtf"), "rtf")
+})
+
+test_that("only a pdf is routed away from Quarto's own format name", {
+  # Quarto's own pdf format is LaTeX, and this renders through Typst so no TeX
+  # install is needed. Everything else is Quarto's name already.
+  expect_equal(quarto_format("pdf"), "typst")
+  expect_equal(quarto_format("html"), "html")
+  expect_equal(quarto_format("docx"), "docx")
 })
 
 # a render costs ~15s, so one report's properties are asserted together, and
@@ -107,17 +115,39 @@ test_that("generate_connectivity_report() writes a PDF report", {
   expect_equal(readBin(path, "raw", 4), charToRaw("%PDF"))
 })
 
+test_that("a format whose figures sit in a folder is refused, not mangled", {
+  skip_if_no_quarto()
+
+  dir <- withr::local_tempdir()
+
+  # markdown writes its figures to a `_files` folder, so copying the one
+  # document out would hand back a report with no pictures at all
+  expect_snapshot(
+    suppressMessages(
+      generate_connectivity_report(
+        test_report_data(40),
+        file.path(dir, "report.md")
+      )
+    ),
+    error = TRUE,
+    transform = function(lines) sub(dir, "<tmp>", lines, fixed = TRUE)
+  )
+
+  expect_equal(length(list.files(dir)), 0)
+})
+
 test_that("generate_connectivity_report() defaults the path", {
   skip_if_no_quarto()
 
-  withr::with_tempdir({
-    path <- suppressMessages(
-      generate_connectivity_report(test_report_data(40))
-    )
+  report_data <- test_report_data(40)
 
+  withr::with_tempdir({
+    path <- suppressMessages(generate_connectivity_report(report_data))
+
+    # the stem's own format is pinned in test-assets.R; this is that plus html
     expect_equal(
       basename(path),
-      paste0("superb-fairy-wren-connectivity-", Sys.Date(), ".html")
+      paste0(connectivity_file_stem(report_data), ".html")
     )
 
     # a single distance is a single point, so there is nothing to plot

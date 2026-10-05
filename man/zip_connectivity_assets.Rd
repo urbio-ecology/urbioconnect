@@ -4,13 +4,16 @@
 \alias{zip_connectivity_assets}
 \title{Write the downloadable assets as a single zip}
 \usage{
-zip_connectivity_assets(x, path)
+zip_connectivity_assets(x, path, reports = quarto_available())
 }
 \arguments{
 \item{x}{A \code{connectivity_report_data} object from
 \code{\link[=connectivity_report_data]{connectivity_report_data()}}.}
 
 \item{path}{Path to write the \code{.zip} to.}
+
+\item{reports}{Also render the reports into the archive. See
+\code{\link[=write_connectivity_assets]{write_connectivity_assets()}}.}
 }
 \value{
 The absolute path written, invisibly.
@@ -29,10 +32,15 @@ report_data <- connectivity_report_data(
   verbose = FALSE
 )
 
-zip_path <- zip_connectivity_assets(report_data, tempfile(fileext = ".zip"))
+zip_path <- zip_connectivity_assets(
+  report_data,
+  tempfile(fileext = ".zip"),
+  reports = FALSE
+)
 zip::zip_list(zip_path)$filename
 }
 }
 \seealso{
-\code{\link[=write_connectivity_assets]{write_connectivity_assets()}} to write the files without archiving.
+\code{\link[=write_connectivity_assets]{write_connectivity_assets()}} to write the files without
+archiving, and \code{\link[=zip_connectivity_reports]{zip_connectivity_reports()}} for the reports alone.
 }
