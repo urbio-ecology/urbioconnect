@@ -2,13 +2,45 @@
 
 ## urbioconnect (development version)
 
+- The shiny app gains a Reports card, with buttons for the HTML report,
+  the PDF report, and both as a zip. The two report buttons existed but
+  had no handlers, so they did nothing. Without the Quarto command line
+  tool the three are disabled and the card says where to get it; every
+  other download still works.
+  ([\#61](https://github.com/urbio-ecology/urbioconnect/issues/61),
+  [\#62](https://github.com/urbio-ecology/urbioconnect/issues/62))
+
+- Warnings about a distance that the raster resolution can’t represent
+  now talk in interpatch distances, matching the argument you supplied.
+
+- Functions taking a `dir` to fill create it if it doesn’t exist;
+  functions taking a `path` to one file error if that file’s directory
+  doesn’t, as
+  [`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html)
+  and
+  [`readr::write_csv()`](https://readr.tidyverse.org/reference/write_delim.html)
+  do.
+  [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+  therefore no longer creates its output directory, which the old
+  `output_dir` argument did.
+
+- New
+  [`connectivity_file_stem()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.md)
+  gives the species-and-date name every download takes, so a report, a
+  zip and the folder inside that zip agree.
+
 - New
   [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
   renders one document holding the maps, tables and summary for an
-  analysis, as HTML or PDF. The PDF goes through Typst, so no LaTeX is
-  needed, and the figures are drawn from the data rather than embedded
-  as images. Needs the Quarto command line tool.
-  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+  analysis. The format comes from the file extension, as it does for
+  [`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html):
+  `generate_connectivity_report(x, "report.pdf")` writes a PDF,
+  `"report.html"` an HTML file, and any other single-file format Quarto
+  can write, such as `.docx`, also works. A `.pdf` goes through Typst,
+  so no LaTeX is needed, and the figures are drawn from the data rather
+  than embedded as images. Needs the Quarto command line tool.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54),
+  [\#61](https://github.com/urbio-ecology/urbioconnect/issues/61))
 
 - [`gg_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.md)
   and
@@ -16,29 +48,6 @@
   now default `col_barrier`, `col_interpatch_dist` and `col_habitat` to
   the package palette, so the app, the downloads and the report can’t
   drift apart.
-  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
-
-- [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
-  now saves at the shared figure size rather than whatever size the last
-  graphics device happened to be, and slugifies the species in the file
-  name, so a species with a space no longer produces a file name with
-  one. ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
-
-- New
-  [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)
-  gives the figure width, height and resolution the downloadable PNGs
-  and the report share.
-  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
-
-- New
-  [`write_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
-  and
-  [`read_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
-  save a
-  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
-  to a file and read it back, packing the rasters so they survive the
-  trip. This is how an analysis reaches the separate R session the
-  report renders in.
   ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
 
 - [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
@@ -56,8 +65,67 @@
   [`sf_habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_buffer.md)
   still take `buffer_radius`, since that is the operation they perform.
 
-- Warnings about a distance that the raster resolution can’t represent
-  now talk in interpatch distances, matching the argument you supplied.
+- [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
+  now saves at the shared figure size rather than whatever size the last
+  graphics device happened to be, and slugifies the species in the file
+  name, so a species with a space no longer produces a file name with
+  one. ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- New
+  [`quarto_available()`](https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.md)
+  says whether the Quarto command line tool is installed, which is what
+  the reports need and nothing else does.
+  ([\#61](https://github.com/urbio-ecology/urbioconnect/issues/61))
+
+- New
+  [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)
+  gives the figure width, height and resolution the downloadable PNGs
+  and the report share.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- [`write_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.md)
+  and
+  [`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
+  gain a `reports` argument, and include the HTML and PDF reports by
+  default. It defaults to
+  [`quarto_available()`](https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.md):
+  without Quarto the maps, tables and GIS layers are still written and a
+  message says the reports were skipped, so a missing Quarto costs the
+  reports rather than the whole download.
+  ([\#61](https://github.com/urbio-ecology/urbioconnect/issues/61),
+  [\#62](https://github.com/urbio-ecology/urbioconnect/issues/62))
+
+- New
+  [`write_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_report.md)
+  and
+  [`render_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/render_connectivity_report.md)
+  split report rendering into its two steps, so the Quarto source can be
+  kept and changed rather than thrown away.
+  [`write_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_report.md)
+  writes the document and the analysis beside it, and the pair renders
+  on its own with the Render button or
+  [`quarto::quarto_render()`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html),
+  giving the same figures the package does.
+  [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+  is now the two of them in one call.
+  ([\#61](https://github.com/urbio-ecology/urbioconnect/issues/61))
+
+- New
+  [`write_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  and
+  [`read_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
+  save a
+  [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  to a file and read it back, packing the rasters so they survive the
+  trip. This is how an analysis reaches the separate R session the
+  report renders in.
+  ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
+
+- New
+  [`zip_connectivity_reports()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_reports.md)
+  archives just the two reports, for someone who wants the write-up
+  without the GIS layers.
+  ([\#62](https://github.com/urbio-ecology/urbioconnect/issues/62))
 
 - The shiny app gains a “Download everything” button, returning one
   archive of every map, table and GIS layer, and its analysis now builds

@@ -10,7 +10,7 @@ button uses.
 ## Usage
 
 ``` r
-write_connectivity_assets(x, dir)
+write_connectivity_assets(x, dir, reports = quarto_available())
 ```
 
 ## Arguments
@@ -24,6 +24,14 @@ write_connectivity_assets(x, dir)
 
   Directory to write into. Created if it doesn't exist.
 
+- reports:
+
+  Also render the HTML and PDF reports into `dir`. Defaults to whether
+  the Quarto command line tool is installed, since it is the one thing
+  here that needs it: without Quarto the maps, tables and GIS layers are
+  still written, and a message says the reports were skipped. Costs
+  about 15 seconds per format.
+
 ## Value
 
 The manifest, invisibly: a tibble of `path`, `kind` and `description`,
@@ -32,7 +40,10 @@ one row per file written, with paths relative to `dir`.
 ## See also
 
 [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md),
-[`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
+[`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md),
+and
+[`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
+for one report on its own.
 
 ## Examples
 
@@ -46,7 +57,11 @@ report_data <- connectivity_report_data(
   verbose = FALSE
 )
 
-assets <- write_connectivity_assets(report_data, dir = tempfile())
+assets <- write_connectivity_assets(
+  report_data,
+  dir = tempfile(),
+  reports = FALSE
+)
 #> <SpatRaster> resampled to 500554 cells.
 #> <SpatRaster> resampled to 500554 cells.
 #> <SpatRaster> resampled to 500554 cells.

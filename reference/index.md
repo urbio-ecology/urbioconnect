@@ -120,11 +120,21 @@
   : Write the downloadable assets for one analysis
 - [`zip_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.md)
   : Write the downloadable assets as a single zip
+- [`zip_connectivity_reports()`](https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_reports.md)
+  : Write the reports as a single zip
+- [`connectivity_file_stem()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.md)
+  : The name to give a download: species and date
 - [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
   : Render a connectivity report
+- [`write_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_report.md)
+  : Write a connectivity report's source, so you can render it yourself
+- [`render_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/render_connectivity_report.md)
+  : Render a connectivity report's source
 - [`write_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
   [`read_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.md)
   : Save and reload a connectivity analysis
+- [`quarto_available()`](https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.md)
+  : Is the Quarto command line tool installed?
 
 ## General
 

@@ -55,12 +55,7 @@ needed.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generate_connectivity_report</span><span class="op">(</span></span>
-<span>  <span class="va">x</span>,</span>
-<span>  output_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"html"</span>, <span class="st">"pdf"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
-<span>  output_dir <span class="op">=</span> <span class="st">"."</span>,</span>
-<span>  output_file <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generate_connectivity_report</span><span class="op">(</span><span class="va">x</span>, path <span class="op">=</span> <span class="cn">NULL</span>, format <span class="op">=</span> <span class="fu">report_format</span><span class="op">(</span><span class="va">path</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,33 +67,46 @@ needed.</p>
 <code><a href="connectivity_report_data.html">connectivity_report_data()</a></code>.</p></dd>
 
 
-<dt id="arg-output-format">output_format<a class="anchor" aria-label="anchor" href="#arg-output-format"></a></dt>
-<dd><p>One of <code>"html"</code>, <code>"pdf"</code>, or <code>"both"</code>.</p></dd>
+<dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
+<dd><p>File to write. The extension sets the format. Defaults to the
+species, today's date and <code>.html</code>, in the working directory. The
+directory must already exist.</p></dd>
 
 
-<dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
-<dd><p>Directory to write the report to, defaulting to the
-working directory. Created if it doesn't exist.</p></dd>
-
-
-<dt id="arg-output-file">output_file<a class="anchor" aria-label="anchor" href="#arg-output-file"></a></dt>
-<dd><p>File name, without extension. Defaults to the species and
-today's date, matching the asset bundle's folder name.</p></dd>
+<dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
+<dd><p>The Quarto format, when <code>path</code> can't say. Taken from <code>path</code>'s
+extension by default, which is what you want unless the destination is a
+name something else chose, as <code><a href="https://rdrr.io/pkg/shiny/man/downloadHandler.html" class="external-link">shiny::downloadHandler()</a></code> does.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The absolute path(s) written, invisibly.</p>
+    <p>The absolute path written, invisibly.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The report covers the tabular and visual results. The GIS layers travel
+    <p><code><a href="write_connectivity_report.html">write_connectivity_report()</a></code> then <code><a href="render_connectivity_report.html">render_connectivity_report()</a></code>, in one
+call, through a temporary directory. Use those two instead when you want
+the Quarto source to keep or to change.</p>
+<p>The report covers the tabular and visual results. The GIS layers travel
 with <code><a href="zip_connectivity_assets.html">zip_connectivity_assets()</a></code>, since a GeoTIFF can't live inside a
 document.</p>
+<p>The format comes from <code>path</code>'s extension, as it does for
+<code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>: <code>"report.pdf"</code> writes a PDF and <code>"report.html"</code> an
+HTML file. Write both by calling this twice.</p>
+<p>Any format Quarto can write to a single file works, so <code>"report.docx"</code>
+and <code>"report.rtf"</code> also do what they look like. The Shiny app offers HTML
+and PDF only. A <code>.pdf</code> renders through Typst rather than Quarto's
+LaTeX-based <code>pdf</code> format, so no TeX install is needed.</p>
+<p>Formats that keep their figures in a folder beside the document, such as
+<code>.md</code>, are refused: a report has to be one file, and copying the document
+alone would lose every figure. Note too that the tabbed sections are
+HTML-only and fall back to plain headings everywhere else.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="connectivity_report_data.html">connectivity_report_data()</a></code> to build <code>x</code>, and
+    <div class="dont-index"><p><code><a href="connectivity_report_data.html">connectivity_report_data()</a></code> to build <code>x</code>,
+<code><a href="write_connectivity_report.html">write_connectivity_report()</a></code> for the Quarto source, and
 <code><a href="zip_connectivity_assets.html">zip_connectivity_assets()</a></code> for the GIS layers and full tables.</p></div>
     </div>
 
@@ -113,9 +121,15 @@ document.</p>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">generate_connectivity_report</span><span class="op">(</span><span class="va">report_data</span>, output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># rendering needs the Quarto command line tool</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="quarto_available.html">quarto_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu">generate_connectivity_report</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">report_data</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"lizard-report.html"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rendering <span style="color: #00BB00;">html</span> report...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Wrote <span style="color: #0000BB;">/tmp/RtmplosYiV/blue-tongue-lizard-connectivity-2026-10-04.html</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Wrote <span style="color: #0000BB;">/tmp/RtmpGvKVZO/lizard-report.html</span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

@@ -17,6 +17,7 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/col2hex.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/create_barrier_mask.html</loc></url>
@@ -45,7 +46,9 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/plot_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/plot_patches.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/read_geometry.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/render_connectivity_report.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_add_patch_area.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_aggregate_connected_patches.html</loc></url>
@@ -60,7 +63,9 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/urbioconnect-package.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_report.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/write_report_data.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_assets.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/zip_connectivity_reports.html</loc></url>
 </urlset>
 

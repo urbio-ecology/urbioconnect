@@ -55,7 +55,7 @@ what the Shiny app's download button uses.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write_connectivity_assets</span><span class="op">(</span><span class="va">x</span>, <span class="va">dir</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write_connectivity_assets</span><span class="op">(</span><span class="va">x</span>, <span class="va">dir</span>, reports <span class="op">=</span> <span class="fu"><a href="quarto_available.html">quarto_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -70,6 +70,14 @@ what the Shiny app's download button uses.</p>
 <dt id="arg-dir">dir<a class="anchor" aria-label="anchor" href="#arg-dir"></a></dt>
 <dd><p>Directory to write into. Created if it doesn't exist.</p></dd>
 
+
+<dt id="arg-reports">reports<a class="anchor" aria-label="anchor" href="#arg-reports"></a></dt>
+<dd><p>Also render the HTML and PDF reports into <code>dir</code>. Defaults to
+whether the Quarto command line tool is installed, since it is the one
+thing here that needs it: without Quarto the maps, tables and GIS layers
+are still written, and a message says the reports were skipped. Costs
+about 15 seconds per format.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -78,7 +86,8 @@ what the Shiny app's download button uses.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="connectivity_report_data.html">connectivity_report_data()</a></code>, <code><a href="zip_connectivity_assets.html">zip_connectivity_assets()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="connectivity_report_data.html">connectivity_report_data()</a></code>, <code><a href="zip_connectivity_assets.html">zip_connectivity_assets()</a></code>, and
+<code><a href="generate_connectivity_report.html">generate_connectivity_report()</a></code> for one report on its own.</p></div>
     </div>
 
     <div class="section level2">
@@ -92,7 +101,11 @@ what the Shiny app's download button uses.</p>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">assets</span> <span class="op">&lt;-</span> <span class="fu">write_connectivity_assets</span><span class="op">(</span><span class="va">report_data</span>, dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">assets</span> <span class="op">&lt;-</span> <span class="fu">write_connectivity_assets</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">report_data</span>,</span></span>
+<span class="r-in"><span>  dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  reports <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
