@@ -21,6 +21,15 @@ execute:
 #| label: setup
 library(urbioconnect)
 
+# set here, not in the YAML, so rendering this document yourself gives the
+# same figures the package does
+size <- urbio_figure_size()
+knitr::opts_chunk$set(
+  fig.width = size$width,
+  fig.height = size$height,
+  dpi = size$dpi
+)
+
 report <- read_report_data(params$report_data)
 
 connectivity <- report$connectivity

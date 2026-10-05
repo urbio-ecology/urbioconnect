@@ -59,6 +59,8 @@ reference:
   - write_connectivity_assets
   - zip_connectivity_assets
   - generate_connectivity_report
+  - write_connectivity_report
+  - render_connectivity_report
   - write_report_data
 - title: General
   contents:
