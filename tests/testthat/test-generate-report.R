@@ -72,9 +72,10 @@ test_that("a written report renders to HTML", {
   skip_if_no_quarto()
 
   dir <- withr::local_tempdir()
+  report_data <- test_report_data(c(40, 80))
 
   qmd <- write_connectivity_report(
-    test_report_data(c(40, 80)),
+    report_data,
     file.path(dir, "report.qmd")
   )
 
@@ -94,6 +95,24 @@ test_that("a written report renders to HTML", {
   expect_match(html, "data:image/png", fixed = TRUE)
   expect_match(html, "Superb Fairy Wren", fixed = TRUE)
   expect_match(html, "Change over distance", fixed = TRUE)
+
+  # the summary table came from connectivity_display(), so the rendered
+  # numbers are the ones the app shows. This fails if the template goes back
+  # to rounding on its own.
+  summary <- round_by(connectivity_display(report_data$connectivity))
+
+  expect_match(html, "Mesh (ha)", fixed = TRUE)
+  purrr::walk(
+    format(summary[["Mesh (ha)"]], trim = TRUE),
+    function(value) expect_match(html, value, fixed = TRUE)
+  )
+
+  # and not unrounded, which is what no formatting at all would give
+  expect_no_match(
+    html,
+    format(report_data$connectivity$effective_mesh_ha[[1]], trim = TRUE),
+    fixed = TRUE
+  )
 })
 
 test_that("generate_connectivity_report() writes a PDF report", {

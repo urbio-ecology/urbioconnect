@@ -107,17 +107,11 @@ row, and are given above.
 
 ```{r}
 #| label: summary-table
-# short labels: the PDF hyphenates long headings across the column boundary
-connectivity |>
-  dplyr::mutate(
-    `Distance (m)` = interpatch_distance,
-    Patches = n_patches,
-    `Mesh (ha)` = round(effective_mesh_ha, 2),
-    `P(connected)` = signif(prob_connectedness, 3),
-    `Mean area (m2)` = round(patch_area_mean, 1),
-    `Total area (ha)` = round(patch_area_total_ha, 2),
-    .keep = "none"
-  ) |>
+# labels and rounding come from connectivity_display(), so this table and the
+# app's show the same numbers. Species and resolution are in the header above.
+connectivity_display(connectivity) |>
+  round_by() |>
+  dplyr::select(-"Species", -"Resolution (m)") |>
   knitr::kable()
 ```
 
@@ -138,11 +132,8 @@ distance_tabs(function(distance) {
   patches_by_distance[[as.character(distance)]] |>
     dplyr::arrange(dplyr::desc(area)) |>
     head(10) |>
-    dplyr::mutate(
-      `Patch ID` = patch_id,
-      `Area (m2)` = round(area, 1),
-      .keep = "none"
-    ) |>
+    connectivity_display() |>
+    round_by() |>
     knitr::kable(row.names = FALSE)
 })
 ```

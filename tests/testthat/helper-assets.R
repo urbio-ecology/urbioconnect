@@ -11,6 +11,29 @@ test_report_data <- function(interpatch_distance = 40) {
   )
 }
 
+# a baseline-vs-scenario comparison from the synthetic layers: the scenario
+# removes a block of habitat, so the metrics actually move
+test_comparison <- function(interpatch_distance = 40) {
+  layers <- scenario_test_layers()
+
+  compare_connectivity(
+    scenario = habitat_connectivity(
+      habitat = layers$habitat_scenario,
+      barrier = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = interpatch_distance,
+      verbose = FALSE
+    ),
+    baseline = habitat_connectivity(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = interpatch_distance,
+      verbose = FALSE
+    )
+  )
+}
+
 skip_if_no_quarto <- function() {
   skip_on_cran()
   skip_if_not(quarto_available(), "the Quarto CLI is not installed")

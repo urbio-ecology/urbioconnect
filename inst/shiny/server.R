@@ -1,3 +1,18 @@
+# Apply a connectivity_display() digit spec to a DT. DT formats cell by cell,
+# so the values stay numeric and therefore sortable, which is why the package
+# describes the rounding rather than applying it.
+dt_format <- function(table, digits) {
+  purrr::reduce(
+    seq_len(nrow(digits)),
+    function(formatted, i) {
+      rule <- digits[i, ]
+      format_fn <- if (rule$kind == "signif") formatSignif else formatRound
+      format_fn(formatted, columns = rule$column, digits = rule$digits)
+    },
+    .init = table
+  )
+}
+
 server <- function(input, output, session) {
   # Define file paths
   data_dir <- system.file(
@@ -395,40 +410,30 @@ server <- function(input, output, session) {
   output$results_connect_habitat_table <- renderDT({
     req(results$results_connect_habitat)
 
-    results$results_connect_habitat |>
-      # patch_size is a list-column of per-patch tables: useful to carry
-      # around, not something DT can render
-      select(-patch_size) |>
-      mutate(data_resolution = format_resolution(data_resolution)) |>
-      datatable(
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = "tip"
-        ),
-        rownames = FALSE
-      ) |>
-      formatRound(
-        columns = c(
-          "effective_mesh_ha",
-          "patch_area_mean",
-          "patch_area_total_ha"
-        ),
-        digits = 3
-      ) |>
-      # prob_connectedness is ~1e-5, so three decimal places reads as 0.000
-      formatSignif(columns = "prob_connectedness", digits = 3)
+    display <- connectivity_display(results$results_connect_habitat)
+
+    datatable(
+      display$data,
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE,
+        dom = "tip"
+      ),
+      rownames = FALSE
+    ) |>
+      dt_format(display$digits)
   })
 
   # Output: Longer format prob connectedness table ----
   output$results_connect_habitat_longer_table <- renderDT({
     req(results$results_connect_habitat)
 
-    results$results_connect_habitat |>
-      select(-patch_size) |>
-      mutate(data_resolution = format_resolution(data_resolution)) |>
+    # the labels come from connectivity_display(); the pivot is this table's
+    # own business, and one column of every metric needs significant figures
+    # rather than the per-column rules
+    connectivity_display(results$results_connect_habitat)$data |>
       pivot_longer(
-        cols = -c(species, interpatch_distance, data_resolution)
+        cols = -all_of(c("Species", "Distance (m)", "Resolution (m)"))
       ) |>
       datatable(
         options = list(
@@ -437,8 +442,6 @@ server <- function(input, output, session) {
         ),
         rownames = FALSE
       ) |>
-      # one column now holds metrics of very different magnitudes, from
-      # ~1e-5 to the thousands, so significant figures rather than decimals
       formatSignif(columns = "value", digits = 3)
   })
 
