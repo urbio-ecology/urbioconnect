@@ -94,6 +94,14 @@ test_that("the app starts, takes an analysis, and compares the result", {
   # behaviour, and test-shiny-app.R already builds the outputs per distance.
   expect_equal(app$get_js('$("#compare_40, #compare_80").length'), 2)
 
+  # an htmlwidget draws after its output has arrived, so wait_for_idle() can
+  # return with the container up and nothing in it. CI found that on a slower
+  # machine; wait for the widget itself rather than for the server to settle.
+  app$wait_for_js(
+    '$("#compare_40 .image-diff-view-buttons > .image-diff-button").length > 0',
+    timeout = 60000
+  )
+
   # the three views diffviewer gives a changed image, which is what this
   # widget is here for rather than the hand-rolled wipe it replaced
   expect_equal(modes(40), "difference,toggle,slider")
@@ -105,7 +113,10 @@ test_that("the app starts, takes an analysis, and compares the result", {
     '$("#compare_40 .image-diff-view-buttons > [data-button=slider]")
        .trigger($.Event("mousedown", { which: 1 }));'
   )
-  app$wait_for_idle(timeout = 30000)
+  app$wait_for_js(
+    '$("#compare_40 .image-slider img").length === 2',
+    timeout = 60000
+  )
 
   expect_equal(app$get_js('$("#compare_40 .image-slider img").length'), 2)
 })

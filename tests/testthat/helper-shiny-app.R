@@ -117,7 +117,13 @@ skip_if_no_browser_app <- function() {
 
 # started for real, so these tests see what shiny sees
 local_app_driver <- function(envir = parent.frame()) {
-  app <- shinytest2::AppDriver$new(app_dir(), load_timeout = 60000)
+  # chromote gives a command 10s by default, which is not enough for
+  # Page.navigate on a cold Windows runner: CI failed there with "timed out
+  # waiting for response to command Page.navigate" before the app loaded at
+  # all. load_timeout is a different clock and does not cover it.
+  withr::local_options(chromote.timeout = 120, .local_envir = envir)
+
+  app <- shinytest2::AppDriver$new(app_dir(), load_timeout = 120000)
   withr::defer(app$stop(), envir = envir)
 
   app
