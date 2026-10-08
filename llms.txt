@@ -223,6 +223,18 @@ development of the methods and software.
   : Calculate habitat connectivity with visualization data
 - [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
   : Everything one connectivity analysis produces
+- [`scenario_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.md)
+  : The layer a scenario changed
+
+## Display
+
+- [`connectivity_display()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_display.md)
+  : Prepare a result for display
+- [`round_by()`](https://urbio-ecology.github.io/urbioconnect/reference/round_by.md)
+  [`format_by()`](https://urbio-ecology.github.io/urbioconnect/reference/round_by.md)
+  : Apply the rounding a display describes
+- [`display_ids()`](https://urbio-ecology.github.io/urbioconnect/reference/display_ids.md)
+  : Which display columns identify a row rather than measure it
 
 ## Patch connectivity class
 
@@ -288,6 +300,8 @@ development of the methods and software.
 
 - [`gg_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.md)
   : Plot barrier, habitat, and interpatch distance layers
+- [`gg_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_layer.md)
+  : Plot one layer on its own
 - [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
   : Save barrier habitat interpatch distance plot
 - [`plot_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_connectivity.md)
@@ -300,6 +314,7 @@ development of the methods and software.
 - [`example_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
   [`example_barrier_shp()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
   [`example_barrier()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
+  [`example_barrier_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
   : Lizard Habitat and Barrier Data from Melbourne.
 - [`example_wren_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
   [`example_wren_habitat_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-wren-data.md)
@@ -337,6 +352,8 @@ development of the methods and software.
   : Clean any spatial data layer (shape file)
 - [`empty_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/empty_grid.md)
   : Create Empty terra raster grid
+- [`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md)
+  : Put a layer on a grid, whichever form it arrives in
 - [`col2hex()`](https://urbio-ecology.github.io/urbioconnect/reference/col2hex.md)
   : Convert color name to hexadecimal
 - [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md)

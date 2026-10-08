@@ -1,6 +1,8 @@
 # Prepare habitat and barrier rasters
 
-Convert vector (shapefile) SF habitat and barrier objects into rasters.
+Put habitat and barrier layers on one grid. Either layer may be a vector
+(`sf` or `SpatVector`), which is rasterised, or a `SpatRaster`, which is
+resampled onto the grid.
 
 ## Usage
 
@@ -17,11 +19,11 @@ prepare_rasters(
 
 - habitat:
 
-  SF object. Habitat spatial data.
+  SF object or `SpatRaster`. Habitat spatial data.
 
 - barrier:
 
-  SF object. Barrier spatial data.
+  SF object or `SpatRaster`. Barrier spatial data.
 
 - data_resolution:
 
@@ -66,6 +68,31 @@ prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
 #> size        : 200, 200, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.01307, 10.02632  (x, y)
 #> extent      : 326109.6, 328112.2, 5819883, 5821888  (xmin, xmax, ymin, ymax)
+#> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
+#> source(s)   : memory
+#> name        : layer
+#> min value   :     0
+#> max value   :     1
+#> 
+
+# a raster layer is resampled onto the grid rather than rasterised
+prepare_rasters(example_habitat(), lizard_barrier_shp)
+#> $habitat_raster
+#> class       : SpatRaster
+#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> resolution  : 10.01307, 9.973856  (x, y)
+#> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)
+#> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
+#> source(s)   : memory
+#> name        : Pseudo Layer
+#> min value   :            1
+#> max value   :            1
+#> 
+#> $barrier_raster
+#> class       : SpatRaster
+#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> resolution  : 10.01307, 9.973856  (x, y)
+#> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> name        : layer

@@ -17,10 +17,12 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/col2hex.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_display.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/create_barrier_mask.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/display_ids.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/drop_habitat_under_barrier.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/empty_grid.html</loc></url>
@@ -30,6 +32,7 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/fragment_habitat.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/gg_layer.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.html</loc></url>
@@ -40,6 +43,7 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/mean_patch_size.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/n_patches.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/new_patch_size_tbl.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/patch_sizes.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/pc-getters.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.html</loc></url>
@@ -49,7 +53,9 @@
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/read_geometry.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/render_connectivity_report.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/round_by.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.html</loc></url>
+<url><loc>https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_add_patch_area.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_aggregate_connected_patches.html</loc></url>
 <url><loc>https://urbio-ecology.github.io/urbioconnect/reference/sf_assign_patches_to_fragments.html</loc></url>

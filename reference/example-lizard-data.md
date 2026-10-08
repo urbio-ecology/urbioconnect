@@ -14,6 +14,8 @@ example_habitat()
 example_barrier_shp()
 
 example_barrier()
+
+example_barrier_scenario()
 ```
 
 ## Value
@@ -33,6 +35,9 @@ included with the package:
   an SF object.
 
 - `example_barrier()` Returns a raster of lizard barrier data.
+
+- `example_barrier_scenario()` Returns the barrier raster with a new
+  road cut through it, for comparing a scenario against the baseline.
 
 ## Examples
 

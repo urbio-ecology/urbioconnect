@@ -2,6 +2,33 @@
 
 ## urbioconnect (development version)
 
+- The shiny app offers two example datasets rather than one. The Blue
+  Tongue Lizard landscape is about 200x200 cells and analyses in under a
+  second; the Superb Fairy Wren one is about 1500x1400 and takes tens of
+  seconds, so which you are asking for is now a choice rather than a
+  tick box. Each dataset brings its own scenarios, and the scenario
+  dropdown offers only the ones that go with the landscape in use.
+
+- New
+  [`example_barrier_scenario()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
+  gives the lizard barrier with a new road cut through it, so the small
+  example dataset has a scenario of its own. It is derived from
+  [`example_barrier()`](https://urbio-ecology.github.io/urbioconnect/reference/example-lizard-data.md)
+  rather than shipped as a second file.
+
+- The shiny app takes an optional scenario layer alongside the habitat
+  and the barrier: one of the supplied scenarios, or your own upload of
+  a changed habitat or barrier. Run Analysis then compares it to the
+  baseline, and the Results tab gains a Scenario tab holding the
+  comparison as one row per metric, in the shape the analysis produces
+  it, and as maps of the two landscapes. The maps get a Compare view
+  built on diffviewer, the widget
+  [`testthat::snapshot_review()`](https://testthat.r-lib.org/reference/snapshot_accept.html)
+  uses, so the two landscapes can be read as a pixel difference, a
+  toggle or a slider, at one tab per interpatch distance. The comparison
+  travels into the report and the download.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
 - The shiny app gains a Reports card, with buttons for the HTML report,
   the PDF report, and both as a zip. The two report buttons existed but
   had no handlers, so they did nothing. Without the Quarto command line
@@ -25,9 +52,56 @@
   `output_dir` argument did.
 
 - New
+  [`connectivity_display()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_display.md)
+  is the one place that decides what a metric is called and how
+  precisely to show it, with
+  [`round_by()`](https://urbio-ecology.github.io/urbioconnect/reference/round_by.md)
+  and
+  [`format_by()`](https://urbio-ecology.github.io/urbioconnect/reference/round_by.md)
+  to apply that. The report and the shiny app both use it, so they no
+  longer print different numbers for the same analysis:
+  `effective_mesh_ha` used to show three decimal places on screen and
+  two in the report. A comparison displays wide by default, one row per
+  metric and a column per measure, which is the shape a reader wants;
+  `wide = FALSE` keeps the object’s own shape.
+  [`display_ids()`](https://urbio-ecology.github.io/urbioconnect/reference/display_ids.md)
+  says which columns identify a row, so a caller can pivot or drop them
+  without knowing the label text.
+
+- New
   [`connectivity_file_stem()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.md)
   gives the species-and-date name every download takes, so a report, a
   zip and the folder inside that zip agree.
+
+- New
+  [`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md)
+  puts a layer on a given grid, rasterising a vector one and resampling
+  a raster one, and is the one place that decides what an empty cell
+  means.
+  [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+  uses it for both of its layers and so now accepts a `SpatRaster` as
+  well as an `sf` layer: the shiny app offers GeoTIFF uploads, which
+  used to fail inside
+  [`terra::rasterize()`](https://rspatial.github.io/terra/reference/rasterize.html).
+
+- [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  gains `scenario` and `scenario_kind`, so one call runs a baseline and
+  a scenario and returns both landscapes with the comparison between
+  them. It replaces the `comparison` argument, which took a
+  [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
+  built elsewhere and so ran the baseline pipeline a second time: on the
+  example wren data at three distances this is 43 seconds rather than
+  77, for the same numbers. The scenario is put on the baseline’s grid
+  on the way in, so it need not arrive on one, and only one layer may
+  change at a time, which `scenario_kind` now makes structural rather
+  than an error. The report gains a scenario section and the download a
+  `scenario-comparison.csv`; without a scenario, neither appears.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- New
+  [`scenario_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.md)
+  returns the layer a scenario changed, so a caller doesn’t branch on
+  `scenario_kind` itself.
 
 - New
   [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
@@ -41,6 +115,17 @@
   than embedded as images. Needs the Quarto command line tool.
   ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54),
   [\#61](https://github.com/urbio-ecology/urbioconnect/issues/61))
+
+- New
+  [`gg_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_layer.md)
+  draws one layer on its own, the habitat or the barrier, rather than
+  combined as
+  [`gg_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.md)
+  draws them. It takes the colours from the palette by `kind`, so a
+  barrier is drawn as it appears on the combined map: white, against the
+  interpatch green, because white on white would be nothing at all. The
+  shiny app’s Scenario tab uses it to show the layers an analysis was
+  built from.
 
 - [`gg_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/gg_barrier_habitat_interpatch_dist.md)
   and
@@ -64,6 +149,13 @@
   and
   [`sf_habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_buffer.md)
   still take `buffer_radius`, since that is the operation they perform.
+
+- [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+  now errors when the scenario and the baseline are not on the same
+  grid. Comparing layers of a different extent, resolution or CRS used
+  to succeed, and reported the change of place as a change in
+  connectivity.
+  ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
 
 - [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
   now saves at the shared figure size rather than whatever size the last

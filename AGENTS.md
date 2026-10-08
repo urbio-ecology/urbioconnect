@@ -9,8 +9,13 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
 ### Where things live
 
 - `R/`: package code.
-- `inst/shiny/`: the Shiny app, started from `inst/shiny/app.R`. Only
-  change UI and server code in `inst/shiny/ui.R` and
+- `inst/shiny/`: the Shiny app, started with
+  [`run_connectivity_app()`](https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.md).
+  It is a legacy-layout shiny app: `global.R`, then `ui.R` and
+  `server.R`, all sourced by shiny itself. `global.R` is the one place
+  packages are attached, and it sources `colours.R`. Don’t add an
+  `app.R`: shiny checks for `server.R` first, so an `app.R` here is
+  never read. Only change UI and server code in `inst/shiny/ui.R` and
   `inst/shiny/server.R`.
 - `inst/non-targets-workflow.R` and `inst/scenario-workflow.R`: example
   workflows.
@@ -43,6 +48,101 @@ These add to the general test style later in this file.
   spatial data (the lizard or wren examples) for at least one content or
   snapshot test per file.
 - Check test speed with `devtools::test(reporter = "slow")`.
+- **The suite runs in parallel** (`Config/testthat/parallel: true`), one
+  subprocess per test file. testthat uses 2 workers unless
+  `getOption("Ncpus")` or `TESTTHAT_CPUS` says otherwise. Two things
+  follow: test files must not depend on each other, and package code
+  must namespace-qualify everything, because a subprocess starts with
+  fewer packages attached than your session. A bare
+  [`globalVariables()`](https://rdrr.io/r/utils/globalVariables.html) in
+  the package file worked for years and broke the moment this was turned
+  on.
+- `devtools::test()` passing does not mean `R CMD check` will. It uses
+  `load_all()`, so it never sees a missing export, a broken example, or
+  anything that only shows up once the package is installed. The local
+  gate for that is `devtools::check()`, which installs the package, runs
+  `tests/testthat.R` with `NOT_CRAN=true`, and checks the examples and
+  docs as well.
+- Don’t hand-roll the installed test run (`R CMD INSTALL` then
+  `cd tests && Rscript testthat.R`). It takes as long as a check while
+  testing less, and GitHub CI already does it on every push - that is
+  what CI is for. `devtools::check()` locally, CI for the rest.
+
+### Testing the shiny app
+
+Two kinds of test, and they see different things. Both are needed.
+
+- **`testServer()`** (`test-shiny-app.R`) drives the server function. It
+  is cheap and good for reactives, handlers and outputs. It **cannot**
+  tell you whether shiny can run the app directory at all, because it
+  sources `global.R` and `server.R` by hand. An app that fails to start
+  passes every one of these.
+- **[`shinytest2::AppDriver`](https://rstudio.github.io/shinytest2/reference/AppDriver.html)**
+  (`test-app-starts.R`) starts the app for real in a browser. This is
+  the only thing that catches a broken app directory, a UI that errors
+  on render, or a `conditionalPanel` that doesn’t. Needs `NOT_CRAN=true`
+  and Chrome; `AppDriver$new()` calls `skip_on_cran()` itself.
+
+Helpers in `helper-shiny-app.R`: `skip_if_no_app()`,
+`local_app_server()`, `app_lizard_inputs()` and `app_example_inputs()`
+for `testServer()`; `skip_if_no_browser_app()` and `local_app_driver()`
+for `shinytest2`.
+
+**Use the lizard dataset, not the wren one.** The app offers both as
+example data; `app_lizard_inputs()` picks the lizard. It is ~200x200
+cells after
+[`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+against the wren’s 1500x1400, so a full analysis with a scenario
+comparison runs in under a second instead of tens of seconds. Each
+dataset has its own scenarios (`lizard_road`; `knox_barrier` and
+`knox_habitat`), so nothing needs the wren data to exercise a
+comparison. `app_upload_inputs()` covers the upload path with the same
+landscape, as a GeoTIFF habitat and a shapefile barrier, so it exercises
+both readers.
+
+Nothing in the suite should run a wren analysis. Doing so costs 10-27s
+per distance, and that one habit was most of a 183s suite.
+
+How to write the browser tests:
+
+- **Give every navset an `id`** and drive it with
+  `app$set_inputs(main_nav = "Results")`, not
+  `app$run_js('$("a[data-value=...]").tab("show")')`. The app has
+  `main_nav`, `results_view` and `landscape_view` for this. Outputs
+  suspend while hidden, so a test must open every panel down to the one
+  it asserts on, or the output is never rendered and `getElementById`
+  returns null.
+- **`app$upload_file()` takes exactly one input per call.** Two uploads,
+  two calls.
+- Reach for `app$get_js()`/`app$run_js()` only for what is genuinely
+  client-side, such as driving the diffviewer widget. Anything with an
+  input or output id should go through `set_inputs()`/`get_values()`.
+- The before/after comparison is **diffviewer** (`visual_diff()`), the
+  widget behind
+  [`testthat::snapshot_review()`](https://testthat.r-lib.org/reference/snapshot_accept.html),
+  which gives difference, toggle and slider views for free. It compares
+  files, so each side is written to a PNG first, at twice the display
+  size because `ZOOM_DEFAULT` in its JS is hardcoded to 1:2. Don’t
+  hand-roll an image comparison here; the one that was here before is in
+  the git history and diffviewer replaced all of it.
+
+Three traps, all of which have cost real time here:
+
+- **`system.file("shiny", ...)` points somewhere different depending on
+  how you run.** Under `devtools::test()` it is `inst/shiny/` in the
+  source tree; under `R CMD check` it is the installed copy. So editing
+  `inst/shiny/` and running `devtools::test()` works, while the running
+  app does not until you reinstall. If you are checking that a test
+  catches an app bug, break the **source** copy, not the installed one,
+  or you will prove nothing.
+- **A `selectInput`’s own `<select>` is hidden** behind its selectize
+  widget, so `$("#id").is(":visible")` is always `FALSE` for one. Ask
+  about `#id-label` instead.
+- **`testServer()` gives you R types; the browser gives you whatever
+  JSON says.** A `numericInput` arrives as a double under `testServer()`
+  and as an integer from the browser, so `identical(input$n, 10)` passes
+  in one and fails in the other. Compare with `==`. A guard written this
+  way looked fine in `testServer()` and broke the real app.
 
 ### The Shiny app
 

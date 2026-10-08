@@ -49,7 +49,7 @@
 <ul><li>
 <code>R/</code>: package code.</li>
 <li>
-<code>inst/shiny/</code>: the Shiny app, started from <code>inst/shiny/app.R</code>. Only change UI and server code in <code>inst/shiny/ui.R</code> and <code>inst/shiny/server.R</code>.</li>
+<code>inst/shiny/</code>: the Shiny app, started with <code><a href="reference/run_connectivity_app.html">run_connectivity_app()</a></code>. It is a legacy-layout shiny app: <code>global.R</code>, then <code>ui.R</code> and <code>server.R</code>, all sourced by shiny itself. <code>global.R</code> is the one place packages are attached, and it sources <code>colours.R</code>. Don’t add an <code>app.R</code>: shiny checks for <code>server.R</code> first, so an <code>app.R</code> here is never read. Only change UI and server code in <code>inst/shiny/ui.R</code> and <code>inst/shiny/server.R</code>.</li>
 <li>
 <code>inst/non-targets-workflow.R</code> and <code>inst/scenario-workflow.R</code>: example workflows.</li>
 <li>
@@ -71,6 +71,36 @@
 <li>Mock with <code>local_mocked_bindings()</code>, never mockery.</li>
 <li>Use small synthetic rasters for quick code paths. Keep the real spatial data (the lizard or wren examples) for at least one content or snapshot test per file.</li>
 <li>Check test speed with <code>devtools::test(reporter = "slow")</code>.</li>
+<li>
+<strong>The suite runs in parallel</strong> (<code>Config/testthat/parallel: true</code>), one subprocess per test file. testthat uses 2 workers unless <code>getOption("Ncpus")</code> or <code>TESTTHAT_CPUS</code> says otherwise. Two things follow: test files must not depend on each other, and package code must namespace-qualify everything, because a subprocess starts with fewer packages attached than your session. A bare <code><a href="https://rdrr.io/r/utils/globalVariables.html" class="external-link">globalVariables()</a></code> in the package file worked for years and broke the moment this was turned on.</li>
+<li>
+<code>devtools::test()</code> passing does not mean <code>R CMD check</code> will. It uses <code>load_all()</code>, so it never sees a missing export, a broken example, or anything that only shows up once the package is installed. The local gate for that is <code>devtools::check()</code>, which installs the package, runs <code>tests/testthat.R</code> with <code>NOT_CRAN=true</code>, and checks the examples and docs as well.</li>
+<li>Don’t hand-roll the installed test run (<code>R CMD INSTALL</code> then <code>cd tests &amp;&amp; Rscript testthat.R</code>). It takes as long as a check while testing less, and GitHub CI already does it on every push - that is what CI is for. <code>devtools::check()</code> locally, CI for the rest.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="testing-the-shiny-app">Testing the shiny app<a class="anchor" aria-label="anchor" href="#testing-the-shiny-app"></a></h3>
+<p>Two kinds of test, and they see different things. Both are needed.</p>
+<ul><li>
+<strong><code>testServer()</code></strong> (<code>test-shiny-app.R</code>) drives the server function. It is cheap and good for reactives, handlers and outputs. It <strong>cannot</strong> tell you whether shiny can run the app directory at all, because it sources <code>global.R</code> and <code>server.R</code> by hand. An app that fails to start passes every one of these.</li>
+<li>
+<strong><code><a href="https://rstudio.github.io/shinytest2/reference/AppDriver.html" class="external-link">shinytest2::AppDriver</a></code></strong> (<code>test-app-starts.R</code>) starts the app for real in a browser. This is the only thing that catches a broken app directory, a UI that errors on render, or a <code>conditionalPanel</code> that doesn’t. Needs <code>NOT_CRAN=true</code> and Chrome; <code>AppDriver$new()</code> calls <code>skip_on_cran()</code> itself.</li>
+</ul><p>Helpers in <code>helper-shiny-app.R</code>: <code>skip_if_no_app()</code>, <code>local_app_server()</code>, <code>app_lizard_inputs()</code> and <code>app_example_inputs()</code> for <code>testServer()</code>; <code>skip_if_no_browser_app()</code> and <code>local_app_driver()</code> for <code>shinytest2</code>.</p>
+<p><strong>Use the lizard dataset, not the wren one.</strong> The app offers both as example data; <code>app_lizard_inputs()</code> picks the lizard. It is ~200x200 cells after <code><a href="reference/prepare_rasters.html">prepare_rasters()</a></code> against the wren’s 1500x1400, so a full analysis with a scenario comparison runs in under a second instead of tens of seconds. Each dataset has its own scenarios (<code>lizard_road</code>; <code>knox_barrier</code> and <code>knox_habitat</code>), so nothing needs the wren data to exercise a comparison. <code>app_upload_inputs()</code> covers the upload path with the same landscape, as a GeoTIFF habitat and a shapefile barrier, so it exercises both readers.</p>
+<p>Nothing in the suite should run a wren analysis. Doing so costs 10-27s per distance, and that one habit was most of a 183s suite.</p>
+<p>How to write the browser tests:</p>
+<ul><li>
+<strong>Give every navset an <code>id</code></strong> and drive it with <code>app$set_inputs(main_nav = "Results")</code>, not <code>app$run_js('$("a[data-value=...]").tab("show")')</code>. The app has <code>main_nav</code>, <code>results_view</code> and <code>landscape_view</code> for this. Outputs suspend while hidden, so a test must open every panel down to the one it asserts on, or the output is never rendered and <code>getElementById</code> returns null.</li>
+<li>
+<strong><code>app$upload_file()</code> takes exactly one input per call.</strong> Two uploads, two calls.</li>
+<li>Reach for <code>app$get_js()</code>/<code>app$run_js()</code> only for what is genuinely client-side, such as driving the diffviewer widget. Anything with an input or output id should go through <code>set_inputs()</code>/<code>get_values()</code>.</li>
+<li>The before/after comparison is <strong>diffviewer</strong> (<code>visual_diff()</code>), the widget behind <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_review()</a></code>, which gives difference, toggle and slider views for free. It compares files, so each side is written to a PNG first, at twice the display size because <code>ZOOM_DEFAULT</code> in its JS is hardcoded to 1:2. Don’t hand-roll an image comparison here; the one that was here before is in the git history and diffviewer replaced all of it.</li>
+</ul><p>Three traps, all of which have cost real time here:</p>
+<ul><li>
+<strong><code>system.file("shiny", ...)</code> points somewhere different depending on how you run.</strong> Under <code>devtools::test()</code> it is <code>inst/shiny/</code> in the source tree; under <code>R CMD check</code> it is the installed copy. So editing <code>inst/shiny/</code> and running <code>devtools::test()</code> works, while the running app does not until you reinstall. If you are checking that a test catches an app bug, break the <strong>source</strong> copy, not the installed one, or you will prove nothing.</li>
+<li>
+<strong>A <code>selectInput</code>’s own <code>&lt;select&gt;</code> is hidden</strong> behind its selectize widget, so <code>$("#id").is(":visible")</code> is always <code>FALSE</code> for one. Ask about <code>#id-label</code> instead.</li>
+<li>
+<strong><code>testServer()</code> gives you R types; the browser gives you whatever JSON says.</strong> A <code>numericInput</code> arrives as a double under <code>testServer()</code> and as an integer from the browser, so <code>identical(input$n, 10)</code> passes in one and fails in the other. Compare with <code>==</code>. A guard written this way looked fine in <code>testServer()</code> and broke the real app.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="the-shiny-app">The Shiny app<a class="anchor" aria-label="anchor" href="#the-shiny-app"></a></h3>
