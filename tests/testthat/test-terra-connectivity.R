@@ -210,3 +210,35 @@ test_that("habitat_connectivity_full returns list with expected elements", {
   expect_s3_class(hcf_quiet$areas_connected, "data.frame")
   expect_s4_class(hcf_quiet$buffered_habitat, "SpatRaster")
 })
+
+test_that("onto_grid puts a vector and a raster layer on the same grid", {
+  grid <- empty_grid(example_barrier_shp(), resolution = 10)
+
+  from_vector <- onto_grid(example_barrier_shp(), grid, background = 0)
+  from_raster <- onto_grid(example_habitat(), grid, background = NA)
+
+  purrr::walk(list(from_vector, from_raster), function(layer) {
+    expect_equal(terra::res(layer), terra::res(grid))
+    expect_equal(as.vector(terra::ext(layer)), as.vector(terra::ext(grid)))
+  })
+
+  # background says what an empty cell means: a barrier's are 0, so nothing is
+  # missing, while a habitat's are NA
+  expect_equal(sum(is.na(terra::values(from_vector))), 0)
+  expect_gt(sum(is.na(terra::values(from_raster))), 0)
+})
+
+test_that("prepare_rasters takes a raster layer as well as a vector one", {
+  # the app offers GeoTIFF uploads, which used to fail inside terra::rasterize
+  # with "unable to find an inherited method"
+  prepared <- prepare_rasters(
+    habitat = example_habitat(),
+    barrier = example_barrier_shp()
+  )
+
+  expect_s4_class(prepared$habitat_raster, "SpatRaster")
+  expect_equal(
+    as.vector(terra::ext(prepared$habitat_raster)),
+    as.vector(terra::ext(prepared$barrier_raster))
+  )
+})

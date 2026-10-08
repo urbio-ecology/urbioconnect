@@ -339,6 +339,111 @@ check_distances <- function(
   invisible(x)
 }
 
+#' Does a layer reach the grid it is being put on?
+#'
+#' Putting a layer on a grid it does not overlap succeeds and gives back
+#' nothing: `terra::resample()` fills every cell with NA, and
+#' `terra::rasterize()` fills every cell with the background. Either way the
+#' result is a valid raster of an empty landscape, which reads downstream as
+#' "no habitat anywhere" rather than as a mistake.
+#'
+#' @noRd
+check_layer_covers <- function(
+  layer,
+  grid,
+  arg = rlang::caller_arg(layer),
+  arg_grid = rlang::caller_arg(grid),
+  call = rlang::caller_env()
+) {
+  if (!terra::same.crs(layer, grid)) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} and {.arg {arg_grid}} are in different coordinate
+         reference systems.",
+        "i" = "Reproject {.arg {arg}} first, with {.fn terra::project} or
+               {.fn sf::st_transform}."
+      ),
+      call = call
+    )
+  }
+
+  here <- as.vector(terra::ext(layer))
+  there <- as.vector(terra::ext(grid))
+
+  overlaps <- here[["xmin"]] < there[["xmax"]] &&
+    here[["xmax"]] > there[["xmin"]] &&
+    here[["ymin"]] < there[["ymax"]] &&
+    here[["ymax"]] > there[["ymin"]]
+
+  if (!overlaps) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} does not overlap {.arg {arg_grid}}.",
+        "x" = "They cover different ground, so there would be nothing left of
+               {.arg {arg}} once it was put on the grid.",
+        "i" = "Check that the two describe the same place."
+      ),
+      call = call
+    )
+  }
+
+  invisible(layer)
+}
+
+#' Are two layers the same landscape?
+#'
+#' A comparison of layers that don't line up doesn't fail. Each side is
+#' analysed on its own grid and subtracted, so the change of place is reported
+#' as a change in connectivity.
+#'
+#' @noRd
+check_layers_comparable <- function(
+  scenario,
+  baseline,
+  arg = rlang::caller_arg(scenario),
+  arg_baseline = rlang::caller_arg(baseline),
+  call = rlang::caller_env()
+) {
+  if (!inherits(scenario, "SpatRaster") || !inherits(baseline, "SpatRaster")) {
+    return(invisible(scenario))
+  }
+
+  # compareGeom() decides, because it carries terra's own tolerance. The
+  # component checks below only name what to tell the user about.
+  aligned <- suppressWarnings(
+    terra::compareGeom(scenario, baseline, stopOnError = FALSE)
+  )
+
+  if (aligned) {
+    return(invisible(scenario))
+  }
+
+  differences <- c(
+    if (!terra::same.crs(scenario, baseline)) "coordinate reference system",
+    if (!identical(terra::res(scenario), terra::res(baseline))) "resolution",
+    if (
+      !identical(
+        as.vector(terra::ext(scenario)),
+        as.vector(terra::ext(baseline))
+      )
+    ) {
+      "extent"
+    }
+  )
+
+  differs <- differences %||% "geometry"
+
+  cli::cli_abort(
+    c(
+      "{.arg {arg}} and {.arg {arg_baseline}} are not the same landscape.",
+      "x" = "Their {differs} differ{?s/}.",
+      "i" = "Put both on one grid first: rasterise or resample the scenario
+             onto the baseline."
+    ),
+    call = call
+  )
+}
+
 #' @noRd
 check_connectivity <- function(
   x,

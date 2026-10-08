@@ -12,9 +12,9 @@ prepare_rasters(
 )
 }
 \arguments{
-\item{habitat}{SF object. Habitat spatial data.}
+\item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data.}
 
-\item{barrier}{SF object. Barrier spatial data.}
+\item{barrier}{SF object or \code{SpatRaster}. Barrier spatial data.}
 
 \item{data_resolution}{Numeric. Fine resolution in meters. Default, 10.}
 
@@ -24,11 +24,16 @@ prepare_rasters(
 List with \code{habitat_raster} and \code{barrier_raster} elements.
 }
 \description{
-Convert vector (shapefile) SF habitat and barrier objects into rasters.
+Put habitat and barrier layers on one grid. Either layer may be a vector
+(\code{sf} or \code{SpatVector}), which is rasterised, or a \code{SpatRaster}, which is
+resampled onto the grid.
 }
 \examples{
 lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
   sf::st_as_sf()
 lizard_barrier_shp <- example_barrier_shp()
 prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
+
+# a raster layer is resampled onto the grid rather than rasterised
+prepare_rasters(example_habitat(), lizard_barrier_shp)
 }
