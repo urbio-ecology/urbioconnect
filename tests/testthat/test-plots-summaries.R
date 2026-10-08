@@ -97,6 +97,48 @@ test_that("gg_barrier_habitat_interpatch_dist renders correctly", {
   vdiffr::expect_doppelganger("gg-barrier-habitat-interpatch", gg_buffer_plot)
 })
 
+# gg_layer --------------------------------------------------------------
+
+test_that("gg_layer draws a barrier on the interpatch colour", {
+  # a barrier is white, so alone on white paper it would be invisible. The
+  # pairing lives in the function rather than in whatever calls it.
+  built <- ggplot2::ggplot_build(gg_layer(example_barrier(), "barrier"))
+
+  expect_equal(built$plot$labels$title, "Barrier")
+  expect_equal(
+    built$plot$theme$plot.background$fill,
+    urbio_colours()$interpatch_distance
+  )
+})
+
+test_that("gg_layer titles itself from the layer, or from what it is told", {
+  expect_equal(
+    ggplot2::ggplot_build(gg_layer(
+      example_habitat(),
+      "habitat"
+    ))$plot$labels$title,
+    "Habitat"
+  )
+  expect_equal(
+    ggplot2::ggplot_build(
+      gg_layer(example_barrier(), "barrier", title = "Scenario: barrier")
+    )$plot$labels$title,
+    "Scenario: barrier"
+  )
+})
+
+test_that("gg_layer rejects a layer it has no colours for", {
+  expect_snapshot(gg_layer(example_habitat(), "interpatch"), error = TRUE)
+})
+
+test_that("gg_layer renders correctly", {
+  skip_on_ci()
+  vdiffr::expect_doppelganger(
+    "gg-layer-barrier",
+    gg_layer(example_barrier(), "barrier")
+  )
+})
+
 # plot_patches ----------------------------------------------------------
 
 test_that("plot_patches returns a ggplot", {

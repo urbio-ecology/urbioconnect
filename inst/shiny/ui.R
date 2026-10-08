@@ -10,10 +10,19 @@ report_button <- function(id, label) {
 
 ui <- page_navbar(
   title = "Urban Connectedness",
+  # id so which panel is open is an input, settable without reaching for the
+  # DOM. Outputs suspend while hidden, so a test has to open a panel to see it.
+  id = "main_nav",
   theme = urbio_theme(),
   fillable = TRUE,
 
-  header = shinyjs::useShinyjs(),
+  header = tagList(
+    shinyjs::useShinyjs(),
+    # a spinner on every output while it recalculates, so a slow plot or table
+    # reads as pending rather than missing
+    useBusyIndicators(),
+    tags$style(HTML(compare_css))
+  ),
 
   # Inputs Panel
   nav_panel(
@@ -36,41 +45,63 @@ ui <- page_navbar(
           fileInput(
             inputId = "habitat_file",
             label = "Habitat Layer",
-            accept = c(
-              ".shp",
-              ".tif",
-              ".tiff",
-              ".geojson",
-              ".gpkg",
-              ".shx",
-              ".dbf",
-              ".prj",
-              ".cpg"
-            ),
+            accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
           fileInput(
             inputId = "barrier_file",
             label = "Barrier Layer",
-            accept = c(
-              ".shp",
-              ".tif",
-              ".tiff",
-              ".geojson",
-              ".gpkg",
-              ".shx",
-              ".dbf",
-              ".prj",
-              ".cpg"
-            ),
+            accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
-          checkboxInput(
-            inputId = "use_example_data",
-            label = "Use Example Data",
-            value = FALSE
+          # Two example landscapes, not one. The lizard is ~200x200 cells and
+          # analyses in under a second; the wren is ~1500x1400 and takes tens
+          # of seconds, so it is worth knowing which you are asking for.
+          selectInput(
+            inputId = "example_data",
+            label = "Example data",
+            choices = example_data_choices,
+            selected = "none"
+          ),
+
+          hr(),
+
+          # A scenario is another layer you supply, so it belongs here with
+          # the others. Each shipped one implies which layer it changes; only
+          # an upload has to be told.
+          # the supplied scenarios depend on the example data chosen above, so
+          # the server fills these in rather than the list living here twice
+          selectInput(
+            inputId = "scenario_choice",
+            label = "Scenario Layer (optional)",
+            choices = scenario_choices(NULL)
+          ),
+
+          conditionalPanel(
+            condition = "input.scenario_choice == 'upload'",
+            radioButtons(
+              inputId = "scenario_kind",
+              label = "Which layer does your scenario change?",
+              choices = c(
+                "Barrier (a new road, say)" = "barrier",
+                "Habitat (a development, say)" = "habitat"
+              )
+            ),
+            fileInput(
+              inputId = "scenario_file",
+              label = "Scenario Layer",
+              accept = spatial_upload_accept,
+              multiple = TRUE
+            )
+          ),
+
+          helpText(
+            "A scenario changes one layer and leaves the rest of the",
+            "landscape alone, so the difference in connectivity is",
+            "attributable to that change. It is compared at the same",
+            "interpatch distances as the baseline."
           )
         )
       ),
@@ -158,101 +189,201 @@ ui <- page_navbar(
       )
     ),
 
-    # Results content
+    # Results content. Baseline and scenario get a tab each: a scenario is a
+    # second analysis to read against the first, not more of the first.
     conditionalPanel(
       condition = "output.results_ready",
+      # navset_tab, not navset_card_tab: that one wraps each panel in a
+      # fillable card_body, which squeezes a long column of cards into the
+      # viewport and collapses the ones furthest down to zero height. These
+      # panels bring their own cards.
+      navset_tab(
+        # id so the tab shown is an input: readable in a test, and settable
+        # without reaching for the DOM
+        id = "results_view",
+        nav_panel(
+          title = "Baseline",
 
-      # Habitat, Buffered Habitat, and Barrier
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header("Habitat, Buffered Habitat, and Barrier"),
-          card_body(
-            uiOutput("gg_barrier_habitat_buffer_tabs")
-          )
-        )
-      ),
-
-      # Patch ID
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header("Patch ID"),
-          card_body(
-            uiOutput("plot_patches_tabs")
-          )
-        )
-      ),
-
-      # Area and patch information for each interpatch distance
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header(
-            "Area and patch information for each interpatch distance"
+          # Habitat, Buffered Habitat, and Barrier
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header("Habitat, Buffered Habitat, and Barrier"),
+              card_body(
+                uiOutput("gg_barrier_habitat_buffer_tabs")
+              )
+            )
           ),
-          card_body(
-            DTOutput("summary_table")
+
+          # Patch ID
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header("Patch ID"),
+              card_body(
+                uiOutput("plot_patches_tabs")
+              )
+            )
           ),
-          card_footer(
-            downloadButton(
-              "download_areas_csv",
-              "Download CSV",
-              class = "btn-sm"
+
+          # Area and patch information for each interpatch distance
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header(
+                "Area and patch information for each interpatch distance"
+              ),
+              card_body(
+                DTOutput("summary_table")
+              ),
+              card_footer(
+                downloadButton(
+                  "download_areas_csv",
+                  "Download CSV",
+                  class = "btn-sm"
+                )
+              )
+            )
+          ),
+
+          # Prob connectedness and summary information for each interpatch distance
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header(
+                "Prob connectedness and summary information for each interpatch distance"
+              ),
+              card_body(
+                DTOutput("results_connect_habitat_table")
+              ),
+              card_footer(
+                downloadButton(
+                  "download_summary_csv",
+                  "Download CSV",
+                  class = "btn-sm"
+                )
+              )
+            )
+          ),
+
+          # Longer: Prob connectedness and summary information for each interpatch
+          # distance
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header(
+                "Longer: Prob connectedness and summary information for each interpatch distance"
+              ),
+              card_body(
+                DTOutput("results_connect_habitat_longer_table")
+              )
+            )
+          ),
+
+          # Visualisation of changes in key stats over interpatch distance
+          layout_columns(
+            col_widths = 12,
+            card(
+              card_header(
+                "Visualisation of changes in key stats over interpatch distance"
+              ),
+              card_body(
+                plotOutput("plot_connectivity_output", height = "600px")
+              ),
+              card_footer(
+                downloadButton(
+                  "download_connectivity_plot",
+                  "Download Plot",
+                  class = "btn-sm"
+                )
+              )
             )
           )
-        )
-      ),
+        ),
 
-      # Prob connectedness and summary information for each interpatch distance
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header(
-            "Prob connectedness and summary information for each interpatch distance"
-          ),
-          card_body(
-            DTOutput("results_connect_habitat_table")
-          ),
-          card_footer(
-            downloadButton(
-              "download_summary_csv",
-              "Download CSV",
-              class = "btn-sm"
+        # The controls for this are an input, over on the Inputs tab; what
+        # came of them is a result, so it belongs here.
+        nav_panel(
+          title = "Scenario",
+          conditionalPanel(
+            condition = "!output.has_comparison",
+            div(
+              class = "text-center p-5",
+              h4("No scenario compared"),
+              p(
+                "Choose a scenario layer on the Inputs tab, then run the",
+                "analysis."
+              )
             )
-          )
-        )
-      ),
-
-      # Longer: Prob connectedness and summary information for each interpatch
-      # distance
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header(
-            "Longer: Prob connectedness and summary information for each interpatch distance"
           ),
-          card_body(
-            DTOutput("results_connect_habitat_longer_table")
-          )
-        )
-      ),
-
-      # Visualisation of changes in key stats over interpatch distance
-      layout_columns(
-        col_widths = 12,
-        card(
-          card_header(
-            "Visualisation of changes in key stats over interpatch distance"
-          ),
-          card_body(
-            plotOutput("plot_connectivity_output", height = "600px")
-          ),
-          card_footer(
-            downloadButton(
-              "download_connectivity_plot",
-              "Download Plot",
-              class = "btn-sm"
+          conditionalPanel(
+            condition = "output.has_comparison",
+            layout_columns(
+              col_widths = 12,
+              # the three layers the comparison was built from, before any of
+              # it is combined into a map
+              card(
+                card_header("The layers that went in"),
+                card_body(
+                  p(
+                    "The habitat and the barriers as analysed, and the",
+                    "scenario layer standing in for whichever of the two it",
+                    "changes. A barrier is drawn as it appears on the maps",
+                    "below: white, cutting through the interpatch zone."
+                  ),
+                  layout_columns(
+                    col_widths = c(4, 4, 4),
+                    plotOutput("layer_habitat", height = "340px"),
+                    plotOutput("layer_barrier", height = "340px"),
+                    plotOutput("layer_scenario", height = "340px")
+                  )
+                )
+              ),
+              card(
+                card_header("Scenario against baseline"),
+                card_body(
+                  p(
+                    "One row per metric: the baseline, the scenario, and the",
+                    "change."
+                  ),
+                  DTOutput("comparison_wide_table"),
+                  hr(),
+                  p(
+                    "The same comparison in the shape the analysis produces",
+                    "it."
+                  ),
+                  DTOutput("comparison_long_table")
+                )
+              ),
+              card(
+                card_header("The landscape, before and after"),
+                card_body(
+                  p(
+                    "Habitat, the zone within half an interpatch distance of",
+                    "it, and the barriers that break connections. The same",
+                    "map of each landscape, so the only difference you see is",
+                    "the one the scenario made. One tab per interpatch",
+                    "distance within each."
+                  ),
+                  navset_tab(
+                    id = "landscape_view",
+                    nav_panel(
+                      title = "Baseline",
+                      uiOutput("baseline_landscape_tabs")
+                    ),
+                    nav_panel(
+                      title = "Scenario",
+                      uiOutput("scenario_landscape_tabs")
+                    ),
+                    # diffviewer's widget, the one testthat shows for a
+                    # changed snapshot: difference, toggle and slider in one
+                    nav_panel(
+                      title = "Compare",
+                      uiOutput("landscape_compare_tabs")
+                    )
+                  )
+                )
+              )
             )
           )
         )

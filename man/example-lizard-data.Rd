@@ -5,6 +5,7 @@
 \alias{example_habitat}
 \alias{example_barrier_shp}
 \alias{example_barrier}
+\alias{example_barrier_scenario}
 \title{Lizard Habitat and Barrier Data from Melbourne.}
 \usage{
 example_habitat()
@@ -12,6 +13,8 @@ example_habitat()
 example_barrier_shp()
 
 example_barrier()
+
+example_barrier_scenario()
 }
 \value{
 A terra raster object or sf object depending on the function called
@@ -33,6 +36,8 @@ included with the package:
 \item \code{example_barrier_shp()} Returns a shapefile of lizard barrier data as
 an SF object.
 \item \code{example_barrier()} Returns a raster of lizard barrier data.
+\item \code{example_barrier_scenario()} Returns the barrier raster with a new road
+cut through it, for comparing a scenario against the baseline.
 }
 }
 \examples{

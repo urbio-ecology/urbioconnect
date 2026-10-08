@@ -9,6 +9,9 @@ connectivity_report_data(
   barrier,
   species,
   interpatch_distance,
+  scenario = NULL,
+  scenario_kind = NULL,
+  scenario_name = NULL,
   verbose = TRUE
 )
 }
@@ -23,6 +26,20 @@ connectivity_report_data(
 habitat patches are considered connected. May be a scalar or a vector; a
 vector runs the pipeline once per distance.}
 
+\item{scenario}{Optional layer to compare against the baseline: an \code{sf},
+\code{SpatVector} or \code{SpatRaster} standing in for one of \code{habitat} and
+\code{barrier}. It is put on the baseline's own grid with \code{\link[=onto_grid]{onto_grid()}}, so it
+does not have to arrive on one. Supplying it runs the pipeline a second
+time, on the scenario landscape, and fills the \verb{scenario_*} fields and
+\code{comparison} below.}
+
+\item{scenario_kind}{Which layer \code{scenario} replaces, \code{"habitat"} or
+\code{"barrier"}. Required with \code{scenario}. Only one layer may change at a
+time, so that the difference in connectivity is attributable to it.}
+
+\item{scenario_name}{Optional name for the scenario, carried in the
+comparison so several can be stacked.}
+
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
 \value{
@@ -34,6 +51,11 @@ A \code{connectivity_report_data} object: a list of
 distance and named by it
 \item \code{species} and \code{interpatch_distance}
 }
+
+and, when a \code{scenario} was given, the same view of the scenario
+landscape: \code{scenario_kind}, \code{scenario_habitat}, \code{scenario_barrier},
+\code{scenario_buffered_habitat}, and \code{comparison}. Without one these are all
+\code{NULL}. \code{\link[=scenario_layer]{scenario_layer()}} returns whichever layer the scenario changed.
 }
 \description{
 Runs the connectivity pipeline once per distance and keeps both the summary
@@ -54,8 +76,24 @@ report_data <- connectivity_report_data(
 
 report_data$connectivity
 names(report_data$patch_id_raster)
+
+# with a scenario, the baseline and the scenario are each run once and
+# the comparison is built from the two
+with_scenario <- connectivity_report_data(
+  habitat = example_wren_habitat(),
+  barrier = example_wren_barrier(),
+  species = "Superb Fairy Wren",
+  interpatch_distance = 200,
+  scenario = example_wren_barrier_scenario(),
+  scenario_kind = "barrier",
+  verbose = FALSE
+)
+
+with_scenario$comparison
 }
 }
 \seealso{
-\code{\link[=habitat_connectivity]{habitat_connectivity()}} when only the summary is wanted.
+\code{\link[=habitat_connectivity]{habitat_connectivity()}} when only the summary is wanted, and
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} to compare two landscapes you have
+already assembled yourself.
 }

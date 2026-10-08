@@ -109,9 +109,16 @@ row, and are given above.
 #| label: summary-table
 # labels and rounding come from connectivity_display(), so this table and the
 # app's show the same numbers. Species and resolution are in the header above.
-connectivity_display(connectivity) |>
+summary_display <- connectivity_display(connectivity)
+
+summary_display |>
   round_by() |>
-  dplyr::select(-"Species", -"Resolution (m)") |>
+  # species and resolution are in the header above, and the distance is the
+  # one identifier worth keeping as a column
+  dplyr::select(-dplyr::any_of(setdiff(
+    display_ids(summary_display),
+    "Distance (m)"
+  ))) |>
   knitr::kable()
 ```
 
@@ -147,6 +154,31 @@ if (length(distances) > 1) {
   cat("# Change over distance\n\n")
   cat("How the metrics move as the interpatch distance grows.\n\n")
   print(plot_connectivity(connectivity))
+}
+```
+
+```{r}
+#| label: scenario
+#| output: asis
+# only an analysis carrying a comparison has a scenario to report on
+if (!is.null(report$comparison)) {
+  cat("# Scenario against baseline\n\n")
+  cat(
+    "A scenario changes one layer, the habitat or the barriers, and leaves",
+    "the rest of the landscape alone, so the difference in connectivity is",
+    "attributable to that change. Positive means the scenario is higher than",
+    "the baseline.\n\n"
+  )
+
+  # format_by(), not round_by(): each row is one metric here, so a column
+  # spans every magnitude and kable would print the lot in scientific
+  print(
+    report$comparison |>
+      connectivity_display() |>
+      format_by() |>
+      knitr::kable()
+  )
+  cat("\n")
 }
 ```
 

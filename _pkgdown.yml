@@ -18,11 +18,12 @@ reference:
   - total_habitat_area
   - habitat_connectivity_full
   - connectivity_report_data
+  - scenario_layer
 - title: Display
   contents:
   - connectivity_display
   - round_by
-  - format_by
+  - display_ids
 - title: Patch connectivity class
   contents:
   - patch_sizes
@@ -52,6 +53,7 @@ reference:
 - title: Visualisation
   contents:
   - gg_barrier_habitat_interpatch_dist
+  - gg_layer
   - plot_barrier_habitat_interpatch_dist
   - plot_connectivity
   - plot_patches
@@ -74,6 +76,7 @@ reference:
   contents:
   - clean
   - empty_grid
+  - onto_grid
   - col2hex
   - urbio_colours
   - urbio_figure_size

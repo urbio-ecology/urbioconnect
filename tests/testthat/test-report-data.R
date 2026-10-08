@@ -25,6 +25,119 @@ test_that("connectivity_report_data() keeps a summary and layers per distance", 
   })
 })
 
+test_that("a scenario gives the same comparison, for half the pipeline runs", {
+  layers <- scenario_test_layers()
+
+  # the comparison used to be built by habitat_connectivity_comparison() and
+  # passed in, which ran the baseline again on top of this function's own run.
+  # Building it from the two runs this function already does has to give the
+  # same numbers.
+  separately <- habitat_connectivity_comparison(
+    habitat_scenario = layers$habitat,
+    barrier_scenario = layers$barrier_scenario,
+    habitat_baseline = layers$habitat,
+    barrier_baseline = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = c(40, 80),
+    verbose = FALSE
+  )
+
+  together <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = c(40, 80),
+    scenario = layers$barrier_scenario,
+    scenario_kind = "barrier",
+    verbose = FALSE
+  )
+
+  expect_equal(together$comparison, separately)
+
+  # and the scenario landscape comes back with it, so the maps need no
+  # second pass over the rasters
+  expect_equal(together$scenario_kind, "barrier")
+  expect_named(together$scenario_buffered_habitat, c("40", "80"))
+  expect_equal(
+    terra::values(scenario_layer(together)),
+    terra::values(
+      layers$barrier_scenario
+    )
+  )
+  expect_equal(
+    terra::values(together$scenario_habitat),
+    terra::values(layers$habitat)
+  )
+})
+
+test_that("both landscapes are built by the same chain", {
+  layers <- scenario_test_layers()
+
+  # the app used to buffer the scenario's raw habitat while the baseline's
+  # came out of habitat_connectivity_full(), which buffers what is left after
+  # the barrier is removed, so the two maps were drawn differently. Now both
+  # sides go through the same function and an unchanged scenario has to give
+  # the baseline's own layers back.
+  unchanged <- suppressWarnings(
+    connectivity_report_data(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      scenario = layers$barrier,
+      scenario_kind = "barrier",
+      verbose = FALSE
+    )
+  )
+
+  expect_equal(
+    terra::values(unchanged$scenario_buffered_habitat[["40"]]),
+    terra::values(unchanged$buffered_habitat[["40"]])
+  )
+})
+
+test_that("an analysis with no scenario has no scenario anything", {
+  layers <- scenario_test_layers()
+
+  plain <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = 40,
+    verbose = FALSE
+  )
+
+  expect_null(plain$comparison)
+  expect_null(plain$scenario_kind)
+  expect_null(scenario_layer(plain))
+})
+
+test_that("a scenario and its kind have to arrive together", {
+  layers <- scenario_test_layers()
+
+  report_data <- function(...) {
+    connectivity_report_data(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      verbose = FALSE,
+      ...
+    )
+  }
+
+  expect_snapshot(error = TRUE, {
+    report_data(scenario = layers$barrier_scenario)
+    report_data(scenario_kind = "barrier")
+    report_data(scenario = layers$barrier_scenario, scenario_kind = "both")
+  })
+
+  # an unchanged scenario is legal, and says so
+  expect_snapshot(
+    report_data(scenario = layers$barrier, scenario_kind = "barrier")
+  )
+})
+
 test_that("connectivity_report_data() matches habitat_connectivity()", {
   layers <- scenario_test_layers()
 

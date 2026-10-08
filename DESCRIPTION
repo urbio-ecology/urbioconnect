@@ -55,8 +55,10 @@ Imports:
     vctrs
 Suggests:
     bslib,
+    chromote,
     conflicted,
     crew,
+    diffviewer,
     DT,
     fasterize,
     gridExtra,
@@ -67,6 +69,7 @@ Suggests:
     raster,
     rmarkdown,
     shinyjs,
+    shinytest2,
     stars,
     tarchetypes,
     targets,
@@ -76,6 +79,7 @@ Suggests:
     tictoc,
     ggspatial
 Config/testthat/edition: 3
+Config/testthat/parallel: true
 VignetteBuilder: knitr
 BugReports: https://github.com/urbio-ecology/urbioconnect/issues
 LazyData: true

@@ -118,6 +118,68 @@ gg_barrier_habitat_interpatch_dist <- function(
     )
 }
 
+#' Plot one layer on its own
+#'
+#' The habitat or the barrier by itself, rather than combined as
+#' [gg_barrier_habitat_interpatch_dist()] draws them. For looking at what went
+#' into an analysis, and at a scenario layer against the layer it replaces.
+#'
+#' `kind` picks the colours, so a layer looks the same here as it does in the
+#' combined map. A barrier is white there, read as cuts through the interpatch
+#' zone, so a barrier drawn alone is white on that same green: white on white
+#' would be nothing at all.
+#'
+#' @param layer A `SpatRaster`. Cells equal to 1 are the layer; everything
+#'   else is background, whether it is 0 or `NA`.
+#' @param kind Which layer this is, `"habitat"` or `"barrier"`. Decides the
+#'   fill and the background.
+#' @param title Plot title. Defaults to `kind`, sentence case.
+#'
+#' @returns A ggplot.
+#' @seealso [gg_barrier_habitat_interpatch_dist()] for the combined map, and
+#'   [urbio_colours()] for the palette this draws from.
+#' @export
+#'
+#' @examples
+#' gg_layer(example_habitat(), "habitat")
+#'
+#' gg_layer(example_barrier(), "barrier")
+#'
+#' # a scenario layer, titled for what it changes
+#' gg_layer(example_barrier(), "barrier", title = "Scenario: new roads")
+gg_layer <- function(layer, kind = c("habitat", "barrier"), title = NULL) {
+  kind <- rlang::arg_match(kind)
+
+  colours <- urbio_colours()
+  fill <- colours[[kind]]
+  paper <- if (kind == "barrier") colours$interpatch_distance else NA
+  label <- to_sentence(kind)
+
+  # anything that isn't the layer is background, so 0 and NA read alike
+  present <- terra::ifel(layer == 1, 1, NA)
+
+  ggplot2::ggplot() +
+    tidyterra::geom_spatraster(data = terra::subst(present, 1, fill)) +
+    ggplot2::theme_minimal(paper = paper) +
+    ggplot2::scale_fill_identity(
+      name = "",
+      guide = "legend",
+      labels = stats::setNames(label, fill),
+      breaks = fill,
+      na.value = NA,
+      na.translate = FALSE
+    ) +
+    ggplot2::labs(title = title %||% label) +
+    ggplot2::theme_sub_axis(
+      text = ggplot2::element_blank(),
+      ticks = ggplot2::element_blank()
+    ) +
+    ggplot2::theme_sub_panel(
+      grid.major = ggplot2::element_blank(),
+      grid.minor = ggplot2::element_blank()
+    )
+}
+
 #' Convert snake_case to sentence case
 #'
 #' @param x Character vector. Text in snake_case format.
