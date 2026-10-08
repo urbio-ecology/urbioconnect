@@ -240,6 +240,22 @@ check_qmd_path <- function(
   invisible(path)
 }
 
+#' Hand a document to Quarto
+#'
+#' Its own function so that tests can stand in for it. What happens either
+#' side of a render - the missing-output check, the sidecar refusal, moving
+#' the result into place - is this package's logic, and asking Quarto to
+#' spend five seconds proving it is five seconds per case.
+#'
+#' @noRd
+quarto_render_file <- function(input, output_format, quiet) {
+  quarto::quarto_render(
+    input = input,
+    output_format = output_format,
+    quiet = quiet
+  )
+}
+
 #' Render a document and move the result to `destination`
 #'
 #' `format` is the extension to write, not Quarto's name for it, because
@@ -250,7 +266,7 @@ render_report <- function(input, format, destination) {
   cli::cli_inform("Rendering {.field {format}} report...")
 
   render <- function(quiet) {
-    quarto::quarto_render(
+    quarto_render_file(
       input = input,
       output_format = quarto_format(format),
       quiet = quiet

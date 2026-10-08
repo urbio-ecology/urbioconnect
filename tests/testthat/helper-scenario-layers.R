@@ -1,3 +1,21 @@
+# The lizard landscape and a scenario on it: a new road straight through the
+# middle, which fragments the habitat further. Real spatial data, for the
+# content and snapshot tests that want it, but 763x766 cells against the
+# wren's 1500x1400: a full comparison here is ~3s rather than ~11s.
+lizard_scenario_layers <- function() {
+  barrier <- example_barrier()
+
+  with_road <- terra::deepcopy(barrier)
+  middle <- round(terra::ncol(barrier) / 2)
+  with_road[, middle:(middle + 4)] <- 1
+
+  list(
+    habitat = example_habitat(),
+    barrier = barrier,
+    barrier_scenario = with_road
+  )
+}
+
 # Small synthetic layers for the scenario wrappers. One pipeline run on these
 # takes ~0.1s, against ~4.7s for the wren rasters, and these tests care about
 # the wrapper's structure rather than the connectivity numbers.

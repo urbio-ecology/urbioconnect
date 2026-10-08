@@ -1,42 +1,71 @@
-server <- function(input, output, session) {
-  # Define file paths
-  data_dir <- system.file(
-    "shiny-data/superb-fairy-wren",
-    package = "urbioconnect"
+# Apply a connectivity_display() digit spec to a DT. DT formats cell by cell,
+# so the values stay numeric and therefore sortable, which is why the package
+# describes the rounding rather than applying it.
+dt_format <- function(table, digits) {
+  purrr::reduce(
+    seq_len(nrow(digits)),
+    function(formatted, i) {
+      rule <- digits[i, ]
+      format_fn <- if (rule$kind == "signif") formatSignif else formatRound
+      format_fn(formatted, columns = rule$column, digits = rule$digits)
+    },
+    .init = table
   )
-  habitat_file_path <- file.path(data_dir, "superbHab.shp")
-  barrier_file_path <- file.path(data_dir, "allSFWRoads.shp")
-  # Observer to update species name when example data checkbox is toggled
-  ## review: Should probably use eventReactive here
-  observeEvent(input$use_example_data, {
-    if (input$use_example_data) {
-      updateTextInput(session, "species", value = "Superb Fairy Wren")
-      # Disable inputs when using example data
-      shinyjs::disable("species")
-      shinyjs::disable("habitat_file")
-      shinyjs::disable("barrier_file")
-      # Add CSS to grey out the inputs
-      shinyjs::runjs(
-        "
-        $('#species').closest('.form-group').css('opacity', '0.5');
-        $('#habitat_file').closest('.form-group').css('opacity', '0.5');
-        $('#barrier_file').closest('.form-group').css('opacity', '0.5');
-      "
-      )
-    } else {
-      # Enable inputs when not using example data
-      shinyjs::enable("species")
-      shinyjs::enable("habitat_file")
-      shinyjs::enable("barrier_file")
-      # Remove greying out
-      shinyjs::runjs(
-        "
-        $('#species').closest('.form-group').css('opacity', '1');
-        $('#habitat_file').closest('.form-group').css('opacity', '1');
-        $('#barrier_file').closest('.form-group').css('opacity', '1');
-      "
-      )
+}
+
+# A connectivity_display() as a DT: its labelled data, formatted to the digits
+# it asks for. Every display-backed table in the app wants this, so the DT
+# options are all a caller has to give.
+display_dt <- function(display, ...) {
+  DT::datatable(
+    display$data,
+    options = list(scrollX = TRUE, ...),
+    rownames = FALSE
+  ) |>
+    dt_format(display$digits)
+}
+
+server <- function(input, output, session) {
+  # The example dataset in use, or NULL when the layers are being uploaded. A
+  # plain function, like chosen_scenario(): it is a list lookup, so there is
+  # nothing for a reactive to cache, and a reactive can only be read from
+  # inside a reactive context.
+  chosen_dataset <- function() {
+    example_datasets[[input$example_data %||% ""]]
+  }
+
+  # Choosing an example fills in its species and takes over the file inputs;
+  # the scenarios on offer are that dataset's, since a scenario is only
+  # comparable against the landscape it was drawn on.
+  observeEvent(input$example_data, {
+    dataset <- chosen_dataset()
+    using_example <- !is.null(dataset)
+
+    if (using_example) {
+      updateTextInput(session, "species", value = dataset$species)
     }
+
+    updateSelectInput(
+      session,
+      "scenario_choice",
+      choices = scenario_choices(input$example_data)
+    )
+
+    purrr::walk(
+      c("species", "habitat_file", "barrier_file"),
+      function(id) {
+        if (using_example) {
+          shinyjs::disable(id)
+        } else {
+          shinyjs::enable(id)
+        }
+        shinyjs::runjs(sprintf(
+          "$('#%s').closest('.form-group').css('opacity', '%s');",
+          id,
+          if (using_example) "0.5" else "1"
+        ))
+      }
+    )
   })
   # Reactive values to store results ----
   results <- reactiveValues(
@@ -49,7 +78,13 @@ server <- function(input, output, session) {
     interpatch_distances = NULL,
     results_connect_habitat = NULL,
     areas_connected = NULL,
-    analysis_time = NULL
+    analysis_time = NULL,
+    comparison = NULL,
+    scenario_layer = NULL,
+    scenario_kind = NULL,
+    scenario_habitat = NULL,
+    scenario_barrier = NULL,
+    scenario_buffered = NULL
   )
 
   # Parse interpatch distances ----
@@ -120,14 +155,18 @@ server <- function(input, output, session) {
     ) {
       # Handle raster files
       data <- terra::rast(file_input$datapath[1])
-    } else if (any(grepl("\\.geojson$", file_input$name, ignore.case = TRUE))) {
-      # Handle GeoJSON files
+    } else if (
+      # .gpkg is offered by every file input, and is what the app's own GIS
+      # downloads are written as, so an upload of one has to read
+      any(grepl("\\.(geojson|gpkg)$", file_input$name, ignore.case = TRUE))
+    ) {
       data <- st_read(file_input$datapath[1], quiet = TRUE)
     } else {
       cli::cli_abort(
         c(
           "File format must be a shapefile",
-          "i" = "(.shp + .shx + .dbf), GeoTIFF (.tif), or GeoJSON (.geojson)",
+          "i" = "(.shp + .shx + .dbf), GeoTIFF (.tif), GeoJSON (.geojson) or
+                 GeoPackage (.gpkg)",
           "We see: {.path {file_input$name}}"
         )
       )
@@ -148,28 +187,24 @@ server <- function(input, output, session) {
 
     tryCatch(
       {
+        check_scenario_choice()
+
         # Read files
         withProgress(message = "Loading data...", value = 0.1, {
-          # Use example data if checkbox selected, otherwise use uploaded files
-          # review: be careful with avoiding reuse of read_geometry() and then
-          # replace with read_uploaded_file()
-          if (input$use_example_data) {
-            # Use predefined file paths
-            habitat_data <- read_geometry(habitat_file_path) |>
-              clean() |>
-              st_as_sf()
+          # An example dataset brings its own layers; otherwise they are
+          # uploaded. Either way they go through prepare_rasters() below, so
+          # the resolution controls mean the same thing for both.
+          dataset <- chosen_dataset()
 
-            # File paths already defined at top of server function
-            barrier_data <- read_geometry(barrier_file_path) |>
-              clean() |>
-              st_as_sf()
+          if (!is.null(dataset)) {
+            habitat_data <- dataset$habitat()
+            barrier_data <- dataset$barrier()
           } else {
-            # Use uploaded files
             if (is.null(input$habitat_file) || is.null(input$barrier_file)) {
-              cli::cli_abort(
-                "Please upload both habitat and barrier files, or check \\
-                'Use example data'"
-              )
+              cli::cli_abort(c(
+                "No habitat and barrier layers to analyse.",
+                "i" = "Upload both, or pick one of the example datasets."
+              ))
             }
             habitat_data <- read_uploaded_file(input$habitat_file)
             barrier_data <- read_uploaded_file(input$barrier_file)
@@ -200,14 +235,26 @@ server <- function(input, output, session) {
 
           incProgress(0.3, message = "Calculating connectivity...")
 
-          # One object holding the whole analysis: the summary, and the layers
-          # each distance produced. The tables, plots and downloads below all
-          # read from it, and it is what the asset bundle is written from.
+          scenario <- chosen_scenario()
+
+          if (!is.null(scenario)) {
+            incProgress(0, message = "Comparing scenario to baseline...")
+          }
+
+          # One object holding the whole analysis: the summary, the layers
+          # each distance produced, and the scenario landscape beside them.
+          # The tables, plots and downloads below all read from it, and it is
+          # what the asset bundle is written from. A scenario goes in here
+          # rather than being compared separately, so the baseline pipeline
+          # runs once rather than once for the analysis and again for the
+          # comparison.
           report_data <- connectivity_report_data(
             habitat = results$habitat_raster,
             barrier = results$barrier_raster,
             species = input$species,
             interpatch_distance = interpatch_dists,
+            scenario = scenario$layer,
+            scenario_kind = scenario$kind,
             verbose = FALSE
           )
 
@@ -218,6 +265,13 @@ server <- function(input, output, session) {
           results$buffered_habitat <- report_data$buffered_habitat
           results$patch_id_raster <- report_data$patch_id_raster
           results$areas_connected <- patch_sizes(report_data$connectivity)
+
+          results$comparison <- report_data$comparison
+          results$scenario_layer <- scenario_layer(report_data)
+          results$scenario_kind <- report_data$scenario_kind
+          results$scenario_habitat <- report_data$scenario_habitat
+          results$scenario_barrier <- report_data$scenario_barrier
+          results$scenario_buffered <- report_data$scenario_buffered_habitat
 
           incProgress(0.9, message = "Finalizing...")
 
@@ -283,24 +337,38 @@ server <- function(input, output, session) {
   })
   outputOptions(output, "show_buffer_comparison", suspendWhenHidden = FALSE)
 
-  # Output: Habitat, Buffered Habitat, and Barrier - Tabbed Plots ----
-  output$gg_barrier_habitat_buffer_tabs <- renderUI({
-    req(results$ready)
+  # One tab per interpatch distance. Every tabbed view of the analysis is this
+  # shape, so they share it: `content` says what one panel holds, and `ready`
+  # has to be a function, because a promise would be forced once and then stop
+  # tracking.
+  distance_tabs <- function(content, ready = \() results$ready, id = NULL) {
+    renderUI({
+      req(ready())
 
-    # one panel per distance; the rasters are only needed by the plots
-    # themselves, rendered in the observer below
-    tab_panels <- map(results$interpatch_distances, function(distance) {
-      nav_panel(
-        title = paste0("Interpatch: ", distance, "m"),
-        plotOutput(
-          outputId = paste0("barrier_habitat_interpatch_", distance),
-          height = "500px"
+      panels <- map(results$interpatch_distances, function(distance) {
+        nav_panel(
+          title = paste0("Interpatch: ", distance, "m"),
+          content(distance)
         )
-      )
-    })
+      })
 
-    do.call(navset_tab, c(id = "barrier_habitat_tabs", tab_panels))
-  })
+      do.call(navset_tab, c(if (is.null(id)) NULL else list(id = id), panels))
+    })
+  }
+
+  # the rasters are only needed by the plots themselves, rendered in the
+  # observers below
+  distance_plot <- function(prefix) {
+    function(distance) {
+      plotOutput(paste0(prefix, "_", distance), height = "500px")
+    }
+  }
+
+  # Output: Habitat, Buffered Habitat, and Barrier - Tabbed Plots ----
+  output$gg_barrier_habitat_buffer_tabs <- distance_tabs(
+    distance_plot("barrier_habitat_interpatch"),
+    id = "barrier_habitat_tabs"
+  )
 
   # Render each barrier/habitat/interpatch plot dynamically ----
   observe({
@@ -331,24 +399,10 @@ server <- function(input, output, session) {
   })
 
   # Output: Patch ID - Tabbed Plots ----
-  output$plot_patches_tabs <- renderUI({
-    req(results$ready)
-
-    tab_panels <- map(
-      results$interpatch_distances,
-      function(interpatch_distance) {
-        nav_panel(
-          title = paste0("Interpatch Distance: ", interpatch_distance, "m"),
-          plotOutput(
-            outputId = paste0("patch_plot_", interpatch_distance),
-            height = "500px"
-          )
-        )
-      }
-    )
-
-    do.call(navset_tab, c(id = "patch_tabs", tab_panels))
-  })
+  output$plot_patches_tabs <- distance_tabs(
+    distance_plot("patch_plot"),
+    id = "patch_tabs"
+  )
 
   # Render each patch plot dynamically ----
   observe({
@@ -395,40 +449,27 @@ server <- function(input, output, session) {
   output$results_connect_habitat_table <- renderDT({
     req(results$results_connect_habitat)
 
-    results$results_connect_habitat |>
-      # patch_size is a list-column of per-patch tables: useful to carry
-      # around, not something DT can render
-      select(-patch_size) |>
-      mutate(data_resolution = format_resolution(data_resolution)) |>
-      datatable(
-        options = list(
-          pageLength = 10,
-          scrollX = TRUE,
-          dom = "tip"
-        ),
-        rownames = FALSE
-      ) |>
-      formatRound(
-        columns = c(
-          "effective_mesh_ha",
-          "patch_area_mean",
-          "patch_area_total_ha"
-        ),
-        digits = 3
-      ) |>
-      # prob_connectedness is ~1e-5, so three decimal places reads as 0.000
-      formatSignif(columns = "prob_connectedness", digits = 3)
+    display_dt(
+      connectivity_display(results$results_connect_habitat),
+      pageLength = 10,
+      dom = "tip"
+    )
   })
 
   # Output: Longer format prob connectedness table ----
   output$results_connect_habitat_longer_table <- renderDT({
     req(results$results_connect_habitat)
 
-    results$results_connect_habitat |>
-      select(-patch_size) |>
-      mutate(data_resolution = format_resolution(data_resolution)) |>
+    # the labels and which columns identify a row both come from the package,
+    # so renaming one doesn't break this. One column of every metric needs
+    # significant figures rather than the per-column rules.
+    display <- connectivity_display(results$results_connect_habitat)
+
+    display$data |>
       pivot_longer(
-        cols = -c(species, interpatch_distance, data_resolution)
+        cols = -all_of(display_ids(display)),
+        names_to = "Metric",
+        values_to = "Value"
       ) |>
       datatable(
         options = list(
@@ -437,9 +478,7 @@ server <- function(input, output, session) {
         ),
         rownames = FALSE
       ) |>
-      # one column now holds metrics of very different magnitudes, from
-      # ~1e-5 to the thousands, so significant figures rather than decimals
-      formatSignif(columns = "value", digits = 3)
+      formatSignif(columns = "Value", digits = 3)
   })
 
   # Output: Visualization of connectivity changes ----
@@ -748,6 +787,195 @@ server <- function(input, output, session) {
         bind_rows(.id = "interpatch") |>
         write_csv(file)
     }
+  )
+
+  # Scenarios ----
+
+  # A supplied scenario belongs to the example dataset it was drawn on. The
+  # dropdown only offers the chosen dataset's, so this is reachable by driving
+  # the inputs directly rather than by clicking. There is no longer anything
+  # to say about resolution: connectivity_report_data() puts a scenario on
+  # whatever grid is in use.
+  check_scenario_choice <- function() {
+    choice <- input$scenario_choice %||% "none"
+
+    if (choice == "none") {
+      return(invisible())
+    }
+
+    if (choice == "upload") {
+      if (is.null(input$scenario_file)) {
+        cli::cli_abort(c(
+          "No scenario file chosen.",
+          "i" = "Upload one under {.field Scenario Layer}, or pick one of the
+                 supplied scenarios, or set it back to {.field None}."
+        ))
+      }
+      return(invisible())
+    }
+
+    if (is.null(chosen_dataset()$scenarios[[choice]])) {
+      cli::cli_abort(c(
+        "The {.val {choice}} scenario doesn't go with these layers.",
+        "x" = "A supplied scenario belongs to the example dataset it was
+               drawn on.",
+        "i" = "Choose that dataset under {.field Example data}, or
+               {.field Upload my own} scenario covering your own layers."
+      ))
+    }
+
+    invisible()
+  }
+
+  # Which layer a scenario changes, and the layer itself. Each supplied
+  # scenario says its own kind; only an upload has to be told. NULL when no
+  # scenario is chosen.
+  chosen_scenario <- function() {
+    choice <- input$scenario_choice %||% "none"
+
+    if (choice == "none") {
+      return(NULL)
+    }
+
+    if (choice == "upload") {
+      req(input$scenario_file)
+      return(list(
+        layer = read_uploaded_file(input$scenario_file),
+        kind = input$scenario_kind
+      ))
+    }
+
+    supplied <- chosen_dataset()$scenarios[[choice]]
+    list(layer = supplied$layer(), kind = supplied$kind)
+  }
+
+  # drives the Results tab's scenario section, which stays hidden until there
+  # is a comparison to show
+  output$has_comparison <- reactive(!is.null(results$comparison))
+  outputOptions(output, "has_comparison", suspendWhenHidden = FALSE)
+
+  output$comparison_wide_table <- renderDT({
+    req(results$comparison)
+
+    display_dt(
+      connectivity_display(results$comparison),
+      pageLength = 10,
+      dom = "t"
+    )
+  })
+
+  output$comparison_long_table <- renderDT({
+    req(results$comparison)
+
+    display_dt(
+      connectivity_display(results$comparison, wide = FALSE),
+      pageLength = 8
+    )
+  })
+
+  # What went into the comparison, one layer at a time: the two baseline
+  # inputs and the scenario standing in for one of them.
+  output$layer_habitat <- renderPlot({
+    req(results$habitat_raster)
+    gg_layer(results$habitat_raster, "habitat")
+  })
+
+  output$layer_barrier <- renderPlot({
+    req(results$barrier_raster)
+    gg_layer(results$barrier_raster, "barrier")
+  })
+
+  output$layer_scenario <- renderPlot({
+    req(results$scenario_layer, results$scenario_kind)
+
+    gg_layer(
+      results$scenario_layer,
+      results$scenario_kind,
+      title = paste0("Scenario: ", results$scenario_kind)
+    )
+  })
+
+  # One landscape, drawn the way both sides of a comparison are drawn, so the
+  # only difference you see is the one the scenario made.
+  landscape_plot <- function(habitat, barrier, buffered, distance) {
+    gg_barrier_habitat_interpatch_dist(
+      barrier = barrier,
+      buffered = buffered,
+      habitat = habitat,
+      interpatch_distance = distance,
+      species = input$species,
+      col_paper = "grey96"
+    )
+  }
+
+  # diffviewer compares two files rather than two plots, so each side is
+  # written out. Square and named for what it is: the widget puts the old
+  # file's name in its header.
+  landscape_png <- function(plot, side, distance) {
+    path <- file.path(
+      compare_png_dir,
+      paste0("interpatch-", distance, "m-", side, ".png")
+    )
+    ggsave(
+      path,
+      plot,
+      width = compare_png_inches,
+      height = compare_png_inches,
+      dpi = compare_png_dpi
+    )
+    path
+  }
+
+  observe({
+    req(results$comparison)
+
+    walk(results$interpatch_distances, function(distance) {
+      key <- as.character(distance)
+
+      baseline <- landscape_plot(
+        results$habitat_raster,
+        results$barrier_raster,
+        results$buffered_habitat[[key]],
+        distance
+      )
+      scenario <- landscape_plot(
+        results$scenario_habitat,
+        results$scenario_barrier,
+        results$scenario_buffered[[key]],
+        distance
+      )
+
+      output[[paste0("baseline_landscape_", distance)]] <- renderPlot(baseline)
+      output[[paste0("scenario_landscape_", distance)]] <- renderPlot(scenario)
+
+      output[[paste0("compare_", distance)]] <- visual_diff_render(
+        visual_diff(
+          landscape_png(baseline, "baseline", distance),
+          landscape_png(scenario, "scenario", distance)
+        )
+      )
+    })
+  })
+
+  # One tab per distance, for each way of looking at the pair.
+  compared <- \() !is.null(results$comparison)
+
+  output$baseline_landscape_tabs <- distance_tabs(
+    distance_plot("baseline_landscape"),
+    ready = compared,
+    id = "baseline_distance"
+  )
+  output$scenario_landscape_tabs <- distance_tabs(
+    distance_plot("scenario_landscape"),
+    ready = compared,
+    id = "scenario_distance"
+  )
+  output$landscape_compare_tabs <- distance_tabs(
+    function(distance) {
+      visual_diff_output(paste0("compare_", distance), height = "720px")
+    },
+    ready = compared,
+    id = "compare_distance"
   )
 
   # Everything: maps, tables, GIS layers and the reports

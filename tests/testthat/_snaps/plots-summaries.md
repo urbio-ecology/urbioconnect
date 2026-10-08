@@ -26,3 +26,11 @@
     Output
       [1] "N patches"       "Patch area mean"
 
+# gg_layer rejects a layer it has no colours for
+
+    Code
+      gg_layer(example_habitat(), "interpatch")
+    Condition
+      Error in `gg_layer()`:
+      ! `kind` must be one of "habitat" or "barrier", not "interpatch".
+

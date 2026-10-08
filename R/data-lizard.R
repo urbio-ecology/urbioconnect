@@ -14,6 +14,8 @@
 #'   * `example_barrier_shp()` Returns a shapefile of lizard barrier data as
 #'   an SF object.
 #'   * `example_barrier()` Returns a raster of lizard barrier data.
+#'   * `example_barrier_scenario()` Returns the barrier raster with a new road
+#'   cut through it, for comparing a scenario against the baseline.
 #'
 #' @return A terra raster object or sf object depending on the function called
 #' @name example-lizard-data
@@ -69,4 +71,17 @@ example_barrier <- function() {
   )
   lizard_barrier <- terra::rast(barrier_file)
   lizard_barrier
+}
+
+#' @rdname example-lizard-data
+#' @export
+example_barrier_scenario <- function() {
+  barrier <- example_barrier()
+
+  # derived rather than shipped: a second raster on disk would be one more
+  # file to keep in step with the baseline, and more to install
+  road <- round(terra::ncol(barrier) * 0.45)
+  barrier[, road:(road + 8)] <- 1
+
+  barrier
 }

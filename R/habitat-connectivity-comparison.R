@@ -68,6 +68,11 @@ habitat_connectivity_comparison <- function(
   check_scenario_name(scenario_name)
   check_distances(interpatch_distance)
 
+  # Before anything is computed: layers on different grids compare as a change
+  # of place, and the result looks like an answer.
+  check_layers_comparable(habitat_scenario, habitat_baseline)
+  check_layers_comparable(barrier_scenario, barrier_baseline)
+
   # One variable at a time: compute both layer differences once, then guard.
   hab_diff <- layers_differ(habitat_scenario, habitat_baseline)
   bar_diff <- layers_differ(barrier_scenario, barrier_baseline)

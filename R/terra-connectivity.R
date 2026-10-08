@@ -42,12 +42,54 @@ align_to <- function(x, template, method = "near") {
   }
 }
 
+#' Put a layer on a grid, whichever form it arrives in
+#'
+#' A vector layer is rasterised; a `SpatRaster` is already cells, so it is
+#' resampled onto the grid instead. This is the one place that decides what an
+#' empty cell means, which is why `background` is required: `NA` for habitat,
+#' because a cell with no habitat in it has no value, and `0` for a barrier,
+#' because a cell with no barrier in it is not blocked.
+#'
+#' Use it to put a scenario layer on the grid of the layer it replaces. A
+#' scenario rasterised onto a grid of its own extent is a different landscape,
+#' and [habitat_connectivity_comparison()] will refuse to compare it.
+#'
+#' @param layer An `sf`, `SpatVector` or `SpatRaster` layer.
+#' @param grid A `SpatRaster` whose geometry the result takes, from
+#'   [empty_grid()] or an already-prepared layer.
+#' @param background Value for cells the layer does not cover. Ignored when
+#'   `layer` is a `SpatRaster`, which brings its own.
+#'
+#' @returns A `SpatRaster` on `grid`'s geometry.
+#' @seealso [prepare_rasters()], which uses this for both of its layers.
+#' @export
+#'
+#' @examples
+#' grid <- empty_grid(example_barrier_shp(), resolution = 10)
+#'
+#' # a vector layer is rasterised
+#' onto_grid(example_barrier_shp(), grid, background = 0)
+#'
+#' # a raster one is resampled
+#' onto_grid(example_habitat(), grid, background = NA)
+onto_grid <- function(layer, grid, background) {
+  check_layer_covers(layer, grid)
+
+  if (inherits(layer, "SpatRaster")) {
+    return(align_to(layer, grid))
+  }
+
+  terra::rasterize(layer, grid, background = background)
+}
+
 #' Prepare habitat and barrier rasters
 #'
-#' Convert vector (shapefile) SF habitat and barrier objects into rasters.
+#' Put habitat and barrier layers on one grid. Either layer may be a vector
+#' (`sf` or `SpatVector`), which is rasterised, or a `SpatRaster`, which is
+#' resampled onto the grid.
 #'
-#' @param habitat SF object. Habitat spatial data.
-#' @param barrier SF object. Barrier spatial data.
+#' @param habitat SF object or `SpatRaster`. Habitat spatial data.
+#' @param barrier SF object or `SpatRaster`. Barrier spatial data.
 #' @param data_resolution Numeric. Fine resolution in meters. Default, 10.
 #' @param target_resolution Numeric. Coarse resolution in meters. Default, 500.
 #' @returns List with `habitat_raster` and `barrier_raster` elements.
@@ -56,6 +98,9 @@ align_to <- function(x, template, method = "near") {
 #'   sf::st_as_sf()
 #' lizard_barrier_shp <- example_barrier_shp()
 #' prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
+#'
+#' # a raster layer is resampled onto the grid rather than rasterised
+#' prepare_rasters(example_habitat(), lizard_barrier_shp)
 #' @export
 prepare_rasters <- function(
   habitat,
@@ -67,9 +112,8 @@ prepare_rasters <- function(
 
   grid <- empty_grid(habitat, resolution = data_resolution)
 
-  # convert the vector format into a raster
-  habitat_raster <- terra::rasterize(habitat, grid, background = NA)
-  barrier_raster <- terra::rasterize(barrier, grid, background = 0)
+  habitat_raster <- onto_grid(habitat, grid, background = NA)
+  barrier_raster <- onto_grid(barrier, grid, background = 0)
 
   # aggregate rasters to make them the size of the overlay raster
   coarse_raster <- terra::aggregate(barrier_raster * 0, aggregation_factor)

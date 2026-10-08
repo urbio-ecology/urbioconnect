@@ -46,6 +46,45 @@ test_that("write_connectivity_assets() checks for Quarto before writing", {
   expect_equal(length(list.files(dir)), 0)
 })
 
+test_that("a scenario comparison reaches the manifest and a CSV", {
+  report_data <- test_report_data(40, with_scenario = TRUE)
+  dir <- withr::local_tempdir()
+
+  manifest <- write_connectivity_assets(report_data, dir, reports = FALSE)
+
+  expect_in("summary/scenario-comparison.csv", manifest$path)
+
+  comparison <- readr::read_csv(
+    file.path(dir, "summary", "scenario-comparison.csv"),
+    show_col_types = FALSE
+  )
+
+  # the analysis's own columns and unrounded numbers, as the other CSVs in the
+  # bundle carry: this is the only copy of the comparison in the download, so
+  # a display's 3 significant figures would lose a small pct_change for good
+  expect_snapshot(names(comparison))
+
+  expect_in(
+    c("baseline", "scenario", "change", "pct_change"),
+    comparison$measure
+  )
+  expect_type(comparison$effective_mesh_ha, "double")
+})
+
+test_that("an analysis with no scenario has no comparison CSV", {
+  report_data <- test_report_data(40)
+  dir <- withr::local_tempdir()
+
+  manifest <- write_connectivity_assets(report_data, dir, reports = FALSE)
+
+  expect_false("summary/scenario-comparison.csv" %in% manifest$path)
+  expect_false(file.exists(file.path(
+    dir,
+    "summary",
+    "scenario-comparison.csv"
+  )))
+})
+
 test_that("the manifest lists the reports only when asked", {
   report_data <- test_report_data(40)
 
@@ -171,8 +210,15 @@ test_that("zip_connectivity_assets() takes a relative path", {
   })
 })
 
-test_that("zip_connectivity_reports() archives both reports", {
+test_that("zip_connectivity_reports() archives a report per format", {
   skip_if_no_quarto()
+
+  # the PDF goes through typst rather than the HTML writer, so it can break
+  # on its own and has to be rendered to know. That is ~5s, which is worth
+  # paying on CI and not in a local loop, so locally this archives the HTML
+  # alone. report_extensions() is what the function itself reads.
+  extensions <- if (on_ci()) c("html", "pdf") else "html"
+  local_mocked_bindings(report_extensions = function() extensions)
 
   report_data <- test_report_data(40)
   path <- withr::local_tempfile(fileext = ".zip")
@@ -185,11 +231,19 @@ test_that("zip_connectivity_reports() archives both reports", {
   # the archive carries the folder itself as an entry, so compare the files
   files <- contents[!endsWith(contents$filename, "/"), ]
 
-  expect_setequal(
-    files$filename,
-    paste0(folder, "/", c("report.html", "report.pdf"))
-  )
+  expect_setequal(files$filename, paste0(folder, "/report.", extensions))
   expect_true(all(files$uncompressed_size > 0))
+
+  skip_if_not(on_ci(), "the PDF is only rendered on CI")
+
+  # a real PDF, not an HTML file with the wrong name
+  out <- withr::local_tempdir()
+  zip::unzip(path, files = paste0(folder, "/report.pdf"), exdir = out)
+
+  expect_equal(
+    readBin(file.path(out, folder, "report.pdf"), "raw", 4),
+    charToRaw("%PDF")
+  )
 })
 
 test_that("asset writing rejects anything but a connectivity_report_data", {

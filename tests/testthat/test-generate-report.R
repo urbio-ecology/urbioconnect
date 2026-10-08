@@ -72,9 +72,10 @@ test_that("a written report renders to HTML", {
   skip_if_no_quarto()
 
   dir <- withr::local_tempdir()
+  report_data <- test_report_data(c(40, 80))
 
   qmd <- write_connectivity_report(
-    test_report_data(c(40, 80)),
+    report_data,
     file.path(dir, "report.qmd")
   )
 
@@ -94,34 +95,79 @@ test_that("a written report renders to HTML", {
   expect_match(html, "data:image/png", fixed = TRUE)
   expect_match(html, "Superb Fairy Wren", fixed = TRUE)
   expect_match(html, "Change over distance", fixed = TRUE)
-})
 
-test_that("generate_connectivity_report() writes a PDF report", {
-  skip_if_no_quarto()
+  # the summary table came from connectivity_display(), so the rendered
+  # numbers are the ones the app shows. This fails if the template goes back
+  # to rounding on its own.
+  summary <- round_by(connectivity_display(report_data$connectivity))
 
-  dir <- withr::local_tempdir()
-
-  path <- suppressMessages(
-    generate_connectivity_report(
-      test_report_data(40),
-      file.path(dir, "report.pdf")
-    )
+  expect_match(html, "Mesh (ha)", fixed = TRUE)
+  purrr::walk(
+    format(summary[["Mesh (ha)"]], trim = TRUE),
+    function(value) expect_match(html, value, fixed = TRUE)
   )
 
-  expect_equal(basename(path), "report.pdf")
-  expect_gt(file.size(path), 0)
+  # and not unrounded, which is what no formatting at all would give
+  expect_no_match(
+    html,
+    format(report_data$connectivity$effective_mesh_ha[[1]], trim = TRUE),
+    fixed = TRUE
+  )
 
-  # a real PDF, not an HTML file with the wrong name
-  expect_equal(readBin(path, "raw", 4), charToRaw("%PDF"))
+  # this analysis carries no scenario, so the report has no scenario section.
+  # Asserted on a render that was happening anyway: the scenario test below
+  # then needs one render rather than a matching pair.
+  expect_no_match(html, "Scenario against baseline", fixed = TRUE)
+})
+
+test_that("a comparison adds a scenario section, and the path defaults", {
+  skip_if_no_quarto()
+
+  # one render answering three questions, because a Quarto render is ~5s and
+  # all three want the same thing: a single-distance analysis with a scenario,
+  # rendered without being told where to put it
+  report_data <- test_report_data(40, with_scenario = TRUE)
+
+  withr::with_tempdir({
+    path <- suppressMessages(generate_connectivity_report(report_data))
+
+    # the stem's own format is pinned in test-assets.R; this is that plus html
+    expect_equal(
+      basename(path),
+      paste0(connectivity_file_stem(report_data), ".html")
+    )
+
+    html <- test_report_text(path)
+
+    expect_match(html, "Scenario against baseline", fixed = TRUE)
+
+    # the numbers come from connectivity_display(), so the report agrees with
+    # the app's comparison table
+    expect_match(html, "% change", fixed = TRUE)
+
+    # a single distance is a single point, so there is nothing to plot
+    expect_no_match(html, "Change over distance", fixed = TRUE)
+  })
 })
 
 test_that("a format whose figures sit in a folder is refused, not mangled", {
-  skip_if_no_quarto()
-
   dir <- withr::local_tempdir()
 
   # markdown writes its figures to a `_files` folder, so copying the one
-  # document out would hand back a report with no pictures at all
+  # document out would hand back a report with no pictures at all. What
+  # Quarto would take five seconds to produce here is two files, so stand in
+  # for it: the refusal is this package's own. quarto_available() is pinned
+  # too, so the test runs where Quarto isn't installed.
+  local_mocked_bindings(
+    quarto_available = function() TRUE,
+    quarto_render_file = function(input, output_format, quiet) {
+      stem <- tools::file_path_sans_ext(input)
+      writeLines("# a report", paste0(stem, ".md"))
+      dir.create(paste0(stem, ".markdown_strict_files"))
+      invisible(NULL)
+    }
+  )
+
   expect_snapshot(
     suppressMessages(
       generate_connectivity_report(
@@ -134,27 +180,4 @@ test_that("a format whose figures sit in a folder is refused, not mangled", {
   )
 
   expect_equal(length(list.files(dir)), 0)
-})
-
-test_that("generate_connectivity_report() defaults the path", {
-  skip_if_no_quarto()
-
-  report_data <- test_report_data(40)
-
-  withr::with_tempdir({
-    path <- suppressMessages(generate_connectivity_report(report_data))
-
-    # the stem's own format is pinned in test-assets.R; this is that plus html
-    expect_equal(
-      basename(path),
-      paste0(connectivity_file_stem(report_data), ".html")
-    )
-
-    # a single distance is a single point, so there is nothing to plot
-    expect_no_match(
-      test_report_text(path),
-      "Change over distance",
-      fixed = TRUE
-    )
-  })
 })

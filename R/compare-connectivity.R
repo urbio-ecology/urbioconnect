@@ -177,11 +177,12 @@ new_compare_connectivity <- function(x) {
 }
 
 #' @export
-print.compare_connectivity <- function(x, ...) {
+print.compare_connectivity <- function(x, ..., width = Inf) {
   cat("# Connectivity comparison: baseline / scenario / change / pct_change\n")
   # print as a plain tibble with every column visible (as_tibble drops the
-  # compare_connectivity class, avoiding infinite recursion)
-  print(tibble::as_tibble(x), width = Inf, ...)
+  # compare_connectivity class, avoiding infinite recursion). `width` is named
+  # rather than left to `...`, so passing one isn't matched twice.
+  print(tibble::as_tibble(x), width = width, ...)
   cat("# change = scenario - baseline (positive = scenario is higher)\n")
   cat("# pct_change = 100 * change / baseline\n")
   invisible(x)

@@ -301,12 +301,22 @@ asset_manifest <- function(x, reports = FALSE) {
     description = "How the metrics change across interpatch distances."
   )
 
+  comparison <- tibble::tibble(
+    path = "summary/scenario-comparison.csv",
+    kind = "table",
+    description = paste(
+      "Scenario against baseline: each metric, the change, and the change",
+      "as a percentage."
+    )
+  )
+
   per_distance <- purrr::map(distances, distance_manifest) |>
     purrr::list_rbind()
 
   dplyr::bind_rows(
     if (reports) report_rows,
     shared,
+    if (has_comparison(x)) comparison,
     if (has_over_distance_plot(x)) over_distance,
     per_distance
   )
@@ -382,6 +392,17 @@ write_asset_tables <- function(x, dir) {
     dplyr::select("species", "interpatch_distance", "patch_size") |>
     tidyr::unnest("patch_size") |>
     readr::write_csv(file.path(dir, "summary", "patch-areas.csv"))
+
+  if (has_comparison(x)) {
+    # raw, like the other two: this is the bundle's only copy of the
+    # comparison, so rounding it to a display's significant figures would
+    # throw away a small pct_change for good. The app and the report label
+    # and round it for reading.
+    readr::write_csv(
+      x$comparison,
+      file.path(dir, "summary", "scenario-comparison.csv")
+    )
+  }
 }
 
 #' @noRd

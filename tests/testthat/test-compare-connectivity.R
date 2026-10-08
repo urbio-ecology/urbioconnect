@@ -1,27 +1,22 @@
 test_that("compare_connectivity() identifies changes in baseline/scenario", {
-  # the only test in this file that needs the real landscape: two pipeline runs
-  # at ~4.7s each, where every other test uses lizard_areas_connected
-  wren_habitat <- example_wren_habitat()
+  # the only test in this file that runs the real pipeline, where every other
+  # one uses lizard_areas_connected. The lizard landscape rather than the
+  # wren: real spatial data either way, and a quarter of the cells.
+  layers <- lizard_scenario_layers()
 
-  wren_connectivity_baseline <- habitat_connectivity(
-    habitat = wren_habitat,
-    barrier = example_wren_barrier(),
-    species = "Superb Fairy Wren",
-    interpatch_distance = 200,
-    verbose = FALSE
-  )
-
-  wren_connectivity_scenario <- habitat_connectivity(
-    habitat = wren_habitat,
-    barrier = example_wren_barrier_scenario(),
-    species = "Superb Fairy Wren",
-    interpatch_distance = 200,
-    verbose = FALSE
-  )
+  connectivity_of <- function(barrier) {
+    habitat_connectivity(
+      habitat = layers$habitat,
+      barrier = barrier,
+      species = "Blue Tongue Lizard",
+      interpatch_distance = 40,
+      verbose = FALSE
+    )
+  }
 
   results_compare <- compare_connectivity(
-    scenario = wren_connectivity_scenario,
-    baseline = wren_connectivity_baseline
+    scenario = connectivity_of(layers$barrier_scenario),
+    baseline = connectivity_of(layers$barrier)
   )
 
   expect_s3_class(results_compare, "compare_connectivity")

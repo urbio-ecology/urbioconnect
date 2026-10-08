@@ -64,6 +64,16 @@
       i Install it from <https://quarto.org/docs/get-started/>.
       i The assets alone need no Quarto: see `write_connectivity_assets()`.
 
+# a scenario comparison reaches the manifest and a CSV
+
+    Code
+      names(comparison)
+    Output
+       [1] "scenario_name"       "measure"             "species"            
+       [4] "interpatch_distance" "n_patches"           "effective_mesh_ha"  
+       [7] "prob_connectedness"  "patch_area_mean"     "patch_area_total_ha"
+      [10] "data_resolution"    
+
 # the manifest lists the reports only when asked
 
     Code
