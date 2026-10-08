@@ -323,13 +323,11 @@ ui <- page_navbar(
               # the three layers the comparison was built from, before any of
               # it is combined into a map
               card(
-                card_header("The layers that went in"),
+                card_header("Input layers"),
                 card_body(
                   p(
-                    "The habitat and the barriers as analysed, and the",
-                    "scenario layer standing in for whichever of the two it",
-                    "changes. A barrier is drawn as it appears on the maps",
-                    "below: white, cutting through the interpatch zone."
+                    "The habitat and the barriers as analysed.",
+                    "Plus scenario layer"
                   ),
                   layout_columns(
                     col_widths = c(4, 4, 4),
@@ -349,21 +347,17 @@ ui <- page_navbar(
                   DTOutput("comparison_wide_table"),
                   hr(),
                   p(
-                    "The same comparison in the shape the analysis produces",
+                    "The comparison as produced from the analysis",
                     "it."
                   ),
                   DTOutput("comparison_long_table")
                 )
               ),
               card(
-                card_header("The landscape, before and after"),
+                card_header("Habitat, Scenario, and Comparison"),
                 card_body(
                   p(
-                    "Habitat, the zone within half an interpatch distance of",
-                    "it, and the barriers that break connections. The same",
-                    "map of each landscape, so the only difference you see is",
-                    "the one the scenario made. One tab per interpatch",
-                    "distance within each."
+                    "One tab per interpatch distance within each."
                   ),
                   navset_tab(
                     id = "landscape_view",
