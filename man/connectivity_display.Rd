@@ -5,6 +5,7 @@
 \alias{connectivity_display.connectivity}
 \alias{connectivity_display.patch_size_tbl}
 \alias{connectivity_display.compare_connectivity}
+\alias{connectivity_display.default}
 \title{Prepare a result for display}
 \usage{
 connectivity_display(x, ...)
@@ -14,6 +15,8 @@ connectivity_display(x, ...)
 \method{connectivity_display}{patch_size_tbl}(x, ...)
 
 \method{connectivity_display}{compare_connectivity}(x, wide = TRUE, ...)
+
+\method{connectivity_display}{default}(x, ...)
 }
 \arguments{
 \item{x}{A \code{connectivity}, \code{patch_size_tbl} or \code{compare_connectivity}

@@ -40,45 +40,48 @@ connectivity_display <- function(x, ...) {
 #' @rdname connectivity_display
 #' @export
 connectivity_display.connectivity <- function(x, ...) {
-  spec <- connectivity_columns()
-
-  data <- x |>
-    dplyr::select(-dplyr::any_of("patch_size")) |>
-    dplyr::mutate(
-      dplyr::across(
-        dplyr::any_of("data_resolution"),
-        format_resolution
-      )
-    )
-
-  display_result(data, spec)
+  display_result(display_data(x))
 }
 
 #' @rdname connectivity_display
 #' @export
 connectivity_display.patch_size_tbl <- function(x, ...) {
-  display_result(
-    tibble::as_tibble(x)[c("patch_id", "area")],
-    patch_columns()
-  )
+  display_result(display_data(x))
 }
 
 #' @rdname connectivity_display
 #' @export
 connectivity_display.compare_connectivity <- function(x, wide = TRUE, ...) {
   if (wide) {
-    return(display_result(comparison_wide(x), comparison_columns()))
+    return(display_result(comparison_wide(x)))
   }
 
-  data <- tibble::as_tibble(x) |>
-    dplyr::select(-dplyr::any_of(c("scenario_name", "patch_size"))) |>
+  # once the measures are rows, one column holds every metric's worth of
+  # magnitudes, so significant figures per cell rather than decimals per
+  # column. Identifiers keep their own rules: signif would turn a 1234m
+  # distance into 1230.
+  display_result(display_data(x), metric_digits = 3)
+}
+
+#' @rdname connectivity_display
+#' @export
+connectivity_display.default <- function(x, ...) {
+  cli::cli_abort(c(
+    "Can't display {.obj_type_friendly {x}}.",
+    "i" = "{.arg x} must be a {.cls connectivity}, {.cls patch_size_tbl} or
+           {.cls compare_connectivity} object."
+  ))
+}
+
+#' Drop what can't be displayed, and format what needs it
+#'
+#' @noRd
+display_data <- function(x) {
+  tibble::as_tibble(x) |>
+    dplyr::select(-dplyr::any_of("patch_size")) |>
     dplyr::mutate(
       dplyr::across(dplyr::any_of("data_resolution"), format_resolution)
     )
-
-  # one column holds every metric's worth of magnitudes once the measures are
-  # rows, so significant figures per cell, not decimals per column
-  display_result(data, connectivity_columns(), signif_digits = 3)
 }
 
 #' Apply the rounding a display describes
@@ -109,37 +112,51 @@ connectivity_display.compare_connectivity <- function(x, wide = TRUE, ...) {
 #'
 #' round_by(connectivity_display(lizard))
 round_by <- function(display) {
-  apply_digits(display, function(values, round_fn, digits) {
-    round_fn(values, digits)
-  })
+  check_display(display)
+
+  rounded <- display$data
+
+  # check_display() has already vouched for `kind`
+  rounded[display$digits$column] <- purrr::pmap(
+    display$digits,
+    function(column, kind, digits) {
+      switch(kind, round = round, signif = signif)(rounded[[column]], digits)
+    }
+  )
+
+  rounded
 }
 
 #' @rdname round_by
 #' @export
 format_by <- function(display) {
-  apply_digits(display, function(values, round_fn, digits) {
-    # one value at a time, so each picks its own notation
-    vapply(
-      round_fn(values, digits),
-      function(value) format(value, trim = TRUE),
-      character(1)
-    )
-  })
+  formatted <- round_by(display)
+  columns <- display$digits$column
+
+  # pinned, so one display reads the same wherever it is rendered. The app and
+  # the report agreeing is the whole point, and `format()` otherwise follows
+  # whatever `scipen` and `OutDec` the caller happens to have set.
+  pinned <- options(scipen = 0, digits = 7, OutDec = ".")
+  on.exit(options(pinned), add = TRUE)
+
+  formatted[columns] <- purrr::map(formatted[columns], format_values)
+
+  formatted
 }
 
+#' One value at a time, so each picks its own notation
+#'
+#' A missing value stays missing: `format(NA)` is the string `"NA"`, which the
+#' renderer can no longer style.
+#'
 #' @noRd
-apply_digits <- function(display, apply) {
-  check_display(display)
-
-  purrr::reduce(
-    seq_len(nrow(display$digits)),
-    function(data, i) {
-      rule <- display$digits[i, ]
-      round_fn <- switch(rule$kind, round = base::round, signif = base::signif)
-      data[[rule$column]] <- apply(data[[rule$column]], round_fn, rule$digits)
-      data
+format_values <- function(values) {
+  vapply(
+    values,
+    function(value) {
+      if (is.na(value)) NA_character_ else format(value, trim = TRUE)
     },
-    .init = display$data
+    character(1)
   )
 }
 
@@ -149,71 +166,64 @@ apply_digits <- function(display, apply) {
 #' show it. A column missing here is shown unrounded under its own name, so a
 #' new metric is visible rather than hidden.
 #'
+#' `role` says whether a column identifies a row or measures it, which is what
+#' lets a consumer pivot or drop the identifiers without naming them. Labels
+#' are kept short because the PDF report renders these as a fixed-width table,
+#' and a long heading hyphenates across the column boundary.
+#'
 #' @noRd
 connectivity_columns <- function() {
-  dplyr::bind_rows(
-    display_column("species", "Species"),
-    display_column("scenario_name", "Scenario"),
-    display_column("measure", "Measure"),
-    display_column("interpatch_distance", "Distance (m)"),
-    display_column("n_patches", "Patches"),
-    display_column("effective_mesh_ha", "Mesh (ha)", "round", 2),
-    display_column("prob_connectedness", "P(connected)", "signif", 3),
-    display_column("patch_area_mean", "Mean area (m2)", "round", 1),
-    display_column("patch_area_total_ha", "Total area (ha)", "round", 2),
-    display_column("data_resolution", "Resolution (m)")
-  )
-}
-
-#' One row of a column spec, so a name sits next to its label
-#'
-#' @noRd
-display_column <- function(name, label, kind = NA_character_, digits = NA) {
-  tibble::tibble(name = name, label = label, kind = kind, digits = digits)
-}
-
-#' @noRd
-patch_columns <- function() {
-  dplyr::bind_rows(
-    display_column("patch_id", "Patch ID"),
-    display_column("area", "Area (m2)", "round", 1)
-  )
-}
-
-#' Columns of the wide comparison
-#'
-#' Each row is one metric, so a column holds every magnitude the metrics span.
-#' Significant figures, not decimals. `pct_change` is already a percentage, so
-#' it gets decimals of its own.
-#'
-#' @noRd
-comparison_columns <- function() {
-  dplyr::bind_rows(
-    display_column("interpatch_distance", "Distance (m)"),
-    display_column("metric", "Metric"),
-    display_column("baseline", "Baseline", "signif", 3),
-    display_column("scenario", "Scenario", "signif", 3),
-    display_column("change", "Change", "signif", 3),
-    display_column("pct_change", "% change", "round", 1)
+  tibble::tribble(
+    ~name                 , ~label            , ~role    , ~kind    , ~digits ,
+    "species"             , "Species"         , "id"     , NA       , NA      ,
+    "scenario_name"       , "Scenario"        , "id"     , NA       , NA      ,
+    "measure"             , "Measure"         , "id"     , NA       , NA      ,
+    "interpatch_distance" , "Distance (m)"    , "id"     , NA       , NA      ,
+    "data_resolution"     , "Resolution (m)"  , "id"     , NA       , NA      ,
+    "n_patches"           , "Patches"         , "metric" , NA       , NA      ,
+    "effective_mesh_ha"   , "Mesh (ha)"       , "metric" , "round"  ,       2 ,
+    "prob_connectedness"  , "P(connected)"    , "metric" , "signif" ,       3 ,
+    "patch_area_mean"     , "Mean area (m2)"  , "metric" , "round"  ,       1 ,
+    "patch_area_total_ha" , "Total area (ha)" , "metric" , "round"  ,       2 ,
+    "patch_id"            , "Patch ID"        , "id"     , NA       , NA      ,
+    "area"                , "Area (m2)"       , "metric" , "round"  ,       1 ,
+    # the wide comparison's measures, once they become columns. pct_change
+    # gets significant figures, not decimals: it exists to make a move that
+    # reads as nothing in absolute terms legible, and 0.001% would round to 0.
+    "metric"              , "Metric"          , "id"     , NA       , NA      ,
+    "baseline"            , "Baseline"        , "metric" , "signif" ,       3 ,
+    "scenario"            , "Scenario value"  , "metric" , "signif" ,       3 ,
+    "change"              , "Change"          , "metric" , "signif" ,       3 ,
+    "pct_change"          , "% change"        , "metric" , "signif" ,       3
   )
 }
 
 #' Turn a comparison inside out: metrics down, measures across
 #'
+#' Every identifier the object carries stays one, `scenario_name` included.
+#' Without it two scenarios land on the same row and `pivot_wider()` returns
+#' list-columns rather than numbers.
+#'
 #' @noRd
 comparison_wide <- function(x) {
-  metrics <- connectivity_columns() |>
-    dplyr::filter(!is.na(.data$kind))
+  spec <- connectivity_columns()
+  metrics <- spec$name[spec$role == "metric"]
 
-  tibble::as_tibble(x) |>
-    dplyr::select(dplyr::any_of(c(
-      "measure",
-      "interpatch_distance",
-      "n_patches",
-      metrics$name
-    ))) |>
+  wide <- tibble::as_tibble(x)
+
+  # what tells one row from another. Species and resolution are the same for
+  # every row of a comparison and are shown around the table, and an unnamed
+  # comparison has no scenario to name.
+  ids <- intersect(c("scenario_name", "interpatch_distance"), names(wide))
+
+  if (all(is.na(wide$scenario_name))) {
+    ids <- setdiff(ids, "scenario_name")
+  }
+
+  wide |>
+    dplyr::select(dplyr::any_of(c("measure", ids, metrics))) |>
     tidyr::pivot_longer(
-      cols = -dplyr::all_of(c("measure", "interpatch_distance")),
+      cols = dplyr::any_of(metrics),
       names_to = "metric",
       values_to = "value"
     ) |>
@@ -221,51 +231,77 @@ comparison_wide <- function(x) {
     # kept in the spec's order, then labelled: these are row values now, so
     # they need the same names the column headings would have had
     dplyr::mutate(
-      metric = factor(.data$metric, levels = connectivity_columns()$name)
+      metric = factor(.data$metric, levels = spec$name)
     ) |>
-    dplyr::arrange(.data$interpatch_distance, .data$metric) |>
-    dplyr::mutate(
-      metric = display_labels(
-        as.character(.data$metric),
-        connectivity_columns()
-      )
-    )
+    dplyr::arrange(dplyr::pick(dplyr::any_of(ids)), .data$metric) |>
+    dplyr::mutate(metric = display_labels(as.character(.data$metric), spec))
 }
 
 #' Apply labels, and describe the rounding for what is left numeric
 #'
-#' `signif_digits` overrides the per-column rules, for a table whose rows are
-#' measures rather than metrics.
+#' `metric_digits` overrides the per-column rules with significant figures,
+#' for a table whose rows are measures rather than metrics. It applies to the
+#' metrics only: an identifier rounded to 3 significant figures would turn a
+#' 1234m distance into 1230.
 #'
 #' @noRd
-display_result <- function(data, spec, signif_digits = NULL) {
-  spec <- spec[spec$name %in% names(data), ]
+display_result <- function(data, metric_digits = NULL) {
+  spec <- connectivity_columns() |>
+    dplyr::filter(.data$name %in% names(data))
+
+  labels <- display_labels(names(data), spec)
+
+  # the digit spec names its column, so two columns sharing a label would
+  # round the first one twice and leave the second alone
+  vctrs::vec_as_names(labels, repair = "check_unique")
 
   labelled <- data
-  names(labelled) <- display_labels(names(data), spec)
+  names(labelled) <- labels
 
-  numeric <- names(labelled)[purrr::map_lgl(labelled, is.numeric)]
-
-  digits <- if (is.null(signif_digits)) {
-    spec |>
-      dplyr::filter(!is.na(.data$kind)) |>
-      dplyr::transmute(
-        column = .data$label,
-        kind = .data$kind,
-        digits = .data$digits
-      )
+  digits <- if (is.null(metric_digits)) {
+    dplyr::filter(spec, !is.na(.data$kind))
   } else {
-    tibble::tibble(
-      column = numeric,
-      kind = "signif",
-      digits = signif_digits
-    )
+    spec |>
+      dplyr::filter(.data$role == "metric") |>
+      dplyr::mutate(kind = "signif", digits = metric_digits)
   }
 
-  # a metric with no rule still has to be a column DT can format
-  digits <- digits[digits$column %in% numeric, ]
+  # only what is actually a number: DT and round() need one
+  numeric <- names(labelled)[purrr::map_lgl(labelled, is.numeric)]
+
+  digits <- digits |>
+    dplyr::transmute(column = .data$label, .data$kind, .data$digits) |>
+    dplyr::filter(.data$column %in% numeric)
 
   list(data = labelled, digits = digits)
+}
+
+#' Which display columns identify a row rather than measure it
+#'
+#' So a consumer that has to pivot or drop the identifiers can ask, rather
+#' than hardcoding the label text.
+#'
+#' @param display A list from [connectivity_display()].
+#'
+#' @returns A character vector of column labels.
+#' @seealso [connectivity_display()]
+#' @export
+#'
+#' @examples
+#' lizard <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
+#' )
+#'
+#' display_ids(connectivity_display(lizard))
+display_ids <- function(display) {
+  check_display(display)
+
+  spec <- connectivity_columns()
+  intersect(spec$label[spec$role == "id"], names(display$data))
 }
 
 #' @noRd
@@ -280,14 +316,51 @@ check_display <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  if (!is.list(x) || !all(c("data", "digits") %in% names(x))) {
+  shaped <- is.list(x) &&
+    all(c("data", "digits") %in% names(x)) &&
+    is.data.frame(x$data) &&
+    is.data.frame(x$digits) &&
+    all(c("column", "kind", "digits") %in% names(x$digits))
+
+  if (!shaped) {
     cli::cli_abort(
       c(
-        "{.arg {arg}} must be a list with {.field data} and {.field digits}.",
+        "{.arg {arg}} must be a list of a {.field data} table and a
+         {.field digits} table of {.field column}, {.field kind} and
+         {.field digits}.",
         "i" = "Build one with {.fn connectivity_display}."
       ),
       call = call
     )
   }
+
+  # a rule naming a column that isn't there would otherwise fail inside
+  # round(), as "non-numeric argument to mathematical function"
+  missing <- setdiff(x$digits$column, names(x$data))
+
+  if (length(missing) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} has a digit rule for a column that isn't in the data.",
+        "x" = "Not found: {.field {missing}}."
+      ),
+      call = call
+    )
+  }
+
+  # checked here rather than where it is used, so the message isn't buried
+  # under purrr's "In index: 1"
+  unknown <- setdiff(x$digits$kind, c("round", "signif"))
+
+  if (length(unknown) > 0) {
+    cli::cli_abort(
+      c(
+        "A digit rule's {.field kind} must be {.val round} or {.val signif}.",
+        "x" = "Got {.val {unknown}}."
+      ),
+      call = call
+    )
+  }
+
   invisible(x)
 }

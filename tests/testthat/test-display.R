@@ -64,6 +64,67 @@ test_that("a comparison is wide by default and long when asked", {
   expect_equal(nrow(long), 4)
 })
 
+test_that("a comparison with several scenarios stays numeric", {
+  layers <- scenario_test_layers()
+
+  several <- habitat_connectivity_scenarios(
+    habitat_baseline = layers$habitat,
+    barrier_baseline = layers$barrier,
+    species = "Superb Fairy Wren",
+    habitat_scenarios = list(dev = layers$habitat_scenario),
+    barrier_scenarios = list(road = layers$barrier_scenario),
+    interpatch_distance = 40,
+    verbose = FALSE
+  )
+
+  display <- connectivity_display(several)
+
+  # dropping scenario_name collapsed two scenarios onto one row, and
+  # pivot_wider() then returned list-columns that round_by() silently skipped
+  expect_type(display$data$Baseline, "double")
+  expect_snapshot(names(display$data))
+  expect_setequal(display$data$Scenario, c("dev", "road"))
+  expect_equal(nrow(display$data), 10)
+})
+
+test_that("the long comparison rounds metrics but not identifiers", {
+  display <- connectivity_display(test_comparison(), wide = FALSE)
+
+  # signif(1234, 3) is 1230, so a distance rounded like a metric lies
+  expect_false("Distance (m)" %in% display$digits$column)
+  expect_snapshot(display$digits$column)
+})
+
+test_that("display_ids() names the identifier columns", {
+  expect_snapshot(display_ids(connectivity_display(
+    test_report_data(40)$connectivity
+  )))
+})
+
+test_that("a display is rejected when its digit spec doesn't fit", {
+  expect_snapshot(error = TRUE, {
+    connectivity_display(data.frame(a = 1))
+    round_by(list(data = tibble::tibble(x = 1), digits = "nope"))
+    round_by(list(
+      data = tibble::tibble(x = 1),
+      digits = tibble::tibble(column = "absent", kind = "round", digits = 2)
+    ))
+    round_by(list(
+      data = tibble::tibble(x = 1),
+      digits = tibble::tibble(column = "x", kind = "nope", digits = 2)
+    ))
+  })
+})
+
+test_that("format_by() keeps missing values missing", {
+  display <- list(
+    data = tibble::tibble(x = c(1.234, NA)),
+    digits = tibble::tibble(column = "x", kind = "round", digits = 1)
+  )
+
+  expect_equal(format_by(display)$x, c("1.2", NA))
+})
+
 test_that("print() on a comparison takes a width", {
   # print.compare_connectivity() used to fix width = Inf, so passing one
   # matched the argument twice
