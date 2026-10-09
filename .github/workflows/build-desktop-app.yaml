@@ -196,12 +196,10 @@ jobs:
             append = TRUE
           )
 
-      # The one check that tests the contract rather than its ingredients.
-      # Catches a Quarto placed where nothing will find it, a library path that
-      # does not reach the R under Quarto, a package that failed to embed, and
-      # anything the appended profile gets wrong. A script file rather than
-      # -e, which segfaults on Windows R under Git Bash.
-      - name: Check the bundled R reaches Quarto and the package
+      # Renders a real report with the installer's own R, which is the only
+      # check here that tests the contract rather than its parts. A script file
+      # rather than -e, which segfaults on Windows R under Git Bash.
+      - name: Check the bundled app can render a report
         shell: Rscript {0}
         run: |
           rscript <- Sys.glob(file.path(
@@ -217,19 +215,10 @@ jobs:
             stop("expected one bundled Rscript, found ", length(rscript))
           }
 
-          script <- tempfile(fileext = ".R")
-          writeLines(
-            c(
-              'stopifnot(file.exists(Sys.getenv("QUARTO_PATH")))',
-              'stopifnot(requireNamespace("urbioconnect", quietly = TRUE))',
-              'stopifnot(urbioconnect::quarto_available())',
-              'cat("quarto", format(quarto::quarto_version()), "reachable\\n")'
-            ),
-            script
-          )
+          script <- normalizePath(".github/scripts/check-bundled-app.R")
 
           if (system2(rscript, shQuote(script)) != 0) {
-            stop("the bundled R cannot reach Quarto or urbioconnect")
+            stop("the bundled app could not render a report")
           }
 
       - name: Package the installer again, with Quarto inside

@@ -2,18 +2,8 @@
 # sourced, not loaded, so each test that touches it pays this preamble.
 skip_if_no_app <- function() {
   skip_on_cran()
-  purrr::walk(
-    c(
-      "shiny",
-      "DT",
-      "bslib",
-      "conflicted",
-      "diffviewer",
-      "fasterize",
-      "shinyjs"
-    ),
-    skip_if_not_installed
-  )
+  # shiny itself is an Import, so it is always there
+  purrr::walk(app_packages(), skip_if_not_installed)
 }
 
 # sourced into the caller's environment, so `server` is visible to testServer
