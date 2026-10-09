@@ -1,0 +1,47 @@
+# Read by shinyelectron::export(), driven by
+# .github/workflows/build-desktop-app.yaml.
+app:
+  name: Urban Connectedness
+  # Pinned rather than derived from name: the slug is the app id, the Windows
+  # executable name and the user data folder, so renaming must not move them.
+  slug: urban-connectedness
+  # electron-builder needs a three part semver, which the package's dev
+  # version is not. A release build overwrites this from the tag.
+  version: 0.1.0
+  description: Analyse habitat connectivity in urban landscapes.
+  homepage: https://urbio-ecology.github.io/urbioconnect/
+
+build:
+  type: r-shiny
+  # ships a portable R, so the app is the app: terra, sf, every download and
+  # the Quarto reports behave as they do in an R session. shinylive would run
+  # through WebAssembly instead, where there is no Quarto and so no report.
+  runtime_strategy: bundled
+  # portable-r has no Linux build; run_connectivity_app() is the Linux answer
+  platforms: [mac, win]
+
+window:
+  width: 1400
+  height: 900
+
+dependencies:
+  r:
+    # urbioconnect is not on CRAN, and the default repo list is CRAN alone.
+    # This ships whatever r-universe last built, so an installer can lag the
+    # tag by a commit or two; dependencies.r.local_packages would close that
+    # by building the checkout, but it is unreleased (main only, not v0.2.1).
+    repos:
+      - https://urbio-ecology.r-universe.dev
+      - https://cloud.r-project.org
+  # Belt and braces: renv::dependencies() does find library() and :: calls, so
+  # this list is insurance on a shipped artefact. rmarkdown is the one genuine
+  # addition, for the knitr engine a report render goes through.
+  extra_packages:
+    - bslib
+    - conflicted
+    - diffviewer
+    - DT
+    - fasterize
+    - gridExtra
+    - rmarkdown
+    - shinyjs

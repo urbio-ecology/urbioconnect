@@ -3,7 +3,7 @@
 ^README\.Rmd$
 ^doc$
 ^renv$
-^rsconnect$
+(^|/)rsconnect$
 ^\.rscignore$
 ^data/\.rscignore$
 ^\.claude$
@@ -20,3 +20,4 @@
 ^AGENTS\.md$
 ^[.]?air[.]toml$
 ^\.vscode$
+^inst/shiny/_shinyelectron\.yml$
