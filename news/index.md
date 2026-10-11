@@ -2,6 +2,19 @@
 
 ## urbioconnect (development version)
 
+- The shiny app can be shipped as a desktop installer for macOS and
+  Windows, built by `shinyelectron` from a pushed version tag. The
+  installer carries its own R and its own Quarto, so someone
+  double-clicking it needs neither installed. Nothing in the package
+  changes: the installer is assembled entirely in CI.
+  ([\#147](https://github.com/urbio-ecology/urbioconnect/issues/147))
+
+- [`run_connectivity_app()`](https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.md)
+  now checks for `diffviewer` before launching. The app attaches it for
+  the Scenario tab’s compare view, so without it the check passed and
+  the app then failed to start. The check and the tests’ skip list are
+  now one vector, which is how they came to disagree.
+
 - The shiny app offers two example datasets rather than one. The Blue
   Tongue Lizard landscape is about 200x200 cells and analyses in under a
   second; the Superb Fairy Wren one is about 1500x1400 and takes tens of

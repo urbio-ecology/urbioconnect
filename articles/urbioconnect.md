@@ -384,10 +384,10 @@ areas <- habitat_connectivity(
   verbose = TRUE
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [29ms]
+#> ✔ Creating barrier mask [33ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [18ms]
+#> ✔ Removing habitat underneath barrier [24ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 10m
 #> Warning: `interpatch_distance` doesn't align with the raster resolution.
@@ -395,13 +395,13 @@ areas <- habitat_connectivity(
 #> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Buffering habitat for an interpatch distance of 10m [214ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [314ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [16ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [21ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [1.7s]
+#> ✔ Assigning patches ID to fragments [2.1s]
 #> 
 #> ℹ Summarising area in each patch
 #> ✔ Summarising area in each patch [53ms]
