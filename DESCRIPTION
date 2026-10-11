@@ -78,6 +78,8 @@ Suggests:
     withr,
     tictoc,
     ggspatial
+SystemRequirements: Quarto (>= 1.4) for the reports, which render PDF through
+    Typst; https://quarto.org/docs/get-started/
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr

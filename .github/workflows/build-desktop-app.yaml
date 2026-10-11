@@ -1,0 +1,263 @@
+# Builds inst/shiny as a desktop installer, for people who will not install R.
+# Not on every push: each installer embeds a portable R and Quarto, so it runs
+# to hundreds of megabytes.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+name: build-desktop-app.yaml
+
+permissions: read-all
+
+# A tag build must not be cancelled, and two must not race to one release.
+concurrency:
+  group: build-desktop-app-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.label }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   platform: mac, arch: arm64, exe: quarto,     tools: aarch64, label: 'macOS (Apple Silicon)'}
+          - {os: macos-15-intel, platform: mac, arch: x64,   exe: quarto,     tools: x86_64,  label: 'macOS (Intel)'}
+          - {os: windows-latest, platform: win, arch: x64,   exe: quarto.exe, tools: '',      label: 'Windows'}
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # export()'s destdir plus the directory it writes the project into
+      ELECTRON_APP: build/electron-app
+      # Keep in step with the quarto-actions/setup calls in R-CMD-check.yaml
+      # and test-coverage.yaml, or the report ships on a Quarto that CI never
+      # tested it against.
+      QUARTO_VERSION: 1.10.19
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # shinyelectron embeds a portable R of its own and installs the app's
+      # packages into that, so the runner's R needs nothing else. renv is a
+      # Suggests of shinyelectron but detect_r_dependencies() aborts without
+      # it, so pak has to be told.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            github::coatless-rpkg/shinyelectron@v0.2.1
+            any::renv
+
+      # DESCRIPTION's 0.1.0.9000 and an installer's semver are different
+      # schemes, so the two are kept in step by hand at release time.
+      - name: Take the app version from the tag
+        if: github.ref_type == 'tag'
+        shell: Rscript {0}
+        run: |
+          path <- "inst/shiny/_shinyelectron.yml"
+          tag <- Sys.getenv("GITHUB_REF_NAME")
+          version <- sub("^v", "", tag)
+
+          # Fail now, not deep into electron-builder. A "-beta1" suffix is
+          # allowed, and is what the release job reads to mark a pre-release.
+          if (!grepl("^[0-9]+[.][0-9]+[.][0-9]+([-+].*)?$", version)) {
+            stop("tag ", tag, " is not the three part semver electron-builder needs")
+          }
+
+          yml <- readLines(path)
+          line <- grep("^  version: ", yml)
+
+          if (length(line) != 1) {
+            stop("expected one version line in ", path, ", found ", length(line))
+          }
+
+          yml[line] <- paste0("  version: ", version)
+          writeLines(yml, path)
+
+      # build = FALSE skips all of build_electron_app(), leaving no runtime to
+      # add Quarto to, so Quarto goes in after this and we package again below.
+      - name: Build the Electron app
+        shell: Rscript {0}
+        run: |
+          shinyelectron::sitrep_shinyelectron()
+          shinyelectron::export(
+            appdir = "inst/shiny",
+            destdir = "build",
+            platform = "${{ matrix.config.platform }}",
+            arch = "${{ matrix.config.arch }}",
+            overwrite = TRUE,
+            verbose = TRUE
+          )
+
+      # runtime/ is in electron-builder's files and asarUnpack lists, so a
+      # Quarto here lands on the real filesystem in the installed app, two
+      # levels up from the bundled R that looks for it.
+      - name: Add the Quarto command line tool to the runtime
+        run: |
+          set -euo pipefail
+          base="https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}"
+          dest="$ELECTRON_APP/runtime/quarto"
+
+          # mkdir -p would otherwise happily create runtime/ wherever it has
+          # moved to, putting Quarto outside electron-builder's files list and
+          # shipping an installer that silently cannot render a report.
+          if [ ! -d "$ELECTRON_APP/runtime" ]; then
+            echo "::error::no $ELECTRON_APP/runtime; the bundled layout moved"
+            exit 1
+          fi
+
+          work="${{ runner.temp }}/quarto"
+          rm -rf "$work"
+          mkdir -p "$work/extract" "$dest"
+
+          if [ "${{ runner.os }}" = macOS ]; then
+            curl -fsSL "$base/quarto-${QUARTO_VERSION}-macos.tar.gz" | tar -xz -C "$work/extract"
+          else
+            curl -fsSL "$base/quarto-${QUARTO_VERSION}-win.zip" -o "$work/quarto.zip"
+            unzip -q "$work/quarto.zip" -d "$work/extract"
+          fi
+
+          # Found, not assumed: the macOS archive has no versioned top
+          # directory and the Windows one does. Nothing, or more than one,
+          # fails the -d.
+          bin=$(find "$work/extract" -maxdepth 2 -type d -name bin)
+
+          if [ ! -d "$bin" ]; then
+            echo "::error::expected one bin/ in the Quarto archive, found: $bin"
+            exit 1
+          fi
+
+          # -p so the binaries stay executable
+          cp -Rp "$(dirname "$bin")"/. "$dest"/
+          rm -rf "$work"
+
+          "$dest/bin/${{ matrix.config.exe }}" --version
+
+      # The macOS Quarto is universal: bin/tools carries both architectures at
+      # roughly 300 MB each, and only one is ever run. Stops the build if the
+      # one to keep has been renamed, which would quietly ship both.
+      - name: Drop the Quarto tools for the other architecture
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          tools="$ELECTRON_APP/runtime/quarto/bin/tools"
+          keep='${{ matrix.config.tools }}'
+
+          if [ ! -d "$tools/$keep" ]; then
+            echo "::error::expected $tools/$keep, found: $(ls "$tools" 2>&1)"
+            exit 1
+          fi
+
+          find "$tools" -mindepth 1 -maxdepth 1 -type d ! -name "$keep" -exec rm -rf {} +
+          du -sh "$tools"
+
+      # Appended, never overwritten: the portable R's own Rprofile.site sets
+      # the library path, and resets it on Windows, so this has to run after.
+      - name: Point the bundled R at the bundled Quarto
+        shell: Rscript {0}
+        run: |
+          # The snippet's own tryCatch cannot catch a parse error, which would
+          # stop every R in the installer starting. Caught here instead.
+          invisible(parse(".github/scripts/bundled-quarto-profile.R"))
+
+          site <- Sys.glob(file.path(
+            Sys.getenv("ELECTRON_APP"),
+            "runtime",
+            "R",
+            "*",
+            "etc",
+            "Rprofile.site"
+          ))
+
+          if (length(site) != 1) {
+            stop("expected one bundled Rprofile.site, found ", length(site))
+          }
+
+          # leading "" so the append starts on its own line
+          cat(
+            c("", readLines(".github/scripts/bundled-quarto-profile.R")),
+            file = site,
+            sep = "\n",
+            append = TRUE
+          )
+
+      # Renders a real report with the installer's own R, which is the only
+      # check here that tests the contract rather than its parts. A script file
+      # rather than -e, which segfaults on Windows R under Git Bash.
+      - name: Check the bundled app can render a report
+        shell: Rscript {0}
+        run: |
+          rscript <- Sys.glob(file.path(
+            Sys.getenv("ELECTRON_APP"),
+            "runtime",
+            "R",
+            "*",
+            "bin",
+            "Rscript*"
+          ))
+
+          if (length(rscript) != 1) {
+            stop("expected one bundled Rscript, found ", length(rscript))
+          }
+
+          script <- normalizePath(".github/scripts/check-bundled-app.R")
+
+          if (system2(rscript, shQuote(script)) != 0) {
+            stop("the bundled app could not render a report")
+          }
+
+      - name: Package the installer again, with Quarto inside
+        working-directory: ${{ env.ELECTRON_APP }}
+        run: |
+          set -euo pipefail
+          # the first pass built an installer with no Quarto in it
+          rm -rf dist
+          npm run build-${{ matrix.config.platform }}-${{ matrix.config.arch }}
+          ls -lh dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: urban-connectedness-${{ matrix.config.platform }}-${{ matrix.config.arch }}
+          # dist/ also holds the unpacked tree, over a gigabyte of it
+          path: |
+            ${{ env.ELECTRON_APP }}/dist/*.dmg
+            ${{ env.ELECTRON_APP }}/dist/*.exe
+          if-no-files-found: error
+          # a DMG and an NSIS installer are already compressed
+          compression-level: 0
+
+  release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: installers
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: installers/**/*
+          generate_release_notes: true
+          # the installers are unsigned, so look at the release before it goes public
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

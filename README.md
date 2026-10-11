@@ -10,6 +10,7 @@
 version](https://urbio-ecology.r-universe.dev/urbioconnect/badges/version)](https://urbio-ecology.r-universe.dev/urbioconnect)
 [![Codecov test
 coverage](https://codecov.io/gh/urbio-ecology/urbioconnect/graph/badge.svg)](https://app.codecov.io/gh/urbio-ecology/urbioconnect)
+[![build-desktop-app](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml/badge.svg)](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml)
 <!-- badges: end -->
 
 `urbioconnect` provides tools to quantify ecological connectivity for

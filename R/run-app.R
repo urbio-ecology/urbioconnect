@@ -21,16 +21,32 @@ run_connectivity_app <- function() {
     )
   }
 
-  pkgs_for_shiny_app <- c(
-    "DT",
+  rlang::check_installed(app_packages())
+
+  shiny::runApp(app_dir)
+}
+
+#' Packages the Shiny app needs that urbioconnect only suggests
+#'
+#' `global.R` attaches all of these but `gridExtra`, which `server.R` reaches
+#' through `::`. They are Suggests, so an install need not have them, which is
+#' why [run_connectivity_app()] checks before launching and the tests skip
+#' without them.
+#'
+#' One vector because the two lists had drifted: the launch check was missing
+#' `diffviewer`, so it passed and then `global.R` failed to attach it, and the
+#' tests were missing `gridExtra`, so they errored rather than skipping.
+#'
+#' @returns A character vector of package names.
+#' @noRd
+app_packages <- function() {
+  c(
     "bslib",
     "conflicted",
+    "diffviewer",
+    "DT",
     "fasterize",
     "gridExtra",
     "shinyjs"
   )
-
-  rlang::check_installed(pkgs_for_shiny_app)
-
-  shiny::runApp(app_dir)
 }
