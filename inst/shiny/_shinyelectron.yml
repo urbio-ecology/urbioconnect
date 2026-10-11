@@ -33,9 +33,12 @@ dependencies:
     repos:
       - https://urbio-ecology.r-universe.dev
       - https://cloud.r-project.org
-  # Belt and braces: renv::dependencies() does find library() and :: calls, so
-  # this list is insurance on a shipped artefact. rmarkdown is the one genuine
-  # addition, for the knitr engine a report render goes through.
+  # The scan only reads the app directory, so it cannot see a Suggests that
+  # urbioconnect's own code reaches for: marquee is one, used by
+  # gg_connectivity_summary() through element_marquee(), and its absence
+  # failed every report render in the first build. rmarkdown is the other, for
+  # the knitr engine. The rest the scan does find, and are kept as insurance
+  # on an artefact that has to work on someone else's machine.
   extra_packages:
     - bslib
     - conflicted
@@ -43,5 +46,6 @@ dependencies:
     - DT
     - fasterize
     - gridExtra
+    - marquee
     - rmarkdown
     - shinyjs

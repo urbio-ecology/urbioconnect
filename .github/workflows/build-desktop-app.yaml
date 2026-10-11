@@ -202,17 +202,23 @@ jobs:
       - name: Check the bundled app can render a report
         shell: Rscript {0}
         run: |
+          # Named exactly, not Rscript*: portable-r ships Rscript alongside
+          # Rscript.bin on macOS, and a wildcard matches both.
           rscript <- Sys.glob(file.path(
             Sys.getenv("ELECTRON_APP"),
             "runtime",
             "R",
             "*",
             "bin",
-            "Rscript*"
+            if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript"
           ))
 
           if (length(rscript) != 1) {
-            stop("expected one bundled Rscript, found ", length(rscript))
+            stop(
+              "expected one bundled Rscript, found ",
+              length(rscript),
+              if (length(rscript)) paste0(": ", paste(rscript, collapse = ", "))
+            )
           }
 
           script <- normalizePath(".github/scripts/check-bundled-app.R")
