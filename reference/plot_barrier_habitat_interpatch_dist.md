@@ -20,7 +20,7 @@ plot_barrier_habitat_interpatch_dist(
   col_barrier = urbio_colours()$barrier,
   col_interpatch_dist = urbio_colours()$interpatch_distance,
   col_habitat = urbio_colours()$habitat,
-  col_paper = NA
+  col_paper = "grey96"
 )
 ```
 
@@ -54,21 +54,20 @@ plot_barrier_habitat_interpatch_dist(
 
 - col_barrier:
 
-  colour to colour the barrier layer. Defaults to the package palette,
-  see
+  colour of barrier layer. Defaults to package palette, see
   [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md).
 
 - col_interpatch_dist:
 
-  colour to colour the interpatch distance layer
+  colour of interpatch distance layer
 
 - col_habitat:
 
-  colour to colour the habitat layer
+  colour of habitat layer
 
 - col_paper:
 
-  colour to colour the paper layer of ggplot
+  colour of paper layer of ggplot. Default "grey96".
 
 ## Value
 
