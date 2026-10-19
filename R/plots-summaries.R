@@ -105,9 +105,6 @@ gg_barrier_habitat_interpatch_dist <- function(
         "With a {interpatch_distance}m interpatch distance, and barrier shown"
       )
     ) +
-    ggplot2::theme_sub_plot(
-      title = marquee::element_marquee()
-    ) +
     ggplot2::theme_sub_axis(
       text = ggplot2::element_blank(),
       ticks = ggplot2::element_blank()
