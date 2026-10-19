@@ -13,7 +13,7 @@ gg_barrier_habitat_interpatch_dist(
   col_barrier = urbio_colours()$barrier,
   col_interpatch_dist = urbio_colours()$interpatch_distance,
   col_habitat = urbio_colours()$habitat,
-  col_paper = NA
+  col_paper = "grey96"
 )
 }
 \arguments{

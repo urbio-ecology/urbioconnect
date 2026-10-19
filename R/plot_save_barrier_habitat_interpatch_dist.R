@@ -9,11 +9,11 @@
 #' @param habitat habitat layer
 #' @param buffered buffered layer
 #' @param species character, species name, e.g., "Superb Fairy Wren"
-#' @param col_barrier colour to colour the barrier layer. Defaults to the
-#'   package palette, see [urbio_colours()].
-#' @param col_interpatch_dist colour to colour the interpatch distance layer
-#' @param col_habitat colour to colour the habitat layer
-#' @param col_paper colour to colour the paper layer of ggplot
+#' @param col_barrier colour of barrier layer. Defaults to package palette, see
+#' [urbio_colours()].
+#' @param col_interpatch_dist colour of interpatch distance layer
+#' @param col_habitat colour of habitat layer
+#' @param col_paper colour of paper layer of ggplot. Default "grey96".
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
 #'   are connected, those 501m apart are not connected. This is passed
@@ -52,7 +52,7 @@ plot_barrier_habitat_interpatch_dist <- function(
   col_barrier = urbio_colours()$barrier,
   col_interpatch_dist = urbio_colours()$interpatch_distance,
   col_habitat = urbio_colours()$habitat,
-  col_paper = NA
+  col_paper = "grey96"
 ) {
   # slugified, so a species with a space in it still gives a clean file name
   path <- as.character(glue::glue(

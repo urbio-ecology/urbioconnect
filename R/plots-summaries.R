@@ -70,7 +70,7 @@ gg_barrier_habitat_interpatch_dist <- function(
   col_barrier = urbio_colours()$barrier,
   col_interpatch_dist = urbio_colours()$interpatch_distance,
   col_habitat = urbio_colours()$habitat,
-  col_paper = NA
+  col_paper = "grey96"
 ) {
   # First, reclassify your rasters to assign actual color values
   barrier_coloured <- terra::subst(barrier, 1, col_barrier)

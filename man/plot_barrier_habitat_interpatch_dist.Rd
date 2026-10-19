@@ -13,7 +13,7 @@ plot_barrier_habitat_interpatch_dist(
   col_barrier = urbio_colours()$barrier,
   col_interpatch_dist = urbio_colours()$interpatch_distance,
   col_habitat = urbio_colours()$habitat,
-  col_paper = NA
+  col_paper = "grey96"
 )
 }
 \arguments{
@@ -33,14 +33,14 @@ distance of 500 will be converted to 250.}
 
 \item{species}{character, species name, e.g., "Superb Fairy Wren"}
 
-\item{col_barrier}{colour to colour the barrier layer. Defaults to the
-package palette, see \code{\link[=urbio_colours]{urbio_colours()}}.}
+\item{col_barrier}{colour of barrier layer. Defaults to package palette, see
+\code{\link[=urbio_colours]{urbio_colours()}}.}
 
-\item{col_interpatch_dist}{colour to colour the interpatch distance layer}
+\item{col_interpatch_dist}{colour of interpatch distance layer}
 
-\item{col_habitat}{colour to colour the habitat layer}
+\item{col_habitat}{colour of habitat layer}
 
-\item{col_paper}{colour to colour the paper layer of ggplot}
+\item{col_paper}{colour of paper layer of ggplot. Default "grey96".}
 }
 \value{
 Named character vector. The file path, named by the interpatch
