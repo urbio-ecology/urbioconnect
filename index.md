@@ -48,7 +48,7 @@ run_connectivity_app()
 ```
 
 A hosted version is available at:
-<https://njtierney.shinyapps.io/urbioconnect/>
+<https://njtierney-urbioconnect.share.connect.posit.cloud/>
 
 You do not need the shiny app to perform analyses. All functions have
 been designed to work together in a pipeline - see example usage below.
@@ -79,7 +79,7 @@ pak::pak("urbio-ecology/urbioconnect")
 
 library(urbioconnect)
 library(terra)
-#> terra 1.9.34
+#> terra 1.9.50
 
 # load example habitat and barrier rasters
 habitat <- example_habitat()
@@ -109,34 +109,34 @@ areas <- habitat_connectivity(
   interpatch_distance = 10
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [60ms]
+#> ✔ Creating barrier mask [43ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [21ms]
+#> ✔ Removing habitat underneath barrier [18ms]
 #> 
-#> ℹ Adding 5m buffer (interpatch distance 10m)
-#> Warning: Buffer radius doesn't align with the raster resolution.
-#> ✖ 5 m isn't a multiple of 2 m.
-#> ℹ It snaps to 4 m (interpatch distance 8 m).
+#> ℹ Buffering habitat for an interpatch distance of 10m
+#> Warning: `interpatch_distance` doesn't align with the raster resolution.
+#> ✖ 10 m isn't a multiple of 4 m.
+#> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Adding 5m buffer (interpatch distance 10m) [126ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [86ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [20ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [14ms]
 #> 
 #> ℹ Assigning patches ID to fragments
 #> ✔ Assigning patches ID to fragments [1.1s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [147ms]
+#> ✔ Summarising area in each patch [129ms]
 #> 
 
 areas
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703                 4           0.000015
+#> 1 Blue-tongu…                  10       703              3.92          0.0000149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
