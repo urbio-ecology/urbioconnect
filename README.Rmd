@@ -57,7 +57,7 @@ library(urbioconnect)
 run_connectivity_app()
 ```
 
-A hosted version is available at: <https://njtierney.shinyapps.io/urbioconnect/>
+A hosted version is available at: <https://njtierney-urbioconnect.share.connect.posit.cloud/>
 
 You do not need the shiny app to perform analyses. All functions have been designed to work together in a pipeline - see example usage below.
 
