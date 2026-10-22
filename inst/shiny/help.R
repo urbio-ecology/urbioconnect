@@ -133,6 +133,13 @@ help_paragraphs <- function(id) {
   tagList(purrr::map(input_help[[id]]$help, \(text) p(squish(text))))
 }
 
+# For the Before you start page: each input's explanation under its label
+help_sections <- function(ids) {
+  tagList(purrr::map(ids, function(id) {
+    tagList(h5(input_help[[id]]$label), help_paragraphs(id))
+  }))
+}
+
 squish <- function(text) {
   gsub("\\s+", " ", trimws(text))
 }

@@ -133,6 +133,16 @@ server <- function(input, output, session) {
     distances
   })
 
+  # Before you start ----
+
+  observeEvent(input$go_to_inputs, nav_select("main_nav", "Inputs"))
+
+  # straight to a landscape that runs in a second, ready to click Run
+  observeEvent(input$try_lizard, {
+    updateSelectInput(session, "example_data", selected = "lizard")
+    nav_select("main_nav", "Inputs")
+  })
+
   # Your analysis ----
 
   # The layers, as the Your analysis card names them. NULL until there are

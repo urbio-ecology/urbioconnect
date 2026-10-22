@@ -25,10 +25,18 @@ test_that("the app starts, takes an analysis, and compares the result", {
     ","
   )[[1]])
 
-  expect_in(c("Inputs", "Results", "Downloads", "About"), tabs)
+  expect_in(c("Before you start", "Inputs", "Results", "Downloads"), tabs)
 
   # the scenario controls are an input, so they live on Inputs, not a tab
   expect_false("Scenarios" %in% tabs)
+  # and Before you start took in what About said
+  expect_false("About" %in% tabs)
+
+  # the app opens on the walkthrough, and one click skips it
+  expect_equal(app$get_value(input = "main_nav"), "Before you start")
+  app$click("go_to_inputs")
+  app$wait_for_idle()
+  expect_equal(app$get_value(input = "main_nav"), "Inputs")
 
   visible <- function(selector) {
     app$get_js(paste0('$("', selector, '").is(":visible")'))
@@ -89,11 +97,15 @@ test_that("the app starts, takes an analysis, and compares the result", {
   # see that they stay apart
   # the lizard example dataset and its own scenario, both chosen rather than
   # uploaded: that is the path a user takes, and it analyses in under a
-  # second. Choosing the dataset fills in the species and reloads the
-  # scenario choices, which is behaviour only a browser exercises.
-  app$set_inputs(example_data = "lizard")
+  # second. Before you start's button chooses the dataset and opens Inputs;
+  # choosing it fills in the species and reloads the scenario choices, which
+  # is behaviour only a browser exercises.
+  app$set_inputs(main_nav = "Before you start")
+  app$click("try_lizard")
   app$wait_for_idle()
 
+  expect_equal(app$get_value(input = "main_nav"), "Inputs")
+  expect_equal(app$get_value(input = "example_data"), "lizard")
   expect_equal(app$get_value(input = "species"), "Blue Tongue Lizard")
 
   app$set_inputs(
