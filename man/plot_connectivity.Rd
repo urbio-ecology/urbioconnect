@@ -2,21 +2,48 @@
 % Please edit documentation in R/plots-summaries.R
 \name{plot_connectivity}
 \alias{plot_connectivity}
+\alias{plot_connectivity.default}
+\alias{plot_connectivity.compare_connectivity}
 \title{Plot connectivity metrics across interpatch distances}
 \usage{
-plot_connectivity(results_connect_habitat)
+plot_connectivity(x, ...)
+
+\method{plot_connectivity}{default}(x, ...)
+
+\method{plot_connectivity}{compare_connectivity}(x, ...)
 }
 \arguments{
-\item{results_connect_habitat}{Data frame. Connectivity summary results with
-columns for species, interpatch distance, and various metrics.}
+\item{x}{A \code{connectivity} object, from \code{\link[=habitat_connectivity]{habitat_connectivity()}} or
+\code{\link[=summarise_connectivity]{summarise_connectivity()}}, with a row per interpatch distance. Or a
+\code{compare_connectivity} object, from \code{\link[=compare_connectivity]{compare_connectivity()}},
+\code{\link[=compare_scenarios]{compare_scenarios()}}, \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} or
+\code{\link[=habitat_connectivity_scenarios]{habitat_connectivity_scenarios()}}, with up to five scenarios. A scenario
+is labelled by its \code{scenario_name}, or "Scenario" when it has none.}
+
+\item{...}{Not used.}
 }
 \value{
-A ggplot2 object with faceted plots of connectivity metrics.
+A ggplot2 object with a panel per connectivity metric.
 }
 \description{
-Creates faceted line plots showing how connectivity metrics change with
-different interpatch distances. This works best when you have multiple
-interpatch distances, otherwise it will just be a plot with one point.
+Draws how the connectivity metrics change with the interpatch distance: a
+panel per metric, each on its own scale, with a point per distance joined
+by a line. A single distance is a single point.
+}
+\details{
+Given a \code{connectivity} object, it draws one line. Given a
+\code{compare_connectivity} object, it draws the baseline and each scenario as
+a line of its own, in the same panels, so you can see where a scenario
+departs from the baseline and whether that holds across distances.
+
+The four metrics are \code{n_patches}, \code{prob_connectedness}, \code{patch_area_mean}
+and \code{patch_area_total_ha}. \code{effective_mesh_ha} is left out because it is
+\code{prob_connectedness} multiplied by the habitat area, which is the same at
+every distance, so its panel would have the same shape.
+
+Values are drawn as they are. In a comparison, \code{prob_connectedness} is
+measured against the baseline's habitat area, so a scenario that adds
+habitat can score above 1, and the plot shows that rather than capping it.
 }
 \examples{
 lizard_habitat <- example_habitat()
@@ -35,4 +62,20 @@ results <- purrr::map(
   }
 ) |> purrr::list_rbind()
 plot_connectivity(results)
+
+# a scenario against its baseline
+baseline <- summarise_connectivity(lizard_areas_connected)
+compare_scenarios(
+  baseline = baseline,
+  scenarios = list(
+    "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
+    "Barrier upgrade" = summarise_connectivity(
+      lizard_areas_connected[-(1:5), ]
+    )
+  )
+) |>
+  plot_connectivity()
+}
+\seealso{
+\code{\link[=connectivity_display]{connectivity_display()}} for a comparison as a table.
 }

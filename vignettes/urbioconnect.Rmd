@@ -332,6 +332,8 @@ plot_connectivity(all_results)
 
 `plot_connectivity()` produces a faceted ggplot2 figure showing each connectivity metric (number of patches, probability of connectedness, mean patch area, total habitat area) as a function of interpatch distance.
 
+Give it a scenario comparison instead, from `compare_connectivity()`, `compare_scenarios()`, `habitat_connectivity_comparison()` or `habitat_connectivity_scenarios()`, and it draws the baseline and each scenario as a line of their own in the same panels, so you can see where a scenario departs from the baseline.
+
 ## Summary
 
 The core raster workflow in `urbioconnect` is:
