@@ -49,10 +49,10 @@ test_that("connectivity_probability with single large patch equals single small 
   effective_mesh_large <- effective_mesh_size(
     area = large_area
   )
-  # For one patch: prob = (A^2/A * 0.0001) / A = 0.0001 regardless of area
+  # one patch is wholly connected to itself, whatever its area
   small <- connectivity_probability(effective_mesh_small, small_area)
   large <- connectivity_probability(effective_mesh_large, large_area)
 
   expect_equal(small, large)
-  expect_equal(small, 0.0001)
+  expect_equal(small, 1)
 })

@@ -108,8 +108,9 @@ total_habitat_area <- function(area) {
 #'   )
 #' @export
 connectivity_probability <- function(effective_mesh_size, area_baseline) {
-  total_habitat <- sum(area_baseline)
-  prob_connect <- effective_mesh_size / total_habitat
+  # effective_mesh_size() is in hectares, so the denominator must be too
+  total_habitat_ha <- total_habitat_area(area_baseline)
+  prob_connect <- effective_mesh_size / total_habitat_ha
   prob_connect
 }
 

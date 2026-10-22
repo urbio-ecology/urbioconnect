@@ -42,7 +42,7 @@
       # A tibble: 1 x 9
         species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
         <chr>                     <dbl>     <int>             <dbl>              <dbl>
-      1 Test Speci~                  40         3             0.915          0.0000367
+      1 Test Speci~                  40         3             0.915              0.367
       # i 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
       #   data_resolution <chr>, patch_size <list>
       
@@ -149,10 +149,10 @@
       4 <NA>          pct_change Test Species                  40         0
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1             0.915          0.0000367           8322.                2.50
-      2             0.915          0.0000367           8322.                2.50
-      3             0              0                      0                 0   
-      4             0              0                      0                 0   
+      1             0.915              0.367           8322.                2.50
+      2             0.915              0.367           8322.                2.50
+      3             0                  0                  0                 0   
+      4             0                  0                  0                 0   
         data_resolution
         <chr>          
       1 10x10          

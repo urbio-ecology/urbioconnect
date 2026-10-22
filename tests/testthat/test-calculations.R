@@ -57,6 +57,39 @@ test_that("connectivity_probability is higher for unfragmented habitat", {
   expect_gt(frag, 0)
 })
 
+test_that("connectivity_probability is 1 for a single unfragmented patch", {
+  # both terms are the whole landscape, so the units have to cancel
+  expect_equal(
+    connectivity_probability(
+      effective_mesh_size = effective_mesh_size(area = 10000),
+      area_baseline = 10000
+    ),
+    1
+  )
+})
+
+test_that("connectivity_probability is effective mesh over total area", {
+  area <- lizard_areas_connected$area
+  expect_equal(
+    connectivity_probability(
+      effective_mesh_size = effective_mesh_size(area = area),
+      area_baseline = area
+    ),
+    effective_mesh_size(area = area) / total_habitat_area(area = area)
+  )
+})
+
+test_that("connectivity_probability stays within 0 and 1", {
+  area <- lizard_areas_connected$area
+  prob <- connectivity_probability(
+    effective_mesh_size = effective_mesh_size(area = area),
+    area_baseline = area
+  )
+  expect_gte(prob, 0)
+  expect_lte(prob, 1)
+  expect_snapshot(round(prob, 6))
+})
+
 test_that("summarise_connectivity returns a tibble with expected columns", {
   result <- summarise_connectivity(
     connectivity = 10000,
