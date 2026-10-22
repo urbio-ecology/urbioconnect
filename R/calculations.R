@@ -1,11 +1,11 @@
 #' Calculate effective mesh size
 #'
-#' Computes the effective mesh size metric for habitat connectivity, This
-#'   represents the probability that two randomly chosen points within habitat
-#'   remain connected. Intended for usage from objects created by
-#'   [habitat_connectivity()]. See examples below.
+#' Computes the effective mesh size metric for habitat connectivity. This is
+#'   the expected area of habitat reachable from a randomly chosen point in
+#'   habitat without crossing a barrier. Intended for usage from objects
+#'   created by [habitat_connectivity()]. See examples below.
 #'
-#' @param area Numeric vector. Area of connected patches.
+#' @param area Numeric vector. Area of each connected patch, in square metres.
 #' @param area_baseline Optional. Defaults to `area` if not specified.
 #'   Numeric vector of connected patches of a baseline area. This is to allow
 #'   for comparing the effective mesh size when comparing different scenarios.
@@ -59,12 +59,12 @@ n_patches <- function(area) {
 
 #' Calculate total habitat area
 #'
-#' Calculate the total habitat area in hectars. A wrapper around summing the
+#' Calculate the total habitat area in hectares. A wrapper around summing the
 #'   area and multiplying by 0.0001 to give the units in hectares. Intended
 #'   for usage from objects created by [habitat_connectivity()]. See examples
 #'   below.
 #'
-#' @param area Numeric vector. Area of a connected patch.
+#' @param area Numeric vector. Area of each connected patch, in square metres.
 #'
 #' @returns Numeric. Total habitat area in hectares.
 #' @examples
@@ -78,39 +78,38 @@ total_habitat_area <- function(area) {
 
 #' Calculate connectivity probability
 #'
-#' Computes the probability two randomly chosen points within habitat
-#' are connected, accounting for fragmentation. This requires the effective
-#' mesh size (via [effective_mesh_size()]), and the area of patches. This means
-#' that you can calculate the change in connectivity if you calculate the
-#' effective mesh size of a new habitat/barrier plan, and then use the baseline
+#' Computes the probability that two randomly chosen points within habitat are
+#' connected, accounting for fragmentation. This is the effective mesh size
+#' divided by the total habitat area, both in hectares.
 #'
-#' @param effective_mesh_size As calculated by [effective_mesh_size()]
-#' @param area_baseline Numeric vector. Area of a connected patch. This
-#'  argument is called "baseline" as when you are doing design scenarios you
-#'  must refer to the baseline area when calculating connectivity probability.
-#'  See vignette, TODO.
+#' To compare a design scenario against a baseline, pass the scenario's
+#' effective mesh size, measured against the baseline areas, and the
+#' baseline's total habitat area.
 #'
-#' @returns Numeric. Probability of connectedness (0-1).
+#' @param effective_mesh_ha Number. Effective mesh size in hectares, as
+#'   returned by [effective_mesh_size()].
+#' @param area_baseline_ha Number. Total habitat area of the baseline landscape
+#'   in hectares, as returned by [total_habitat_area()].
+#'
+#' @returns Numeric. Probability of connectedness, between 0 and 1.
 #' @examples
-#' effective_mesh <- effective_mesh_size(
-#'   area = lizard_areas_connected$area
-#'   )
+#' area <- lizard_areas_connected$area
 #' connectivity_probability(
-#'   effective_mesh_size = effective_mesh,
-#'   area_baseline = lizard_areas_connected$area
-#'   )
-#' # if you wanted to compare to a scenario, you would consider the effective
-#' # mesh size to be the new scenario level, and the baseline as so:
+#'   effective_mesh_ha = effective_mesh_size(area),
+#'   area_baseline_ha = total_habitat_area(area)
+#' )
+#' # a scenario that loses the first patch, measured against the baseline
+#' scenario_area <- area[-1]
+#' scenario_mesh_ha <- effective_mesh_size(scenario_area, area_baseline = area)
 #' connectivity_probability(
-#' # scenario 1
-#'   effective_mesh_size = effective_mesh,
-#'   area_baseline = lizard_areas_connected$area
-#'   )
+#'   effective_mesh_ha = scenario_mesh_ha,
+#'   area_baseline_ha = total_habitat_area(area)
+#' )
 #' @export
-connectivity_probability <- function(effective_mesh_size, area_baseline) {
-  # effective_mesh_size() is in hectares, so the denominator must be too
-  total_habitat_ha <- total_habitat_area(area_baseline)
-  prob_connect <- effective_mesh_size / total_habitat_ha
+connectivity_probability <- function(effective_mesh_ha, area_baseline_ha) {
+  check_scalar_numeric(effective_mesh_ha)
+  check_scalar_numeric(area_baseline_ha)
+  prob_connect <- effective_mesh_ha / area_baseline_ha
   prob_connect
 }
 
@@ -124,8 +123,8 @@ connectivity_metrics <- function(area, area_baseline) {
       area_baseline = area_baseline
     ),
     prob_connectedness = connectivity_probability(
-      effective_mesh_size = effective_mesh_ha,
-      area_baseline = area_baseline
+      effective_mesh_ha = effective_mesh_ha,
+      area_baseline_ha = total_habitat_area(area_baseline)
     )
   )
 

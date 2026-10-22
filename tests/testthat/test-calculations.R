@@ -38,56 +38,48 @@ test_that("total_habitat_area converts square metres to hectares", {
 })
 
 test_that("connectivity_probability is higher for unfragmented habitat", {
-  unfrag_area <- 1000
-  frag_area <- 5000
-
-  effective_mesh_unfrag <- effective_mesh_size(area = unfrag_area)
-  effective_mesh_frag <- effective_mesh_size(area = frag_area)
-
+  # the same 1 ha, whole and then split in two
   unfrag <- connectivity_probability(
-    effective_mesh_size = effective_mesh_unfrag,
-    area_baseline = unfrag_area
+    effective_mesh_ha = effective_mesh_size(area = 10000),
+    area_baseline_ha = total_habitat_area(area = 10000)
   )
   frag <- connectivity_probability(
-    effective_mesh_size = effective_mesh_frag,
-    area_baseline = c(frag_area, frag_area)
+    effective_mesh_ha = effective_mesh_size(area = c(5000, 5000)),
+    area_baseline_ha = total_habitat_area(area = c(5000, 5000))
   )
   expect_gt(unfrag, frag)
-  expect_gt(unfrag, 0)
-  expect_gt(frag, 0)
 })
 
-test_that("connectivity_probability is 1 for a single unfragmented patch", {
-  # both terms are the whole landscape, so the units have to cancel
-  expect_equal(
-    connectivity_probability(
-      effective_mesh_size = effective_mesh_size(area = 10000),
-      area_baseline = 10000
-    ),
-    1
-  )
-})
-
-test_that("connectivity_probability is effective mesh over total area", {
+test_that("connectivity_probability matches the unitless formula from areas", {
+  # the hectare conversions in both helpers must cancel
   area <- lizard_areas_connected$area
   expect_equal(
     connectivity_probability(
-      effective_mesh_size = effective_mesh_size(area = area),
-      area_baseline = area
+      effective_mesh_ha = effective_mesh_size(area = area),
+      area_baseline_ha = total_habitat_area(area = area)
     ),
-    effective_mesh_size(area = area) / total_habitat_area(area = area)
+    sum(area^2) / sum(area)^2
   )
 })
 
 test_that("connectivity_probability stays within 0 and 1", {
   area <- lizard_areas_connected$area
   prob <- connectivity_probability(
-    effective_mesh_size = effective_mesh_size(area = area),
-    area_baseline = area
+    effective_mesh_ha = effective_mesh_size(area = area),
+    area_baseline_ha = total_habitat_area(area = area)
   )
   expect_gte(prob, 0)
   expect_lte(prob, 1)
   expect_snapshot(round(prob, 6))
+})
+
+test_that("connectivity_probability errors on a vector of patch areas", {
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(
+      effective_mesh_ha = 1,
+      area_baseline_ha = lizard_areas_connected$area
+    )
+  })
 })
 
 test_that("summarise_connectivity returns a tibble with expected columns", {

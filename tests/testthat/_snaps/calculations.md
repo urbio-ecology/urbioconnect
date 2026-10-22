@@ -5,6 +5,16 @@
     Output
       [1] 0.170221
 
+# connectivity_probability errors on a vector of patch areas
+
+    Code
+      connectivity_probability(effective_mesh_ha = 1, area_baseline_ha = lizard_areas_connected$
+        area)
+    Condition
+      Error in `connectivity_probability()`:
+      ! `area_baseline_ha` must be a scalar (length 1), not length 73.
+      i Did you mean to pass a single value?
+
 # summarise_connectivity returns a tibble with expected columns
 
     Code
