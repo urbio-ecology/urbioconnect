@@ -42,3 +42,30 @@
       i Connectivity may shift for patches near the cut-off.
       i See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
 
+# representable_distance() is the distance habitat_buffer()'s window spans
+
+    Code
+      representable_distance(distances, 10)
+    Output
+      [1]    0   20  100  240 1000
+
+# representable_distance() checks its arguments
+
+    Code
+      representable_distance("100", 10)
+    Condition
+      Error in `representable_distance()`:
+      ! `interpatch_distance` must be <numeric>, not <character>.
+      i You supplied: a string
+    Code
+      representable_distance(100, c(10, 20))
+    Condition
+      Error in `representable_distance()`:
+      ! `resolution` must be a scalar (length 1), not length 2.
+      i Did you mean to pass a single value?
+    Code
+      representable_distance(100, 0)
+    Condition
+      Error in `representable_distance()`:
+      ! `resolution` must be a positive number, not 0.
+

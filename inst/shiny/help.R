@@ -100,7 +100,8 @@ input_help <- list(
       experts on your species.",
       "Distances are measured in whole cells, so each is rounded down to a
       multiple of twice the cell size: at 10 m cells, 250 m is treated as
-      240 m. Each must be at least twice the cell size."
+      240 m. Each must be at least twice the cell size. The Your analysis box
+      above the Run button warns you when either happens."
     )
   )
 )
@@ -146,3 +147,193 @@ input_help_head <- tagList(
     "$(document).on('click', '.input-help', function(e) { e.preventDefault(); });"
   ))
 )
+
+# What the inputs add up to, in words, before anything runs: a few sentences,
+# and a warning for each setting that won't do what it looks like. Plain
+# values in, so it is tested without a session. `data` names the layers, or is
+# NULL before there are any; `scenario` is a list of `name` and `kind`.
+describe_analysis <- function(
+  data,
+  data_resolution,
+  distances,
+  scenario = NULL
+) {
+  treated_as <- representable_distance(distances, data_resolution)
+
+  list(
+    summary = c(
+      describe_data(data, data_resolution),
+      describe_distances(distances),
+      describe_scenario(scenario)
+    ),
+    warnings = c(
+      too_short(distances[treated_as == 0], data_resolution),
+      rounded(distances, treated_as, data_resolution),
+      too_many(distances)
+    )
+  )
+}
+
+describe_data <- function(data, data_resolution) {
+  grid <- paste0("on a grid of ", metres(data_resolution), " cells")
+
+  if (is.null(data)) {
+    return(paste0(
+      "Choose example data, or upload a habitat and a barrier layer. The ",
+      "analysis runs ",
+      grid,
+      "."
+    ))
+  }
+
+  paste0(data, ", ", grid, ".")
+}
+
+describe_distances <- function(distances) {
+  if (length(distances) == 1) {
+    return(paste0(
+      "Patches up to ",
+      metres(distances),
+      " apart are joined, unless a barrier lies between them."
+    ))
+  }
+
+  paste0(
+    "The analysis runs once for each of ",
+    length(distances),
+    " interpatch distances: ",
+    metres(distances),
+    ". At each, patches up to that distance apart are joined, unless a ",
+    "barrier lies between them."
+  )
+}
+
+describe_scenario <- function(scenario) {
+  if (is.null(scenario)) {
+    return(character())
+  }
+
+  # an upload names its file once there is one
+  name <- if (is.null(scenario$name)) {
+    "your scenario layer"
+  } else {
+    paste0('"', scenario$name, '"')
+  }
+
+  paste0(
+    "Then it runs again with ",
+    name,
+    " in place of the ",
+    scenario$kind,
+    " layer, and compares the two."
+  )
+}
+
+too_short <- function(short, data_resolution) {
+  if (length(short) == 0) {
+    return(character())
+  }
+
+  fix <- paste0(
+    "so only patches that touch will join. Use cells of ",
+    metres(min(short) / 2),
+    " or smaller, or "
+  )
+
+  if (length(short) == 1) {
+    return(paste0(
+      "At ",
+      metres(data_resolution),
+      " cells, ",
+      metres(short),
+      " is too short to measure: half of it (",
+      metres(short / 2),
+      ") is less than one cell, ",
+      fix,
+      "a distance of at least ",
+      metres(2 * data_resolution),
+      "."
+    ))
+  }
+
+  paste0(
+    "At ",
+    metres(data_resolution),
+    " cells, ",
+    metres(short),
+    " are too short to measure: half of each is less than one cell, ",
+    fix,
+    "distances of at least ",
+    metres(2 * data_resolution),
+    "."
+  )
+}
+
+rounded <- function(distances, treated_as, data_resolution) {
+  moved <- treated_as > 0 & !dplyr::near(treated_as, distances)
+  if (!any(moved)) {
+    return(character())
+  }
+
+  changes <- paste0(
+    metres(distances[moved], each = TRUE),
+    c(" is treated as ", rep(" as ", sum(moved) - 1)),
+    metres(treated_as[moved], each = TRUE)
+  )
+
+  paste0(
+    "At ",
+    metres(data_resolution),
+    " cells, distances go up in steps of ",
+    metres(2 * data_resolution),
+    ", so ",
+    and_list(changes),
+    "."
+  )
+}
+
+too_many <- function(distances) {
+  if (length(distances) <= 4) {
+    return(character())
+  }
+
+  paste0(
+    "You have entered ",
+    length(distances),
+    " distances. Each is a separate analysis, so this takes longer. Up to ",
+    "four is usually enough to see the trend."
+  )
+}
+
+# "100, 250 and 400 m", or with `each`, "100 m" for every value. Each number
+# is formatted on its own, so 7.5 and 100 don't share decimal places.
+metres <- function(values, each = FALSE) {
+  numbers <- vapply(
+    values,
+    \(value) format(value, trim = TRUE, scientific = FALSE),
+    character(1)
+  )
+
+  if (each) {
+    return(paste(numbers, "m"))
+  }
+
+  paste(and_list(numbers), "m")
+}
+
+and_list <- function(x) {
+  glue::glue_collapse(x, sep = ", ", last = " and ")
+}
+
+# describe_analysis() as tags: a paragraph per sentence, the warnings together
+analysis_preview <- function(description) {
+  tagList(
+    purrr::map(description$summary, p),
+    if (length(description$warnings) > 0) {
+      div(
+        class = "alert alert-warning",
+        purrr::map(description$warnings, \(warning) p(class = "mb-1", warning))
+      )
+    }
+  )
+}

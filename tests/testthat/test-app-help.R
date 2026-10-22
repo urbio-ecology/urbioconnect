@@ -21,3 +21,48 @@ test_that("help_label() fails for an input with no help", {
 
   expect_snapshot(help_label("speceis"), error = TRUE)
 })
+
+test_that("describe_analysis() says what the inputs add up to", {
+  skip_if_no_app()
+  local_app_server()
+
+  # defaults in the signature, not modifyList(), which would drop data = NULL
+  describe <- function(
+    data = "Blue Tongue Lizard example data",
+    data_resolution = 10,
+    distances = 100,
+    scenario = NULL
+  ) {
+    description <- describe_analysis(data, data_resolution, distances, scenario)
+    cat(
+      c(
+        sprintf("- %s", description$summary),
+        sprintf("! %s", description$warnings)
+      ),
+      sep = "\n"
+    )
+  }
+
+  expect_snapshot({
+    describe()
+    describe(distances = c(100, 250, 400))
+    describe(distances = 15)
+    describe(data_resolution = 30, distances = c(20, 50, 100))
+    describe(distances = c(50, 100, 150, 200, 250))
+    describe(data = NULL)
+    describe(
+      scenario = list(name = "A new road through the habitat", kind = "barrier")
+    )
+    describe(scenario = list(name = NULL, kind = "habitat"))
+  })
+})
+
+test_that("describe_analysis() takes the integer a browser sends", {
+  skip_if_no_app()
+  local_app_server()
+
+  expect_equal(
+    describe_analysis("Data", 10L, c(15, 250)),
+    describe_analysis("Data", 10, c(15, 250))
+  )
+})

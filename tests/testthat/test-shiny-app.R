@@ -327,6 +327,50 @@ test_that("a scenario that can't match the baseline says so by name", {
   })
 })
 
+test_that("the Your analysis card follows the inputs without reading a layer", {
+  skip_if_no_app()
+  local_app_server()
+
+  # server.R looks the scenarios up here, so this is what the card would call
+  example_datasets$lizard$scenarios$lizard_road$layer <- function() {
+    stop("the card read the scenario layer")
+  }
+
+  shiny::testServer(server, {
+    session$setInputs(
+      example_data = "lizard",
+      data_resolution = 10,
+      interpatch_distances = "100, 250",
+      scenario_choice = "lizard_road"
+    )
+    preview <- output$analysis_preview$html
+    expect_match(preview, "Blue Tongue Lizard example data", fixed = TRUE)
+    expect_match(preview, "250 m is treated as 240 m", fixed = TRUE)
+    expect_match(preview, "A new road through the habitat", fixed = TRUE)
+
+    session$setInputs(interpatch_distances = "100", scenario_choice = "none")
+    expect_no_match(output$analysis_preview$html, "treated as", fixed = TRUE)
+    expect_no_match(output$analysis_preview$html, "runs again", fixed = TRUE)
+
+    session$setInputs(
+      example_data = "none",
+      habitat_file = upload_value(
+        system.file("ex", "lizard_habitat_raster.tif", package = "urbioconnect")
+      ),
+      barrier_file = upload_value(
+        system.file("ex", "lizard_barrier.shp", package = "urbioconnect")
+      )
+    )
+    expect_match(
+      output$analysis_preview$html,
+      "barrier layer (lizard_barrier.shp)",
+      fixed = TRUE
+    )
+
+    expect_false(results$ready)
+  })
+})
+
 test_that("no scenario chosen means no comparison anywhere", {
   skip_if_no_app()
   local_app_server()

@@ -14,7 +14,9 @@ ui <- page_navbar(
   # DOM. Outputs suspend while hidden, so a test has to open a panel to see it.
   id = "main_nav",
   theme = urbio_theme(),
-  fillable = TRUE,
+  # Not Inputs: filling the window squeezed its three cards until the Run
+  # button was clipped. It scrolls instead.
+  fillable = c("Results", "Downloads"),
 
   header = tagList(
     shinyjs::useShinyjs(),
@@ -135,25 +137,20 @@ ui <- page_navbar(
       )
     ),
 
-    # Action Button - Full Width
+    # What the inputs add up to, just above the button that runs it
     layout_columns(
       col_widths = 12,
       card(
+        card_header("Your analysis"),
         card_body(
+          uiOutput("analysis_preview"),
+          # The run shows its progress in a modal. A spinner on shiny-busy
+          # here would flash on every keystroke, as the card above recalculates.
           actionButton(
             inputId = "run_analysis",
             label = "Run Analysis",
             icon = icon("play"),
             class = "btn-primary btn-lg w-100"
-          ),
-
-          conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(
-              class = "text-center mt-3",
-              div(class = "spinner-border text-primary", role = "status"),
-              p(class = "mt-2", "Analysis in progress...")
-            )
           )
         )
       )

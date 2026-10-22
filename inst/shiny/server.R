@@ -133,6 +133,48 @@ server <- function(input, output, session) {
     distances
   })
 
+  # Your analysis ----
+
+  # The layers, as the Your analysis card names them. NULL until there are
+  # two to analyse.
+  preview_data <- function() {
+    dataset <- chosen_dataset()
+
+    if (!is.null(dataset)) {
+      return(paste(dataset$species, "example data"))
+    }
+
+    if (is.null(input$habitat_file) || is.null(input$barrier_file)) {
+      return(NULL)
+    }
+
+    paste0(
+      "Your habitat layer (",
+      main_file_name(input$habitat_file),
+      ") and barrier layer (",
+      main_file_name(input$barrier_file),
+      ")"
+    )
+  }
+
+  # Rewritten as the inputs change; the browser debounces typing. It reads
+  # the parser the run reads, so the two agree on the distances, and reads no
+  # layer from disk.
+  output$analysis_preview <- renderUI({
+    req(input$data_resolution)
+    validate(need(
+      input$data_resolution > 0,
+      "Data resolution must be more than 0 m."
+    ))
+
+    analysis_preview(describe_analysis(
+      data = preview_data(),
+      data_resolution = input$data_resolution,
+      distances = interpatch_distances_parsed(),
+      scenario = scenario_details()
+    ))
+  })
+
   # Read uploaded files ----
   read_uploaded_file <- function(file_input) {
     req(file_input)
@@ -877,10 +919,11 @@ server <- function(input, output, session) {
     invisible()
   }
 
-  # Which layer a scenario changes, and the layer itself. Each supplied
-  # scenario says its own kind; only an upload has to be told. NULL when no
-  # scenario is chosen.
-  chosen_scenario <- function() {
+  # Which layer a scenario changes, its name, and a function returning the
+  # layer. Each supplied scenario says its own kind; only an upload has to be
+  # told. NULL when no scenario is chosen. The layer is left unread, so the
+  # Your analysis card can name a scenario without loading it.
+  scenario_details <- function() {
     choice <- input$scenario_choice %||% "none"
 
     if (choice == "none") {
@@ -888,16 +931,37 @@ server <- function(input, output, session) {
     }
 
     if (choice == "upload") {
-      req(input$scenario_file)
+      file <- input$scenario_file
       return(list(
-        layer = read_uploaded_file(input$scenario_file),
+        layer = function() {
+          req(file)
+          read_uploaded_file(file)
+        },
         kind = input$scenario_kind,
-        name = main_file_name(input$scenario_file)
+        name = if (!is.null(file)) main_file_name(file)
       ))
     }
 
     supplied <- chosen_dataset()$scenarios[[choice]]
-    list(layer = supplied$layer(), kind = supplied$kind, name = supplied$label)
+
+    # a choice left over from the other dataset, until the dropdown catches
+    # up. A run never gets here: check_scenario_choice() stops it first.
+    if (is.null(supplied)) {
+      return(NULL)
+    }
+
+    list(layer = supplied$layer, kind = supplied$kind, name = supplied$label)
+  }
+
+  # scenario_details(), with the layer read
+  chosen_scenario <- function() {
+    scenario <- scenario_details()
+
+    if (!is.null(scenario)) {
+      scenario$layer <- scenario$layer()
+    }
+
+    scenario
   }
 
   # drives the Results tab's scenario section, which stays hidden until there
