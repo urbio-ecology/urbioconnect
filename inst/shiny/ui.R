@@ -320,6 +320,22 @@ ui <- page_navbar(
             condition = "output.has_comparison",
             layout_columns(
               col_widths = 12,
+              # the answer first; the cards below show how it was reached
+              card(
+                card_header(
+                  "Baseline and scenario across interpatch distances"
+                ),
+                card_body(
+                  plotOutput("comparison_plot", height = "600px")
+                ),
+                card_footer(
+                  downloadButton(
+                    "download_comparison_plot",
+                    "Download Plot",
+                    class = "btn-sm"
+                  )
+                )
+              ),
               # the three layers the comparison was built from, before any of
               # it is combined into a map
               card(

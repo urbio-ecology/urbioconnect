@@ -255,6 +255,7 @@ server <- function(input, output, session) {
             interpatch_distance = interpatch_dists,
             scenario = scenario$layer,
             scenario_kind = scenario$kind,
+            scenario_name = scenario$name,
             verbose = FALSE
           )
 
@@ -841,18 +842,47 @@ server <- function(input, output, session) {
       req(input$scenario_file)
       return(list(
         layer = read_uploaded_file(input$scenario_file),
-        kind = input$scenario_kind
+        kind = input$scenario_kind,
+        name = "Uploaded scenario"
       ))
     }
 
     supplied <- chosen_dataset()$scenarios[[choice]]
-    list(layer = supplied$layer(), kind = supplied$kind)
+    list(layer = supplied$layer(), kind = supplied$kind, name = supplied$label)
   }
 
   # drives the Results tab's scenario section, which stays hidden until there
   # is a comparison to show
   output$has_comparison <- reactive(!is.null(results$comparison))
   outputOptions(output, "has_comparison", suspendWhenHidden = FALSE)
+
+  output$comparison_plot <- renderPlot(
+    {
+      req(results$comparison)
+      plot_connectivity(results$comparison)
+    },
+    alt = "Baseline and scenario connectivity metrics as two lines of points, one panel per metric, across interpatch distances."
+  )
+
+  output$download_comparison_plot <- downloadHandler(
+    filename = function() {
+      paste0(
+        connectivity_file_stem(results$report_data),
+        "-scenario-comparison.png"
+      )
+    },
+    content = function(file) {
+      size <- urbio_figure_size()
+      ggsave(
+        filename = file,
+        plot = plot_connectivity(results$comparison),
+        width = size$width,
+        height = size$tall_height,
+        dpi = size$dpi,
+        bg = "white"
+      )
+    }
+  )
 
   output$comparison_wide_table <- renderDT({
     req(results$comparison)

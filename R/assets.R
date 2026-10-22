@@ -302,11 +302,17 @@ asset_manifest <- function(x, reports = FALSE) {
   )
 
   comparison <- tibble::tibble(
-    path = "summary/scenario-comparison.csv",
-    kind = "table",
-    description = paste(
-      "Scenario against baseline: each metric, the change, and the change",
-      "as a percentage."
+    path = c(
+      "summary/scenario-comparison.csv",
+      "summary/scenario-comparison.png"
+    ),
+    kind = c("table", "plot"),
+    description = c(
+      paste(
+        "Scenario against baseline: each metric, the change, and the change",
+        "as a percentage."
+      ),
+      "The baseline and scenario metrics across interpatch distances."
     )
   )
 
@@ -444,6 +450,14 @@ write_asset_plots <- function(x, dir) {
     plot_connectivity(x$connectivity) |>
       save_asset_plot(
         file.path(dir, "summary", "connectivity-over-distance.png"),
+        height = urbio_figure_size()$tall_height
+      )
+  }
+
+  if (has_comparison(x)) {
+    plot_connectivity(x$comparison) |>
+      save_asset_plot(
+        file.path(dir, "summary", "scenario-comparison.png"),
         height = urbio_figure_size()$tall_height
       )
   }

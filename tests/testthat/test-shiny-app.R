@@ -225,6 +225,7 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     expect_true(results$ready)
     expect_s3_class(results$comparison, "compare_connectivity")
     expect_equal(results$scenario_kind, "barrier")
+    expect_equal(unique(results$comparison$scenario_name), "Uploaded scenario")
 
     # connectivity_report_data() put it on the baseline's grid on the way in
     expect_equal(
@@ -238,6 +239,7 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     # the diffviewer widget, which writes a PNG per side before it compares
     purrr::walk(
       c(
+        "comparison_plot",
         "comparison_wide_table",
         "comparison_long_table",
         "layer_habitat",
@@ -251,6 +253,21 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
         "compare_40"
       ),
       function(name) expect_no_error(output[[name]])
+    )
+
+    download <- output$download_comparison_plot
+    expect_equal(
+      readBin(download, "raw", 8),
+      as.raw(c(
+        0x89,
+        0x50,
+        0x4e,
+        0x47,
+        0x0d,
+        0x0a,
+        0x1a,
+        0x0a
+      ))
     )
   })
 })

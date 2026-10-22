@@ -78,6 +78,16 @@ test_that("the app starts, takes an analysis, and compares the result", {
   )
   app$wait_for_idle(timeout = 60000)
 
+  # the plot is a rendered PNG, so it arrives as an image with a data URI
+  app$wait_for_js(
+    '$("#comparison_plot img").length > 0',
+    timeout = 60000
+  )
+  expect_match(
+    app$get_value(output = "comparison_plot")$src,
+    "^data:image/png"
+  )
+
   # the zoom buttons share the button class, so ask the view group by name
   modes <- function(distance) {
     app$get_js(sprintf(
