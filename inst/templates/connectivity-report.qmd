@@ -163,7 +163,7 @@ if (length(distances) > 1) {
 #| label: scenario
 #| output: asis
 #| fig-height: !expr size$tall_height
-#| fig-alt: "Lines of points for the baseline and each scenario, one panel per metric, across interpatch distances."
+#| fig-alt: "The baseline and each scenario, one panel per metric, across interpatch distances."
 # only an analysis carrying a comparison has a scenario to report on
 if (!is.null(report$comparison)) {
   cat("# Scenario against baseline\n\n")

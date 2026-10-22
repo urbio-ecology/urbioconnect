@@ -91,15 +91,13 @@ test_that("the app starts, takes an analysis, and compares the result", {
 
   expect_true(visible("#download_settings_csv"))
 
-  # the plot is a rendered PNG, so it arrives as an image with a data URI
-  app$wait_for_js(
-    '$("#comparison_plot img").length > 0',
+  # the card sits inside the conditionalPanel, so this is the plot rendering
+  # where a user would see it
+  comparison_plot <- app$wait_for_value(
+    output = "comparison_plot",
     timeout = 60000
   )
-  expect_match(
-    app$get_value(output = "comparison_plot")$src,
-    "^data:image/png"
-  )
+  expect_match(comparison_plot$src, "^data:image/png")
 
   # the zoom buttons share the button class, so ask the view group by name
   modes <- function(distance) {

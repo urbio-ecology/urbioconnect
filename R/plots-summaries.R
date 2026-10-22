@@ -398,7 +398,7 @@ plot_connectivity.compare_connectivity <- function(x, ...) {
       name = NULL
     ) +
     ggplot2::scale_shape_manual(
-      values = c(16, 17, 15, 18, 8, 4)[seq_along(series)],
+      values = series_shapes()[seq_along(series)],
       name = NULL
     ) +
     connectivity_plot_layout(x$interpatch_distance) +
@@ -416,7 +416,7 @@ plotted_metrics <- function() {
 #' kept once. It comes first, so it takes the first colour.
 #'
 #' @noRd
-comparison_plot_data <- function(x) {
+comparison_plot_data <- function(x, call = rlang::caller_env()) {
   rows <- tibble::as_tibble(x)
 
   baseline <- rows |>
@@ -427,13 +427,17 @@ comparison_plot_data <- function(x) {
     dplyr::filter(.data$measure == "scenario") |>
     dplyr::mutate(series = scenario_labels(.data$scenario_name))
 
-  dplyr::bind_rows(baseline, scenarios) |>
+  lines <- dplyr::bind_rows(baseline, scenarios) |>
     dplyr::select(
       "series",
       "interpatch_distance",
       dplyr::all_of(plotted_metrics())
     ) |>
-    dplyr::distinct() |>
+    dplyr::distinct()
+
+  check_one_value_per_point(lines, call = call)
+
+  lines |>
     dplyr::mutate(
       series = factor(.data$series, levels = unique(.data$series))
     ) |>
@@ -462,23 +466,31 @@ series_colours <- function() {
   )
 }
 
+#' Filled, so a point reads at the same weight as its colour
+#'
+#' @noRd
+series_shapes <- function() {
+  c(16, 17, 15, 18, 8, 4)
+}
+
 #' @noRd
 scenario_labels <- function(scenario_name) {
   dplyr::coalesce(scenario_name, "Scenario")
 }
 
-#' Before the data is built: a scenario identical to the baseline and named
-#' after it would vanish into the baseline's line rather than error
+#' Checked on the names rather than the drawn lines: a scenario called
+#' "Baseline" with the baseline's values would be dropped as a duplicate
 #'
 #' @noRd
 check_plot_scenarios <- function(x, call = rlang::caller_env()) {
   scenarios <- unique(scenario_labels(x$scenario_name))
-  most <- length(series_colours()) - 1
+  most <- min(length(series_colours()), length(series_shapes())) - 1
+  baseline <- scenarios[tolower(scenarios) == "baseline"]
 
-  if ("Baseline" %in% scenarios) {
+  if (length(baseline) > 0) {
     cli::cli_abort(
       c(
-        "A scenario can't be called {.val Baseline}.",
+        "A scenario can't be called {.val {baseline}}.",
         "i" = "The plot draws the baseline under that name. Rename the
                scenario in {.field scenario_name}."
       ),
@@ -501,10 +513,33 @@ check_plot_scenarios <- function(x, call = rlang::caller_env()) {
   invisible(x)
 }
 
+#' Two scenarios sharing a label, or comparisons against different
+#' baselines, would otherwise draw as one line zigzagging between them
+#'
+#' @noRd
+check_one_value_per_point <- function(lines, call = rlang::caller_env()) {
+  clashes <- lines |>
+    dplyr::count(.data$series, .data$interpatch_distance) |>
+    dplyr::filter(.data$n > 1)
+
+  if (nrow(clashes) > 0) {
+    cli::cli_abort(
+      c(
+        "Can't draw {.val {unique(clashes$series)}} as one line each: more
+         than one comparison gives a value at the same interpatch distance.",
+        "i" = "Give each scenario its own {.field scenario_name}, and compare
+               every scenario against the same baseline."
+      ),
+      call = call
+    )
+  }
+
+  invisible(lines)
+}
+
 #' A line, unless there is a single distance to join
 #'
-#' One point per line makes ggplot2 message about it, and that message lands
-#' in the report.
+#' A line of one point makes ggplot2 message when the plot is drawn.
 #'
 #' @noRd
 distance_line <- function(distances, ...) {

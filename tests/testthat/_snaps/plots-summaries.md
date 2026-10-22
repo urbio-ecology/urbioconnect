@@ -51,10 +51,10 @@
 # plot_connectivity refuses scenarios it can't tell apart
 
     Code
-      plot_connectivity(compare_scenarios(baseline, list(Baseline = scenario)))
+      plot_connectivity(compare_scenarios(baseline, list(baseline = scenario)))
     Condition
       Error in `plot_connectivity()`:
-      ! A scenario can't be called "Baseline".
+      ! A scenario can't be called "baseline".
       i The plot draws the baseline under that name. Rename the scenario in scenario_name.
 
 ---
@@ -66,4 +66,15 @@
       Error in `plot_connectivity()`:
       ! Can only plot up to 5 scenarios at once, not 6.
       i Plot fewer at a time, for example with `dplyr::filter(x, scenario_name %in% c(...))`.
+
+---
+
+    Code
+      plot_connectivity(dplyr::bind_rows(compare_connectivity(scenario, baseline),
+      compare_connectivity(summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+      baseline)))
+    Condition
+      Error in `plot_connectivity()`:
+      ! Can't draw "Scenario" as one line each: more than one comparison gives a value at the same interpatch distance.
+      i Give each scenario its own scenario_name, and compare every scenario against the same baseline.
 

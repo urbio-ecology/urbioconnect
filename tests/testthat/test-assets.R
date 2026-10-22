@@ -86,12 +86,12 @@ test_that("an analysis with no scenario has no comparison files", {
   manifest <- write_connectivity_assets(report_data, dir, reports = FALSE)
 
   expect_equal(
-    sum(startsWith(manifest$path, "summary/scenario-comparison")),
-    0
+    grep("^summary/scenario-comparison", manifest$path, value = TRUE),
+    character()
   )
   expect_equal(
-    length(list.files(file.path(dir, "summary"), "^scenario-comparison")),
-    0
+    list.files(file.path(dir, "summary"), "^scenario-comparison"),
+    character()
   )
 })
 
