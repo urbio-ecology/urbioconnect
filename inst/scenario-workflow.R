@@ -181,8 +181,8 @@ wren_scenarios
 
 # --- Reading across scenarios ------------------------------------------------
 # Four rows per scenario is a lot to read. Filtering to one measure gives one
-# row per scenario: `pct_change` is usually the readable one, since the absolute
-# changes in `prob_connectedness` are very small numbers.
+# row per scenario: `pct_change` is usually the readable one, since it puts
+# every metric on the same scale.
 wren_scenarios |>
   dplyr::filter(measure == "pct_change") |>
   dplyr::select(

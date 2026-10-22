@@ -1,11 +1,13 @@
-# connectivity_probability stays within 0 and 1
+# connectivity_probability errors unless given two single numbers
 
     Code
-      round(prob, 6)
-    Output
-      [1] 0.170221
+      connectivity_probability(effective_mesh_ha = c(1, 2), area_baseline_ha = 1)
+    Condition
+      Error in `connectivity_probability()`:
+      ! `effective_mesh_ha` must be a scalar (length 1), not length 2.
+      i Did you mean to pass a single value?
 
-# connectivity_probability errors on a vector of patch areas
+---
 
     Code
       connectivity_probability(effective_mesh_ha = 1, area_baseline_ha = lizard_areas_connected$
@@ -14,6 +16,15 @@
       Error in `connectivity_probability()`:
       ! `area_baseline_ha` must be a scalar (length 1), not length 73.
       i Did you mean to pass a single value?
+
+---
+
+    Code
+      connectivity_probability(effective_mesh_ha = "1", area_baseline_ha = 1)
+    Condition
+      Error in `connectivity_probability()`:
+      ! `effective_mesh_ha` must be <numeric>, not <character>.
+      i You supplied: a string
 
 # summarise_connectivity returns a tibble with expected columns
 

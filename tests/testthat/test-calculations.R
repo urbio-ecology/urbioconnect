@@ -37,17 +37,12 @@ test_that("total_habitat_area converts square metres to hectares", {
   expect_equal(total_habitat_area(area = c(20000, 30000)), 5)
 })
 
-test_that("connectivity_probability is higher for unfragmented habitat", {
-  # the same 1 ha, whole and then split in two
-  unfrag <- connectivity_probability(
-    effective_mesh_ha = effective_mesh_size(area = 10000),
-    area_baseline_ha = total_habitat_area(area = 10000)
-  )
+test_that("connectivity_probability is 0.5 for two equal patches", {
   frag <- connectivity_probability(
     effective_mesh_ha = effective_mesh_size(area = c(5000, 5000)),
     area_baseline_ha = total_habitat_area(area = c(5000, 5000))
   )
-  expect_gt(unfrag, frag)
+  expect_equal(frag, 0.5)
 })
 
 test_that("connectivity_probability matches the unitless formula from areas", {
@@ -62,23 +57,27 @@ test_that("connectivity_probability matches the unitless formula from areas", {
   )
 })
 
-test_that("connectivity_probability stays within 0 and 1", {
-  area <- lizard_areas_connected$area
-  prob <- connectivity_probability(
-    effective_mesh_ha = effective_mesh_size(area = area),
-    area_baseline_ha = total_habitat_area(area = area)
+test_that("a scenario's prob_connectedness is measured against the baseline total", {
+  # sum(area^2) / sum(area_baseline)^2 = 50000 / 600^2
+  metrics <- connectivity_metrics(
+    area = c(100, 200),
+    area_baseline = c(100, 200, 300)
   )
-  expect_gte(prob, 0)
-  expect_lte(prob, 1)
-  expect_snapshot(round(prob, 6))
+  expect_equal(metrics$prob_connectedness, 5 / 36)
 })
 
-test_that("connectivity_probability errors on a vector of patch areas", {
+test_that("connectivity_probability errors unless given two single numbers", {
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(effective_mesh_ha = c(1, 2), area_baseline_ha = 1)
+  })
   expect_snapshot(error = TRUE, {
     connectivity_probability(
       effective_mesh_ha = 1,
       area_baseline_ha = lizard_areas_connected$area
     )
+  })
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(effective_mesh_ha = "1", area_baseline_ha = 1)
   })
 })
 

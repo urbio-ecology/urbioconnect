@@ -9,7 +9,6 @@
 #' @param area_baseline Optional. Defaults to `area` if not specified.
 #'   Numeric vector of connected patches of a baseline area. This is to allow
 #'   for comparing the effective mesh size when comparing different scenarios.
-#'   See future vignette on this topic (TODO).
 #'
 #' @returns Numeric. Effective mesh size, in hectares.
 #'
@@ -84,14 +83,16 @@ total_habitat_area <- function(area) {
 #'
 #' To compare a design scenario against a baseline, pass the scenario's
 #' effective mesh size, measured against the baseline areas, and the
-#' baseline's total habitat area.
+#' baseline's total habitat area. A scenario that adds habitat can then score
+#' above 1.
 #'
 #' @param effective_mesh_ha Number. Effective mesh size in hectares, as
 #'   returned by [effective_mesh_size()].
 #' @param area_baseline_ha Number. Total habitat area of the baseline landscape
 #'   in hectares, as returned by [total_habitat_area()].
 #'
-#' @returns Numeric. Probability of connectedness, between 0 and 1.
+#' @returns Numeric. Probability of connectedness: between 0 and 1 for a
+#'   landscape measured against itself.
 #' @examples
 #' area <- lizard_areas_connected$area
 #' connectivity_probability(
@@ -139,10 +140,9 @@ connectivity_metrics <- function(area, area_baseline) {
 #'
 #' Values are deliberately returned at full precision. [compare_connectivity()]
 #' subtracts two of these rows to build its `change` row, and rounding before
-#' that subtraction quantises the delta to the rounding step - for
-#' `prob_connectedness` (~1e-05) that step is larger than the changes being
-#' measured, so the delta collapses to zero or overshoots by an order of
-#' magnitude. Round at display time instead, never here.
+#' that subtraction quantises the delta to the rounding step - a scenario can
+#' move `prob_connectedness` by less than 1e-06, so the delta collapses to zero.
+#' Round at display time instead, never here.
 #'
 #' @param area,area_baseline Numeric vectors of connected patch areas.
 #' @returns A one-row tibble of metrics at full precision.

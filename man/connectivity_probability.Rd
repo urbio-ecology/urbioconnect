@@ -14,7 +14,8 @@ returned by \code{\link[=effective_mesh_size]{effective_mesh_size()}}.}
 in hectares, as returned by \code{\link[=total_habitat_area]{total_habitat_area()}}.}
 }
 \value{
-Numeric. Probability of connectedness, between 0 and 1.
+Numeric. Probability of connectedness: between 0 and 1 for a
+landscape measured against itself.
 }
 \description{
 Computes the probability that two randomly chosen points within habitat are
@@ -24,7 +25,8 @@ divided by the total habitat area, both in hectares.
 \details{
 To compare a design scenario against a baseline, pass the scenario's
 effective mesh size, measured against the baseline areas, and the
-baseline's total habitat area.
+baseline's total habitat area. A scenario that adds habitat can then score
+above 1.
 }
 \examples{
 area <- lizard_areas_connected$area

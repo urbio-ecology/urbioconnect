@@ -11,8 +11,7 @@ effective_mesh_size(area, area_baseline = area)
 
 \item{area_baseline}{Optional. Defaults to \code{area} if not specified.
 Numeric vector of connected patches of a baseline area. This is to allow
-for comparing the effective mesh size when comparing different scenarios.
-See future vignette on this topic (TODO).}
+for comparing the effective mesh size when comparing different scenarios.}
 }
 \value{
 Numeric. Effective mesh size, in hectares.
