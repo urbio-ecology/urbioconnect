@@ -108,13 +108,13 @@ test_that("the app's report button hands Quarto the analysis just run", {
   # step still covers the whole chain the app owns - the button, the
   # analysis, the qmd and its data file - and can check something the old
   # test couldn't: that the analysis handed over is the one just run.
-  handed_over <- NULL
+  captured <- new.env()
 
   local_mocked_bindings(
     quarto_available = function() TRUE,
     quarto_render_file = function(input, output_format, quiet) {
       stem <- tools::file_path_sans_ext(input)
-      handed_over <<- read_report_data(paste0(stem, "-data.rds"))
+      captured$report_data <- read_report_data(paste0(stem, "-data.rds"))
       writeLines("a rendered report", paste0(stem, ".html"))
       invisible(NULL)
     }
@@ -134,9 +134,9 @@ test_that("the app's report button hands Quarto the analysis just run", {
       fixed = TRUE
     )
 
-    expect_s3_class(handed_over, "connectivity_report_data")
-    expect_equal(handed_over$species, "Blue Tongue Lizard")
-    expect_equal(handed_over$interpatch_distance, 40)
+    expect_s3_class(captured$report_data, "connectivity_report_data")
+    expect_equal(captured$report_data$species, "Blue Tongue Lizard")
+    expect_equal(captured$report_data$interpatch_distance, 40)
   })
 })
 

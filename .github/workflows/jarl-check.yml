@@ -16,3 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: etiennebacher/setup-jarl@v0.1.1
+        with:
+          # Pinned so new lint rules can't fail CI unannounced; bump it on purpose.
+          version: "0.7.1"
