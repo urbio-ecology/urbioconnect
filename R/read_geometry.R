@@ -31,6 +31,6 @@ read_geometry.sf <- function(shapefile) {
 #' @rdname read_geometry
 read_geometry.default <- function(shapefile) {
   shapefile |>
-    sf::st_read() |>
+    sf::st_read(quiet = TRUE) |>
     sf::st_geometry()
 }

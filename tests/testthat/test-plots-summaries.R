@@ -149,6 +149,22 @@ test_that("plot_patches returns a ggplot", {
   expect_s3_class(result, "ggplot")
 })
 
+test_that("plot_patches counts the patches the summary counts", {
+  summary <- summarise_connectivity(
+    connectivity = aggregate_connected_patches(patch_id_raster)$area,
+    interpatch_distance = interpatch_dist,
+    data_resolution = 10,
+    species = "Blue Tongue Lizard"
+  )
+  result <- plot_patches(patch_id_raster, interpatch_distance = interpatch_dist)
+
+  expect_match(
+    result$labels$subtitle,
+    paste0("# patches: ", summary$n_patches, "\n"),
+    fixed = TRUE
+  )
+})
+
 test_that("plot_patches renders correctly", {
   skip_on_ci()
   vdiffr::expect_doppelganger(

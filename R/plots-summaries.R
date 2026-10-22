@@ -245,12 +245,10 @@ plot_patches <- function(
 ) {
   raster_patches <- patch_id$patch_id |> terra::values()
 
-  n_patches <- patch_id$patch_id |> terra::values() |> unique() |> nrow()
+  unique_vals <- unique(raster_patches[!is.na(raster_patches)])
+  n_patches <- length(unique_vals)
 
   my_colours <- colorspace::qualitative_hcl(n = n_cols)
-
-  unique_vals <- unique(raster_patches)
-  unique_vals <- unique_vals[!is.na(unique_vals)]
 
   # assign colours cyclically
   colour_indices <- ((unique_vals - 1) %% n_cols) + 1
