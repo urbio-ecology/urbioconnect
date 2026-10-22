@@ -79,7 +79,7 @@
 # connectivity_settings() carries the caller's own settings
 
     Code
-      connectivity_settings(report_data)$setting
+      settings$setting
     Output
        [1] "species"               "interpatch_distance_m" "habitat_source"       
        [4] "data_resolution_m"     "grid_resolution_m"     "grid_dimensions"      
@@ -87,21 +87,44 @@
       [10] "scenario_name"         "run_time"              "urbioconnect_version" 
       [13] "terra_version"         "r_version"             "platform"             
 
+# connectivity_settings() records real data's grid
+
+    Code
+      as.data.frame(dplyr::filter(connectivity_settings(report_data), !setting %in%
+        volatile))
+    Output
+                      setting               value
+      1               species  Blue Tongue Lizard
+      2 interpatch_distance_m                 100
+      3     grid_resolution_m 10.01307 x 9.973856
+      4       grid_dimensions           200 x 200
+      5                   crs GDA94 / MGA zone 55
+      6              crs_code          EPSG:28355
+      7         scenario_kind                none
+      8         scenario_name                <NA>
+
 # connectivity_report_data() rejects settings it can't record
 
     Code
       report_data(settings = "no names")
     Condition
       Error in `connectivity_report_data()`:
-      ! `settings` must be a named list of single values.
-      x You supplied a string.
+      ! Every element of `settings` must be named.
+      x No name at position 1.
+      i One element per setting, for example `list(data_resolution_m = 10)`.
+    Code
+      report_data(settings = list(a = 1, 2))
+    Condition
+      Error in `connectivity_report_data()`:
+      ! Every element of `settings` must be named.
+      x No name at position 2.
       i One element per setting, for example `list(data_resolution_m = 10)`.
     Code
       report_data(settings = list(a = 1:2))
     Condition
       Error in `connectivity_report_data()`:
-      ! `settings` must be a named list of single values.
-      x You supplied a list.
+      ! Every element of `settings` must be a single value.
+      x a isn't a single value.
       i One element per setting, for example `list(data_resolution_m = 10)`.
     Code
       report_data(settings = list(species = "mine"))

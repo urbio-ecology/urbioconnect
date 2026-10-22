@@ -426,7 +426,7 @@ ui <- page_navbar(
             condition = "output.results_ready",
             downloadButton(
               "download_settings_csv",
-              "Download CSV",
+              "Download settings CSV",
               class = "btn-sm"
             )
           )

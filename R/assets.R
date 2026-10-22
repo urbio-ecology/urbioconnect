@@ -221,7 +221,8 @@ absolute_path <- function(
 #'
 #' The stem every download takes its name from, so a report, a zip and the
 #'   folder inside that zip agree. The species is lower-cased with its spaces
-#'   turned into dashes, which keeps it usable as a file name.
+#'   turned into dashes, which keeps it usable as a file name. The date is the
+#'   day the analysis ran, not the day the file is written.
 #'
 #' @param x A `connectivity_report_data` object from
 #'   [connectivity_report_data()].
@@ -247,7 +248,9 @@ absolute_path <- function(
 #' }
 connectivity_file_stem <- function(x) {
   check_report_data(x)
-  as.character(glue::glue("{slugify(x$species)}-connectivity-{Sys.Date()}"))
+  as.character(glue::glue(
+    "{slugify(x$species)}-connectivity-{format(x$run_time, '%Y-%m-%d')}"
+  ))
 }
 
 #' Make a string safe for a file path
@@ -384,10 +387,10 @@ distance_manifest <- function(distance) {
 
 #' @noRd
 write_asset_tables <- function(x, dir) {
-  # first, because it says what the rest of these files are an analysis of
   readr::write_csv(
     connectivity_settings(x),
-    file.path(dir, "summary", "settings.csv")
+    file.path(dir, "summary", "settings.csv"),
+    na = ""
   )
 
   x$connectivity |>

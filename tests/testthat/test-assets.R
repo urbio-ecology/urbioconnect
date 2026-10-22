@@ -10,12 +10,13 @@ test_that("asset_manifest() only plots over distance when there are several", {
   expect_true("summary/connectivity-over-distance.png" %in% several)
 })
 
-test_that("connectivity_file_stem() slugs the species and dates it", {
+test_that("connectivity_file_stem() slugs the species and dates the run", {
   report_data <- test_report_data(40)
+  report_data$run_time <- as.POSIXct("2020-01-02 03:04:05", tz = "UTC")
 
   expect_equal(
     connectivity_file_stem(report_data),
-    paste0("superb-fairy-wren-connectivity-", Sys.Date())
+    "superb-fairy-wren-connectivity-2020-01-02"
   )
   expect_snapshot(connectivity_file_stem(lizard_areas_connected), error = TRUE)
 })
@@ -139,6 +140,11 @@ test_that("write_connectivity_assets() writes readable tables", {
 
   expect_setequal(unique(patches_csv$interpatch_distance), c(40, 80))
   expect_true(all(c("patch_id", "area") %in% names(patches_csv)))
+
+  expect_contains(
+    readLines(file.path(dir, "summary", "settings.csv")),
+    "scenario_name,"
+  )
 })
 
 test_that("patch polygons carry patch_id and area, in both formats", {

@@ -173,6 +173,7 @@ test_that("an analysis survives a write and read round trip", {
   expect_s3_class(read, "connectivity_report_data")
   expect_equal(read$connectivity, written$connectivity)
   expect_named(read$patch_id_raster, c("40", "80"))
+  expect_equal(connectivity_settings(read), connectivity_settings(written))
 
   # the rasters are packed on the way out, so check they come back usable
   expect_s4_class(read$habitat, "SpatRaster")
@@ -233,7 +234,86 @@ test_that("connectivity_settings() carries the caller's own settings", {
     verbose = FALSE
   )
 
-  expect_snapshot(connectivity_settings(report_data)$setting)
+  settings <- connectivity_settings(report_data)
+
+  expect_snapshot(settings$setting)
+  expect_equal(settings$value[settings$setting == "data_resolution_m"], "10")
+})
+
+test_that("connectivity_settings() records real data's grid", {
+  rasters <- prepare_rasters(example_habitat(), example_barrier(), 10, 500)
+
+  report_data <- connectivity_report_data(
+    habitat = rasters$habitat_raster,
+    barrier = rasters$barrier_raster,
+    species = "Blue Tongue Lizard",
+    interpatch_distance = 100,
+    verbose = FALSE
+  )
+
+  volatile <- c(
+    "run_time",
+    "urbioconnect_version",
+    "terra_version",
+    "r_version",
+    "platform"
+  )
+
+  expect_snapshot(
+    connectivity_settings(report_data) |>
+      dplyr::filter(!setting %in% volatile) |>
+      as.data.frame()
+  )
+})
+
+test_that("connectivity_settings() records NA for a crs with no code", {
+  layers <- scenario_test_layers()
+  proj <- "+proj=tmerc +lat_0=0 +lon_0=147 +k=0.9996 +x_0=500000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs"
+  terra::crs(layers$habitat) <- proj
+  terra::crs(layers$barrier) <- proj
+
+  report_data <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 40,
+    verbose = FALSE
+  )
+
+  settings <- connectivity_settings(report_data)
+
+  expect_equal(settings$value[settings$setting == "crs_code"], NA_character_)
+})
+
+test_that("connectivity_settings() writes run_time as ISO 8601", {
+  report_data <- test_report_data(40)
+  report_data$run_time <- as.POSIXct("2020-01-02 03:04:05", tz = "UTC")
+  settings <- connectivity_settings(report_data)
+
+  expect_equal(
+    settings$value[settings$setting == "run_time"],
+    "2020-01-02T03:04:05+0000"
+  )
+})
+
+test_that("empty settings record the same rows as none", {
+  layers <- scenario_test_layers()
+
+  report_data <- function(settings) {
+    connectivity_report_data(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = 40,
+      settings = settings,
+      verbose = FALSE
+    )
+  }
+
+  expect_equal(
+    connectivity_settings(report_data(list()))$setting,
+    connectivity_settings(report_data(NULL))$setting
+  )
 })
 
 test_that("connectivity_settings() names the scenario it compared", {
@@ -256,6 +336,22 @@ test_that("connectivity_settings() names the scenario it compared", {
   expect_equal(
     settings$value[settings$setting == "scenario_name"],
     "A development"
+  )
+
+  unnamed <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 40,
+    scenario = layers$habitat_scenario,
+    scenario_kind = "habitat",
+    verbose = FALSE
+  ) |>
+    connectivity_settings()
+
+  expect_equal(
+    unnamed$value[unnamed$setting == "scenario_name"],
+    NA_character_
   )
 })
 
@@ -283,6 +379,7 @@ test_that("connectivity_report_data() rejects settings it can't record", {
 
   expect_snapshot(error = TRUE, {
     report_data(settings = "no names")
+    report_data(settings = list(a = 1, 2))
     report_data(settings = list(a = 1:2))
     report_data(settings = list(species = "mine"))
     report_data(settings = list(a = 1, a = 2))

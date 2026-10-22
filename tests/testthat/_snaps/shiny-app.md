@@ -19,6 +19,14 @@
       [13] "run_time"              "urbioconnect_version"  "terra_version"        
       [16] "r_version"             "platform"             
 
+# uploaded layers and an uploaded scenario reach the analysis
+
+    Code
+      names(connectivity_display(results$comparison)$data)
+    Output
+      [1] "Scenario"       "Distance (m)"   "Metric"         "Baseline"      
+      [5] "Scenario value" "Change"         "% change"      
+
 # a scenario that can't match the baseline says so by name
 
     Code
@@ -55,4 +63,28 @@
     Condition
       Error:
       ! Interpatch distances must be numbers, and "abc" isn't.
+
+---
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Interpatch distances must be numbers, and "abc", "def" aren't.
+
+---
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Interpatch distances must be positive numbers
+
+---
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Please enter at least one valid interpatch distance
 

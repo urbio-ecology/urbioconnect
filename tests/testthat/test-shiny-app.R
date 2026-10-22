@@ -76,6 +76,8 @@ test_that("the app's downloads produce files with content", {
       col_types = readr::cols(.default = "c")
     )
 
+    expect_contains(readLines(output$download_settings_csv), "scenario_name,")
+
     # the app's own rows: where the layers came from and the resolutions
     # prepare_rasters() was given, none of which the analysis can derive
     expect_snapshot(settings_csv$setting)
@@ -237,13 +239,13 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     terra::ext(example_barrier()) / 2,
     crs = terra::crs(example_barrier())
   )
-  path <- withr::local_tempfile(fileext = ".gpkg")
+  path <- withr::local_tempfile(fileext = ".shp")
   terra::writeVector(scenario, path)
 
   shiny::testServer(server, {
     # the whole upload path in one test, because it is what someone brings
     # their own data through: a GeoTIFF habitat, a shapefile barrier, and a
-    # GeoPackage scenario on top
+    # shapefile scenario on top
     rlang::exec(
       session$setInputs,
       !!!app_upload_inputs(scenario_choice = "upload")
@@ -271,8 +273,12 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     settings <- connectivity_settings(results$report_data)
     recorded <- function(name) settings$value[settings$setting == name]
     expect_equal(recorded("habitat_source"), "lizard_habitat_raster.tif")
-    expect_match(recorded("barrier_source"), "lizard_barrier.shp", fixed = TRUE)
+    expect_equal(
+      recorded("barrier_source"),
+      paste(input$barrier_file$name, collapse = ", ")
+    )
     expect_equal(recorded("scenario_name"), basename(path))
+    expect_snapshot(names(connectivity_display(results$comparison)$data))
 
     # everything a comparison drives, rendered here rather than on the wren
     # data above: the tab containers, the per-distance plots they hold, and
@@ -366,6 +372,22 @@ test_that("interpatch distances that aren't numbers are an error, not dropped", 
     session$setInputs(interpatch_distances = "100, abc, 400")
     expect_snapshot(interpatch_distances_parsed(), error = TRUE)
 
+    session$setInputs(interpatch_distances = "abc, def")
+    expect_snapshot(interpatch_distances_parsed(), error = TRUE)
+
+    session$setInputs(interpatch_distances = "100, -5")
+    expect_snapshot(interpatch_distances_parsed(), error = TRUE)
+
+    session$setInputs(interpatch_distances = ",")
+    expect_snapshot(interpatch_distances_parsed(), error = TRUE)
+  })
+})
+
+test_that("empty entries between commas are skipped", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
     session$setInputs(interpatch_distances = "100, 250,")
     expect_equal(interpatch_distances_parsed(), c(100, 250))
 

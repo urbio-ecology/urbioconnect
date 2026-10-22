@@ -127,29 +127,45 @@ check_settings <- function(
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
 ) {
-  if (is.null(x)) {
+  if (length(x) == 0) {
     return(NULL)
   }
 
-  # caller_arg() reads x lazily, so force it before x is reassigned
-  force(arg)
-  supplied <- x
-  x <- as.list(x)
-  single <- purrr::map_lgl(x, \(value) is.atomic(value) && length(value) == 1)
+  settings <- as.list(x)
+  example <- "One element per setting, for example
+              {.code list(data_resolution_m = 10)}."
 
-  if (!rlang::is_named(x) || !all(single)) {
+  unnamed <- which(!nzchar(rlang::names2(settings)))
+
+  if (length(unnamed) > 0) {
     cli::cli_abort(
       c(
-        "{.arg {arg}} must be a named list of single values.",
-        "x" = "You supplied {.obj_type_friendly {supplied}}.",
-        "i" = "One element per setting, for example
-               {.code list(data_resolution_m = 10)}."
+        "Every element of {.arg {arg}} must be named.",
+        "x" = "No name at position {.val {unnamed}}.",
+        "i" = example
       ),
       call = call
     )
   }
 
-  shadowed <- intersect(names(x), derived_setting_names())
+  single <- purrr::map_lgl(
+    settings,
+    \(value) is.atomic(value) && length(value) == 1
+  )
+
+  if (!all(single)) {
+    not_single <- names(settings)[!single]
+    cli::cli_abort(
+      c(
+        "Every element of {.arg {arg}} must be a single value.",
+        "x" = "{.field {not_single}} {?isn't/aren't} a single value.",
+        "i" = example
+      ),
+      call = call
+    )
+  }
+
+  shadowed <- intersect(names(settings), derived_setting_names())
 
   if (length(shadowed) > 0) {
     cli::cli_abort(
@@ -162,7 +178,7 @@ check_settings <- function(
     )
   }
 
-  repeated <- unique(names(x)[duplicated(names(x))])
+  repeated <- unique(names(settings)[duplicated(names(settings))])
 
   if (length(repeated) > 0) {
     cli::cli_abort(
@@ -174,7 +190,7 @@ check_settings <- function(
     )
   }
 
-  purrr::map_chr(x, as.character)
+  purrr::map_chr(settings, as.character)
 }
 
 #' Check scenario names

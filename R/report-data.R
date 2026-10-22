@@ -402,7 +402,7 @@ scenario_layer <- function(x) {
 #'   [connectivity_report_data()].
 #'
 #' @returns A tibble of `setting` and `value`, both character. A setting that
-#'   doesn't apply has an empty `value`.
+#'   doesn't apply is `NA`, which is written to the CSV as an empty cell.
 #' @seealso [connectivity_report_data()], whose `settings` argument fills the
 #'   caller's rows, and [write_connectivity_assets()], which writes this into
 #'   the download bundle as `summary/settings.csv`.
@@ -427,28 +427,15 @@ scenario_layer <- function(x) {
 connectivity_settings <- function(x) {
   check_report_data(x)
 
-  list(
-    c(
-      species = x$species,
-      interpatch_distance_m = paste(x$interpatch_distance, collapse = ", ")
-    ),
+  c(
+    species = x$species,
+    interpatch_distance_m = paste(x$interpatch_distance, collapse = ", "),
     x$settings,
     grid_settings(x$habitat),
     scenario_settings(x),
     build_settings(x$run_time)
   ) |>
-    purrr::map(setting_rows) |>
-    purrr::list_rbind()
-}
-
-#' A named vector as rows of the settings table
-#'
-#' @noRd
-setting_rows <- function(x) {
-  tibble::tibble(
-    setting = names(x) %||% character(),
-    value = as.character(x %||% character())
-  )
+    tibble::enframe(name = "setting", value = "value")
 }
 
 #' The grid the analysis actually ran on
@@ -456,6 +443,7 @@ setting_rows <- function(x) {
 #' @noRd
 grid_settings <- function(habitat) {
   described <- terra::crs(habitat, describe = TRUE)
+  has_code <- !is.na(described$authority) && !is.na(described$code)
 
   c(
     grid_resolution_m = paste(
@@ -464,7 +452,11 @@ grid_settings <- function(habitat) {
     ),
     grid_dimensions = paste(dim(habitat)[1:2], collapse = " x "),
     crs = described$name,
-    crs_code = paste0(described$authority, ":", described$code)
+    crs_code = if (has_code) {
+      paste0(described$authority, ":", described$code)
+    } else {
+      NA_character_
+    }
   )
 }
 
@@ -477,7 +469,7 @@ grid_settings <- function(habitat) {
 scenario_settings <- function(x) {
   c(
     scenario_kind = x$scenario_kind %||% "none",
-    # NA, so readr writes an empty cell
+    # NA when there is no scenario to name; the CSV writes it as an empty cell
     scenario_name = if (has_comparison(x)) {
       as.character(x$comparison$scenario_name[[1]])
     } else {
@@ -494,7 +486,7 @@ scenario_settings <- function(x) {
 #' @noRd
 build_settings <- function(run_time) {
   c(
-    run_time = format(run_time, "%Y-%m-%d %H:%M:%S %Z"),
+    run_time = format(run_time, "%Y-%m-%dT%H:%M:%S%z"),
     urbioconnect_version = as.character(utils::packageVersion("urbioconnect")),
     terra_version = as.character(utils::packageVersion("terra")),
     r_version = as.character(getRversion()),

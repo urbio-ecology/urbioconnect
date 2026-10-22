@@ -12,7 +12,7 @@ connectivity_settings(x)
 }
 \value{
 A tibble of \code{setting} and \code{value}, both character. A setting that
-doesn't apply has an empty \code{value}.
+doesn't apply is \code{NA}, which is written to the CSV as an empty cell.
 }
 \description{
 A key-value record of the run: what was analysed, what the caller recorded

@@ -44,6 +44,12 @@ server <- function(input, output, session) {
     paste(file_input$name, collapse = ", ")
   }
 
+  # The name of an upload: its .shp when there is one, else its first file.
+  main_file_name <- function(file_input) {
+    shp <- grepl("\\.shp$", file_input$name, ignore.case = TRUE)
+    c(file_input$name[shp], file_input$name)[[1]]
+  }
+
   # Choosing an example fills in its species and takes over the file inputs;
   # the scenarios on offer are that dataset's, since a scenario is only
   # comparable against the landscape it was drawn on.
@@ -88,7 +94,6 @@ server <- function(input, output, session) {
     interpatch_distances = NULL,
     results_connect_habitat = NULL,
     areas_connected = NULL,
-    analysis_time = NULL,
     comparison = NULL,
     scenario_layer = NULL,
     scenario_kind = NULL,
@@ -305,7 +310,6 @@ server <- function(input, output, session) {
           incProgress(0.9, message = "Finalizing...")
 
           results$ready <- TRUE
-          results$analysis_time <- Sys.time()
         })
 
         removeModal()
@@ -342,7 +346,7 @@ server <- function(input, output, session) {
 
   output$analysis_timestamp <- renderText({
     req(results$ready)
-    format(results$analysis_time, "%Y-%m-%d %H:%M:%S %Z")
+    format(results$report_data$run_time, "%Y-%m-%d %H:%M:%S %Z")
   })
 
   output$analysis_session <- renderText({
@@ -829,7 +833,7 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       req(results$report_data)
-      write_csv(connectivity_settings(results$report_data), file)
+      write_csv(connectivity_settings(results$report_data), file, na = "")
     }
   )
 
@@ -886,7 +890,7 @@ server <- function(input, output, session) {
       return(list(
         layer = read_uploaded_file(input$scenario_file),
         kind = input$scenario_kind,
-        name = paste(input$scenario_file$name, collapse = ", ")
+        name = main_file_name(input$scenario_file)
       ))
     }
 

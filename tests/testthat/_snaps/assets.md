@@ -19,7 +19,7 @@
       [14] "interpatch-80m/gis/patches.gpkg"               
       [15] "interpatch-80m/gis/patches.shp"                
 
-# connectivity_file_stem() slugs the species and dates it
+# connectivity_file_stem() slugs the species and dates the run
 
     Code
       connectivity_file_stem(lizard_areas_connected)
