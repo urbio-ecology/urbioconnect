@@ -82,13 +82,10 @@ test_that("the app's downloads produce files with content", {
     # prepare_rasters() was given, none of which the analysis can derive
     expect_snapshot(settings_csv$setting)
     expect_equal(
-      settings_csv$value[settings_csv$setting == "habitat_source"],
+      setting_value(settings_csv, "habitat_source"),
       "example data: lizard"
     )
-    expect_equal(
-      settings_csv$value[settings_csv$setting == "target_resolution_m"],
-      "500"
-    )
+    expect_equal(setting_value(settings_csv, "target_resolution_m"), "500")
 
     # named after the species and date, not the raw species with its spaces
     stem <- connectivity_file_stem(results$report_data)
@@ -271,13 +268,15 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
 
     # the record names what was uploaded, not a temp path
     settings <- connectivity_settings(results$report_data)
-    recorded <- function(name) settings$value[settings$setting == name]
-    expect_equal(recorded("habitat_source"), "lizard_habitat_raster.tif")
     expect_equal(
-      recorded("barrier_source"),
+      setting_value(settings, "habitat_source"),
+      "lizard_habitat_raster.tif"
+    )
+    expect_equal(
+      setting_value(settings, "barrier_source"),
       paste(input$barrier_file$name, collapse = ", ")
     )
-    expect_equal(recorded("scenario_name"), basename(path))
+    expect_equal(setting_value(settings, "scenario_name"), basename(path))
     expect_snapshot(names(connectivity_display(results$comparison)$data))
 
     # everything a comparison drives, rendered here rather than on the wren

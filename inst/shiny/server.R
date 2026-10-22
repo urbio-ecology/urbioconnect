@@ -34,8 +34,7 @@ server <- function(input, output, session) {
     example_datasets[[input$example_data %||% ""]]
   }
 
-  # Where a layer came from, for the settings record: its example dataset, or
-  # every uploaded file, since a shapefile is several and all of them are read.
+  # For the settings record: the example dataset, or every file uploaded
   layer_source <- function(file_input) {
     if (!is.null(chosen_dataset())) {
       return(paste0("example data: ", input$example_data))
@@ -594,6 +593,17 @@ server <- function(input, output, session) {
 
   # Downloads ----
 
+  # A download named after the analysis. filename runs before content, so the
+  # req() has to be here too.
+  stem_filename <- function(suffix) {
+    force(suffix)
+
+    function() {
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), suffix)
+    }
+  }
+
   output$download_summary_csv <- downloadHandler(
     filename = function() {
       paste0("connectivity_summary_", Sys.Date(), ".csv")
@@ -792,11 +802,7 @@ server <- function(input, output, session) {
 
   # Download connectivity plot (using plot_connectivity function) ----
   output$download_connectivity_plot <- downloadHandler(
-    filename = function() {
-      # filename runs before content, so req() has to be here too
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), "-over-distance.png")
-    },
+    filename = stem_filename("-over-distance.png"),
     content = function(file) {
       # the same size the zip and the report use, from urbio_figure_size()
       size <- urbio_figure_size()
@@ -813,10 +819,7 @@ server <- function(input, output, session) {
 
   # Download terra areas CSV ----
   output$download_areas_csv <- downloadHandler(
-    filename = function() {
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), "-areas.csv")
-    },
+    filename = stem_filename("-areas.csv"),
     content = function(file) {
       results$areas_connected |>
         setNames(results$interpatch_distances) |>
@@ -827,10 +830,7 @@ server <- function(input, output, session) {
 
   # Download the settings CSV ----
   output$download_settings_csv <- downloadHandler(
-    filename = function() {
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), "-settings.csv")
-    },
+    filename = stem_filename("-settings.csv"),
     content = function(file) {
       req(results$report_data)
       write_csv(connectivity_settings(results$report_data), file, na = "")
@@ -1050,11 +1050,7 @@ server <- function(input, output, session) {
     force(extension)
 
     downloadHandler(
-      filename = function() {
-        # filename runs before content, so req() has to be here too
-        req(results$report_data)
-        paste0(connectivity_file_stem(results$report_data), ".", extension)
-      },
+      filename = stem_filename(paste0(".", extension)),
       content = function(file) {
         req(results$report_data)
 
@@ -1073,10 +1069,7 @@ server <- function(input, output, session) {
   output$download_report_pdf <- report_download("pdf")
 
   output$download_reports_zip <- downloadHandler(
-    filename = function() {
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), "-reports.zip")
-    },
+    filename = stem_filename("-reports.zip"),
     content = function(file) {
       req(results$report_data)
 

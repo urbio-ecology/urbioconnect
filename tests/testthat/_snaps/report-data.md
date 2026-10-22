@@ -106,35 +106,35 @@
 # connectivity_report_data() rejects settings it can't record
 
     Code
-      report_data(settings = "no names")
+      test_report_data(settings = "no names")
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` must be named.
       x No name at position 1.
       i One element per setting, for example `list(data_resolution_m = 10)`.
     Code
-      report_data(settings = list(a = 1, 2))
+      test_report_data(settings = list(a = 1, 2))
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` must be named.
       x No name at position 2.
       i One element per setting, for example `list(data_resolution_m = 10)`.
     Code
-      report_data(settings = list(a = 1:2))
+      test_report_data(settings = list(a = 1:2))
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` must be a single value.
       x a isn't a single value.
       i One element per setting, for example `list(data_resolution_m = 10)`.
     Code
-      report_data(settings = list(species = "mine"))
+      test_report_data(settings = list(species = "mine"))
     Condition
       Error in `connectivity_report_data()`:
       ! `settings` can't name a setting the analysis derives itself.
       x species is derived.
       i Derived: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
-      report_data(settings = list(a = 1, a = 2))
+      test_report_data(settings = list(a = 1, a = 2))
     Condition
       Error in `connectivity_report_data()`:
       ! `settings` names a setting more than once.

@@ -215,29 +215,18 @@ test_that("connectivity_settings() records the run as one row per setting", {
   expect_type(settings$value, "character")
 
   # one row however many distances there were
-  expect_equal(
-    settings$value[settings$setting == "interpatch_distance_m"],
-    "40, 80"
-  )
-  expect_equal(settings$value[settings$setting == "scenario_kind"], "none")
+  expect_equal(setting_value(settings, "interpatch_distance_m"), "40, 80")
+  expect_equal(setting_value(settings, "scenario_kind"), "none")
 })
 
 test_that("connectivity_settings() carries the caller's own settings", {
-  layers <- scenario_test_layers()
-
-  report_data <- connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Superb Fairy Wren",
-    interpatch_distance = 40,
-    settings = list(habitat_source = "a test raster", data_resolution_m = 10),
-    verbose = FALSE
-  )
-
-  settings <- connectivity_settings(report_data)
+  settings <- test_report_data(
+    settings = list(habitat_source = "a test raster", data_resolution_m = 10)
+  ) |>
+    connectivity_settings()
 
   expect_snapshot(settings$setting)
-  expect_equal(settings$value[settings$setting == "data_resolution_m"], "10")
+  expect_equal(setting_value(settings, "data_resolution_m"), "10")
 })
 
 test_that("connectivity_settings() records real data's grid", {
@@ -282,77 +271,36 @@ test_that("connectivity_settings() records NA for a crs with no code", {
 
   settings <- connectivity_settings(report_data)
 
-  expect_equal(settings$value[settings$setting == "crs_code"], NA_character_)
+  expect_equal(setting_value(settings, "crs_code"), NA_character_)
 })
 
 test_that("connectivity_settings() writes run_time as ISO 8601", {
   report_data <- test_report_data(40)
   report_data$run_time <- as.POSIXct("2020-01-02 03:04:05", tz = "UTC")
-  settings <- connectivity_settings(report_data)
 
   expect_equal(
-    settings$value[settings$setting == "run_time"],
+    setting_value(connectivity_settings(report_data), "run_time"),
     "2020-01-02T03:04:05+0000"
   )
 })
 
-test_that("empty settings record the same rows as none", {
-  layers <- scenario_test_layers()
-
-  report_data <- function(settings) {
-    connectivity_report_data(
-      habitat = layers$habitat,
-      barrier = layers$barrier,
-      species = "Superb Fairy Wren",
-      interpatch_distance = 40,
-      settings = settings,
-      verbose = FALSE
-    )
-  }
-
-  expect_equal(
-    connectivity_settings(report_data(list()))$setting,
-    connectivity_settings(report_data(NULL))$setting
-  )
+test_that("empty settings are recorded as none", {
+  expect_null(test_report_data(settings = list())$settings)
 })
 
 test_that("connectivity_settings() names the scenario it compared", {
-  layers <- scenario_test_layers()
-
-  report_data <- connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Superb Fairy Wren",
-    interpatch_distance = 40,
-    scenario = layers$habitat_scenario,
-    scenario_kind = "habitat",
-    scenario_name = "A development",
-    verbose = FALSE
-  )
-
-  settings <- connectivity_settings(report_data)
-
-  expect_equal(settings$value[settings$setting == "scenario_kind"], "habitat")
-  expect_equal(
-    settings$value[settings$setting == "scenario_name"],
-    "A development"
-  )
-
-  unnamed <- connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Superb Fairy Wren",
-    interpatch_distance = 40,
-    scenario = layers$habitat_scenario,
-    scenario_kind = "habitat",
-    verbose = FALSE
+  settings <- test_report_data(
+    with_scenario = TRUE,
+    scenario_name = "A development"
   ) |>
     connectivity_settings()
 
-  expect_equal(
-    unnamed$value[unnamed$setting == "scenario_name"],
-    NA_character_
-  )
+  expect_equal(setting_value(settings, "scenario_kind"), "habitat")
+  expect_equal(setting_value(settings, "scenario_name"), "A development")
+
+  unnamed <- connectivity_settings(test_report_data(with_scenario = TRUE))
+
+  expect_equal(setting_value(unnamed, "scenario_name"), NA_character_)
 })
 
 test_that("derived_setting_names() is what connectivity_settings() builds", {
@@ -364,24 +312,11 @@ test_that("derived_setting_names() is what connectivity_settings() builds", {
 })
 
 test_that("connectivity_report_data() rejects settings it can't record", {
-  layers <- scenario_test_layers()
-
-  report_data <- function(...) {
-    connectivity_report_data(
-      habitat = layers$habitat,
-      barrier = layers$barrier,
-      species = "Superb Fairy Wren",
-      interpatch_distance = 40,
-      verbose = FALSE,
-      ...
-    )
-  }
-
   expect_snapshot(error = TRUE, {
-    report_data(settings = "no names")
-    report_data(settings = list(a = 1, 2))
-    report_data(settings = list(a = 1:2))
-    report_data(settings = list(species = "mine"))
-    report_data(settings = list(a = 1, a = 2))
+    test_report_data(settings = "no names")
+    test_report_data(settings = list(a = 1, 2))
+    test_report_data(settings = list(a = 1:2))
+    test_report_data(settings = list(species = "mine"))
+    test_report_data(settings = list(a = 1, a = 2))
   })
 })

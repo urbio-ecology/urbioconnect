@@ -469,7 +469,6 @@ grid_settings <- function(habitat) {
 scenario_settings <- function(x) {
   c(
     scenario_kind = x$scenario_kind %||% "none",
-    # NA when there is no scenario to name; the CSV writes it as an empty cell
     scenario_name = if (has_comparison(x)) {
       as.character(x$comparison$scenario_name[[1]])
     } else {
