@@ -78,6 +78,14 @@ test_that("the app starts, takes an analysis, and compares the result", {
   )
   app$wait_for_idle(timeout = 60000)
 
+  # the card sits inside the conditionalPanel, so this is the plot rendering
+  # where a user would see it
+  comparison_plot <- app$wait_for_value(
+    output = "comparison_plot",
+    timeout = 60000
+  )
+  expect_match(comparison_plot$src, "^data:image/png")
+
   # the zoom buttons share the button class, so ask the view group by name
   modes <- function(distance) {
     app$get_js(sprintf(

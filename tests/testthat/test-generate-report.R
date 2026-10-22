@@ -147,6 +147,13 @@ test_that("a comparison adds a scenario section, and the path defaults", {
 
     # a single distance is a single point, so there is nothing to plot
     expect_no_match(html, "Change over distance", fixed = TRUE)
+
+    # the comparison is still plotted, and reaches the page with its alt text
+    expect_match(
+      html,
+      "The baseline and each scenario, one panel",
+      fixed = TRUE
+    )
   })
 })
 

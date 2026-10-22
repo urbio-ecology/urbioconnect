@@ -162,6 +162,8 @@ test_that("each dataset offers its own scenarios, as the layer they change", {
     road <- chosen_scenario()
     expect_s4_class(road$layer, "SpatRaster")
     expect_equal(road$kind, "barrier")
+    # the plot's legend names the scenario by this
+    expect_equal(road$name, "A new road through the habitat")
 
     session$setInputs(example_data = "wren", scenario_choice = "knox_barrier")
     expect_equal(chosen_scenario()$kind, "barrier")
@@ -225,6 +227,7 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     expect_true(results$ready)
     expect_s3_class(results$comparison, "compare_connectivity")
     expect_equal(results$scenario_kind, "barrier")
+    expect_equal(unique(results$comparison$scenario_name), "Uploaded scenario")
 
     # connectivity_report_data() put it on the baseline's grid on the way in
     expect_equal(
@@ -238,6 +241,7 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
     # the diffviewer widget, which writes a PNG per side before it compares
     purrr::walk(
       c(
+        "comparison_plot",
         "comparison_wide_table",
         "comparison_long_table",
         "layer_habitat",
@@ -252,6 +256,10 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
       ),
       function(name) expect_no_error(output[[name]])
     )
+
+    # a PNG's signature names itself in bytes 2 to 4
+    signature <- readBin(output$download_comparison_plot, "raw", 4)
+    expect_equal(rawToChar(signature[2:4]), "PNG")
   })
 })
 
