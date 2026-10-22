@@ -32,8 +32,6 @@ new_patch_size_tbl <- function(
   check_names(data, "area")
   check_names(data, "patch_id")
 
-  res <- res %||% NA
-
   vctrs::new_data_frame(
     # tibble::as_tibble(data),
     x = list(

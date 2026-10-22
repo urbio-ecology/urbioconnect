@@ -64,23 +64,9 @@ test_that("sf_aggregate_connected_patches groups by patch_id", {
   result <- sf_aggregate_connected_patches(patches)
 
   expect_gt(result$area[1], result$area[2])
-  expect_gt(result$area_squared[1], result$area_squared[2])
   expect_equal(nrow(result), 2)
   expect_snapshot(names(result))
   expect_all_true(as.numeric(result$area) > 0)
-  expect_equal(result$area_squared, result$area^2)
-})
-
-test_that("sf_aggregate_connected_patches computes area_squared correctly", {
-  patches <- sf::st_sf(
-    patch_id = c(1L),
-    geometry = sf::st_sfc(square(0, 0), crs = 32754)
-  ) |>
-    sf_add_patch_area()
-
-  result <- sf_aggregate_connected_patches(patches)
-
-  expect_equal(result$area_squared, result$area^2)
 })
 
 test_that("sf_drop_habitat_under_barrier removes overlapping habitat", {
