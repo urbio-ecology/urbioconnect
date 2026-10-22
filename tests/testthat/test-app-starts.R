@@ -52,6 +52,25 @@ test_that("the app starts, takes an analysis, and compares the result", {
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
 
+  # every "i" is drawn, and one opens its text from inside a <label>
+  local_app_server()
+  expect_equal(app$get_js('$(".input-help").length'), length(input_help))
+
+  app$click(selector = "#data_resolution-label .input-help")
+  app$wait_for_js('$(".popover-body").length > 0')
+  expect_match(app$get_text(".popover-body"), "grid cells")
+
+  # a click on a file input's label opens the file picker; on the "i" it
+  # mustn't
+  expect_equal(
+    app$get_js(
+      'document.querySelector("#habitat_file-label .input-help").dispatchEvent(
+         new MouseEvent("click", { bubbles: true, cancelable: true })
+       ) ? "reached the input" : "stopped at the i"'
+    ),
+    "stopped at the i"
+  )
+
   # the settings button sits in a conditionalPanel on results_ready, which only
   # a browser evaluates; the card is on Results, so open it to look
   app$set_inputs(main_nav = "Results")

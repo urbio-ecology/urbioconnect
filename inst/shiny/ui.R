@@ -21,7 +21,8 @@ ui <- page_navbar(
     # a spinner on every output while it recalculates, so a slow plot or table
     # reads as pending rather than missing
     useBusyIndicators(),
-    tags$style(HTML(compare_css))
+    tags$style(HTML(compare_css)),
+    input_help_head
   ),
 
   # Inputs Panel
@@ -37,21 +38,21 @@ ui <- page_navbar(
         card_body(
           textInput(
             inputId = "species",
-            label = "Species Name",
+            label = help_label("species"),
             value = "Superb Fairy Wren",
             placeholder = "Enter species name"
           ),
 
           fileInput(
             inputId = "habitat_file",
-            label = "Habitat Layer",
+            label = help_label("habitat_file"),
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
           fileInput(
             inputId = "barrier_file",
-            label = "Barrier Layer",
+            label = help_label("barrier_file"),
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
@@ -61,7 +62,7 @@ ui <- page_navbar(
           # of seconds, so it is worth knowing which you are asking for.
           selectInput(
             inputId = "example_data",
-            label = "Example data",
+            label = help_label("example_data"),
             choices = example_data_choices,
             selected = "none"
           ),
@@ -75,7 +76,7 @@ ui <- page_navbar(
           # the server fills these in rather than the list living here twice
           selectInput(
             inputId = "scenario_choice",
-            label = "Scenario Layer (optional)",
+            label = help_label("scenario_choice"),
             choices = scenario_choices(NULL)
           ),
 
@@ -83,7 +84,7 @@ ui <- page_navbar(
             condition = "input.scenario_choice == 'upload'",
             radioButtons(
               inputId = "scenario_kind",
-              label = "Which layer does your scenario change?",
+              label = help_label("scenario_kind"),
               choices = c(
                 "Barrier (a new road, say)" = "barrier",
                 "Habitat (a development, say)" = "habitat"
@@ -91,17 +92,10 @@ ui <- page_navbar(
             ),
             fileInput(
               inputId = "scenario_file",
-              label = "Scenario Layer",
+              label = help_label("scenario_file"),
               accept = spatial_upload_accept,
               multiple = TRUE
             )
-          ),
-
-          helpText(
-            "A scenario changes one layer and leaves the rest of the",
-            "landscape alone, so the difference in connectivity is",
-            "attributable to that change. It is compared at the same",
-            "interpatch distances as the baseline."
           )
         )
       ),
@@ -112,7 +106,7 @@ ui <- page_navbar(
         card_body(
           numericInput(
             inputId = "data_resolution",
-            label = "Data resolution (m)",
+            label = help_label("data_resolution"),
             value = 10,
             min = 1,
             max = 100,
@@ -130,15 +124,13 @@ ui <- page_navbar(
 
           textInput(
             inputId = "interpatch_distances",
-            label = "Interpatch Distances (m)",
+            label = help_label("interpatch_distances"),
             value = "100",
-            placeholder = "e.g., 50, 100, 200"
+            placeholder = "For example, 100, 250, 400"
           ),
 
-          helpText(
-            "Enter interpatch distances as comma-separated values.",
-            "These represent the maximum dispersal distances to analyze."
-          )
+          # the format has to be visible without opening the "i"
+          helpText("Separate distances with commas.")
         )
       )
     ),

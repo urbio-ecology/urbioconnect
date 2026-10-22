@@ -36,9 +36,10 @@ library(tidyr)
 library(tidyterra)
 library(urbioconnect)
 
-# ui.R and server.R are sourced by shiny itself; colours.R is not, so it comes
-# in here
+# ui.R and server.R are sourced by shiny itself; colours.R and help.R are not,
+# so they come in here
 source("colours.R")
+source("help.R")
 
 # Where the before/after PNGs for diffviewer are written. One directory for
 # the process, cleaned up when it exits: diffviewer compares files, not plots.

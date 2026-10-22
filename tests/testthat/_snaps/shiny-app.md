@@ -54,7 +54,7 @@
     Condition
       Error in `check_scenario_choice()`:
       ! No scenario file chosen.
-      i Upload one under Scenario Layer, or pick one of the supplied scenarios, or set it back to None.
+      i Upload one under Your scenario layer, or pick one of the supplied scenarios, or set it back to None.
 
 # interpatch distances that aren't numbers are an error, not dropped
 

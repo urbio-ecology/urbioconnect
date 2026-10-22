@@ -857,8 +857,8 @@ server <- function(input, output, session) {
       if (is.null(input$scenario_file)) {
         cli::cli_abort(c(
           "No scenario file chosen.",
-          "i" = "Upload one under {.field Scenario Layer}, or pick one of the
-                 supplied scenarios, or set it back to {.field None}."
+          "i" = "Upload one under {.field Your scenario layer}, or pick one of
+                 the supplied scenarios, or set it back to {.field None}."
         ))
       }
       return(invisible())
