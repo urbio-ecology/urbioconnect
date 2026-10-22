@@ -22,3 +22,4 @@
 ^[.]?air[.]toml$
 ^\.vscode$
 ^inst/shiny/_shinyelectron\.yml$
+^_dev$
