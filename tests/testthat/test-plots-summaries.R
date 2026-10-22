@@ -165,6 +165,19 @@ test_that("plot_patches counts the patches the summary counts", {
   )
 })
 
+test_that("plot_patches does not count NA or NaN cells as patches", {
+  patches <- terra::rast(
+    nrows = 3,
+    ncols = 3,
+    extent = terra::ext(0, 30, 0, 30),
+    crs = terra::crs(lizard_habitat),
+    vals = c(1, 1, NA, NaN, 2, 2, NA, 4, 4)
+  )
+  result <- plot_patches(add_patch_area(patches), interpatch_distance = 10)
+
+  expect_match(result$labels$subtitle, "# patches: 3\n", fixed = TRUE)
+})
+
 test_that("plot_patches renders correctly", {
   skip_on_ci()
   vdiffr::expect_doppelganger(
