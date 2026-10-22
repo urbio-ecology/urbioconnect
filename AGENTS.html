@@ -53,7 +53,7 @@
 <li>
 <code>inst/non-targets-workflow.R</code> and <code>inst/scenario-workflow.R</code>: example workflows.</li>
 <li>
-<code>dev/</code>: specs and reviews. Build-ignored.</li>
+<code>_dev/</code>: working notes, never committed (excluded in <code>.git/info/exclude</code>, build-ignored). <code>todos/pending</code> and <code>todos/done</code> hold tracking docs; <code>drafts/</code> holds issue, PR and comment drafts; <code>specs/</code> holds specs, plans and reviews; <code>explore/</code> holds reprexes, research write-ups, figures and benchmarks; <code>scripts/</code> holds deploy scripts.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="code">Code<a class="anchor" aria-label="anchor" href="#code"></a></h3>
@@ -62,6 +62,13 @@
 <li>
 <code>connectivity</code> and <code>patch_size_tbl</code> are S3 tibble subclasses. Keep them S3; don’t use S7 or R6 or S4.</li>
 <li>For S3 dispatch on input type, write a <code>.default</code> method rather than a <code>character</code> method.</li>
+<li>Internal functions may have roxygen blocks, as long as they use <code>@noRd</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="house-style">House style<a class="anchor" aria-label="anchor" href="#house-style"></a></h3>
+<ul><li>Never put non-ASCII characters in any file: code, docs, <code>NEWS.md</code> or prose.</li>
+<li>Never use an em dash. Use “-” instead.</li>
+<li>Draft commit messages tersely: one sentence as a heading, then bullets describing the changes.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="tests">Tests<a class="anchor" aria-label="anchor" href="#tests"></a></h3>
@@ -125,6 +132,61 @@
 </ul></div>
 </div>
 <div class="section level2">
+<h2 id="maintainer-conventions">Maintainer conventions<a class="anchor" aria-label="anchor" href="#maintainer-conventions"></a></h2>
+<!-- njt-agents:start. Written by /use-njt-agents; this whole section is replaced on the next run. Put project notes under "## This package". -->
+<p>These are the maintainer’s own conventions. Where they disagree with the sections below, these win.</p>
+<div class="section level3">
+<h3 id="overrides">Overrides<a class="anchor" aria-label="anchor" href="#overrides"></a></h3>
+<ul><li>Use Australian English, not US English.</li>
+<li>Do not use <code>devtools::test_active_file()</code> or <code>devtools::test_coverage_active_file()</code>. Run a file’s tests with <code>devtools::test(filter = "^{name}")</code>.</li>
+<li>Run R with <code>Rscript --quiet --vanilla -e "code"</code>.</li>
+<li>Group <code>NEWS.md</code> bullets into sections of related changes, instead of one alphabetical list.</li>
+<li>When to commit, push or open a pull request comes from the user’s own agent instructions. The “Git” section below applies only where those say nothing.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="coding">Coding<a class="anchor" aria-label="anchor" href="#coding"></a></h3>
+<ul><li>Don’t put comments at the end of a line of code. Put the comment on its own line above the code.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="readme">README<a class="anchor" aria-label="anchor" href="#readme"></a></h3>
+<ul><li>If the repo has <code>README.Rmd</code>, run <code>devtools::build_readme()</code> after any change that could alter its output, and commit the new <code>README.md</code> with that change. Never edit <code>README.md</code> by hand.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a></h3>
+<ul><li>Avoid for loops in tests. List each case out, or use a functional approach.</li>
+<li>
+<strong>Show that a new test fails without the change it tests.</strong> Put the base commit in a worktree, copy the new test file over it, and run it. A test that passes both ways is testing something else, or passing on state.</li>
+<li>
+<strong>Do not let a test depend on what an earlier test left behind.</strong> Where a test needs global state disturbed (a seed, an option), set it inside the test and draw values rather than hardcoding them.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="github">GitHub<a class="anchor" aria-label="anchor" href="#github"></a></h3>
+<ul><li>If you use <code>gh</code> to read an issue, always use <code>--comments</code> so you see the whole thread.</li>
+<li>
+<strong>Write it before you post it.</strong> An issue body or comment goes in a file in <code>_dev/drafts/</code> first, with <code>issue</code> in the filename. Check every link resolves before it goes anywhere. Writing the draft and posting it are separate decisions, and posting needs asking each time.</li>
+<li>
+<strong>Decide whether every issue needs a reprex.</strong> It does if it reports a bug or makes any claim about what code does or returns. Then the draft is <code>_dev/drafts/issue-&lt;slug&gt;.qmd</code>, with the issue title as <code>title:</code>, <code>format: gfm: wrap: none</code> (or GitHub shows hard line breaks), <code>from: markdown-smart</code> (or quotes turn curly), and <code>knitr: opts_chunk:</code> set to <code>collapse: true</code> and <code>comment: "#&gt;"</code>. It loads the package with <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>, so a reader can run it as written. Render it with <code>quarto render</code>, so every number in the issue comes from that run. Post the rendered <code>.md</code>, without the title heading that <code>gfm</code> puts first. An issue with no code claim is a plain <code>.md</code>.</li>
+<li>An issue should say what is expected, what happens instead, what the fix is, and what it improves. Link the lines of code it is about as permalinks pinned to a commit.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="skills">Skills<a class="anchor" aria-label="anchor" href="#skills"></a></h3>
+<p>If these skills are available, read the relevant one before starting the task:</p>
+<ul><li>
+<code>testing-r-packages</code>: writing or reviewing tests.</li>
+<li>
+<code>r-function-design</code>: function internals, input checking, splitting a function that does too much.</li>
+<li>
+<code>reprex</code>: writing a bug report or a minimal reproducible example.</li>
+<li>
+<code>code-comments</code>: writing or reviewing code comments.</li>
+<li>
+<code>ai-slop</code>: reviewing any prose before it ships.</li>
+<li>
+<code>njtierney-voice</code>: prose that goes out under the maintainer’s name. <!-- njt-agents:end -->
+</li>
+</ul></div>
+</div>
+<div class="section level2">
 <h2 id="package-development">Package development<a class="anchor" aria-label="anchor" href="#package-development"></a></h2>
 <div class="section level3">
 <h3 id="key-commands">Key commands<a class="anchor" aria-label="anchor" href="#key-commands"></a></h3>
@@ -160,9 +222,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="code-style">Code style<a class="anchor" aria-label="anchor" href="#code-style"></a></h3>
-<ul><li>Never ever use nonAscii contents in files</li>
-<li>Never use ” — ” always use “-”</li>
-<li>Follow the tidyverse style guide</li>
+<ul><li>Follow the tidyverse style guide</li>
 <li>Always run <code>air format .</code> after generating code. (air is bundled with Positron so look there if you can’t otherwise find it.)</li>
 <li>Use the base pipe operator (<code>|&gt;</code>), not the magrittr pipe (<code>%&gt;%</code>).</li>
 <li>Use <code>\() ...</code> for single-line anonymous functions. For all other cases, use <code>function() {...}</code>.</li>
@@ -183,10 +243,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a></h3>
-<ul><li>Never ever use nonAscii contents in files</li>
-<li>Never use ” — ” always use “-”</li>
-<li>Every user-facing function should be exported and have roxygen2 documentation.</li>
-<li>Internal functions may have roxygen blocks, as long as they use <code>@noRd</code>.</li>
+<ul><li>Every user-facing function should be exported and have roxygen2 documentation.</li>
+<li>Internal functions should not have roxygen documentation.</li>
 <li>Wrap roxygen2 comments to 80 characters.</li>
 <li>Whenever you add a new (non-internal) documentation topic, also add the topic to <code>_pkgdown.yml</code>.</li>
 <li>Always re-document the package after changing a roxygen2 comment.</li>
@@ -194,9 +252,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="newsmd"><code>NEWS.md</code><a class="anchor" aria-label="anchor" href="#newsmd"></a></h3>
-<ul><li>Never ever use nonAscii contents in files</li>
-<li>Never use ” — ” always use “-”</li>
-<li>Every user-facing change should be given a bullet in <code>NEWS.md</code>.</li>
+<ul><li>Every user-facing change should be given a bullet in <code>NEWS.md</code>.</li>
 <li>Changes that shouldn’t get a bullet:
 <ul><li>Small documentation changes.</li>
 <li>Internal refactorings.</li>
@@ -218,17 +274,13 @@
 </ul></div>
 <div class="section level2">
 <h2 id="git">Git<a class="anchor" aria-label="anchor" href="#git"></a></h2>
-<ul><li>Never commit, push or merge without explicit approval for that specific commit. Approval for one commit does not carry over to the next.</li>
-<li>If the user asks you to commit, use markdown in the commit message, and don’t line wrap.</li>
-<li>Draft commit messages should be terse, and state the changes made clearly. One sentence as a heading, then bulleted lists to describe changes</li>
+<ul><li>If the user asks you to commit, use markdown in the commit message, and don’t line wrap.</li>
 <li>If the commit fixes an issue, include <code>Fixes #num.</code> on its own line.</li>
 <li>Only push when the user explicitly requests it.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="writing">Writing<a class="anchor" aria-label="anchor" href="#writing"></a></h2>
-<ul><li>Never ever use nonAscii contents in files</li>
-<li>Never use ” — ” always use “-”</li>
-<li>Use sentence case for headings.</li>
+<ul><li>Use sentence case for headings.</li>
 <li>Use Australian English.</li>
 </ul><div class="section level3">
 <h3 id="proofreading">Proofreading<a class="anchor" aria-label="anchor" href="#proofreading"></a></h3>

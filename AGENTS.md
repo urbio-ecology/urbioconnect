@@ -19,7 +19,12 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
   `inst/shiny/server.R`.
 - `inst/non-targets-workflow.R` and `inst/scenario-workflow.R`: example
   workflows.
-- `dev/`: specs and reviews. Build-ignored.
+- `_dev/`: working notes, never committed (excluded in
+  `.git/info/exclude`, build-ignored). `todos/pending` and `todos/done`
+  hold tracking docs; `drafts/` holds issue, PR and comment drafts;
+  `specs/` holds specs, plans and reviews; `explore/` holds reprexes,
+  research write-ups, figures and benchmarks; `scripts/` holds deploy
+  scripts.
 
 ### Code
 
@@ -32,6 +37,16 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
   them S3; don’t use S7 or R6 or S4.
 - For S3 dispatch on input type, write a `.default` method rather than a
   `character` method.
+- Internal functions may have roxygen blocks, as long as they use
+  `@noRd`.
+
+### House style
+
+- Never put non-ASCII characters in any file: code, docs, `NEWS.md` or
+  prose.
+- Never use an em dash. Use “-” instead.
+- Draft commit messages tersely: one sentence as a heading, then bullets
+  describing the changes.
 
 ### Tests
 
@@ -173,6 +188,84 @@ Outputs, on a results tab:
 - A single report (HTML or PDF) containing all of the above.
 - Every one of these can be downloaded.
 
+## Maintainer conventions
+
+These are the maintainer’s own conventions. Where they disagree with the
+sections below, these win.
+
+### Overrides
+
+- Use Australian English, not US English.
+- Do not use `devtools::test_active_file()` or
+  `devtools::test_coverage_active_file()`. Run a file’s tests with
+  `devtools::test(filter = "^{name}")`.
+- Run R with `Rscript --quiet --vanilla -e "code"`.
+- Group `NEWS.md` bullets into sections of related changes, instead of
+  one alphabetical list.
+- When to commit, push or open a pull request comes from the user’s own
+  agent instructions. The “Git” section below applies only where those
+  say nothing.
+
+### Coding
+
+- Don’t put comments at the end of a line of code. Put the comment on
+  its own line above the code.
+
+### README
+
+- If the repo has `README.Rmd`, run `devtools::build_readme()` after any
+  change that could alter its output, and commit the new `README.md`
+  with that change. Never edit `README.md` by hand.
+
+### Testing
+
+- Avoid for loops in tests. List each case out, or use a functional
+  approach.
+- **Show that a new test fails without the change it tests.** Put the
+  base commit in a worktree, copy the new test file over it, and run it.
+  A test that passes both ways is testing something else, or passing on
+  state.
+- **Do not let a test depend on what an earlier test left behind.**
+  Where a test needs global state disturbed (a seed, an option), set it
+  inside the test and draw values rather than hardcoding them.
+
+### GitHub
+
+- If you use `gh` to read an issue, always use `--comments` so you see
+  the whole thread.
+- **Write it before you post it.** An issue body or comment goes in a
+  file in `_dev/drafts/` first, with `issue` in the filename. Check
+  every link resolves before it goes anywhere. Writing the draft and
+  posting it are separate decisions, and posting needs asking each time.
+- **Decide whether every issue needs a reprex.** It does if it reports a
+  bug or makes any claim about what code does or returns. Then the draft
+  is `_dev/drafts/issue-<slug>.qmd`, with the issue title as `title:`,
+  `format: gfm: wrap: none` (or GitHub shows hard line breaks),
+  `from: markdown-smart` (or quotes turn curly), and
+  `knitr: opts_chunk:` set to `collapse: true` and `comment: "#>"`. It
+  loads the package with
+  [`library()`](https://rdrr.io/r/base/library.html), so a reader can
+  run it as written. Render it with `quarto render`, so every number in
+  the issue comes from that run. Post the rendered `.md`, without the
+  title heading that `gfm` puts first. An issue with no code claim is a
+  plain `.md`.
+- An issue should say what is expected, what happens instead, what the
+  fix is, and what it improves. Link the lines of code it is about as
+  permalinks pinned to a commit.
+
+### Skills
+
+If these skills are available, read the relevant one before starting the
+task:
+
+- `testing-r-packages`: writing or reviewing tests.
+- `r-function-design`: function internals, input checking, splitting a
+  function that does too much.
+- `reprex`: writing a bug report or a minimal reproducible example.
+- `code-comments`: writing or reviewing code comments.
+- `ai-slop`: reviewing any prose before it ships.
+- `njtierney-voice`: prose that goes out under the maintainer’s name.
+
 ## Package development
 
 ### Key commands
@@ -224,8 +317,6 @@ desirability:
 
 ### Code style
 
-- Never ever use nonAscii contents in files
-- Never use ” — ” always use “-”
 - Follow the tidyverse style guide
 - Always run `air format .` after generating code. (air is bundled with
   Positron so look there if you can’t otherwise find it.)
@@ -260,12 +351,9 @@ desirability:
 
 ### Documentation
 
-- Never ever use nonAscii contents in files
-- Never use ” — ” always use “-”
 - Every user-facing function should be exported and have roxygen2
   documentation.
-- Internal functions may have roxygen blocks, as long as they use
-  `@noRd`.
+- Internal functions should not have roxygen documentation.
 - Wrap roxygen2 comments to 80 characters.
 - Whenever you add a new (non-internal) documentation topic, also add
   the topic to `_pkgdown.yml`.
@@ -276,8 +364,6 @@ desirability:
 
 ### `NEWS.md`
 
-- Never ever use nonAscii contents in files
-- Never use ” — ” always use “-”
 - Every user-facing change should be given a bullet in `NEWS.md`.
 - Changes that shouldn’t get a bullet:
   - Small documentation changes.
@@ -307,21 +393,13 @@ desirability:
 
 ## Git
 
-- Never commit, push or merge without explicit approval for that
-  specific commit. Approval for one commit does not carry over to the
-  next.
 - If the user asks you to commit, use markdown in the commit message,
   and don’t line wrap.
-- Draft commit messages should be terse, and state the changes made
-  clearly. One sentence as a heading, then bulleted lists to describe
-  changes
 - If the commit fixes an issue, include `Fixes #num.` on its own line.
 - Only push when the user explicitly requests it.
 
 ## Writing
 
-- Never ever use nonAscii contents in files
-- Never use ” — ” always use “-”
 - Use sentence case for headings.
 - Use Australian English.
 
