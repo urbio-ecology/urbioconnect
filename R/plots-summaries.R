@@ -367,7 +367,7 @@ plot_connectivity.default <- function(x, ...) {
     )
   ) +
     ggplot2::geom_point() +
-    distance_line(x$interpatch_distance, colour = series_colours()[[1]]) +
+    distance_line(x$interpatch_distance, colour = series_styles()$colour[[1]]) +
     connectivity_plot_layout(x$interpatch_distance)
 }
 
@@ -379,7 +379,7 @@ plot_connectivity.compare_connectivity <- function(x, ...) {
   check_plot_scenarios(x)
 
   plot_data <- comparison_plot_data(x)
-  series <- levels(plot_data$series)
+  styles <- series_styles()[seq_len(nlevels(plot_data$series)), ]
 
   ggplot2::ggplot(
     data = plot_data,
@@ -393,14 +393,8 @@ plot_connectivity.compare_connectivity <- function(x, ...) {
     ggplot2::geom_point(size = 2) +
     distance_line(x$interpatch_distance) +
     # shape as well as colour, so the lines part without colour vision
-    ggplot2::scale_colour_manual(
-      values = series_colours()[seq_along(series)],
-      name = NULL
-    ) +
-    ggplot2::scale_shape_manual(
-      values = series_shapes()[seq_along(series)],
-      name = NULL
-    ) +
+    ggplot2::scale_colour_manual(values = styles$colour, name = NULL) +
+    ggplot2::scale_shape_manual(values = styles$shape, name = NULL) +
     connectivity_plot_layout(x$interpatch_distance) +
     ggplot2::theme(legend.position = "bottom")
 }
@@ -448,29 +442,25 @@ comparison_plot_data <- function(x, call = rlang::caller_env()) {
     )
 }
 
-#' The baseline's colour, then one per scenario
+#' The baseline's colour and shape, then one of each per scenario
 #'
 #' The baseline keeps the over-distance plot's green. The scenarios take
 #' Okabe-Ito's colour-blind-safe hues, less its green, too close to the
 #' baseline's, and its yellow, too pale to see on white.
 #'
 #' @noRd
-series_colours <- function() {
-  c(
-    scico::scico(n = 6, palette = "bukavu")[[4]],
-    "#0072B2",
-    "#D55E00",
-    "#CC79A7",
-    "#E69F00",
-    "#56B4E9"
+series_styles <- function() {
+  tibble::tibble(
+    colour = c(
+      scico::scico(n = 6, palette = "bukavu")[[4]],
+      "#0072B2",
+      "#D55E00",
+      "#CC79A7",
+      "#E69F00",
+      "#56B4E9"
+    ),
+    shape = c(16, 17, 15, 18, 8, 4)
   )
-}
-
-#' Filled, so a point reads at the same weight as its colour
-#'
-#' @noRd
-series_shapes <- function() {
-  c(16, 17, 15, 18, 8, 4)
 }
 
 #' @noRd
@@ -484,7 +474,7 @@ scenario_labels <- function(scenario_name) {
 #' @noRd
 check_plot_scenarios <- function(x, call = rlang::caller_env()) {
   scenarios <- unique(scenario_labels(x$scenario_name))
-  most <- min(length(series_colours()), length(series_shapes())) - 1
+  most <- nrow(series_styles()) - 1
   baseline <- scenarios[tolower(scenarios) == "baseline"]
 
   if (length(baseline) > 0) {
