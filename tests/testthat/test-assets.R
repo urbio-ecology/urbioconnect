@@ -177,6 +177,20 @@ test_that("the README lists every file and describes the run", {
   expect_true(any(grepl("square metres", readme, fixed = TRUE)))
 })
 
+test_that("the README dates the run, not the download", {
+  report_data <- test_report_data()
+  report_data$run_time <- as.POSIXct("2020-01-02 03:04:05", tz = "UTC")
+  dir <- withr::local_tempdir()
+
+  write_asset_readme(report_data, asset_manifest(report_data), dir)
+
+  expect_match(
+    paste(readLines(file.path(dir, "README.md")), collapse = "\n"),
+    "Produced 2020-01-02 by",
+    fixed = TRUE
+  )
+})
+
 test_that("zip_connectivity_assets() archives one named folder", {
   report_data <- test_report_data(40)
   path <- withr::local_tempfile(fileext = ".zip")

@@ -284,12 +284,14 @@ asset_manifest <- function(x, reports = FALSE) {
   shared <- tibble::tibble(
     path = c(
       "README.md",
+      "summary/settings.csv",
       "summary/connectivity-summary.csv",
       "summary/patch-areas.csv"
     ),
-    kind = c("readme", "table", "table"),
+    kind = c("readme", "table", "table", "table"),
     description = c(
       "This file: what the analysis was, and what each file holds.",
+      "The settings the analysis was run with, one row per setting.",
       "Landscape metrics, one row per interpatch distance.",
       "Every habitat patch, with its area and interpatch distance."
     )
@@ -382,6 +384,12 @@ distance_manifest <- function(distance) {
 
 #' @noRd
 write_asset_tables <- function(x, dir) {
+  # first, because it says what the rest of these files are an analysis of
+  readr::write_csv(
+    connectivity_settings(x),
+    file.path(dir, "summary", "settings.csv")
+  )
+
   x$connectivity |>
     dplyr::select(-"patch_size") |>
     readr::write_csv(file.path(dir, "summary", "connectivity-summary.csv"))
@@ -522,7 +530,7 @@ write_asset_readme <- function(x, manifest, dir) {
       ),
       resolution = format_resolution(terra::res(x$habitat)),
       crs = terra::crs(x$habitat, describe = TRUE)$name,
-      date = format(Sys.Date()),
+      date = format(x$run_time, "%Y-%m-%d"),
       version = as.character(utils::packageVersion("urbioconnect")),
       files = glue::glue_collapse(file_list, sep = "\n")
     )

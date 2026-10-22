@@ -132,9 +132,10 @@ test_that("a scenario and its kind have to arrive together", {
     report_data(scenario = layers$barrier_scenario, scenario_kind = "both")
   })
 
-  # an unchanged scenario is legal, and says so
+  # an unchanged scenario is legal, and says so. invisible(), because the
+  # object carries run_time, which differs on every run
   expect_snapshot(
-    report_data(scenario = layers$barrier, scenario_kind = "barrier")
+    invisible(report_data(scenario = layers$barrier, scenario_kind = "barrier"))
   )
 })
 
@@ -203,5 +204,87 @@ test_that("connectivity_report_data() checks its arguments", {
       interpatch_distance = 40,
       verbose = FALSE
     )
+  })
+})
+
+test_that("connectivity_settings() records the run as one row per setting", {
+  settings <- connectivity_settings(test_report_data(c(40, 80)))
+
+  expect_snapshot(settings$setting)
+  expect_type(settings$value, "character")
+
+  # one row however many distances there were
+  expect_equal(
+    settings$value[settings$setting == "interpatch_distance_m"],
+    "40, 80"
+  )
+  expect_equal(settings$value[settings$setting == "scenario_kind"], "none")
+})
+
+test_that("connectivity_settings() carries the caller's own settings", {
+  layers <- scenario_test_layers()
+
+  report_data <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 40,
+    settings = list(habitat_source = "a test raster", data_resolution_m = 10),
+    verbose = FALSE
+  )
+
+  expect_snapshot(connectivity_settings(report_data)$setting)
+})
+
+test_that("connectivity_settings() names the scenario it compared", {
+  layers <- scenario_test_layers()
+
+  report_data <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 40,
+    scenario = layers$habitat_scenario,
+    scenario_kind = "habitat",
+    scenario_name = "A development",
+    verbose = FALSE
+  )
+
+  settings <- connectivity_settings(report_data)
+
+  expect_equal(settings$value[settings$setting == "scenario_kind"], "habitat")
+  expect_equal(
+    settings$value[settings$setting == "scenario_name"],
+    "A development"
+  )
+})
+
+test_that("derived_setting_names() is what connectivity_settings() builds", {
+  # the two are written out separately, so this stops them drifting
+  expect_setequal(
+    connectivity_settings(test_report_data(40))$setting,
+    derived_setting_names()
+  )
+})
+
+test_that("connectivity_report_data() rejects settings it can't record", {
+  layers <- scenario_test_layers()
+
+  report_data <- function(...) {
+    connectivity_report_data(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = 40,
+      verbose = FALSE,
+      ...
+    )
+  }
+
+  expect_snapshot(error = TRUE, {
+    report_data(settings = "no names")
+    report_data(settings = list(a = 1:2))
+    report_data(settings = list(species = "mine"))
+    report_data(settings = list(a = 1, a = 2))
   })
 })

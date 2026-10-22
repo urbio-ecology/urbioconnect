@@ -115,6 +115,68 @@ check_scenario_name <- function(
   invisible(x)
 }
 
+#' Check the settings a caller recorded
+#'
+#' Each element becomes a row of a two-column CSV, so it has to be a single
+#' value with a name, and that name has to be one nothing else uses: a
+#' duplicate row means a reader looking a setting up gets two answers.
+#'
+#' @noRd
+check_settings <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+
+  # caller_arg() reads x lazily, so force it before x is reassigned
+  force(arg)
+  supplied <- x
+  x <- as.list(x)
+  single <- purrr::map_lgl(x, \(value) is.atomic(value) && length(value) == 1)
+
+  if (!rlang::is_named(x) || !all(single)) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be a named list of single values.",
+        "x" = "You supplied {.obj_type_friendly {supplied}}.",
+        "i" = "One element per setting, for example
+               {.code list(data_resolution_m = 10)}."
+      ),
+      call = call
+    )
+  }
+
+  shadowed <- intersect(names(x), derived_setting_names())
+
+  if (length(shadowed) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} can't name a setting the analysis derives itself.",
+        "x" = "{.field {shadowed}} {?is/are} derived.",
+        "i" = "Derived: {.field {derived_setting_names()}}."
+      ),
+      call = call
+    )
+  }
+
+  repeated <- unique(names(x)[duplicated(names(x))])
+
+  if (length(repeated) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} names a setting more than once.",
+        "x" = "{.field {repeated}} {?is/are} repeated."
+      ),
+      call = call
+    )
+  }
+
+  purrr::map_chr(x, as.character)
+}
+
 #' Check scenario names
 #'
 #' The names become the `scenario_name` column, so every scenario needs one,
