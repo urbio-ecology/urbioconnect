@@ -134,7 +134,7 @@
       x species is derived.
       i Derived: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
-      test_report_data(settings = list(a = 1, a = 2))
+      test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
     Condition
       Error in `connectivity_report_data()`:
       ! `settings` names a setting more than once.

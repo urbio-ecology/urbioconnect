@@ -317,6 +317,6 @@ test_that("connectivity_report_data() rejects settings it can't record", {
     test_report_data(settings = list(a = 1, 2))
     test_report_data(settings = list(a = 1:2))
     test_report_data(settings = list(species = "mine"))
-    test_report_data(settings = list(a = 1, a = 2))
+    test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
   })
 })
