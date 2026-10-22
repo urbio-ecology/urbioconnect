@@ -59,9 +59,6 @@ docs
 
 Rplots.pdf
 
-# dev notes
-dev/
-
 # testthat failure artefacts
 tests/testthat/_problems/
 tests/testthat/testthat-problems.rds
