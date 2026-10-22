@@ -116,42 +116,38 @@ help_input <- function(input_fn, id, ...) {
   entry <- input_help[[id]] %||%
     cli::cli_abort("There is no help text for the {.val {id}} input.")
 
-  input <- htmltools::tagQuery(input_fn(inputId = id, label = entry$label, ...))
-  input$find(paste0("#", id, "-label"))$after(help_icon(id))$allTags()
-}
-
-help_icon <- function(id) {
-  label <- input_help[[id]]$label
-
-  popover(
+  icon <- popover(
     span(
       id = paste0(id, "-help"),
       class = "input-help ms-1",
       fontawesome::fa(
         "circle-info",
         a11y = "sem",
-        title = paste("More about:", label)
+        title = paste("More about:", entry$label)
       )
     ),
     help_paragraphs(id),
-    title = label
+    title = entry$label
   )
+
+  input <- htmltools::tagQuery(input_fn(inputId = id, label = entry$label, ...))
+  input$find(paste0("#", id, "-label"))$after(icon)$allTags()
 }
 
 # the strings are wrapped in the source; squish so the line breaks don't show
 help_paragraphs <- function(id) {
-  tagList(purrr::map(input_help[[id]]$help, \(text) p(squish(text))))
+  tagList(purrr::map(
+    input_help[[id]]$help,
+    \(text) p(gsub("\\s+", " ", trimws(text)))
+  ))
 }
 
 # For the Before you start page: each input's explanation under its label
 help_sections <- function(ids) {
-  tagList(purrr::map(ids, function(id) {
-    tagList(h5(input_help[[id]]$label), help_paragraphs(id))
-  }))
-}
-
-squish <- function(text) {
-  gsub("\\s+", " ", trimws(text))
+  tagList(purrr::map(
+    ids,
+    \(id) tagList(h5(input_help[[id]]$label), help_paragraphs(id))
+  ))
 }
 
 # coloured and with a pointer, so an "i" reads as something to click
@@ -245,7 +241,9 @@ too_short <- function(short, data_resolution) {
     return(character())
   }
 
-  problem <- if (length(short) == 1) {
+  one <- length(short) == 1
+
+  problem <- if (one) {
     paste0(
       metres(short),
       " is too short to measure: half of it (",
@@ -272,7 +270,7 @@ too_short <- function(short, data_resolution) {
     problem,
     ", so only patches that touch will join. Use ",
     smaller_cells,
-    if (length(short) == 1) "a distance" else "distances",
+    if (one) "a distance" else "distances",
     " of at least ",
     metres(2 * data_resolution),
     "."
@@ -286,9 +284,11 @@ rounded <- function(distances, treated_as, data_resolution) {
   }
 
   changes <- paste0(
-    metres(distances[moved], each = TRUE),
+    number(distances[moved]),
+    " m",
     c(" is treated as ", rep(" as ", sum(moved) - 1)),
-    metres(treated_as[moved], each = TRUE)
+    number(treated_as[moved]),
+    " m"
   )
 
   paste0(
@@ -315,20 +315,18 @@ too_many <- function(distances) {
   )
 }
 
-# "100, 250 and 400 m", or with `each`, "100 m" for every value. Each number
-# is formatted on its own, so 7.5 and 100 don't share decimal places.
-metres <- function(values, each = FALSE) {
-  numbers <- vapply(
+# "100, 250 and 400 m"
+metres <- function(values) {
+  paste(and_list(number(values)), "m")
+}
+
+# each on its own, so 7.5 and 100 don't share decimal places
+number <- function(values) {
+  vapply(
     values,
     \(value) format(value, trim = TRUE, scientific = FALSE),
     character(1)
   )
-
-  if (each) {
-    return(paste(numbers, "m"))
-  }
-
-  paste(and_list(numbers), "m")
 }
 
 and_list <- function(x) {
