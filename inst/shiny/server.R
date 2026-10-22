@@ -51,8 +51,10 @@ server <- function(input, output, session) {
 
   # Choosing an example fills in its species and takes over the file inputs;
   # the scenarios on offer are that dataset's, since a scenario is only
-  # comparable against the landscape it was drawn on.
-  observeEvent(input$example_data, {
+  # comparable against the landscape it was drawn on. Not at startup: the page
+  # already matches "none", and a late update there put a scenario chosen in
+  # the meantime back to "none".
+  observeEvent(input$example_data, ignoreInit = TRUE, {
     dataset <- chosen_dataset()
     using_example <- !is.null(dataset)
 

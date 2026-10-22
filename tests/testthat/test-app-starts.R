@@ -46,11 +46,9 @@ test_that("the app starts, takes an analysis, and compares the result", {
   app$set_inputs(scenario_choice = "upload")
   app$wait_for_idle()
 
-  # under covr on CI the panel had not shown by the time wait_for_idle()
-  # returned, so check the choice took and then wait for the panel itself
+  # on a slow server the startup choices update used to land after this and
+  # put the choice back to "none"
   expect_equal(app$get_value(input = "scenario_choice"), "upload")
-  app$wait_for_js('$("#scenario_file").is(":visible")', timeout = 30000)
-
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
 
