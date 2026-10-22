@@ -11,7 +11,8 @@
 #' without ceremony. Read the metadata back with [pc_species()] and
 #' [pc_interpatch_distance()].
 #'
-#' @param data Data frame of connected patches. Must contain an `area` column.
+#' @param data Data frame of connected patches. Must contain `patch_id` and
+#'   `area` columns.
 #' @param species Character of length 1. Species the analysis was run for.
 #' @param res resolution in pixels - defaults to NA (numeric), not required for
 #'   vector based approaches.
@@ -33,7 +34,6 @@ new_patch_size_tbl <- function(
   check_names(data, "patch_id")
 
   vctrs::new_data_frame(
-    # tibble::as_tibble(data),
     x = list(
       patch_id = data$patch_id,
       area = data$area

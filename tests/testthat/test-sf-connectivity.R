@@ -63,10 +63,9 @@ test_that("sf_aggregate_connected_patches groups by patch_id", {
 
   result <- sf_aggregate_connected_patches(patches)
 
-  expect_gt(result$area[1], result$area[2])
   expect_equal(nrow(result), 2)
   expect_snapshot(names(result))
-  expect_all_true(as.numeric(result$area) > 0)
+  expect_equal(result$area, c(20000, 10000))
 })
 
 test_that("sf_drop_habitat_under_barrier removes overlapping habitat", {

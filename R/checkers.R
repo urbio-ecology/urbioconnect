@@ -576,7 +576,7 @@ check_names <- function(
   name_exists <- rlang::has_name(x, name)
   if (!name_exists) {
     cli::cli_abort(
-      message = "{.arg {arg}} must contain a {.field {name}} column.",
+      message = "{.arg {arg}} must have a column named {.field {name}}.",
       call = call
     )
   }

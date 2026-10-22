@@ -9,6 +9,17 @@ test_that("patch_size_tbl works", {
   )
 })
 
+test_that("new_patch_size_tbl names its own argument", {
+  expect_snapshot(
+    error = TRUE,
+    new_patch_size_tbl(
+      data = data.frame(patch_id = 1:3),
+      species = "birds",
+      interpatch_distance = 10
+    )
+  )
+})
+
 test_that("validate_patch_size_tbl works", {
   expect_snapshot(
     error = TRUE,
