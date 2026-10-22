@@ -53,7 +53,8 @@ connectivity_at_distance <- function(
 #' @param resolution Cell size in metres, a single positive number.
 #'
 #' @returns A numeric vector the length of `interpatch_distance`: the distance
-#'   each is treated as. `0` where it can't be represented.
+#'   each is treated as. `0` where it can't be represented, which includes a
+#'   negative distance. `NA` stays `NA`.
 #' @seealso `vignette("interpatch-distance-and-resolution")`
 #' @export
 #'
@@ -62,7 +63,7 @@ connectivity_at_distance <- function(
 representable_distance <- function(interpatch_distance, resolution) {
   check_numeric(interpatch_distance)
   check_scalar_numeric(resolution)
-  if (is.na(resolution) || resolution <= 0) {
+  if (!is.finite(resolution) || resolution <= 0) {
     cli::cli_abort(
       "{.arg resolution} must be a positive number, not {resolution}."
     )
@@ -70,8 +71,9 @@ representable_distance <- function(interpatch_distance, resolution) {
 
   # terra::focalMat() includes a cell when its centre is within the radius, so
   # the number of rings is floor(radius / resolution). Verified empirically:
-  # d = 350 at 500 m cells is 1x1; d = 500 and d = 600 are 3x3.
-  2 * floor(interpatch_distance / 2 / resolution) * resolution
+  # d = 350 at 500 m cells is 1x1; d = 500 and d = 600 are 3x3. A negative
+  # distance has no rings either.
+  pmax(0, 2 * floor(interpatch_distance / 2 / resolution) * resolution)
 }
 
 # warn if the distance can't be represented at this res

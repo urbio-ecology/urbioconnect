@@ -60,24 +60,15 @@ test_that("the app starts, takes an analysis, and compares the result", {
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
 
-  # every "i" is drawn, and one opens its text from inside a <label>
+  # every "i" is drawn, and one opens its text. The app's own files say how
+  # many there should be.
   local_app_server()
   expect_equal(app$get_js('$(".input-help").length'), length(input_help))
 
-  app$click(selector = "#data_resolution-label .input-help")
+  # a file input's, the one whose label would open the file picker
+  app$click(selector = "#habitat_file-help")
   app$wait_for_js('$(".popover-body").length > 0')
-  expect_match(app$get_text(".popover-body"), "grid cells")
-
-  # a click on a file input's label opens the file picker; on the "i" it
-  # mustn't
-  expect_equal(
-    app$get_js(
-      'document.querySelector("#habitat_file-label .input-help").dispatchEvent(
-         new MouseEvent("click", { bubbles: true, cancelable: true })
-       ) ? "reached the input" : "stopped at the i"'
-    ),
-    "stopped at the i"
-  )
+  expect_match(app$get_text(".popover-body"), "Where your species lives")
 
   # the Your analysis card is rewritten in the browser too, where
   # data_resolution arrives as an integer rather than a double

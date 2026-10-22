@@ -1,16 +1,16 @@
-# every input but target_resolution has an i
+# every input but target_resolution has an i, outside its label
 
     Code
-      ids[!has_help]
+      setdiff(ids_ending("label"), ids_ending("help"))
     Output
       [1] "target_resolution"
 
-# help_label() fails for an input with no help
+# help_input() fails for an input with no help
 
     Code
-      help_label("speceis")
+      help_input(shiny::textInput, "speceis")
     Condition
-      Error in `help_label()`:
+      Error in `help_input()`:
       ! There is no help text for the "speceis" input.
 
 # describe_analysis() says what the inputs add up to
@@ -31,7 +31,13 @@
     Output
       - Blue Tongue Lizard example data, on a grid of 10 m cells.
       - Patches up to 15 m apart are joined, unless a barrier lies between them.
-      ! At 10 m cells, 15 m is too short to measure: half of it (7.5 m) is less than one cell, so only patches that touch will join. Use cells of 7.5 m or smaller, or a distance of at least 20 m.
+      ! At 10 m cells, 15 m is too short to measure: half of it (7.5 m) is less than one cell, so only patches that touch will join. Use cells of 7 m or smaller, or a distance of at least 20 m.
+    Code
+      describe(distances = 1)
+    Output
+      - Blue Tongue Lizard example data, on a grid of 10 m cells.
+      - Patches up to 1 m apart are joined, unless a barrier lies between them.
+      ! At 10 m cells, 1 m is too short to measure: half of it (0.5 m) is less than one cell, so only patches that touch will join. Use a distance of at least 20 m.
     Code
       describe(data_resolution = 30, distances = c(20, 50, 100))
     Output

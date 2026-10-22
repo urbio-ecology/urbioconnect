@@ -327,7 +327,7 @@ test_that("a scenario that can't match the baseline says so by name", {
   })
 })
 
-test_that("the Your analysis card follows the inputs without reading a layer", {
+test_that("the Your analysis card describes a scenario without reading it", {
   skip_if_no_app()
   local_app_server()
 
@@ -343,31 +343,89 @@ test_that("the Your analysis card follows the inputs without reading a layer", {
       interpatch_distances = "100, 250",
       scenario_choice = "lizard_road"
     )
+
     preview <- output$analysis_preview$html
     expect_match(preview, "Blue Tongue Lizard example data", fixed = TRUE)
     expect_match(preview, "250 m is treated as 240 m", fixed = TRUE)
     expect_match(preview, "A new road through the habitat", fixed = TRUE)
+    expect_false(results$ready)
+  })
+})
 
-    session$setInputs(interpatch_distances = "100", scenario_choice = "none")
-    expect_no_match(output$analysis_preview$html, "treated as", fixed = TRUE)
-    expect_no_match(output$analysis_preview$html, "runs again", fixed = TRUE)
+test_that("the Your analysis card drops a scenario left over from the other dataset", {
+  skip_if_no_app()
+  local_app_server()
 
+  shiny::testServer(server, {
+    # the dropdown lags a change of dataset by a round trip
     session$setInputs(
       example_data = "none",
+      data_resolution = 10,
+      interpatch_distances = "100",
+      scenario_choice = "lizard_road"
+    )
+
+    expect_no_match(output$analysis_preview$html, "runs again", fixed = TRUE)
+  })
+})
+
+test_that("the Your analysis card names uploads by file, once both are there", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    session$setInputs(
+      example_data = "none",
+      data_resolution = 10,
+      interpatch_distances = "100",
+      scenario_choice = "upload",
+      scenario_kind = "habitat",
       habitat_file = upload_value(
         system.file("ex", "lizard_habitat_raster.tif", package = "urbioconnect")
-      ),
+      )
+    )
+    expect_match(output$analysis_preview$html, "Choose example data")
+
+    session$setInputs(
       barrier_file = upload_value(
         system.file("ex", "lizard_barrier.shp", package = "urbioconnect")
       )
     )
+    preview <- output$analysis_preview$html
+    expect_match(preview, "barrier layer (lizard_barrier.shp)", fixed = TRUE)
     expect_match(
-      output$analysis_preview$html,
-      "barrier layer (lizard_barrier.shp)",
+      preview,
+      "your scenario layer in place of the habitat layer",
       fixed = TRUE
     )
+  })
+})
 
-    expect_false(results$ready)
+test_that("the Your analysis card says what is wrong with the cell size", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    session$setInputs(data_resolution = 0, interpatch_distances = "100")
+    expect_error(output$analysis_preview, "more than 0 m", class = "validation")
+
+    # what an emptied numericInput sends
+    session$setInputs(data_resolution = NA)
+    expect_error(
+      output$analysis_preview,
+      "Enter a data resolution",
+      class = "validation"
+    )
+  })
+})
+
+test_that("an infinite interpatch distance is an error", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    session$setInputs(interpatch_distances = "100, 1e999")
+    expect_snapshot(interpatch_distances_parsed(), error = TRUE)
   })
 })
 

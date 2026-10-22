@@ -127,7 +127,9 @@ server <- function(input, output, session) {
         length(distances) > 0,
         "Please enter at least one valid interpatch distance"
       ),
-      need(all(distances > 0), "Interpatch distances must be positive numbers")
+      need(all(distances > 0), "Interpatch distances must be positive numbers"),
+      # "Inf" and "1e999" both parse as numbers
+      need(all(is.finite(distances)), "Interpatch distances must be finite")
     )
 
     distances
@@ -171,7 +173,11 @@ server <- function(input, output, session) {
   # the parser the run reads, so the two agree on the distances, and reads no
   # layer from disk.
   output$analysis_preview <- renderUI({
-    req(input$data_resolution)
+    # one at a time: the second can't be asked of an empty box
+    validate(need(
+      input$data_resolution,
+      "Enter a data resolution to see what the analysis will do."
+    ))
     validate(need(
       input$data_resolution > 0,
       "Data resolution must be more than 0 m."
@@ -929,10 +935,10 @@ server <- function(input, output, session) {
     invisible()
   }
 
-  # Which layer a scenario changes, its name, and a function returning the
+  # Which layer a scenario changes, its name, and a function that reads the
   # layer. Each supplied scenario says its own kind; only an upload has to be
-  # told. NULL when no scenario is chosen. The layer is left unread, so the
-  # Your analysis card can name a scenario without loading it.
+  # told. NULL when no scenario is chosen. Nothing is read here, so the Your
+  # analysis card can name a scenario without loading it.
   scenario_details <- function() {
     choice <- input$scenario_choice %||% "none"
 
@@ -943,10 +949,7 @@ server <- function(input, output, session) {
     if (choice == "upload") {
       file <- input$scenario_file
       return(list(
-        layer = function() {
-          req(file)
-          read_uploaded_file(file)
-        },
+        read_layer = \() read_uploaded_file(file),
         kind = input$scenario_kind,
         name = if (!is.null(file)) main_file_name(file)
       ))
@@ -960,18 +963,26 @@ server <- function(input, output, session) {
       return(NULL)
     }
 
-    list(layer = supplied$layer, kind = supplied$kind, name = supplied$label)
+    list(
+      read_layer = supplied$layer,
+      kind = supplied$kind,
+      name = supplied$label
+    )
   }
 
-  # scenario_details(), with the layer read
+  # The scenario a run compares: its layer, read, and what it is
   chosen_scenario <- function() {
     scenario <- scenario_details()
 
-    if (!is.null(scenario)) {
-      scenario$layer <- scenario$layer()
+    if (is.null(scenario)) {
+      return(NULL)
     }
 
-    scenario
+    list(
+      layer = scenario$read_layer(),
+      kind = scenario$kind,
+      name = scenario$name
+    )
   }
 
   # drives the Results tab's scenario section, which stays hidden until there

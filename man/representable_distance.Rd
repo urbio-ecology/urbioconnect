@@ -13,7 +13,8 @@ representable_distance(interpatch_distance, resolution)
 }
 \value{
 A numeric vector the length of \code{interpatch_distance}: the distance
-each is treated as. \code{0} where it can't be represented.
+each is treated as. \code{0} where it can't be represented, which includes a
+negative distance. \code{NA} stays \code{NA}.
 }
 \description{
 Buffering grows habitat a whole cell at a time, by half the interpatch

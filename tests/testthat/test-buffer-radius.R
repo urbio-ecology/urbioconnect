@@ -85,10 +85,16 @@ test_that("representable_distance() is the distance habitat_buffer()'s window sp
   expect_snapshot(representable_distance(distances, 10))
 })
 
+test_that("a negative distance can't be represented, and still warns", {
+  expect_equal(representable_distance(c(-15, NA), 10), c(0, NA))
+  expect_snapshot(warn_buffer_resolution(buffer_radius = -10, resolution = 10))
+})
+
 test_that("representable_distance() checks its arguments", {
   expect_snapshot(error = TRUE, {
     representable_distance("100", 10)
     representable_distance(100, c(10, 20))
     representable_distance(100, 0)
+    representable_distance(100, Inf)
   })
 })

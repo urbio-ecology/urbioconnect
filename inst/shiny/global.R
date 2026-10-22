@@ -36,6 +36,10 @@ library(tidyr)
 library(tidyterra)
 library(urbioconnect)
 
+# Where the analysis settings start. Before you start states them, so ui.R
+# takes them from here rather than the two drifting apart.
+input_defaults <- list(data_resolution = 10, interpatch_distances = "100")
+
 # ui.R and server.R are sourced by shiny itself; colours.R and help.R are not,
 # so they come in here
 source("colours.R")

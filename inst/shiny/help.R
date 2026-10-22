@@ -58,7 +58,9 @@ input_help <- list(
     )
   ),
   scenario_kind = list(
-    label = "Which layer does your scenario change?",
+    # short enough not to wrap in a 300px input, which would push the "i" onto
+    # a line of its own
+    label = "Which layer does it change?",
     help = c(
       "Barrier if the scenario adds or removes roads or other barriers.
       Habitat if it adds or removes habitat. Only one layer changes, so any
@@ -78,7 +80,7 @@ input_help <- list(
     help = c(
       "The size of the grid cells the analysis works on, in metres. Both
       layers are converted to square cells about this wide before anything is
-      measured. The default is 10 m.",
+      measured.",
       "Smaller cells keep thin roads and narrow gaps sharp, but take longer:
       halving the cell size makes four times as many cells. Larger cells are
       faster, but a thin road becomes a whole cell wide, and small patches can
@@ -106,25 +108,33 @@ input_help <- list(
   )
 )
 
-# An input's label, with an "i" that opens its explanation
-help_label <- function(id) {
+# An input labelled from input_help, with an "i" after its label that opens
+# its explanation. The "i" goes beside the <label>, not in it: inside, a
+# screen reader reads it as part of the input's name, and a click on it
+# reaches the input, which for a file input opens the file picker.
+help_input <- function(input_fn, id, ...) {
   entry <- input_help[[id]] %||%
     cli::cli_abort("There is no help text for the {.val {id}} input.")
 
-  tagList(
-    entry$label,
-    popover(
-      span(
-        class = "input-help ms-1",
-        fontawesome::fa(
-          "circle-info",
-          a11y = "sem",
-          title = paste("About", tolower(entry$label))
-        )
-      ),
-      help_paragraphs(id),
-      title = entry$label
-    )
+  input <- htmltools::tagQuery(input_fn(inputId = id, label = entry$label, ...))
+  input$find(paste0("#", id, "-label"))$after(help_icon(id))$allTags()
+}
+
+help_icon <- function(id) {
+  label <- input_help[[id]]$label
+
+  popover(
+    span(
+      id = paste0(id, "-help"),
+      class = "input-help ms-1",
+      fontawesome::fa(
+        "circle-info",
+        a11y = "sem",
+        title = paste("More about:", label)
+      )
+    ),
+    help_paragraphs(id),
+    title = label
   )
 }
 
@@ -144,16 +154,10 @@ squish <- function(text) {
   gsub("\\s+", " ", trimws(text))
 }
 
-# The "i" sits inside its input's <label>, and clicking a label activates its
-# input: a file input opens the file picker. So a click stops at the "i".
-input_help_head <- tagList(
-  tags$style(HTML(
-    ".input-help { cursor: pointer; color: var(--bs-primary); }"
-  )),
-  tags$script(HTML(
-    "$(document).on('click', '.input-help', function(e) { e.preventDefault(); });"
-  ))
-)
+# coloured and with a pointer, so an "i" reads as something to click
+input_help_head <- tags$style(HTML(
+  ".input-help { cursor: pointer; color: var(--bs-primary); }"
+))
 
 # What the inputs add up to, in words, before anything runs: a few sentences,
 # and a warning for each setting that won't do what it looks like. Plain
@@ -241,36 +245,35 @@ too_short <- function(short, data_resolution) {
     return(character())
   }
 
-  fix <- paste0(
-    "so only patches that touch will join. Use cells of ",
-    metres(min(short) / 2),
-    " or smaller, or "
-  )
-
-  if (length(short) == 1) {
-    return(paste0(
-      "At ",
-      metres(data_resolution),
-      " cells, ",
+  problem <- if (length(short) == 1) {
+    paste0(
       metres(short),
       " is too short to measure: half of it (",
       metres(short / 2),
-      ") is less than one cell, ",
-      fix,
-      "a distance of at least ",
-      metres(2 * data_resolution),
-      "."
-    ))
+      ") is less than one cell"
+    )
+  } else {
+    paste0(
+      metres(short),
+      " are too short to measure: half of each is less than one cell"
+    )
+  }
+
+  # the cell size input takes whole metres, and at least 1
+  cell <- floor(min(short) / 2)
+  smaller_cells <- if (cell >= 1) {
+    paste0("cells of ", metres(cell), " or smaller, or ")
   }
 
   paste0(
     "At ",
     metres(data_resolution),
     " cells, ",
-    metres(short),
-    " are too short to measure: half of each is less than one cell, ",
-    fix,
-    "distances of at least ",
+    problem,
+    ", so only patches that touch will join. Use ",
+    smaller_cells,
+    if (length(short) == 1) "a distance" else "distances",
+    " of at least ",
     metres(2 * data_resolution),
     "."
   )

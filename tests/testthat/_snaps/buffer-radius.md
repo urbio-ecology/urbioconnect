@@ -49,6 +49,18 @@
     Output
       [1]    0   20  100  240 1000
 
+# a negative distance can't be represented, and still warns
+
+    Code
+      warn_buffer_resolution(buffer_radius = -10, resolution = 10)
+    Condition
+      Warning:
+      Can't represent an `interpatch_distance` of -20m at a resolution of 10m.
+      x Half that distance (-10m) is smaller than one raster cell.
+      i Gaps between patches aren't bridged; only touching patches are linked.
+      i Rule of thumb: keep resolution <= interpatch_distance / 2 (use finer cells, or a larger interpatch distance).
+      i See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
+
 # representable_distance() checks its arguments
 
     Code
@@ -68,4 +80,9 @@
     Condition
       Error in `representable_distance()`:
       ! `resolution` must be a positive number, not 0.
+    Code
+      representable_distance(100, Inf)
+    Condition
+      Error in `representable_distance()`:
+      ! `resolution` must be a positive number, not Inf.
 

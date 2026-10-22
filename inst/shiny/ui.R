@@ -67,10 +67,8 @@ ui <- page_navbar(
               p(
                 "Animals move between patches of habitat, such as parks,",
                 "bushland and creek corridors, and roads, railways and",
-                "buildings get in the way. This app measures how well the",
-                "habitat in a landscape is connected for one species, and how",
-                "a planned change, such as a new road or a development, would",
-                "alter that."
+                "buildings get in the way. A planned change, such as a new",
+                "road or a development, can cut patches off from each other."
               ),
               p(
                 "You give it two maps, one of the habitat and one of the",
@@ -201,10 +199,13 @@ ui <- page_navbar(
             ),
             accordion_panel(
               "3. Choose your settings",
-              p(
-                "The defaults are a cell size of 10 m and one interpatch",
-                "distance of 100 m."
-              ),
+              p(paste0(
+                "The defaults are a cell size of ",
+                input_defaults$data_resolution,
+                " m and one interpatch distance of ",
+                input_defaults$interpatch_distances,
+                " m."
+              )),
               help_sections(c(
                 "data_resolution",
                 "interpatch_distances",
@@ -329,23 +330,23 @@ ui <- page_navbar(
       card(
         card_header("Data Upload"),
         card_body(
-          textInput(
-            inputId = "species",
-            label = help_label("species"),
+          help_input(
+            textInput,
+            "species",
             value = "Superb Fairy Wren",
             placeholder = "Enter species name"
           ),
 
-          fileInput(
-            inputId = "habitat_file",
-            label = help_label("habitat_file"),
+          help_input(
+            fileInput,
+            "habitat_file",
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
-          fileInput(
-            inputId = "barrier_file",
-            label = help_label("barrier_file"),
+          help_input(
+            fileInput,
+            "barrier_file",
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
@@ -353,9 +354,9 @@ ui <- page_navbar(
           # Two example landscapes, not one. The lizard is ~200x200 cells and
           # analyses in under a second; the wren is ~1500x1400 and takes tens
           # of seconds, so it is worth knowing which you are asking for.
-          selectInput(
-            inputId = "example_data",
-            label = help_label("example_data"),
+          help_input(
+            selectInput,
+            "example_data",
             choices = example_data_choices,
             selected = "none"
           ),
@@ -367,25 +368,25 @@ ui <- page_navbar(
           # an upload has to be told.
           # the supplied scenarios depend on the example data chosen above, so
           # the server fills these in rather than the list living here twice
-          selectInput(
-            inputId = "scenario_choice",
-            label = help_label("scenario_choice"),
+          help_input(
+            selectInput,
+            "scenario_choice",
             choices = scenario_choices(NULL)
           ),
 
           conditionalPanel(
             condition = "input.scenario_choice == 'upload'",
-            radioButtons(
-              inputId = "scenario_kind",
-              label = help_label("scenario_kind"),
+            help_input(
+              radioButtons,
+              "scenario_kind",
               choices = c(
                 "Barrier (a new road, say)" = "barrier",
                 "Habitat (a development, say)" = "habitat"
               )
             ),
-            fileInput(
-              inputId = "scenario_file",
-              label = help_label("scenario_file"),
+            help_input(
+              fileInput,
+              "scenario_file",
               accept = spatial_upload_accept,
               multiple = TRUE
             )
@@ -397,10 +398,10 @@ ui <- page_navbar(
       card(
         card_header("Analysis Parameters"),
         card_body(
-          numericInput(
-            inputId = "data_resolution",
-            label = help_label("data_resolution"),
-            value = 10,
+          help_input(
+            numericInput,
+            "data_resolution",
+            value = input_defaults$data_resolution,
             min = 1,
             max = 100,
             step = 1
@@ -415,10 +416,10 @@ ui <- page_navbar(
             step = 1
           ),
 
-          textInput(
-            inputId = "interpatch_distances",
-            label = help_label("interpatch_distances"),
-            value = "100",
+          help_input(
+            textInput,
+            "interpatch_distances",
+            value = input_defaults$interpatch_distances,
             placeholder = "For example, 100, 250, 400"
           ),
 

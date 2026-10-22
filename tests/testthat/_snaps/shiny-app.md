@@ -56,6 +56,14 @@
       ! No scenario file chosen.
       i Upload one under Your scenario layer, or pick one of the supplied scenarios, or set it back to None.
 
+# an infinite interpatch distance is an error
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Interpatch distances must be finite
+
 # interpatch distances that aren't numbers are an error, not dropped
 
     Code
