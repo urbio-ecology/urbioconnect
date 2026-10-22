@@ -204,3 +204,105 @@ test_that("plot_connectivity renders correctly", {
     plot_connectivity(results_connect)
   )
 })
+
+test_that("plot_connectivity draws a comparison's baseline once, beside each scenario", {
+  comparison <- scenario_test_comparison()
+  drawn <- plot_connectivity(comparison)$data
+
+  expect_snapshot(levels(drawn$series))
+
+  # every scenario carries its own copy of the baseline rows
+  expect_equal(nrow(drawn), 3 * 2 * 4)
+
+  expect_equal(
+    drawn$value[
+      drawn$series == "Barrier upgrade" & drawn$name == "n_patches"
+    ],
+    comparison$n_patches[
+      comparison$scenario_name == "Barrier upgrade" &
+        comparison$measure == "scenario"
+    ]
+  )
+})
+
+test_that("plot_connectivity names an unnamed scenario", {
+  drawn <- plot_connectivity(test_comparison())$data
+
+  expect_snapshot(levels(drawn$series))
+})
+
+test_that("plot_connectivity draws a P(connected) above 1 as it is", {
+  comparison <- pc_above_one_comparison()
+  measured <- comparison$measure %in% c("baseline", "scenario")
+
+  # if P(connected) stops being able to exceed 1, this plot needs rethinking
+  expect_gt(
+    comparison$prob_connectedness[comparison$measure == "scenario"],
+    1
+  )
+
+  # a value outside the scale's limits would be dropped from the built layer
+  built <- ggplot2::ggplot_build(plot_connectivity(comparison))
+  points <- dplyr::left_join(
+    built$data[[1]],
+    built$layout$layout,
+    by = "PANEL"
+  )
+
+  expect_setequal(
+    points$y[points$name == "prob_connectedness"],
+    comparison$prob_connectedness[measured]
+  )
+})
+
+test_that("plot_connectivity at one distance draws its points quietly", {
+  plot <- plot_connectivity(pc_above_one_comparison())
+
+  expect_no_message(ggplot2::ggplot_build(plot))
+  expect_length(plot$layers, 1)
+})
+
+test_that("plot_connectivity refuses scenarios it can't tell apart", {
+  baseline <- summarise_connectivity(lizard_areas_connected)
+  scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  expect_snapshot(
+    plot_connectivity(
+      compare_scenarios(baseline, list(Baseline = scenario))
+    ),
+    error = TRUE
+  )
+  expect_snapshot(
+    plot_connectivity(
+      compare_scenarios(
+        baseline,
+        rlang::set_names(rep(list(scenario), 6), LETTERS[1:6])
+      )
+    ),
+    error = TRUE
+  )
+})
+
+test_that("plot_connectivity renders a comparison correctly", {
+  skip_on_ci()
+  vdiffr::expect_doppelganger(
+    "plot-connectivity-comparison",
+    plot_connectivity(lizard_road_comparison())
+  )
+
+  # several scenarios, and a single distance, which draws no line
+  vdiffr::expect_doppelganger(
+    "plot-connectivity-comparison-one-distance",
+    plot_connectivity(compare_scenarios(
+      baseline = summarise_connectivity(lizard_areas_connected),
+      scenarios = list(
+        "Bentley Project" = summarise_connectivity(
+          lizard_areas_connected[-1, ]
+        ),
+        "Barrier upgrade" = summarise_connectivity(
+          lizard_areas_connected[-(1:5), ]
+        )
+      )
+    ))
+  )
+})
