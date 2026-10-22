@@ -34,6 +34,16 @@ server <- function(input, output, session) {
     example_datasets[[input$example_data %||% ""]]
   }
 
+  # Where a layer came from, for the settings record: its example dataset, or
+  # every uploaded file, since a shapefile is several and all of them are read.
+  layer_source <- function(file_input) {
+    if (!is.null(chosen_dataset())) {
+      return(paste0("example data: ", input$example_data))
+    }
+
+    paste(file_input$name, collapse = ", ")
+  }
+
   # Choosing an example fills in its species and takes over the file inputs;
   # the scenarios on offer are that dataset's, since a scenario is only
   # comparable against the landscape it was drawn on.
@@ -90,16 +100,28 @@ server <- function(input, output, session) {
   # Parse interpatch distances ----
   interpatch_distances_parsed <- reactive({
     req(input$interpatch_distances)
-    distances_text <- input$interpatch_distances
-    distances <- as.numeric(unlist(strsplit(distances_text, ",")))
-    distances <- distances[!is.na(distances)]
+    entries <- trimws(strsplit(input$interpatch_distances, ",")[[1]])
+    entries <- entries[entries != ""]
+    distances <- suppressWarnings(as.numeric(entries))
+    unparsed <- entries[is.na(distances)]
+
+    # separate from the checks below, which can't run on NA and would
+    # otherwise add a second message
+    validate(need(
+      length(unparsed) == 0,
+      paste0(
+        "Interpatch distances must be numbers, and ",
+        paste0('"', unparsed, '"', collapse = ", "),
+        if (length(unparsed) == 1) " isn't." else " aren't."
+      )
+    ))
 
     validate(
       need(
         length(distances) > 0,
         "Please enter at least one valid interpatch distance"
       ),
-      need(all(distances > 0), "Unterpatch distances must be positive numbers")
+      need(all(distances > 0), "Interpatch distances must be positive numbers")
     )
 
     distances
@@ -255,6 +277,13 @@ server <- function(input, output, session) {
             interpatch_distance = interpatch_dists,
             scenario = scenario$layer,
             scenario_kind = scenario$kind,
+            scenario_name = scenario$name,
+            settings = list(
+              habitat_source = layer_source(input$habitat_file),
+              barrier_source = layer_source(input$barrier_file),
+              data_resolution_m = base_res,
+              target_resolution_m = overlay_res
+            ),
             verbose = FALSE
           )
 
@@ -760,7 +789,9 @@ server <- function(input, output, session) {
   # Download connectivity plot (using plot_connectivity function) ----
   output$download_connectivity_plot <- downloadHandler(
     filename = function() {
-      paste0(input$species, "_connectivity_plot_", Sys.Date(), ".png")
+      # filename runs before content, so req() has to be here too
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), "-over-distance.png")
     },
     content = function(file) {
       # the same size the zip and the report use, from urbio_figure_size()
@@ -779,13 +810,26 @@ server <- function(input, output, session) {
   # Download terra areas CSV ----
   output$download_areas_csv <- downloadHandler(
     filename = function() {
-      paste0(input$species, "_areas_", Sys.Date(), ".csv")
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), "-areas.csv")
     },
     content = function(file) {
       results$areas_connected |>
         setNames(results$interpatch_distances) |>
         bind_rows(.id = "interpatch") |>
         write_csv(file)
+    }
+  )
+
+  # Download the settings CSV ----
+  output$download_settings_csv <- downloadHandler(
+    filename = function() {
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), "-settings.csv")
+    },
+    content = function(file) {
+      req(results$report_data)
+      write_csv(connectivity_settings(results$report_data), file)
     }
   )
 
@@ -841,12 +885,13 @@ server <- function(input, output, session) {
       req(input$scenario_file)
       return(list(
         layer = read_uploaded_file(input$scenario_file),
-        kind = input$scenario_kind
+        kind = input$scenario_kind,
+        name = paste(input$scenario_file$name, collapse = ", ")
       ))
     }
 
     supplied <- chosen_dataset()$scenarios[[choice]]
-    list(layer = supplied$layer(), kind = supplied$kind)
+    list(layer = supplied$layer(), kind = supplied$kind, name = supplied$label)
   }
 
   # drives the Results tab's scenario section, which stays hidden until there

@@ -7,6 +7,18 @@
       [4] "effective_mesh_ha"   "prob_connectedness"  "patch_area_mean"    
       [7] "patch_area_total_ha" "data_resolution"    
 
+---
+
+    Code
+      settings_csv$setting
+    Output
+       [1] "species"               "interpatch_distance_m" "habitat_source"       
+       [4] "barrier_source"        "data_resolution_m"     "target_resolution_m"  
+       [7] "grid_resolution_m"     "grid_dimensions"       "crs"                  
+      [10] "crs_code"              "scenario_kind"         "scenario_name"        
+      [13] "run_time"              "urbioconnect_version"  "terra_version"        
+      [16] "r_version"             "platform"             
+
 # a scenario that can't match the baseline says so by name
 
     Code
@@ -35,4 +47,12 @@
       Error in `check_scenario_choice()`:
       ! No scenario file chosen.
       i Upload one under Scenario Layer, or pick one of the supplied scenarios, or set it back to None.
+
+# interpatch distances that aren't numbers are an error, not dropped
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Interpatch distances must be numbers, and "abc" isn't.
 
