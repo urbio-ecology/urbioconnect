@@ -18,7 +18,6 @@ utils::globalVariables(
     "patch_id",
     "prob_connectedness",
     "scenario",
-    "species",
-    "value"
+    "species"
   )
 )
