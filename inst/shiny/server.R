@@ -861,7 +861,7 @@ server <- function(input, output, session) {
       req(results$comparison)
       plot_connectivity(results$comparison)
     },
-    alt = "Baseline and scenario connectivity metrics as two lines of points, one panel per metric, across interpatch distances."
+    alt = "Baseline and scenario metrics across interpatch distances"
   )
 
   output$download_comparison_plot <- downloadHandler(

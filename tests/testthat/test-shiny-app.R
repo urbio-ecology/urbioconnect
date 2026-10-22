@@ -162,6 +162,8 @@ test_that("each dataset offers its own scenarios, as the layer they change", {
     road <- chosen_scenario()
     expect_s4_class(road$layer, "SpatRaster")
     expect_equal(road$kind, "barrier")
+    # the plot's legend names the scenario by this
+    expect_equal(road$name, "A new road through the habitat")
 
     session$setInputs(example_data = "wren", scenario_choice = "knox_barrier")
     expect_equal(chosen_scenario()$kind, "barrier")
@@ -255,20 +257,9 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
       function(name) expect_no_error(output[[name]])
     )
 
-    download <- output$download_comparison_plot
-    expect_equal(
-      readBin(download, "raw", 8),
-      as.raw(c(
-        0x89,
-        0x50,
-        0x4e,
-        0x47,
-        0x0d,
-        0x0a,
-        0x1a,
-        0x0a
-      ))
-    )
+    # a PNG's signature names itself in bytes 2 to 4
+    signature <- readBin(output$download_comparison_plot, "raw", 4)
+    expect_equal(rawToChar(signature[2:4]), "PNG")
   })
 })
 

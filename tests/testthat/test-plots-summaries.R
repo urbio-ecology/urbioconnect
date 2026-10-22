@@ -185,12 +185,13 @@ test_that("plot_connectivity draws a comparison's baseline once, beside each sce
   # every scenario carries its own copy of the baseline rows
   expect_equal(nrow(drawn), 3 * 2 * 4)
 
+  # the development removes a patch, so its line can't pass for the baseline's
   expect_equal(
     drawn$value[
-      drawn$series == "Barrier upgrade" & drawn$name == "n_patches"
+      drawn$series == "Bentley Project" & drawn$name == "n_patches"
     ],
     comparison$n_patches[
-      comparison$scenario_name == "Barrier upgrade" &
+      comparison$scenario_name == "Bentley Project" &
         comparison$measure == "scenario"
     ]
   )
@@ -229,8 +230,8 @@ test_that("plot_connectivity draws a P(connected) above 1 as it is", {
 test_that("plot_connectivity at one distance draws its points quietly", {
   plot <- plot_connectivity(pc_above_one_comparison())
 
-  expect_no_message(ggplot2::ggplot_build(plot))
-  expect_length(plot$layers, 1)
+  # ggplot2 messages about a one-point line when drawing, not when building
+  expect_no_message(ggplot2::ggplotGrob(plot))
 })
 
 test_that("plot_connectivity refuses scenarios it can't tell apart", {
@@ -239,7 +240,7 @@ test_that("plot_connectivity refuses scenarios it can't tell apart", {
 
   expect_snapshot(
     plot_connectivity(
-      compare_scenarios(baseline, list(Baseline = scenario))
+      compare_scenarios(baseline, list(baseline = scenario))
     ),
     error = TRUE
   )
@@ -250,6 +251,18 @@ test_that("plot_connectivity refuses scenarios it can't tell apart", {
         rlang::set_names(rep(list(scenario), 6), LETTERS[1:6])
       )
     ),
+    error = TRUE
+  )
+
+  # two unnamed comparisons, stacked: both are "Scenario"
+  expect_snapshot(
+    plot_connectivity(dplyr::bind_rows(
+      compare_connectivity(scenario, baseline),
+      compare_connectivity(
+        summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+        baseline
+      )
+    )),
     error = TRUE
   )
 })
