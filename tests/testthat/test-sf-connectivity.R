@@ -111,3 +111,18 @@ test_that("sf_habitat_connectivity returns a data frame with expected columns", 
   expect_gt(nrow(result), 0)
   expect_all_true(as.numeric(result$area) > 0)
 })
+
+test_that("sf_habitat_connectivity takes one interpatch distance", {
+  habitat <- sf::st_sfc(square(0, 0), square(300, 0), crs = 32754)
+  barrier <- sf::st_sfc(square(90, 0, size = 120), crs = 32754)
+
+  expect_snapshot(
+    error = TRUE,
+    sf_habitat_connectivity(
+      habitat = habitat,
+      barrier = barrier,
+      species = "lizard",
+      interpatch_distance = c(40, 80)
+    )
+  )
+})

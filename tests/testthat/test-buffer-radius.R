@@ -3,9 +3,25 @@ test_that("buffer_radius_from() halves the interpatch distance", {
   # half of it, so the two meet in the middle
   expect_equal(buffer_radius_from(250), 125)
   expect_equal(buffer_radius_from(0), 0)
+  # vectorised, because habitat_connectivity() sweeps
+  expect_equal(buffer_radius_from(c(250, 500)), c(125, 250))
 })
 
-test_that("habitat_connectivity() requires one numeric interpatch distance", {
+test_that("the entry points that take one distance say so", {
+  layers <- scenario_test_layers()
+
+  expect_snapshot(
+    error = TRUE,
+    habitat_connectivity_full(
+      layers$habitat,
+      layers$barrier,
+      interpatch_distance = c(40, 80),
+      verbose = FALSE
+    )
+  )
+})
+
+test_that("habitat_connectivity() requires numeric interpatch distances", {
   layers <- scenario_test_layers()
 
   # the errors are attributed to the function the user called, so they are
@@ -22,8 +38,12 @@ test_that("habitat_connectivity() requires one numeric interpatch distance", {
 
   expect_snapshot(error = TRUE, {
     connectivity_at()
-    connectivity_at(interpatch_distance = c(40, 80))
     connectivity_at(interpatch_distance = "40")
+    connectivity_at(interpatch_distance = numeric(0))
+    connectivity_at(interpatch_distance = c(40, 40))
+    connectivity_at(interpatch_distance = c(40, -80))
+    connectivity_at(interpatch_distance = c(40, NA))
+    connectivity_at(interpatch_distance = Inf)
   })
 })
 

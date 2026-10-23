@@ -12,7 +12,9 @@ prepare_rasters(
 )
 }
 \arguments{
-\item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data.}
+\item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data. In a raster,
+habitat is any cell that is neither \code{NA} nor \code{0}, whatever value it is
+coded with.}
 
 \item{barrier}{SF object or \code{SpatRaster}. Barrier spatial data.}
 

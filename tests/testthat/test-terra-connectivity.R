@@ -67,6 +67,64 @@ test_that("drop_habitat_under_barrier removes habitat cells covered by barriers"
   expect_true(all(vals[-centre_cell_idx] == 1, na.rm = TRUE))
 })
 
+test_that("drop_habitat_under_barrier codes habitat 1 and the rest NA", {
+  barrier_mask <- create_barrier_mask(small_rast(val = NA))
+  coded <- list(
+    zero_one = c(0, 1),
+    na_two = c(NA, 2),
+    na_five = c(NA, 5)
+  )
+
+  remaining <- purrr::map(coded, function(codes) {
+    habitat <- small_rast(val = codes[1])
+    habitat[1:2, 1:2] <- codes[2]
+    as.numeric(terra::values(drop_habitat_under_barrier(habitat, barrier_mask)))
+  })
+
+  expected <- rep(NA_real_, 25)
+  expected[c(1, 2, 6, 7)] <- 1
+  expect_equal(remaining, purrr::map(coded, \(codes) expected))
+})
+
+test_that("patch ids don't depend on habitat coding", {
+  # projected, so the first and last cells don't touch across the antimeridian
+  strip <- test_raster(1, 5)
+  habitat <- terra::init(strip, NA)
+  habitat[1, 1] <- 2
+  habitat[1, 5] <- 3
+  fragment <- terra::init(strip, NA)
+  fragment[1, c(1, 5)] <- 1
+
+  patches <- assign_patches_to_fragments(habitat, fragment)
+
+  expect_equal(as.numeric(terra::values(patches))[c(1, 5)], c(1, 2))
+})
+
+test_that("assign_patches_to_fragments leaves habitat coded 0 as NA", {
+  strip <- test_raster(1, 5)
+  habitat <- terra::init(strip, 0)
+  habitat[1, c(1, 5)] <- 1
+  fragment <- terra::init(strip, 1)
+
+  patches <- assign_patches_to_fragments(habitat, fragment)
+
+  expect_equal(
+    is.na(as.numeric(terra::values(patches))),
+    c(FALSE, TRUE, TRUE, TRUE, FALSE)
+  )
+})
+
+test_that("fragment_habitat rejects a buffer with several layers", {
+  habitat <- test_raster(10, 10)
+  habitat[5, 5] <- 1
+  barrier_mask <- create_barrier_mask(terra::init(habitat, NA))
+
+  expect_snapshot(
+    error = TRUE,
+    fragment_habitat(habitat_buffer(habitat, c(10, 20)), barrier_mask)
+  )
+})
+
 test_that("fragment_habitat cuts interpatch distance at barrier cells", {
   buffered <- small_rast(val = 1)
 
@@ -168,6 +226,103 @@ test_that("habitat_connectivity returns a data frame with expected columns", {
   expect_s3_class(hc_quiet, "data.frame")
   expect_snapshot(names(hc_quiet))
   expect_gt(nrow(hc_quiet), 0)
+})
+
+test_that("a sweep gives what one call per distance gives", {
+  # Scattered patches that merge as the distance grows, so each distance has a
+  # different answer and the comparison below can actually fail.
+  patchy <- test_raster(40, 40)
+  rows <- c(5, 5, 14, 25, 26, 34)
+  cols <- c(5, 14, 5, 25, 33, 12)
+  patchy[terra::cellFromRowCol(patchy, rows, cols)] <- 1
+  no_barrier <- terra::rast(patchy)
+  terra::values(no_barrier) <- NA
+  no_barrier[1, 1] <- 1
+
+  distances <- c(220, 40, 100)
+  connectivity_at <- function(interpatch_distance) {
+    habitat_connectivity(
+      patchy,
+      no_barrier,
+      species = "Blue Tongue Lizard",
+      interpatch_distance = interpatch_distance,
+      verbose = FALSE
+    )
+  }
+
+  sweep <- connectivity_at(distances)
+
+  expect_s3_class(sweep, "connectivity")
+  expect_equal(sweep$interpatch_distance, distances)
+  expect_length(patch_sizes(sweep), 3)
+  expect_gt(length(unique(sweep$n_patches)), 1)
+
+  one_at_a_time <- purrr::map(distances, connectivity_at) |>
+    dplyr::bind_rows()
+
+  expect_equal(sweep, one_at_a_time)
+})
+
+test_that("habitat coded 0 or 2 gives the same answer as habitat coded 1", {
+  coded <- function(absent, present) {
+    layer <- test_raster(20, 20, fill = absent)
+    layer[3:5, 3:5] <- present
+    layer[3:5, 9:11] <- present
+    layer[15:17, 15:17] <- present
+    layer
+  }
+  no_barrier <- coded(0, 0)
+
+  connectivity_of <- function(habitat) {
+    habitat_connectivity(
+      habitat,
+      no_barrier,
+      species = "lizard",
+      interpatch_distance = 60,
+      verbose = FALSE
+    )
+  }
+
+  expected <- connectivity_of(coded(NA, 1))
+  expect_equal(connectivity_of(coded(0, 1)), expected)
+  expect_equal(connectivity_of(coded(NA, 2)), expected)
+})
+
+test_that("a sweep on the lizard grid gives the patch counts per distance", {
+  layers <- prepare_rasters(example_habitat(), example_barrier(), 10, 500)
+
+  sweep <- habitat_connectivity(
+    layers$habitat_raster,
+    layers$barrier_raster,
+    species = "Blue Tongue Lizard",
+    interpatch_distance = c(20, 40, 100, 250, 400),
+    verbose = FALSE
+  )
+
+  expect_snapshot(
+    as.data.frame(sweep[c(
+      "interpatch_distance",
+      "n_patches",
+      "effective_mesh_ha"
+    )])
+  )
+})
+
+test_that("habitat_connectivity() checks species before any work", {
+  local_mocked_bindings(
+    nearest_habitat_distance = function(...) stop("should not be reached")
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    habitat_connectivity(
+      small_habitat,
+      small_barrier,
+      species = 1,
+      interpatch_distance = 200,
+      verbose = FALSE
+    )
+  )
 })
 
 test_that("align_to resamples rasters with mismatched geometry", {

@@ -40,6 +40,35 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_comparison() sweeps to what one call per distance gives", {
+  # each landscape is swept in one call, so the pairing of scenario and
+  # baseline rows a distance at a time is what could come apart
+  layers <- scenario_test_layers()
+
+  comparison_at <- function(distance) {
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat,
+      barrier_scenario = layers$barrier_scenario,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = distance,
+      verbose = FALSE
+    )
+  }
+
+  swept <- comparison_at(c(40, 160))
+
+  # the baseline differs between the two distances, so a mis-pairing shows
+  baseline_rows <- dplyr::filter(swept, measure == "baseline")
+  expect_gt(length(unique(baseline_rows$n_patches)), 1)
+
+  expect_equal(
+    swept,
+    dplyr::bind_rows(comparison_at(40), comparison_at(160))
+  )
+})
+
 test_that("habitat_connectivity_comparison() passes scenario_name through", {
   layers <- scenario_test_layers()
 
@@ -76,6 +105,46 @@ test_that("habitat_connectivity_comparison() rejects a missing or empty distance
     comparison_at()
     comparison_at(interpatch_distance = numeric(0))
   })
+})
+
+test_that("habitat_connectivity_comparison() measures one surface per landscape", {
+  layers <- scenario_test_layers()
+  surfaces <- local_surface_count()
+
+  comparison_at <- function(barrier_scenario) {
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat,
+      barrier_scenario = barrier_scenario,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = c(40, 80, 160),
+      verbose = FALSE
+    )
+  }
+
+  comparison_at(layers$barrier_scenario)
+  expect_equal(surfaces(), 2)
+
+  # the baseline's sweep is reused when the scenario is the baseline
+  expect_warning(comparison_at(layers$barrier), "identical to the baseline")
+  expect_equal(surfaces(), 3)
+})
+
+test_that("habitat_connectivity_comparison() checks species before any work", {
+  layers <- scenario_test_layers()
+
+  expect_snapshot(
+    error = TRUE,
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat_scenario,
+      barrier_scenario = layers$barrier,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = 1,
+      interpatch_distance = 40
+    )
+  )
 })
 
 test_that("habitat_connectivity_comparison() warns and returns zero change when scenario equals baseline", {

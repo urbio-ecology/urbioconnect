@@ -76,7 +76,7 @@
       extent      : 0, 400, 0, 400  (xmin, xmax, ymin, ymax)
       coord. ref. : WGS 84 / UTM zone 54S (EPSG:32754)
       source(s)   : memory
-      name        : focal_max
+      name        : radius_20
       min value   :         1
       max value   :         1
       
@@ -133,7 +133,7 @@
       extent      : 0, 400, 0, 400  (xmin, xmax, ymin, ymax)
       coord. ref. : WGS 84 / UTM zone 54S (EPSG:32754)
       source(s)   : memory
-      name        : focal_max
+      name        : radius_20
       min value   :         1
       max value   :         1
       

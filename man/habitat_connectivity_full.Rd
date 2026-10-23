@@ -12,20 +12,15 @@ habitat_connectivity_full(
 )
 }
 \arguments{
-\item{habitat}{Terra SpatRaster. Habitat raster.}
+\item{habitat}{Terra SpatRaster. Habitat raster. Habitat is any cell that is
+neither \code{NA} nor \code{0}, whatever value it is coded with.}
 
 \item{barrier}{Terra SpatRaster. Barrier raster.}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250. For the buffer to be
-representable on the raster, keep \code{resolution <= interpatch_distance / 2};
-below that the buffer is a no-op and a warning is raised. See
-\code{vignette("interpatch-distance-and-resolution")}.}
+\item{interpatch_distance}{Numeric. One distance (in metres), unlike
+\code{\link[=habitat_connectivity]{habitat_connectivity()}}, which takes a vector of them: this returns the
+layers one distance produced, and there is only one set of them. See
+\code{\link[=habitat_connectivity]{habitat_connectivity()}} for what the distance means.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }

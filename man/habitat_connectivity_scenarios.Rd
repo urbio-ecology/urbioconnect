@@ -31,7 +31,7 @@ across the two.}
 
 \item{interpatch_distance}{Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
-vector runs every scenario once per distance.}
+vector gives every scenario's comparison at each distance.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
@@ -51,9 +51,9 @@ the baseline barrier, and barrier scenarios against the baseline habitat.
 There's no way to write a scenario that changes both, which is what
 \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} has to check for.
 
-The baseline is run once per distance and reused by every scenario, so
-comparing three scenarios at one distance runs the pipeline four times,
-not six.
+Each landscape is swept once over the whole of \code{interpatch_distance}, and
+the baseline sweep is reused by every scenario. The work that does not
+depend on the distance is shared across the distances within each sweep.
 }
 \examples{
 \donttest{

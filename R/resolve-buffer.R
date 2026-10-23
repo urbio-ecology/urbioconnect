@@ -1,53 +1,35 @@
-#' The buffer radius for an interpatch distance
+#' The buffer radius for each interpatch distance
 #'
 #' Two patches are connected when their edge-to-edge gap is at most the
 #' interpatch distance, which happens when each is buffered by half of it. The
 #' radius is an implementation detail of the buffering: `habitat_buffer()` takes
-#' one, nothing above it does.
+#' them, nothing above it does.
+#'
+#' Vectorised, because [habitat_connectivity()] sweeps. `scalar = TRUE` is for
+#' the callers that take one distance only, and adds the length constraint on
+#' top of the same checks rather than running a parallel set of them.
 #'
 #' @noRd
 buffer_radius_from <- function(
   interpatch_distance,
+  scalar = FALSE,
   arg = rlang::caller_arg(interpatch_distance),
   call = rlang::caller_env()
 ) {
-  if (rlang::is_missing(rlang::maybe_missing(interpatch_distance))) {
-    cli::cli_abort(
-      "{.arg {arg}} is absent but must be supplied.",
-      call = call
-    )
+  check_distances(interpatch_distance, arg, call)
+
+  if (scalar) {
+    check_scalar(interpatch_distance, arg, call)
   }
 
-  check_scalar_numeric(interpatch_distance, arg, call)
   interpatch_distance / 2
-}
-
-#' Run the connectivity pipeline at one distance
-#'
-#' @noRd
-connectivity_at_distance <- function(
-  habitat,
-  barrier,
-  species,
-  interpatch_distance,
-  verbose
-) {
-  habitat_connectivity(
-    habitat = habitat,
-    barrier = barrier,
-    species = species,
-    interpatch_distance = interpatch_distance,
-    verbose = verbose
-  )
 }
 
 # warn if the distance can't be represented at this res
 #' @noRd
 warn_buffer_resolution <- function(buffer_radius, resolution) {
-  # terra::focalMat() includes a cell when its CENTRE is within `buffer_radius`,
-  # so the number of usable rings is floor(buffer_radius / resolution).
-  # (Verified empirically: d=350/res=500 -> 1x1; d=500 -> 3x3; d=600 -> 3x3.)
-  # Assumes square cells (callers pass terra::res(habitat)[1]).
+  # A cell counts as within the radius when its CENTRE is, so the reachable
+  # distances are whole cells. Callers pass the smaller cell side.
   n_rings <- floor(buffer_radius / resolution)
 
   # the radius is internal: these warnings reach users through
