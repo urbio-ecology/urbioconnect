@@ -316,21 +316,21 @@ patch.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">areas_connected</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aggregate_connected_patches.html">aggregate_connected_patches</a></span><span class="op">(</span><span class="va">patch_id_raster</span><span class="op">)</span></span>
 <span><span class="va">areas_connected</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 703 × 3</span></span></span>
-<span><span class="co">#&gt;    patch_id    area area_squared</span></span>
-<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>        1    60.0        <span style="text-decoration: underline;">3</span>600.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>        2  <span style="text-decoration: underline;">1</span>648.      2<span style="text-decoration: underline;">716</span>264.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        7    12.0         144.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        8  <span style="text-decoration: underline;">1</span>200.      1<span style="text-decoration: underline;">440</span>195.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       10 <span style="text-decoration: underline;">92</span>034.   <span style="text-decoration: underline;">8</span>470<span style="text-decoration: underline;">191</span>653.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       11    40.0        <span style="text-decoration: underline;">1</span>600.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       12   288.        <span style="text-decoration: underline;">82</span>955.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       28  <span style="text-decoration: underline;">1</span>156.      1<span style="text-decoration: underline;">336</span>497.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       30    64.0        <span style="text-decoration: underline;">4</span>096.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       31   940.       <span style="text-decoration: underline;">883</span>705.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 703 × 2</span></span></span>
+<span><span class="co">#&gt;    patch_id    area</span></span>
+<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>        1    60.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>        2  <span style="text-decoration: underline;">1</span>648. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        7    12.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        8  <span style="text-decoration: underline;">1</span>200. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       10 <span style="text-decoration: underline;">92</span>034. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       11    40.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       12   288. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       28  <span style="text-decoration: underline;">1</span>156. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       30    64.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       31   940. </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 693 more rows</span></span></span></code></pre></div>
-<p>The result has three columns:</p>
+<p>The result has two columns:</p>
 <ul>
 <li>
 <code>patch_id</code> - integer identifier for the connected
@@ -338,9 +338,6 @@ patch</li>
 <li>
 <code>area</code> - total habitat area within the patch (square
 metres)</li>
-<li>
-<code>area_squared</code> - squared area, used in the connectivity
-metrics below</li>
 </ul>
 </div>
 </div>
@@ -396,10 +393,10 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[32ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[34ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[24ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[25ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -407,10 +404,10 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[294ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[300ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[21ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[22ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.1s]</span></span></span>

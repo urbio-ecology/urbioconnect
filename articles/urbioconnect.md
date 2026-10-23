@@ -299,27 +299,26 @@ habitat cells within that patch.
 
 areas_connected <- aggregate_connected_patches(patch_id_raster)
 areas_connected
-#> # A tibble: 703 × 3
-#>    patch_id    area area_squared
-#>       <dbl>   <dbl>        <dbl>
-#>  1        1    60.0        3600.
-#>  2        2  1648.      2716264.
-#>  3        7    12.0         144.
-#>  4        8  1200.      1440195.
-#>  5       10 92034.   8470191653.
-#>  6       11    40.0        1600.
-#>  7       12   288.        82955.
-#>  8       28  1156.      1336497.
-#>  9       30    64.0        4096.
-#> 10       31   940.       883705.
+#> # A tibble: 703 × 2
+#>    patch_id    area
+#>       <dbl>   <dbl>
+#>  1        1    60.0
+#>  2        2  1648. 
+#>  3        7    12.0
+#>  4        8  1200. 
+#>  5       10 92034. 
+#>  6       11    40.0
+#>  7       12   288. 
+#>  8       28  1156. 
+#>  9       30    64.0
+#> 10       31   940. 
 #> # ℹ 693 more rows
 ```
 
-The result has three columns:
+The result has two columns:
 
 - `patch_id` - integer identifier for the connected patch
 - `area` - total habitat area within the patch (square metres)
-- `area_squared` - squared area, used in the connectivity metrics below
 
 ## Computing connectivity metrics
 
@@ -384,10 +383,10 @@ areas <- habitat_connectivity(
   verbose = TRUE
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [32ms]
+#> ✔ Creating barrier mask [34ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [24ms]
+#> ✔ Removing habitat underneath barrier [25ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 10m
 #> Warning: `interpatch_distance` doesn't align with the raster resolution.
@@ -395,10 +394,10 @@ areas <- habitat_connectivity(
 #> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Buffering habitat for an interpatch distance of 10m [294ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [300ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [21ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [22ms]
 #> 
 #> ℹ Assigning patches ID to fragments
 #> ✔ Assigning patches ID to fragments [2.1s]

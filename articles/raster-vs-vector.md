@@ -108,7 +108,7 @@ raster_result <- habitat_connectivity(
   verbose = FALSE
 )
 rast_time <- toc()
-#> 2.82 sec elapsed
+#> 2.843 sec elapsed
 
 raster_result
 #> # A tibble: 1 × 9
@@ -159,7 +159,7 @@ vector_result <- sf_habitat_connectivity(
   interpatch_distance = interpatch_dist
 )
 vect_time <- toc()
-#> 9.576 sec elapsed
+#> 10.363 sec elapsed
 
 vector_result
 #> # patch_size_tbl:      data.frame
@@ -187,8 +187,8 @@ vector entry points is a known follow-up, noted again below.
 
 ## Comparing raster vs vector
 
-Both approaches identify one connected patch per row of their respective
-per-patch tables, with patch area and squared area.
+Both approaches give a per-patch table with one row per connected patch,
+holding its `patch_id` and `area`.
 
 ``` r
 
@@ -205,10 +205,11 @@ exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.
 
-    #> [1] 2.82
+    #> [1] 2.843
 
 Timings for the methods are also important to consider. The raster
-approach took 2.82 seconds, and the vector approach took 9.576 seconds.
+approach took 2.843 seconds, and the vector approach took 10.363
+seconds.
 
 ## Summarising connectivity metrics
 

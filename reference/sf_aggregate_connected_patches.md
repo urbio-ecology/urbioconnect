@@ -1,7 +1,7 @@
 # Aggregate connected patch areas
 
-Groups habitat patches by their connected fragment ID and calculates
-total and squared areas for connectivity metrics.
+Groups habitat patches by their connected fragment ID and sums the area
+within each one.
 
 ## Usage
 
@@ -17,7 +17,7 @@ sf_aggregate_connected_patches(patch_areas)
 
 ## Value
 
-Data frame with `patch_id`, `area`, and `area_squared` columns.
+Data frame with `patch_id` and `area` columns.
 
 ## Examples
 

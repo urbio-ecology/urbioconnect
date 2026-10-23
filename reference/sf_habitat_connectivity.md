@@ -36,8 +36,8 @@ sf_habitat_connectivity(habitat, barrier, species, interpatch_distance)
 
 ## Value
 
-Data frame with connectivity metrics for each connected patch, including
-`patch_id`, `area`, and `area_squared`.
+A `patch_size_tbl` with one row per connected patch, holding `patch_id`
+and `area`.
 
 ## Examples
 

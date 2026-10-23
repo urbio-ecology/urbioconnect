@@ -469,6 +469,17 @@
   to compare against a baseline instead.
   ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
 
+- [`aggregate_connected_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/aggregate_connected_patches.md)
+  and
+  [`sf_aggregate_connected_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_aggregate_connected_patches.md)
+  no longer return an `area_squared` column. Nothing in the package read
+  it:
+  [`effective_mesh_size()`](https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.md)
+  squares the areas itself, and
+  [`patch_size_tbl()`](https://urbio-ecology.github.io/urbioconnect/reference/new_patch_size_tbl.md)
+  keeps only `patch_id` and `area`.
+  ([\#137](https://github.com/urbio-ecology/urbioconnect/issues/137))
+
 ## urbioconnect 0.1.0
 
 - Make a NEWS file to monitor changes.

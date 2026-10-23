@@ -21,7 +21,8 @@ patch_size_tbl(data, species, interpatch_distance, res = NA_real_)
 
 - data:
 
-  Data frame of connected patches. Must contain an `area` column.
+  Data frame of connected patches. Must contain `patch_id` and `area`
+  columns.
 
 - species:
 
