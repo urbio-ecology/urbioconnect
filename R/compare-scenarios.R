@@ -93,9 +93,9 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   There's no way to write a scenario that changes both, which is what
 #'   [habitat_connectivity_comparison()] has to check for.
 #'
-#'   The baseline is run once per distance and reused by every scenario, so
-#'   comparing three scenarios at one distance runs the pipeline four times,
-#'   not six.
+#'   Each landscape is swept once over the whole of `interpatch_distance`, and
+#'   the baseline sweep is reused by every scenario. The work that does not
+#'   depend on the distance is shared across the distances within each sweep.
 #'
 #' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
 #' @param barrier_baseline Terra SpatRaster. The baseline barrier layer.
@@ -108,7 +108,7 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   across the two.
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
-#'   vector runs every scenario once per distance.
+#'   vector gives every scenario's comparison at each distance.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `compare_connectivity` object with four rows per scenario per
@@ -146,6 +146,7 @@ habitat_connectivity_scenarios <- function(
   interpatch_distance,
   verbose = TRUE
 ) {
+  check_scalar_character(species)
   check_distances(interpatch_distance)
   check_scenario_layers(habitat_scenarios, barrier_scenarios)
 
@@ -169,29 +170,34 @@ habitat_connectivity_scenarios <- function(
     barrier_baseline
   )
 
-  comparisons <- purrr::map(interpatch_distance, function(distance) {
-    # Computed once per distance, then reused by every scenario below.
-    base_conn <- connectivity_at_distance(
-      habitat_baseline,
-      barrier_baseline,
-      species,
-      distance,
-      verbose
+  # One sweep per landscape, each sharing its distance-independent work across
+  # the whole vector. The baseline is swept once and reused by every scenario.
+  base_conn <- habitat_connectivity(
+    habitat = habitat_baseline,
+    barrier = barrier_baseline,
+    species = species,
+    interpatch_distance = interpatch_distance,
+    verbose = verbose
+  )
+
+  # map() keeps the names, so compare_scenarios() does the labelling and
+  # stacking rather than this function repeating it
+  scenario_connectivity <- purrr::map(scenario_layers, function(layers) {
+    habitat_connectivity(
+      habitat = layers$habitat,
+      barrier = layers$barrier,
+      species = species,
+      interpatch_distance = interpatch_distance,
+      verbose = verbose
     )
+  })
 
-    # map() keeps the names, so compare_scenarios() does the labelling and
-    # stacking rather than this function repeating it
-    scenario_connectivity <- purrr::map(scenario_layers, function(layers) {
-      connectivity_at_distance(
-        layers$habitat,
-        layers$barrier,
-        species,
-        distance,
-        verbose
-      )
-    })
-
-    compare_scenarios(baseline = base_conn, scenarios = scenario_connectivity)
+  # compare_scenarios() pairs single rows, so slice the sweeps back per distance
+  comparisons <- purrr::map(seq_along(interpatch_distance), function(i) {
+    compare_scenarios(
+      baseline = dplyr::slice(base_conn, i),
+      scenarios = purrr::map(scenario_connectivity, \(x) dplyr::slice(x, i))
+    )
   })
 
   new_compare_connectivity(dplyr::bind_rows(comparisons))

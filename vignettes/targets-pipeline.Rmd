@@ -64,7 +64,7 @@ tar_assign({
   barrier_mask <- create_barrier_mask(barrier) |> tar_terra_rast()
   remaining <- drop_habitat_under_barrier(habitat, barrier_mask) |>
     tar_terra_rast()
-  buffered_habitat <- habitat_buffer(remaining, interpatch_distance = interpatch_distance) |>
+  buffered_habitat <- habitat_buffer(remaining, buffer_radius = interpatch_distance / 2) |>
     tar_terra_rast()
   fragmentation_raster <- fragment_habitat(buffered_habitat, barrier_mask) |>
     tar_terra_rast()

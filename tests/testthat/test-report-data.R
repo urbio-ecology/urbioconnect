@@ -25,6 +25,23 @@ test_that("connectivity_report_data() keeps a summary and layers per distance", 
   })
 })
 
+test_that("connectivity_report_data() measures one surface per landscape", {
+  layers <- scenario_test_layers()
+  surfaces <- local_surface_count()
+
+  connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = c(40, 80, 160),
+    scenario = layers$barrier_scenario,
+    scenario_kind = "barrier",
+    verbose = FALSE
+  )
+
+  expect_equal(surfaces(), 2)
+})
+
 test_that("a scenario gives the same comparison, for half the pipeline runs", {
   layers <- scenario_test_layers()
 
@@ -33,8 +50,8 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
   # Building it from the two runs this function already does has to give the
   # same numbers.
   separately <- habitat_connectivity_comparison(
-    habitat_scenario = layers$habitat,
-    barrier_scenario = layers$barrier_scenario,
+    habitat_scenario = layers$habitat_scenario,
+    barrier_scenario = layers$barrier,
     habitat_baseline = layers$habitat,
     barrier_baseline = layers$barrier,
     species = "Test Species",
@@ -47,26 +64,56 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
     barrier = layers$barrier,
     species = "Test Species",
     interpatch_distance = c(40, 80),
-    scenario = layers$barrier_scenario,
-    scenario_kind = "barrier",
+    scenario = layers$habitat_scenario,
+    scenario_kind = "habitat",
     verbose = FALSE
   )
 
   expect_equal(together$comparison, separately)
+  # a scenario that changed nothing would make the line above vacuous
+  expect_gt(
+    max(abs(separately$n_patches[separately$measure == "change"])),
+    0
+  )
 
   # and the scenario landscape comes back with it, so the maps need no
   # second pass over the rasters
-  expect_equal(together$scenario_kind, "barrier")
+  expect_equal(together$scenario_kind, "habitat")
   expect_named(together$scenario_buffered_habitat, c("40", "80"))
   expect_equal(
     terra::values(scenario_layer(together)),
-    terra::values(
-      layers$barrier_scenario
-    )
+    terra::values(layers$habitat_scenario)
   )
   expect_equal(
     terra::values(together$scenario_habitat),
-    terra::values(layers$habitat)
+    terra::values(layers$habitat_scenario)
+  )
+})
+
+test_that("connectivity_report_data() keeps what one call per distance keeps", {
+  layers <- scenario_test_layers()
+
+  swept <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Test Species",
+    interpatch_distance = c(40, 160),
+    verbose = FALSE
+  )
+  alone <- habitat_connectivity_full(
+    layers$habitat,
+    layers$barrier,
+    interpatch_distance = 160,
+    verbose = FALSE
+  )
+
+  expect_equal(
+    terra::values(swept$buffered_habitat[["160"]]),
+    terra::values(alone$buffered_habitat)
+  )
+  expect_equal(
+    terra::values(swept$patch_id_raster[["160"]]),
+    terra::values(alone$patch_id_raster)
   )
 })
 

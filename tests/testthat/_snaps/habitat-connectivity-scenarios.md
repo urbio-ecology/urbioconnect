@@ -38,6 +38,17 @@
       # change = scenario - baseline (positive = scenario is higher)
       # pct_change = 100 * change / baseline
 
+# habitat_connectivity_scenarios() checks species before any work
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = 1, habitat_scenarios = list(
+        `Bentley Project` = layers$habitat_scenario), interpatch_distance = 40)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `species` must be <character>, not <numeric>.
+      i You supplied: a number
+
 # habitat_connectivity_scenarios() warns on a scenario matching baseline
 
     Code

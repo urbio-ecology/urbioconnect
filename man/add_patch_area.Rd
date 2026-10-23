@@ -7,7 +7,8 @@
 add_patch_area(raster)
 }
 \arguments{
-\item{raster}{terra SpatRaster. In the workflow, this is the patch ID raster.}
+\item{raster}{terra SpatRaster with one layer. In the workflow, this is the
+patch ID raster.}
 }
 \value{
 terra SpatRaster with two layers: patch_id and area.
@@ -23,7 +24,7 @@ barrier_mask <- create_barrier_mask(lizard_barrier)
 fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
+  barrier_mask = barrier_mask
   )
 fragment_patches <- assign_patches_to_fragments(
   remaining_habitat = remaining_habitat,

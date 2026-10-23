@@ -19,6 +19,38 @@ test_that("habitat_connectivity_scenarios() stacks habitat then barrier scenario
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_scenarios() measures one surface per landscape", {
+  layers <- scenario_test_layers()
+  surfaces <- local_surface_count()
+
+  habitat_connectivity_scenarios(
+    habitat_baseline = layers$habitat,
+    barrier_baseline = layers$barrier,
+    species = "Test Species",
+    habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
+    barrier_scenarios = list("Barrier upgrade" = layers$barrier_scenario),
+    interpatch_distance = c(40, 80, 160),
+    verbose = FALSE
+  )
+
+  expect_equal(surfaces(), 3)
+})
+
+test_that("habitat_connectivity_scenarios() checks species before any work", {
+  layers <- scenario_test_layers()
+
+  expect_snapshot(
+    error = TRUE,
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = 1,
+      habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
+      interpatch_distance = 40
+    )
+  )
+})
+
 test_that("habitat_connectivity_scenarios() takes either list on its own", {
   layers <- scenario_test_layers()
 
@@ -87,6 +119,35 @@ test_that("habitat_connectivity_scenarios() runs every scenario per distance", {
   expect_equal(
     unique(results$interpatch_distance),
     c(40, 80)
+  )
+})
+
+test_that("habitat_connectivity_scenarios() sweeps to what one call per distance gives", {
+  # every landscape is swept in one call, so the rows have to come back
+  # distance-major with the scenarios in order inside each distance
+  layers <- scenario_test_layers()
+
+  scenarios_at <- function(distance) {
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
+      barrier_scenarios = list("Barrier upgrade" = layers$barrier_scenario),
+      interpatch_distance = distance,
+      verbose = FALSE
+    )
+  }
+
+  swept <- scenarios_at(c(40, 160))
+
+  # the baseline differs between the two distances, so a mis-pairing shows
+  baseline_rows <- dplyr::filter(swept, measure == "baseline")
+  expect_gt(length(unique(baseline_rows$n_patches)), 1)
+
+  expect_equal(
+    swept,
+    dplyr::bind_rows(scenarios_at(40), scenarios_at(160))
   )
 })
 

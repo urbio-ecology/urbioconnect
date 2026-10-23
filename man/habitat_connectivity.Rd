@@ -13,7 +13,8 @@ habitat_connectivity(
 )
 }
 \arguments{
-\item{habitat}{Terra SpatRaster. Habitat raster.}
+\item{habitat}{Terra SpatRaster. Habitat raster. Habitat is any cell that is
+neither \code{NA} nor \code{0}, whatever value it is coded with.}
 
 \item{barrier}{Terra SpatRaster. Barrier raster.}
 
@@ -28,16 +29,20 @@ the specified \code{interpatch_distance} is halved exactly. So an interpatch
 distance of 500 will be converted to 250. For the buffer to be
 representable on the raster, keep \code{resolution <= interpatch_distance / 2};
 below that the buffer is a no-op and a warning is raised. See
-\code{vignette("interpatch-distance-and-resolution")}.}
+\code{vignette("interpatch-distance-and-resolution")}.
+
+May be a vector, which gives one row per distance, in the order given.
+The work that does not depend on the distance, including the distance
+surface every buffer is cut from, is done once for the whole vector.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
 \value{
-A \code{connectivity} object (one row): a tibble of landscape-level
-connectivity metrics (patch count, effective mesh size, probability of
-connectedness, mean and total patch area) for the species and
-interpatch distance supplied. The per-patch areas the summary is built
-from are stored in a list column, "patch_size" -- retrieve them with
+A \code{connectivity} object: a tibble of landscape-level connectivity
+metrics (patch count, effective mesh size, probability of connectedness,
+mean and total patch area), one row per interpatch distance, in the order
+the distances were given. The per-patch areas each summary is built from
+are stored in a list column, "patch_size" -- retrieve them with
 \code{\link[=patch_sizes]{patch_sizes()}}.
 }
 \description{
@@ -66,6 +71,14 @@ connectivity
 # get the patch size:
 patch_sizes(connectivity)[[1]]
 
+# several distances at once
+habitat_connectivity(
+  habitat = lizard_habitat,
+  barrier = lizard_barrier,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = c(12, 24, 48),
+  verbose = FALSE
+)
 }
 \seealso{
 \code{vignette("interpatch-distance-and-resolution")} for the

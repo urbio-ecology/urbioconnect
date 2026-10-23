@@ -212,7 +212,7 @@ sf_habitat_connectivity <- function(
   species,
   interpatch_distance
 ) {
-  buffer_radius <- buffer_radius_from(interpatch_distance)
+  buffer_radius <- buffer_radius_from(interpatch_distance, scalar = TRUE)
   # buffer the habitat layer by the buffer_radius
   buffer <- sf_habitat_buffer(habitat, buffer_radius)
   # create fragmentation geometry

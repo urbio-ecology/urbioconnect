@@ -53,7 +53,7 @@ habitat
 barrier
 ```
 
-The habitat raster has value 1 where lizard habitat exists, NA elsewhere. 
+The habitat raster has value 1 where lizard habitat exists, NA elsewhere. Any value other than `0` or `NA` counts as habitat, so a layer coded 0 and 1 works as well. 
 
 ```{r}
 #| label: plot-habitat
@@ -122,7 +122,7 @@ plot(remaining_habitat, col = "#1b9e77", legend = FALSE, add = TRUE)
 
 ### Step 3: Buffer the habitat
 
-`habitat_buffer()` expands the habitat outward using a circular focal window. This is the spatial operation of buffering, which we use to represent the interpatch distance - here the **buffer_radius** should be *half* the species' connectivity threshold. For example, if two patches are considered connected when within 200 m of each other, use a 100 m buffer, as the buffers overlap when patches are within 200 m. For the blue-tongued lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500 m. However, we use 10 for a faster demonstration on the small example dataset, and will define both `interpatch_distance` and `buffer_radius` at the same time.
+`habitat_buffer()` expands the habitat outward by keeping every cell within a given radius of it. This is the spatial operation of buffering, which we use to represent the interpatch distance - here the **buffer_radius** should be *half* the species' connectivity threshold. For example, if two patches are considered connected when within 200 m of each other, use a 100 m buffer, as the buffers overlap when patches are within 200 m. For the blue-tongued lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500 m. However, we use 10 for a faster demonstration on the small example dataset, and will define both `interpatch_distance` and `buffer_radius` at the same time.
 
 ```{r}
 #| label: interpatch
@@ -295,32 +295,23 @@ names(result)
 
 ## Comparing multiple interpatch distances
 
-A common workflow is to run the analysis at several interpatch distances and compare the results. Use `purrr::map()` to iterate, then `purrr::list_rbind()` to combine:
+A common workflow is to run the analysis at several interpatch distances and compare the results. Pass a vector to `interpatch_distance`:
 
 ```{r}
 #| label: multi-interpatch
 
-interpatch_distances <- c(10, 30, 50)
-buffered_radiuses <- interpatch_distances / 2
-
-all_results <- purrr::map(
-  interpatch_distances,
-  function(d) {
-    habitat_connectivity(
-      habitat = habitat,
-      barrier = barrier,
-      species = "Blue-tongued Lizard",
-      interpatch_distance = d,
-      verbose = FALSE
-    )
-  }
-) |>
-  purrr::list_rbind()
+all_results <- habitat_connectivity(
+  habitat = habitat,
+  barrier = barrier,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = c(10, 30, 50),
+  verbose = FALSE
+)
 
 all_results
 ```
 
-Each call to `habitat_connectivity()` already returns a one-row summary, so `purrr::list_rbind()` stacks them directly -- there's no separate `summarise_connectivity()` step needed here.
+The result has one row per distance, in the order given. The work that does not depend on the distance, such as the barrier mask and the habitat under barriers, is done once. There is no separate `summarise_connectivity()` step needed here.
 
 With multiple buffer distances you can visualise how connectivity changes using `plot_connectivity()`:
 
