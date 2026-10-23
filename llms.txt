@@ -334,6 +334,8 @@ development of the methods and software.
   : Write the reports as a single zip
 - [`connectivity_file_stem()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.md)
   : The name to give a download: species and date
+- [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
+  : The settings one analysis was run with
 - [`generate_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/generate_connectivity_report.md)
   : Render a connectivity report
 - [`write_connectivity_report()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_report.md)

@@ -18,6 +18,7 @@ connectivity_report_data(
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
+  settings = NULL,
   verbose = TRUE
 )
 ```
@@ -63,6 +64,18 @@ connectivity_report_data(
   Optional name for the scenario, carried in the comparison so several
   can be stacked.
 
+- settings:
+
+  Optional named list of whatever produced this analysis that it can't
+  derive for itself: the resolutions
+  [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+  was called with, where the layers came from, a run id. Each element
+  becomes one row of
+  [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
+  and of the download bundle's `summary/settings.csv`, with a vector
+  written as one comma-separated value. Each needs a name of its own,
+  not one the analysis records itself.
+
 - verbose:
 
   Logical. Display progress messages (default: TRUE).
@@ -79,6 +92,11 @@ A `connectivity_report_data` object: a list of
   per distance and named by it
 
 - `species` and `interpatch_distance`
+
+- `settings`, the named character vector the caller recorded, and
+  `run_time`, when the analysis ran.
+  [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
+  turns the two into the settings record.
 
 and, when a `scenario` was given, the same view of the scenario
 landscape: `scenario_kind`, `scenario_habitat`, `scenario_barrier`,

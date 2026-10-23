@@ -66,6 +66,7 @@ report are built from.</p>
 <span>  scenario <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  scenario_kind <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  scenario_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -112,6 +113,15 @@ time, so that the difference in connectivity is attributable to it.</p></dd>
 comparison so several can be stacked.</p></dd>
 
 
+<dt id="arg-settings">settings<a class="anchor" aria-label="anchor" href="#arg-settings"></a></dt>
+<dd><p>Optional named list of whatever produced this analysis that
+it can't derive for itself: the resolutions <code><a href="prepare_rasters.html">prepare_rasters()</a></code> was
+called with, where the layers came from, a run id. Each element becomes
+one row of <code><a href="connectivity_settings.html">connectivity_settings()</a></code> and of the download bundle's
+<code>summary/settings.csv</code>, with a vector written as one comma-separated
+value. Each needs a name of its own, not one the analysis records itself.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Display progress messages (default: TRUE).</p></dd>
 
@@ -123,6 +133,9 @@ comparison so several can be stacked.</p></dd>
 <li><p><code>buffered_habitat</code> and <code>patch_id_raster</code>, lists of <code>SpatRaster</code>, one per
 distance and named by it</p></li>
 <li><p><code>species</code> and <code>interpatch_distance</code></p></li>
+<li><p><code>settings</code>, the named character vector the caller recorded, and
+<code>run_time</code>, when the analysis ran. <code><a href="connectivity_settings.html">connectivity_settings()</a></code> turns the
+two into the settings record.</p></li>
 </ul><p>and, when a <code>scenario</code> was given, the same view of the scenario
 landscape: <code>scenario_kind</code>, <code>scenario_habitat</code>, <code>scenario_barrier</code>,
 <code>scenario_buffered_habitat</code>, and <code>comparison</code>. Without one these are all

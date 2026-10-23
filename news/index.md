@@ -9,6 +9,21 @@
   changes: the installer is assembled entirely in CI.
   ([\#147](https://github.com/urbio-ecology/urbioconnect/issues/147))
 
+- The shiny app records the settings an analysis was run with, enough to
+  repeat it, as a CSV on the Results tab and as `summary/settings.csv`
+  in the download bundle. Scenario comparison tables now name the
+  scenario.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
+
+- The shiny app’s plot and areas CSV downloads are named after the
+  species and the date, like the report, so a species with a space no
+  longer puts one in the file name.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
+
+- The shiny app reports an interpatch distance that isn’t a number as an
+  error, rather than dropping it.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
+
 - [`run_connectivity_app()`](https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.md)
   now checks for `diffviewer` before launching. The app attaches it for
   the Scenario tab’s compare view, so without it the check passed and
@@ -83,8 +98,16 @@
 
 - New
   [`connectivity_file_stem()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_file_stem.md)
-  gives the species-and-date name every download takes, so a report, a
-  zip and the folder inside that zip agree.
+  gives every download the same species-and-date name, dated when the
+  analysis ran.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
+
+- New
+  [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
+  returns the settings an analysis was run with, one row per setting;
+  [`write_connectivity_assets()`](https://urbio-ecology.github.io/urbioconnect/reference/write_connectivity_assets.md)
+  writes them to `summary/settings.csv`.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
 
 - New
   [`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md)
@@ -110,6 +133,12 @@
   than an error. The report gains a scenario section and the download a
   `scenario-comparison.csv`; without a scenario, neither appears.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
+  gains `settings`, for what the analysis can’t record itself, such as
+  the resolutions and where the layers came from. It also records when
+  it ran, so downloads are dated by the run rather than by the download.
+  ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
 
 - New
   [`scenario_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.md)

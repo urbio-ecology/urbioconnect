@@ -76,5 +76,6 @@ zip::zip_list(zip_path)$filename
 #> [15] "blue-tongue-lizard-connectivity-2026-10-23/summary/"                                      
 #> [16] "blue-tongue-lizard-connectivity-2026-10-23/summary/connectivity-summary.csv"              
 #> [17] "blue-tongue-lizard-connectivity-2026-10-23/summary/patch-areas.csv"                       
+#> [18] "blue-tongue-lizard-connectivity-2026-10-23/summary/settings.csv"                          
 # }
 ```
