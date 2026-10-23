@@ -46,7 +46,7 @@ server <- function(input, output, session) {
   # The name of an upload: its .shp when there is one, else its first file.
   main_file_name <- function(file_input) {
     shp <- grepl("\\.shp$", file_input$name, ignore.case = TRUE)
-    c(file_input$name[shp], file_input$name)[[1]]
+    if (any(shp)) file_input$name[shp][1] else file_input$name[1]
   }
 
   # Choosing an example fills in its species and takes over the file inputs;
