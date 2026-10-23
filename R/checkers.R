@@ -115,6 +115,39 @@ check_scenario_name <- function(
   invisible(x)
 }
 
+#' Check the settings a caller recorded
+#'
+#' Each becomes one row of the settings CSV, so it needs a name no other row
+#' has: a reader looking a setting up would otherwise get two answers.
+#'
+#' @noRd
+check_settings <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (length(x) == 0) {
+    return(NULL)
+  }
+
+  setting <- rlang::names2(x)
+  own_name <- nzchar(setting) &
+    !duplicated(setting) &
+    !setting %in% derived_setting_names
+
+  if (!all(own_name)) {
+    cli::cli_abort(
+      c(
+        "Every element of {.arg {arg}} needs a name of its own.",
+        "i" = "The analysis records these itself: {.field {derived_setting_names}}."
+      ),
+      call = call
+    )
+  }
+
+  purrr::map_chr(x, \(value) paste(value, collapse = ", "))
+}
+
 #' Check scenario names
 #'
 #' The names become the `scenario_name` column, so every scenario needs one,

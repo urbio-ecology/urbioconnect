@@ -16,7 +16,8 @@ A string, with no extension.
 \description{
 The stem every download takes its name from, so a report, a zip and the
 folder inside that zip agree. The species is lower-cased with its spaces
-turned into dashes, which keeps it usable as a file name.
+turned into dashes, which keeps it usable as a file name. The date is the
+day the analysis ran, not the day the file is written.
 }
 \examples{
 \donttest{

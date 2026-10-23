@@ -31,11 +31,21 @@ upload_value <- function(path) {
   stem <- tools::file_path_sans_ext(path)
   files <- Sys.glob(paste0(stem, ".*"))
 
+  # shiny copies uploads to a temp dir as 0.shp, 1.shx, ...: index, then the
+  # original extension
+  dir <- tempfile("upload")
+  dir.create(dir)
+  datapath <- file.path(
+    dir,
+    paste0(seq_along(files) - 1, ".", tools::file_ext(files))
+  )
+  file.copy(files, datapath)
+
   data.frame(
     name = basename(files),
     size = file.size(files),
     type = "",
-    datapath = files,
+    datapath = datapath,
     stringsAsFactors = FALSE
   )
 }

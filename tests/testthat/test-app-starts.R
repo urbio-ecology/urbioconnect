@@ -46,8 +46,19 @@ test_that("the app starts, takes an analysis, and compares the result", {
   app$set_inputs(scenario_choice = "upload")
   app$wait_for_idle()
 
+  # on a slow server the startup choices update used to land after this and
+  # put the choice back to "none"
+  expect_equal(app$get_value(input = "scenario_choice"), "upload")
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
+
+  # the settings button sits in a conditionalPanel on results_ready, which only
+  # a browser evaluates; the card is on Results, so open it to look
+  app$set_inputs(main_nav = "Results")
+  app$wait_for_idle()
+  expect_false(visible("#download_settings_csv"))
+  app$set_inputs(main_nav = "Inputs")
+  app$wait_for_idle()
 
   # the widget exists only once there is a scenario to compare, so this test
   # pays for a real analysis, on the lizard landscape and at two distances to
@@ -77,6 +88,8 @@ test_that("the app starts, takes an analysis, and compares the result", {
     landscape_view = "Compare"
   )
   app$wait_for_idle(timeout = 60000)
+
+  expect_true(visible("#download_settings_csv"))
 
   # the zoom buttons share the button class, so ask the view group by name
   modes <- function(distance) {

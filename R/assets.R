@@ -221,7 +221,8 @@ absolute_path <- function(
 #'
 #' The stem every download takes its name from, so a report, a zip and the
 #'   folder inside that zip agree. The species is lower-cased with its spaces
-#'   turned into dashes, which keeps it usable as a file name.
+#'   turned into dashes, which keeps it usable as a file name. The date is the
+#'   day the analysis ran, not the day the file is written.
 #'
 #' @param x A `connectivity_report_data` object from
 #'   [connectivity_report_data()].
@@ -247,7 +248,9 @@ absolute_path <- function(
 #' }
 connectivity_file_stem <- function(x) {
   check_report_data(x)
-  as.character(glue::glue("{slugify(x$species)}-connectivity-{Sys.Date()}"))
+  as.character(glue::glue(
+    "{slugify(x$species)}-connectivity-{format(x$run_time, '%Y-%m-%d')}"
+  ))
 }
 
 #' Make a string safe for a file path
@@ -284,12 +287,14 @@ asset_manifest <- function(x, reports = FALSE) {
   shared <- tibble::tibble(
     path = c(
       "README.md",
+      "summary/settings.csv",
       "summary/connectivity-summary.csv",
       "summary/patch-areas.csv"
     ),
-    kind = c("readme", "table", "table"),
+    kind = c("readme", "table", "table", "table"),
     description = c(
       "This file: what the analysis was, and what each file holds.",
+      "The settings the analysis was run with, one row per setting.",
       "Landscape metrics, one row per interpatch distance.",
       "Every habitat patch, with its area and interpatch distance."
     )
@@ -382,6 +387,12 @@ distance_manifest <- function(distance) {
 
 #' @noRd
 write_asset_tables <- function(x, dir) {
+  readr::write_csv(
+    connectivity_settings(x),
+    file.path(dir, "summary", "settings.csv"),
+    na = ""
+  )
+
   x$connectivity |>
     dplyr::select(-"patch_size") |>
     readr::write_csv(file.path(dir, "summary", "connectivity-summary.csv"))
@@ -522,7 +533,7 @@ write_asset_readme <- function(x, manifest, dir) {
       ),
       resolution = format_resolution(terra::res(x$habitat)),
       crs = terra::crs(x$habitat, describe = TRUE)$name,
-      date = format(Sys.Date()),
+      date = format(x$run_time, "%Y-%m-%d"),
       version = as.character(utils::packageVersion("urbioconnect")),
       files = glue::glue_collapse(file_list, sep = "\n")
     )

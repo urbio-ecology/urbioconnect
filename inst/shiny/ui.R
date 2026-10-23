@@ -419,6 +419,17 @@ ui <- page_navbar(
               code(textOutput("analysis_workdir", inline = TRUE))
             )
           )
+        ),
+        card_footer(
+          # this card shows before a run, so the button is guarded, not a panel
+          conditionalPanel(
+            condition = "output.results_ready",
+            downloadButton(
+              "download_settings_csv",
+              "Download settings CSV",
+              class = "btn-sm"
+            )
+          )
         )
       )
     )

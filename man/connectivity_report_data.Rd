@@ -12,6 +12,7 @@ connectivity_report_data(
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
+  settings = NULL,
   verbose = TRUE
 )
 }
@@ -40,6 +41,13 @@ time, so that the difference in connectivity is attributable to it.}
 \item{scenario_name}{Optional name for the scenario, carried in the
 comparison so several can be stacked.}
 
+\item{settings}{Optional named list of whatever produced this analysis that
+it can't derive for itself: the resolutions \code{\link[=prepare_rasters]{prepare_rasters()}} was
+called with, where the layers came from, a run id. Each element becomes
+one row of \code{\link[=connectivity_settings]{connectivity_settings()}} and of the download bundle's
+\code{summary/settings.csv}, with a vector written as one comma-separated
+value. Each needs a name of its own, not one the analysis records itself.}
+
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
 \value{
@@ -50,6 +58,9 @@ A \code{connectivity_report_data} object: a list of
 \item \code{buffered_habitat} and \code{patch_id_raster}, lists of \code{SpatRaster}, one per
 distance and named by it
 \item \code{species} and \code{interpatch_distance}
+\item \code{settings}, the named character vector the caller recorded, and
+\code{run_time}, when the analysis ran. \code{\link[=connectivity_settings]{connectivity_settings()}} turns the
+two into the settings record.
 }
 
 and, when a \code{scenario} was given, the same view of the scenario

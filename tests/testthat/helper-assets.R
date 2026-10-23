@@ -1,7 +1,11 @@
 # synthetic layers: ~0.1s per distance, against ~4.7s on the wren rasters.
 # with_scenario adds the development that removes the third habitat patch, so
-# the analysis carries a comparison.
-test_report_data <- function(interpatch_distance = 40, with_scenario = FALSE) {
+# the analysis carries a comparison. `...` goes to connectivity_report_data().
+test_report_data <- function(
+  interpatch_distance = 40,
+  with_scenario = FALSE,
+  ...
+) {
   layers <- scenario_test_layers()
 
   connectivity_report_data(
@@ -11,8 +15,14 @@ test_report_data <- function(interpatch_distance = 40, with_scenario = FALSE) {
     interpatch_distance = interpatch_distance,
     scenario = if (with_scenario) layers$habitat_scenario,
     scenario_kind = if (with_scenario) "habitat",
-    verbose = FALSE
+    verbose = FALSE,
+    ...
   )
+}
+
+# one value from a connectivity_settings() table, by setting name
+setting_value <- function(settings, name) {
+  settings$value[settings$setting == name]
 }
 
 # a baseline-vs-scenario comparison from the synthetic layers: the scenario

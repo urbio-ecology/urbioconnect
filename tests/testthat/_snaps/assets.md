@@ -4,21 +4,22 @@
       asset_manifest(test_report_data(c(40, 80)))$path
     Output
        [1] "README.md"                                     
-       [2] "summary/connectivity-summary.csv"              
-       [3] "summary/patch-areas.csv"                       
-       [4] "summary/connectivity-over-distance.png"        
-       [5] "interpatch-40m/maps/habitat-buffer-barrier.png"
-       [6] "interpatch-40m/maps/patches.png"               
-       [7] "interpatch-40m/gis/patches.tif"                
-       [8] "interpatch-40m/gis/patches.gpkg"               
-       [9] "interpatch-40m/gis/patches.shp"                
-      [10] "interpatch-80m/maps/habitat-buffer-barrier.png"
-      [11] "interpatch-80m/maps/patches.png"               
-      [12] "interpatch-80m/gis/patches.tif"                
-      [13] "interpatch-80m/gis/patches.gpkg"               
-      [14] "interpatch-80m/gis/patches.shp"                
+       [2] "summary/settings.csv"                          
+       [3] "summary/connectivity-summary.csv"              
+       [4] "summary/patch-areas.csv"                       
+       [5] "summary/connectivity-over-distance.png"        
+       [6] "interpatch-40m/maps/habitat-buffer-barrier.png"
+       [7] "interpatch-40m/maps/patches.png"               
+       [8] "interpatch-40m/gis/patches.tif"                
+       [9] "interpatch-40m/gis/patches.gpkg"               
+      [10] "interpatch-40m/gis/patches.shp"                
+      [11] "interpatch-80m/maps/habitat-buffer-barrier.png"
+      [12] "interpatch-80m/maps/patches.png"               
+      [13] "interpatch-80m/gis/patches.tif"                
+      [14] "interpatch-80m/gis/patches.gpkg"               
+      [15] "interpatch-80m/gis/patches.shp"                
 
-# connectivity_file_stem() slugs the species and dates it
+# connectivity_file_stem() slugs the species and dates the run
 
     Code
       connectivity_file_stem(lizard_areas_connected)
@@ -82,13 +83,14 @@
        [1] "report.html"                                   
        [2] "report.pdf"                                    
        [3] "README.md"                                     
-       [4] "summary/connectivity-summary.csv"              
-       [5] "summary/patch-areas.csv"                       
-       [6] "interpatch-40m/maps/habitat-buffer-barrier.png"
-       [7] "interpatch-40m/maps/patches.png"               
-       [8] "interpatch-40m/gis/patches.tif"                
-       [9] "interpatch-40m/gis/patches.gpkg"               
-      [10] "interpatch-40m/gis/patches.shp"                
+       [4] "summary/settings.csv"                          
+       [5] "summary/connectivity-summary.csv"              
+       [6] "summary/patch-areas.csv"                       
+       [7] "interpatch-40m/maps/habitat-buffer-barrier.png"
+       [8] "interpatch-40m/maps/patches.png"               
+       [9] "interpatch-40m/gis/patches.tif"                
+      [10] "interpatch-40m/gis/patches.gpkg"               
+      [11] "interpatch-40m/gis/patches.shp"                
 
 # write_connectivity_assets() skips the reports without Quarto
 

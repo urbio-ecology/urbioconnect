@@ -34,10 +34,27 @@ server <- function(input, output, session) {
     example_datasets[[input$example_data %||% ""]]
   }
 
+  # For the settings record: the example dataset, or every file uploaded
+  layer_source <- function(file_input) {
+    if (!is.null(chosen_dataset())) {
+      return(paste0("example data: ", input$example_data))
+    }
+
+    paste(file_input$name, collapse = ", ")
+  }
+
+  # The name of an upload: its .shp when there is one, else its first file.
+  main_file_name <- function(file_input) {
+    shp <- grepl("\\.shp$", file_input$name, ignore.case = TRUE)
+    if (any(shp)) file_input$name[shp][1] else file_input$name[1]
+  }
+
   # Choosing an example fills in its species and takes over the file inputs;
   # the scenarios on offer are that dataset's, since a scenario is only
-  # comparable against the landscape it was drawn on.
-  observeEvent(input$example_data, {
+  # comparable against the landscape it was drawn on. Not at startup: the page
+  # already matches "none", and a late update there put a scenario chosen in
+  # the meantime back to "none".
+  observeEvent(input$example_data, ignoreInit = TRUE, {
     dataset <- chosen_dataset()
     using_example <- !is.null(dataset)
 
@@ -78,7 +95,6 @@ server <- function(input, output, session) {
     interpatch_distances = NULL,
     results_connect_habitat = NULL,
     areas_connected = NULL,
-    analysis_time = NULL,
     comparison = NULL,
     scenario_layer = NULL,
     scenario_kind = NULL,
@@ -90,16 +106,28 @@ server <- function(input, output, session) {
   # Parse interpatch distances ----
   interpatch_distances_parsed <- reactive({
     req(input$interpatch_distances)
-    distances_text <- input$interpatch_distances
-    distances <- as.numeric(unlist(strsplit(distances_text, ",")))
-    distances <- distances[!is.na(distances)]
+    entries <- trimws(strsplit(input$interpatch_distances, ",")[[1]])
+    entries <- entries[entries != ""]
+    distances <- suppressWarnings(as.numeric(entries))
+    unparsed <- entries[is.na(distances)]
+
+    # separate from the checks below, which can't run on NA and would
+    # otherwise add a second message
+    validate(need(
+      length(unparsed) == 0,
+      paste0(
+        "Interpatch distances must be numbers, and ",
+        paste0('"', unparsed, '"', collapse = ", "),
+        if (length(unparsed) == 1) " isn't." else " aren't."
+      )
+    ))
 
     validate(
       need(
         length(distances) > 0,
         "Please enter at least one valid interpatch distance"
       ),
-      need(all(distances > 0), "Unterpatch distances must be positive numbers")
+      need(all(distances > 0), "Interpatch distances must be positive numbers")
     )
 
     distances
@@ -255,6 +283,13 @@ server <- function(input, output, session) {
             interpatch_distance = interpatch_dists,
             scenario = scenario$layer,
             scenario_kind = scenario$kind,
+            scenario_name = scenario$name,
+            settings = list(
+              habitat_source = layer_source(input$habitat_file),
+              barrier_source = layer_source(input$barrier_file),
+              data_resolution_m = base_res,
+              target_resolution_m = overlay_res
+            ),
             verbose = FALSE
           )
 
@@ -276,7 +311,6 @@ server <- function(input, output, session) {
           incProgress(0.9, message = "Finalizing...")
 
           results$ready <- TRUE
-          results$analysis_time <- Sys.time()
         })
 
         removeModal()
@@ -313,7 +347,7 @@ server <- function(input, output, session) {
 
   output$analysis_timestamp <- renderText({
     req(results$ready)
-    format(results$analysis_time, "%Y-%m-%d %H:%M:%S %Z")
+    format(results$report_data$run_time, "%Y-%m-%d %H:%M:%S %Z")
   })
 
   output$analysis_session <- renderText({
@@ -561,6 +595,17 @@ server <- function(input, output, session) {
 
   # Downloads ----
 
+  # A download named after the analysis. filename runs before content, so the
+  # req() has to be here too.
+  stem_filename <- function(suffix) {
+    force(suffix)
+
+    function() {
+      req(results$report_data)
+      paste0(connectivity_file_stem(results$report_data), suffix)
+    }
+  }
+
   output$download_summary_csv <- downloadHandler(
     filename = function() {
       paste0("connectivity_summary_", Sys.Date(), ".csv")
@@ -759,9 +804,7 @@ server <- function(input, output, session) {
 
   # Download connectivity plot (using plot_connectivity function) ----
   output$download_connectivity_plot <- downloadHandler(
-    filename = function() {
-      paste0(input$species, "_connectivity_plot_", Sys.Date(), ".png")
-    },
+    filename = stem_filename("-over-distance.png"),
     content = function(file) {
       # the same size the zip and the report use, from urbio_figure_size()
       size <- urbio_figure_size()
@@ -778,14 +821,21 @@ server <- function(input, output, session) {
 
   # Download terra areas CSV ----
   output$download_areas_csv <- downloadHandler(
-    filename = function() {
-      paste0(input$species, "_areas_", Sys.Date(), ".csv")
-    },
+    filename = stem_filename("-areas.csv"),
     content = function(file) {
       results$areas_connected |>
         setNames(results$interpatch_distances) |>
         bind_rows(.id = "interpatch") |>
         write_csv(file)
+    }
+  )
+
+  # Download the settings CSV ----
+  output$download_settings_csv <- downloadHandler(
+    filename = stem_filename("-settings.csv"),
+    content = function(file) {
+      req(results$report_data)
+      write_csv(connectivity_settings(results$report_data), file, na = "")
     }
   )
 
@@ -841,12 +891,13 @@ server <- function(input, output, session) {
       req(input$scenario_file)
       return(list(
         layer = read_uploaded_file(input$scenario_file),
-        kind = input$scenario_kind
+        kind = input$scenario_kind,
+        name = main_file_name(input$scenario_file)
       ))
     }
 
     supplied <- chosen_dataset()$scenarios[[choice]]
-    list(layer = supplied$layer(), kind = supplied$kind)
+    list(layer = supplied$layer(), kind = supplied$kind, name = supplied$label)
   }
 
   # drives the Results tab's scenario section, which stays hidden until there
@@ -1001,11 +1052,7 @@ server <- function(input, output, session) {
     force(extension)
 
     downloadHandler(
-      filename = function() {
-        # filename runs before content, so req() has to be here too
-        req(results$report_data)
-        paste0(connectivity_file_stem(results$report_data), ".", extension)
-      },
+      filename = stem_filename(paste0(".", extension)),
       content = function(file) {
         req(results$report_data)
 
@@ -1024,10 +1071,7 @@ server <- function(input, output, session) {
   output$download_report_pdf <- report_download("pdf")
 
   output$download_reports_zip <- downloadHandler(
-    filename = function() {
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), "-reports.zip")
-    },
+    filename = stem_filename("-reports.zip"),
     content = function(file) {
       req(results$report_data)
 

@@ -60,6 +60,8 @@ distance_tabs <- function(draw) {
 
 **Data resolution:** `r format_resolution(terra::res(report$habitat))` m
 
+**Analysis run:** `r format(report$run_time, "%Y-%m-%d %H:%M %Z")`
+
 Two habitat patches count as connected when the gap between them is no more
 than the interpatch distance. Each distance below is a separate analysis of the
 same landscape.
