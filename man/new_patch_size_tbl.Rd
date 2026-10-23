@@ -10,7 +10,8 @@ new_patch_size_tbl(data, species, interpatch_distance, res = NA_real_)
 patch_size_tbl(data, species, interpatch_distance, res = NA_real_)
 }
 \arguments{
-\item{data}{Data frame of connected patches. Must contain an \code{area} column.}
+\item{data}{Data frame of connected patches. Must contain \code{patch_id} and
+\code{area} columns.}
 
 \item{species}{Character of length 1. Species the analysis was run for.}
 

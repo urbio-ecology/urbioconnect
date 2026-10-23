@@ -324,10 +324,10 @@ add_patch_area <- function(raster) {
 #' Aggregate connected patch areas
 #'
 #' Aggregate a raster with connected patch areas into a data frame where
-#' each row is a unique patch, and its area and area squared.
+#' each row is a unique patch, and its area.
 #'
 #' @param raster terra SpatRaster. Raster with patch_id and area layers.
-#' @returns Data frame with patch areas and areas squared.
+#' @returns Data frame with `patch_id` and `area` columns.
 #' @export
 #' @examples
 #' lizard_habitat <- example_habitat()
@@ -361,8 +361,7 @@ aggregate_connected_patches <- function(raster) {
     dplyr::summarise(
       area = sum(area)
     ) |>
-    dplyr::mutate(area_squared = area^2) |>
-    dplyr::mutate(dplyr::across(dplyr::starts_with("area"), \(x) round(x, 3)))
+    dplyr::mutate(area = round(area, 3))
 
   summed
 }

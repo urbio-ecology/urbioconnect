@@ -10,11 +10,11 @@ sf_aggregate_connected_patches(patch_areas)
 \item{patch_areas}{SF object. Habitat patches with area column.}
 }
 \value{
-Data frame with \code{patch_id}, \code{area}, and \code{area_squared} columns.
+Data frame with \code{patch_id} and \code{area} columns.
 }
 \description{
-Groups habitat patches by their connected fragment ID and calculates total
-and squared areas for connectivity metrics.
+Groups habitat patches by their connected fragment ID and sums the area
+within each one.
 }
 \examples{
 lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>

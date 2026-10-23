@@ -18,6 +18,15 @@
       5        5     5
       # i 5 more rows
 
+# new_patch_size_tbl names its own argument
+
+    Code
+      new_patch_size_tbl(data = data.frame(patch_id = 1:3), species = "birds",
+      interpatch_distance = 10)
+    Condition
+      Error in `new_patch_size_tbl()`:
+      ! `data` must have a column named area.
+
 # validate_patch_size_tbl works
 
     Code
@@ -38,7 +47,7 @@
       validate_patch_size_tbl(altered_lizard_areas)
     Condition
       Error in `validate_patch_size_tbl()`:
-      ! `x` must contain a patch_id column.
+      ! `x` must have a column named patch_id.
 
 # check_scalar works as expected
 

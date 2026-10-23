@@ -76,6 +76,7 @@
 * `habitat_connectivity()` return type changed from a per-patch `patch_size_tbl` to a one-row `connectivity` summary. Code relying on per-patch columns (e.g. `habitat_connectivity(...)$area`) should instead use `patch_sizes(habitat_connectivity(...))[[1]]`. (#141)
 * `compare_connectivity()` is now `compare_connectivity(scenario, baseline)`. It takes two one-row `connectivity` objects, such as the output of `habitat_connectivity()` or `summarise_connectivity()`, and returns four rows: `baseline`, `scenario`, `change` (scenario minus baseline) and `pct_change`. It is no longer an S3 generic, and its `patch_size_tbl` and default methods are gone. (#140)
 * `summarise_connectivity()` no longer takes `connectivity_baseline`. Use `compare_connectivity()` to compare against a baseline instead. (#140)
+* `aggregate_connected_patches()` and `sf_aggregate_connected_patches()` no longer return an `area_squared` column. Nothing in the package read it: `effective_mesh_size()` squares the areas itself, and `patch_size_tbl()` keeps only `patch_id` and `area`. (#137)
  
 # urbioconnect 0.1.0
 

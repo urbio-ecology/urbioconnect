@@ -130,11 +130,6 @@ test_that("aggregate_connected_patches returns tibble with correct columns", {
   expect_all_true(res_con_patch$area > 0)
 })
 
-test_that("aggregate_connected_patches area_squared equals area squared", {
-  # area_squared = area^2, then both rounded to 3 dp
-  expect_equal(res_con_patch$area_squared, round(res_con_patch$area^2, 3))
-})
-
 # Small projected raster for fast coverage of verbose=TRUE code paths
 small_habitat <- terra::rast(
   nrows = 20,

@@ -214,11 +214,10 @@ areas_connected <- aggregate_connected_patches(patch_id_raster)
 areas_connected
 ```
 
-The result has three columns:
+The result has two columns:
 
 - `patch_id` - integer identifier for the connected patch
 - `area` - total habitat area within the patch (square metres)
-- `area_squared` - squared area, used in the connectivity metrics below
 
 ## Computing connectivity metrics
 

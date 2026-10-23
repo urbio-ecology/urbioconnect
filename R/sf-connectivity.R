@@ -142,12 +142,12 @@ sf_add_patch_area <- function(patches) {
 }
 #' Aggregate connected patch areas
 #'
-#' Groups habitat patches by their connected fragment ID and calculates total
-#' and squared areas for connectivity metrics.
+#' Groups habitat patches by their connected fragment ID and sums the area
+#' within each one.
 #'
 #' @param patch_areas SF object. Habitat patches with area column.
 #'
-#' @returns Data frame with `patch_id`, `area`, and `area_squared` columns.
+#' @returns Data frame with `patch_id` and `area` columns.
 #' @examples
 #' lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
 #'   sf::st_as_sf()
@@ -165,8 +165,7 @@ sf_aggregate_connected_patches <- function(patch_areas) {
   summed <- patch_areas |>
     sf::st_drop_geometry() |>
     dplyr::group_by(patch_id) |>
-    dplyr::summarise(area = as.numeric(sum(area))) |>
-    dplyr::mutate(area_squared = as.numeric(area^2))
+    dplyr::summarise(area = as.numeric(sum(area)))
   summed
 }
 
@@ -188,8 +187,8 @@ sf_aggregate_connected_patches <- function(patch_areas) {
 #'   distance of 500 will be converted to a 250m buffer radius.
 
 #'
-#' @returns Data frame with connectivity metrics for each connected patch,
-#'   including `patch_id`, `area`, and `area_squared`.
+#' @returns A `patch_size_tbl` with one row per connected patch, holding
+#'   `patch_id` and `area`.
 #'
 #' @examples
 #' lizard_barrier_shp <- example_barrier_shp()

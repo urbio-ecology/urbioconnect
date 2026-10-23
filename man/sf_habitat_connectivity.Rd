@@ -22,8 +22,8 @@ the specified \code{interpatch_distance} is halved exactly. So an interpatch
 distance of 500 will be converted to a 250m buffer radius.}
 }
 \value{
-Data frame with connectivity metrics for each connected patch,
-including \code{patch_id}, \code{area}, and \code{area_squared}.
+A \code{patch_size_tbl} with one row per connected patch, holding
+\code{patch_id} and \code{area}.
 }
 \description{
 Performs complete habitat connectivity analysis using vector-based spatial

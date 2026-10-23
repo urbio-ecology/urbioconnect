@@ -16,7 +16,7 @@
     Code
       names(result)
     Output
-      [1] "patch_id"     "area"         "area_squared"
+      [1] "patch_id" "area"    
 
 # sf_habitat_connectivity returns a data frame with expected columns
 
