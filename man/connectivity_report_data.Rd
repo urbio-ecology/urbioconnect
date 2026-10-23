@@ -43,11 +43,10 @@ comparison so several can be stacked.}
 
 \item{settings}{Optional named list of whatever produced this analysis that
 it can't derive for itself: the resolutions \code{\link[=prepare_rasters]{prepare_rasters()}} was
-called with, where the layers came from, a run id. Each element is a
-single value, and becomes one row of \code{\link[=connectivity_settings]{connectivity_settings()}} and so one
-row of the download bundle's \code{summary/settings.csv}. A name the analysis
-derives itself is an error, since a reader looking it up would get two
-answers.}
+called with, where the layers came from, a run id. Each element becomes
+one row of \code{\link[=connectivity_settings]{connectivity_settings()}} and of the download bundle's
+\code{summary/settings.csv}, with a vector written as one comma-separated
+value. Each needs a name of its own, not one the analysis records itself.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }

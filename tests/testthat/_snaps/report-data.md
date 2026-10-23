@@ -109,34 +109,24 @@
       test_report_data(settings = "no names")
     Condition
       Error in `connectivity_report_data()`:
-      ! Every element of `settings` must be named.
-      x No name at position 1.
-      i One element per setting, for example `list(data_resolution_m = 10)`.
+      ! Every element of `settings` needs a name of its own.
+      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = list(a = 1, 2))
     Condition
       Error in `connectivity_report_data()`:
-      ! Every element of `settings` must be named.
-      x No name at position 2.
-      i One element per setting, for example `list(data_resolution_m = 10)`.
-    Code
-      test_report_data(settings = list(a = 1:2))
-    Condition
-      Error in `connectivity_report_data()`:
-      ! Every element of `settings` must be a single value.
-      x a isn't a single value.
-      i One element per setting, for example `list(data_resolution_m = 10)`.
+      ! Every element of `settings` needs a name of its own.
+      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = list(species = "mine"))
     Condition
       Error in `connectivity_report_data()`:
-      ! `settings` can't name a setting the analysis derives itself.
-      x species is derived.
-      i Derived: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
+      ! Every element of `settings` needs a name of its own.
+      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
     Condition
       Error in `connectivity_report_data()`:
-      ! `settings` names a setting more than once.
-      x a is repeated.
+      ! Every element of `settings` needs a name of its own.
+      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
 

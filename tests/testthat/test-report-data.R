@@ -303,11 +303,11 @@ test_that("connectivity_settings() names the scenario it compared", {
   expect_equal(setting_value(unnamed, "scenario_name"), NA_character_)
 })
 
-test_that("derived_setting_names() is what connectivity_settings() builds", {
+test_that("derived_setting_names is what connectivity_settings() builds", {
   # the two are written out separately, so this stops them drifting
   expect_setequal(
     connectivity_settings(test_report_data(40))$setting,
-    derived_setting_names()
+    derived_setting_names
   )
 })
 
@@ -315,8 +315,14 @@ test_that("connectivity_report_data() rejects settings it can't record", {
   expect_snapshot(error = TRUE, {
     test_report_data(settings = "no names")
     test_report_data(settings = list(a = 1, 2))
-    test_report_data(settings = list(a = 1:2))
     test_report_data(settings = list(species = "mine"))
     test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
   })
+})
+
+test_that("a setting with several values is recorded as one", {
+  settings <- test_report_data(settings = list(habitat_source = c("a", "b"))) |>
+    connectivity_settings()
+
+  expect_equal(setting_value(settings, "habitat_source"), "a, b")
 })

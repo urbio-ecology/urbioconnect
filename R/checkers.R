@@ -117,9 +117,8 @@ check_scenario_name <- function(
 
 #' Check the settings a caller recorded
 #'
-#' Each element becomes a row of a two-column CSV, so it has to be a single
-#' value with a name, and that name has to be one nothing else uses: a
-#' duplicate row means a reader looking a setting up gets two answers.
+#' Each becomes one row of the settings CSV, so it needs a name no other row
+#' has: a reader looking a setting up would otherwise get two answers.
 #'
 #' @noRd
 check_settings <- function(
@@ -131,66 +130,22 @@ check_settings <- function(
     return(NULL)
   }
 
-  settings <- as.list(x)
-  example <- "One element per setting, for example
-              {.code list(data_resolution_m = 10)}."
+  setting <- rlang::names2(x)
+  own_name <- nzchar(setting) &
+    !duplicated(setting) &
+    !setting %in% derived_setting_names
 
-  unnamed <- which(!nzchar(rlang::names2(settings)))
-
-  if (length(unnamed) > 0) {
+  if (!all(own_name)) {
     cli::cli_abort(
       c(
-        "Every element of {.arg {arg}} must be named.",
-        "x" = "No name at position {.val {unnamed}}.",
-        "i" = example
+        "Every element of {.arg {arg}} needs a name of its own.",
+        "i" = "The analysis records these itself: {.field {derived_setting_names}}."
       ),
       call = call
     )
   }
 
-  single <- purrr::map_lgl(
-    settings,
-    \(value) is.atomic(value) && length(value) == 1
-  )
-
-  if (!all(single)) {
-    not_single <- names(settings)[!single]
-    cli::cli_abort(
-      c(
-        "Every element of {.arg {arg}} must be a single value.",
-        "x" = "{.field {not_single}} {?isn't/aren't} a single value.",
-        "i" = example
-      ),
-      call = call
-    )
-  }
-
-  shadowed <- intersect(names(settings), derived_setting_names())
-
-  if (length(shadowed) > 0) {
-    cli::cli_abort(
-      c(
-        "{.arg {arg}} can't name a setting the analysis derives itself.",
-        "x" = "{.field {shadowed}} {?is/are} derived.",
-        "i" = "Derived: {.field {derived_setting_names()}}."
-      ),
-      call = call
-    )
-  }
-
-  repeated <- unique(names(settings)[duplicated(names(settings))])
-
-  if (length(repeated) > 0) {
-    cli::cli_abort(
-      c(
-        "{.arg {arg}} names a setting more than once.",
-        "x" = "{.field {repeated}} {?is/are} repeated."
-      ),
-      call = call
-    )
-  }
-
-  purrr::map_chr(settings, as.character)
+  purrr::map_chr(x, \(value) paste(value, collapse = ", "))
 }
 
 #' Check scenario names

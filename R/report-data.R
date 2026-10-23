@@ -25,11 +25,10 @@
 #'   comparison so several can be stacked.
 #' @param settings Optional named list of whatever produced this analysis that
 #'   it can't derive for itself: the resolutions [prepare_rasters()] was
-#'   called with, where the layers came from, a run id. Each element is a
-#'   single value, and becomes one row of [connectivity_settings()] and so one
-#'   row of the download bundle's `summary/settings.csv`. A name the analysis
-#'   derives itself is an error, since a reader looking it up would get two
-#'   answers.
+#'   called with, where the layers came from, a run id. Each element becomes
+#'   one row of [connectivity_settings()] and of the download bundle's
+#'   `summary/settings.csv`, with a vector written as one comma-separated
+#'   value. Each needs a name of its own, not one the analysis records itself.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `connectivity_report_data` object: a list of
@@ -493,29 +492,24 @@ build_settings <- function(run_time) {
   )
 }
 
-#' The settings an analysis derives for itself
-#'
-#' A vector so `check_settings()` can refuse a caller's row that would shadow
-#' one. `test-report-data.R` checks it against `connectivity_settings()`.
-#'
-#' @noRd
-derived_setting_names <- function() {
-  c(
-    "species",
-    "interpatch_distance_m",
-    "grid_resolution_m",
-    "grid_dimensions",
-    "crs",
-    "crs_code",
-    "scenario_kind",
-    "scenario_name",
-    "run_time",
-    "urbioconnect_version",
-    "terra_version",
-    "r_version",
-    "platform"
-  )
-}
+# The settings an analysis records itself, so `check_settings()` can refuse a
+# caller's setting that would shadow one. `test-report-data.R` checks it
+# against `connectivity_settings()`.
+derived_setting_names <- c(
+  "species",
+  "interpatch_distance_m",
+  "grid_resolution_m",
+  "grid_dimensions",
+  "crs",
+  "crs_code",
+  "scenario_kind",
+  "scenario_name",
+  "run_time",
+  "urbioconnect_version",
+  "terra_version",
+  "r_version",
+  "platform"
+)
 
 #' Does this analysis carry a scenario comparison?
 #'
