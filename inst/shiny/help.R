@@ -118,12 +118,12 @@ help_input <- function(input_fn, id, ...) {
 
   icon <- popover(
     span(
-      id = paste0(id, "-help"),
+      id = glue::glue("{id}-help"),
       class = "input-help ms-1",
       fontawesome::fa(
         "circle-info",
         a11y = "sem",
-        title = paste("More about:", entry$label)
+        title = glue::glue("More about: {entry$label}")
       )
     ),
     help_paragraphs(id),
@@ -131,15 +131,12 @@ help_input <- function(input_fn, id, ...) {
   )
 
   input <- htmltools::tagQuery(input_fn(inputId = id, label = entry$label, ...))
-  input$find(paste0("#", id, "-label"))$after(icon)$allTags()
+  input$find(glue::glue("#{id}-label"))$after(icon)$allTags()
 }
 
-# the strings are wrapped in the source; squish so the line breaks don't show
+# Each element is a markdown paragraph, so its wrapped source lines read as one
 help_paragraphs <- function(id) {
-  tagList(purrr::map(
-    input_help[[id]]$help,
-    \(text) p(gsub("\\s+", " ", trimws(text)))
-  ))
+  shiny::markdown(glue::glue_collapse(input_help[[id]]$help, sep = "\n\n"))
 }
 
 # For the Before you start page: each input's explanation under its label
@@ -182,37 +179,35 @@ describe_analysis <- function(
 }
 
 describe_data <- function(data, data_resolution) {
-  grid <- paste0("on a grid of ", metres(data_resolution), " cells")
+  grid <- glue::glue("on a grid of {metres(data_resolution)} cells")
 
-  if (is.null(data)) {
-    return(paste0(
-      "Choose example data, or upload a habitat and a barrier layer. The ",
-      "analysis runs ",
-      grid,
-      "."
-    ))
+  description <- if (is.null(data)) {
+    glue::glue(
+      "Choose example data, or upload a habitat and a barrier layer. \\
+      The analysis runs {grid}."
+    )
+  } else {
+    glue::glue("{data}, {grid}.")
   }
 
-  paste0(data, ", ", grid, ".")
+  description
 }
 
 describe_distances <- function(distances) {
-  if (length(distances) == 1) {
-    return(paste0(
-      "Patches up to ",
-      metres(distances),
-      " apart are joined, unless a barrier lies between them."
-    ))
+  description <- if (length(distances) == 1) {
+    glue::glue(
+      "Patches up to {metres(distances)} apart are joined, unless a barrier \\
+      lies between them."
+    )
+  } else {
+    glue::glue(
+      "The analysis runs once for each of {length(distances)} interpatch \\
+      distances: {metres(distances)}. At each, patches up to that distance \\
+      apart are joined, unless a barrier lies between them."
+    )
   }
 
-  paste0(
-    "The analysis runs once for each of ",
-    length(distances),
-    " interpatch distances: ",
-    metres(distances),
-    ". At each, patches up to that distance apart are joined, unless a ",
-    "barrier lies between them."
-  )
+  description
 }
 
 describe_scenario <- function(scenario) {
@@ -224,15 +219,12 @@ describe_scenario <- function(scenario) {
   name <- if (is.null(scenario$name)) {
     "your scenario layer"
   } else {
-    paste0('"', scenario$name, '"')
+    glue::glue('"{scenario$name}"')
   }
 
-  paste0(
-    "Then it runs again with ",
-    name,
-    " in place of the ",
-    scenario$kind,
-    " layer, and compares the two."
+  glue::glue(
+    "Then it runs again with {name} in place of the {scenario$kind} layer, \\
+    and compares the two."
   )
 }
 
@@ -244,36 +236,31 @@ too_short <- function(short, data_resolution) {
   one <- length(short) == 1
 
   problem <- if (one) {
-    paste0(
-      metres(short),
-      " is too short to measure: half of it (",
-      metres(short / 2),
-      ") is less than one cell"
+    glue::glue(
+      "{metres(short)} is too short to measure: half of it \\
+      ({metres(short / 2)}) is less than one cell"
     )
   } else {
-    paste0(
-      metres(short),
-      " are too short to measure: half of each is less than one cell"
+    glue::glue(
+      "{metres(short)} are too short to measure: half of each is less than \\
+      one cell"
     )
   }
 
-  # the cell size input takes whole metres, and at least 1
+  # the cell size input takes whole metres, and at least 1; "" not NULL, since
+  # glue() returns nothing at all for a NULL
   cell <- floor(min(short) / 2)
   smaller_cells <- if (cell >= 1) {
-    paste0("cells of ", metres(cell), " or smaller, or ")
+    glue::glue("cells of {metres(cell)} or smaller, or ")
+  } else {
+    ""
   }
+  distance <- if (one) "a distance" else "distances"
 
-  paste0(
-    "At ",
-    metres(data_resolution),
-    " cells, ",
-    problem,
-    ", so only patches that touch will join. Use ",
-    smaller_cells,
-    if (one) "a distance" else "distances",
-    " of at least ",
-    metres(2 * data_resolution),
-    "."
+  glue::glue(
+    "At {metres(data_resolution)} cells, {problem}, so only patches that \\
+    touch will join. Use {smaller_cells}{distance} of at least \\
+    {metres(2 * data_resolution)}."
   )
 }
 
@@ -283,22 +270,14 @@ rounded <- function(distances, treated_as, data_resolution) {
     return(character())
   }
 
-  changes <- paste0(
-    number(distances[moved]),
-    " m",
-    c(" is treated as ", rep(" as ", sum(moved) - 1)),
-    number(treated_as[moved]),
-    " m"
+  verb <- c(" is treated as ", rep(" as ", sum(moved) - 1))
+  changes <- glue::glue(
+    "{number(distances[moved])} m{verb}{number(treated_as[moved])} m"
   )
 
-  paste0(
-    "At ",
-    metres(data_resolution),
-    " cells, distances go up in steps of ",
-    metres(2 * data_resolution),
-    ", so ",
-    and_list(changes),
-    "."
+  glue::glue(
+    "At {metres(data_resolution)} cells, distances go up in steps of \\
+    {metres(2 * data_resolution)}, so {and_list(changes)}."
   )
 }
 
@@ -307,17 +286,16 @@ too_many <- function(distances) {
     return(character())
   }
 
-  paste0(
-    "You have entered ",
-    length(distances),
-    " distances. Each is a separate analysis, so this takes longer. Up to ",
-    "four is usually enough to see the trend."
+  glue::glue(
+    "You have entered {length(distances)} distances. Each is a separate \\
+    analysis, so this takes longer. Up to four is usually enough to see the \\
+    trend."
   )
 }
 
 # "100, 250 and 400 m"
 metres <- function(values) {
-  paste(and_list(number(values)), "m")
+  glue::glue("{and_list(number(values))} m")
 }
 
 # each on its own, so 7.5 and 100 don't share decimal places
@@ -330,7 +308,7 @@ number <- function(values) {
 }
 
 and_list <- function(x) {
-  glue::glue_collapse(x, sep = ", ", last = " and ")
+  cli::ansi_collapse(x, sep = ", ", last = " and ")
 }
 
 # describe_analysis() as tags: a paragraph per sentence, the warnings together
