@@ -13,9 +13,11 @@ input_help <- list(
     help = c(
       "Where your species lives: parks, bushland, creek corridors or
       gardens that count as its habitat.",
-      "Upload polygons (a shapefile) or a raster (GeoTIFF). In rasters,
-      habitat cells should be 1 and every other cell empty (no data).
-      A cell of 0 is read as habitat, so set those cells to no data first.",
+      "Upload either:
+      - polygons, as a shapefile
+      - a raster (GeoTIFF), with habitat cells 1 and every other cell empty
+        (no data). A cell of 0 is read as habitat, so set those cells to no
+        data first.",
       "The habitat layer sets the area analysed. Anything outside its bounding
       box is left out."
     )
@@ -24,8 +26,10 @@ input_help <- list(
     label = "Barrier layer",
     help = c(
       "What your species can't cross: roads, railways, buildings, etc.",
-      "Upload polygons or raster cells set to 1 and everything else 0 or empty.
-      It must use the same coordinate reference system as the habitat layer.",
+      "Upload either:
+      - polygons
+      - a raster, with barrier cells set to 1 and everything else 0 or empty",
+      "It must use the same coordinate reference system as the habitat layer.",
       "Habitat under a barrier is removed. A connection can go around the end
       of a barrier, but never across it."
     )
@@ -35,18 +39,19 @@ input_help <- list(
     help = c(
       "Test out the app with our built-in example data. This fills in species
       and replaces both uploads.",
-      "Blue Tongue Lizard (Darebin Creek), ~1.5 km. Runs in ~1s per distance",
-      "Superb Fairy Wren (Knox), ~14 km. Runs in ~10s for each distance."
+      "- Blue Tongue Lizard (Darebin Creek), ~1.5 km. Runs in ~1s per distance.
+      - Superb Fairy Wren (Knox), ~14 km. Runs in ~10s per distance."
     )
   ),
   scenario_choice = list(
     label = "Scenario layer (optional)",
     help = c(
-      "A change you want to test, such as a new road or a housing development.
-      The app runs the analysis twice: once on the landscape as
-      it is (baseline), and once with your scenario in place of the layer
-      it changes. Both runs use the same distances and cell size, and the
-      Results tab shows the difference.",
+      "A change you want to test, such as a new road or a housing development.",
+      "The app runs the analysis twice:
+      - once on the landscape as it is (baseline)
+      - once with your scenario in place of the layer it changes",
+      "Both runs use the same distances and cell size, and the Results tab
+      shows the difference.",
       "A scenario is the whole layer as it would be after the change. A
       barrier scenario holding only the new road leaves out every existing
       road, and the landscape looks far better connected than it is."
@@ -57,9 +62,10 @@ input_help <- list(
     # a line of its own
     label = "Which layer does it change?",
     help = c(
-      "Barrier if the scenario adds or removes roads or other barriers.
-      Habitat if it adds or removes habitat. Only one layer changes, so any
-      difference in connectivity comes from that change."
+      "- Barrier, if the scenario adds or removes roads or other barriers.
+      - Habitat, if it adds or removes habitat.",
+      "Only one layer changes, so any difference in connectivity comes from
+      that change."
     )
   ),
   scenario_file = list(
@@ -74,9 +80,9 @@ input_help <- list(
     label = "Data resolution (m)",
     help = c(
       "Size of grid cells used in the analysis, in metres. Layers are converted
-      cells about this wide.",
-      "Smaller cells are slow, but keep thin roads and narrow gaps sharp.",
-      "Larger cells are faster, but smaller patches can merge or disappear.",
+      to cells about this wide.",
+      "- Smaller cells are slow, but keep thin roads and narrow gaps sharp.
+      - Larger cells are faster, but smaller patches can merge or disappear.",
       "Keep cells less than half your smallest interpatch distance. So an
       interpatch distance of 100m should mean your cells should be 50m or smaller.",
       "Coarser means gaps between patches can't be measured, so only patches that
@@ -89,9 +95,9 @@ input_help <- list(
       "How far your species will cross open ground to reach another patch of
       habitat. Patches closer together than this are joined into one
       connected patch, unless a barrier lies between them.",
-      "You can enter multiple distances to see how connectivity changes.",
-      "For example: 100, 250, 400",
-      "With a maximum of four distances.",
+      "You can enter multiple distances to see how connectivity changes:
+      - separated by commas, for example 100, 250, 400
+      - with a maximum of four distances",
       "Use a distance from published studies or local experts on your species.",
       "Distances are measured in whole cells, so each is rounded down to a
       multiple of twice the cell size: at 10 m cells, 250 m is treated as
@@ -127,9 +133,11 @@ help_input <- function(input_fn, id, ...) {
   input$find(glue::glue("#{id}-label"))$after(icon)$allTags()
 }
 
-# Each element is a markdown paragraph, so its wrapped source lines read as one
+# Each element is a markdown paragraph or list. trim() takes off the source's
+# indentation, which would otherwise stop a "- " line starting a list.
 help_paragraphs <- function(id) {
-  shiny::markdown(glue::glue_collapse(input_help[[id]]$help, sep = "\n\n"))
+  help <- glue::trim(input_help[[id]]$help)
+  shiny::markdown(glue::glue_collapse(help, sep = "\n\n"))
 }
 
 # For the Before you start page: each input's explanation under its label
