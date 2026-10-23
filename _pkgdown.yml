@@ -35,6 +35,7 @@ reference:
   - create_barrier_mask
   - drop_habitat_under_barrier
   - habitat_buffer
+  - representable_distance
   - fragment_habitat
   - assign_patches_to_fragments
   - add_patch_area

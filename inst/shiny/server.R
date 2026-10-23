@@ -127,10 +127,68 @@ server <- function(input, output, session) {
         length(distances) > 0,
         "Please enter at least one valid interpatch distance"
       ),
-      need(all(distances > 0), "Interpatch distances must be positive numbers")
+      need(all(distances > 0), "Interpatch distances must be positive numbers"),
+      # "Inf" and "1e999" both parse as numbers
+      need(all(is.finite(distances)), "Interpatch distances must be finite")
     )
 
     distances
+  })
+
+  # Before you start ----
+
+  observeEvent(input$go_to_inputs, nav_select("main_nav", "Inputs"))
+
+  # straight to a landscape that runs in a second, ready to click Run
+  observeEvent(input$try_lizard, {
+    updateSelectInput(session, "example_data", selected = "lizard")
+    nav_select("main_nav", "Inputs")
+  })
+
+  # Your analysis ----
+
+  # The layers, as the Your analysis card names them. NULL until there are
+  # two to analyse.
+  preview_data <- function() {
+    dataset <- chosen_dataset()
+
+    if (!is.null(dataset)) {
+      return(paste(dataset$species, "example data"))
+    }
+
+    if (is.null(input$habitat_file) || is.null(input$barrier_file)) {
+      return(NULL)
+    }
+
+    paste0(
+      "Your habitat layer (",
+      main_file_name(input$habitat_file),
+      ") and barrier layer (",
+      main_file_name(input$barrier_file),
+      ")"
+    )
+  }
+
+  # Rewritten as the inputs change; the browser debounces typing. It reads
+  # the parser the run reads, so the two agree on the distances, and reads no
+  # layer from disk.
+  output$analysis_preview <- renderUI({
+    # one at a time: the second can't be asked of an empty box
+    validate(need(
+      input$data_resolution,
+      "Enter a data resolution to see what the analysis will do."
+    ))
+    validate(need(
+      input$data_resolution > 0,
+      "Data resolution must be more than 0 m."
+    ))
+
+    analysis_preview(describe_analysis(
+      data = preview_data(),
+      data_resolution = input$data_resolution,
+      distances = interpatch_distances_parsed(),
+      scenario = scenario_details()
+    ))
   })
 
   # Read uploaded files ----
@@ -857,8 +915,8 @@ server <- function(input, output, session) {
       if (is.null(input$scenario_file)) {
         cli::cli_abort(c(
           "No scenario file chosen.",
-          "i" = "Upload one under {.field Scenario Layer}, or pick one of the
-                 supplied scenarios, or set it back to {.field None}."
+          "i" = "Upload one under {.field Your scenario layer}, or pick one of
+                 the supplied scenarios, or set it back to {.field None}."
         ))
       }
       return(invisible())
@@ -877,10 +935,11 @@ server <- function(input, output, session) {
     invisible()
   }
 
-  # Which layer a scenario changes, and the layer itself. Each supplied
-  # scenario says its own kind; only an upload has to be told. NULL when no
-  # scenario is chosen.
-  chosen_scenario <- function() {
+  # Which layer a scenario changes, its name, and a function that reads the
+  # layer. Each supplied scenario says its own kind; only an upload has to be
+  # told. NULL when no scenario is chosen. Nothing is read here, so the Your
+  # analysis card can name a scenario without loading it.
+  scenario_details <- function() {
     choice <- input$scenario_choice %||% "none"
 
     if (choice == "none") {
@@ -888,16 +947,42 @@ server <- function(input, output, session) {
     }
 
     if (choice == "upload") {
-      req(input$scenario_file)
+      file <- input$scenario_file
       return(list(
-        layer = read_uploaded_file(input$scenario_file),
+        read_layer = \() read_uploaded_file(file),
         kind = input$scenario_kind,
-        name = main_file_name(input$scenario_file)
+        name = if (!is.null(file)) main_file_name(file)
       ))
     }
 
     supplied <- chosen_dataset()$scenarios[[choice]]
-    list(layer = supplied$layer(), kind = supplied$kind, name = supplied$label)
+
+    # a choice left over from the other dataset, until the dropdown catches
+    # up. A run never gets here: check_scenario_choice() stops it first.
+    if (is.null(supplied)) {
+      return(NULL)
+    }
+
+    list(
+      read_layer = supplied$layer,
+      kind = supplied$kind,
+      name = supplied$label
+    )
+  }
+
+  # The scenario a run compares: its layer, read, and what it is
+  chosen_scenario <- function() {
+    scenario <- scenario_details()
+
+    if (is.null(scenario)) {
+      return(NULL)
+    }
+
+    list(
+      layer = scenario$read_layer(),
+      kind = scenario$kind,
+      name = scenario$name
+    )
   }
 
   # drives the Results tab's scenario section, which stays hidden until there

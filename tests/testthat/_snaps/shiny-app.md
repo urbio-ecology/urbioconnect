@@ -54,7 +54,15 @@
     Condition
       Error in `check_scenario_choice()`:
       ! No scenario file chosen.
-      i Upload one under Scenario Layer, or pick one of the supplied scenarios, or set it back to None.
+      i Upload one under Your scenario layer, or pick one of the supplied scenarios, or set it back to None.
+
+# an infinite interpatch distance is an error
+
+    Code
+      interpatch_distances_parsed()
+    Condition
+      Error:
+      ! Interpatch distances must be finite
 
 # interpatch distances that aren't numbers are an error, not dropped
 
