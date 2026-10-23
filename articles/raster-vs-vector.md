@@ -67,14 +67,6 @@ habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
   sf::st_as_sf()
 
 barrier_sf <- example_barrier_shp()
-#> Reading layer `lizard_barrier' from data source 
-#>   `/home/runner/work/_temp/Library/urbioconnect/ex/lizard_barrier.shp' 
-#>   using driver `ESRI Shapefile'
-#> Simple feature collection with 1 feature and 1 field
-#> Geometry type: MULTIPOLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 326089.6 ymin: 5820342 xmax: 327662.5 ymax: 5821909
-#> Projected CRS: GDA94 / MGA zone 55
 ```
 
 It is good practice to clean vector data before analysis, especially
@@ -116,7 +108,7 @@ raster_result <- habitat_connectivity(
   verbose = FALSE
 )
 rast_time <- toc()
-#> 3.264 sec elapsed
+#> 2.82 sec elapsed
 
 raster_result
 #> # A tibble: 1 × 9
@@ -167,7 +159,7 @@ vector_result <- sf_habitat_connectivity(
   interpatch_distance = interpatch_dist
 )
 vect_time <- toc()
-#> 8.671 sec elapsed
+#> 9.576 sec elapsed
 
 vector_result
 #> # patch_size_tbl:      data.frame
@@ -213,10 +205,10 @@ exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.
 
-    #> [1] 3.264
+    #> [1] 2.82
 
 Timings for the methods are also important to consider. The raster
-approach took 3.264 seconds, and the vector approach took 8.671 seconds.
+approach took 2.82 seconds, and the vector approach took 9.576 seconds.
 
 ## Summarising connectivity metrics
 

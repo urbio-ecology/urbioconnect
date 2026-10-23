@@ -50,25 +50,9 @@ which uses this for both of its layers.
 
 ``` r
 grid <- empty_grid(example_barrier_shp(), resolution = 10)
-#> Reading layer `lizard_barrier' from data source 
-#>   `/home/runner/work/_temp/Library/urbioconnect/ex/lizard_barrier.shp' 
-#>   using driver `ESRI Shapefile'
-#> Simple feature collection with 1 feature and 1 field
-#> Geometry type: MULTIPOLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 326089.6 ymin: 5820342 xmax: 327662.5 ymax: 5821909
-#> Projected CRS: GDA94 / MGA zone 55
 
 # a vector layer is rasterised
 onto_grid(example_barrier_shp(), grid, background = 0)
-#> Reading layer `lizard_barrier' from data source 
-#>   `/home/runner/work/_temp/Library/urbioconnect/ex/lizard_barrier.shp' 
-#>   using driver `ESRI Shapefile'
-#> Simple feature collection with 1 feature and 1 field
-#> Geometry type: MULTIPOLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 326089.6 ymin: 5820342 xmax: 327662.5 ymax: 5821909
-#> Projected CRS: GDA94 / MGA zone 55
 #> class       : SpatRaster
 #> size        : 157, 157, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.0184, 9.979108  (x, y)

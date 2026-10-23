@@ -176,11 +176,21 @@
   name, so a species with a space no longer produces a file name with
   one. ([\#54](https://github.com/urbio-ecology/urbioconnect/issues/54))
 
+- [`plot_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_patches.md)
+  now gives the same patch count as the connectivity summary. It counted
+  the cells outside any patch as patches too, so the map reported more
+  patches than the summary table beside it.
+
 - New
   [`quarto_available()`](https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.md)
   says whether the Quarto command line tool is installed, which is what
   the reports need and nothing else does.
   ([\#61](https://github.com/urbio-ecology/urbioconnect/issues/61))
+
+- [`read_geometry()`](https://urbio-ecology.github.io/urbioconnect/reference/read_geometry.md)
+  no longer prints when it reads a file. It used to print the layer
+  summary and the file’s full path into any report or vignette that read
+  a shapefile.
 
 - New
   [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)

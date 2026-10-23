@@ -43,14 +43,6 @@ List with `habitat_raster` and `barrier_raster` elements.
 lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
   sf::st_as_sf()
 lizard_barrier_shp <- example_barrier_shp()
-#> Reading layer `lizard_barrier' from data source 
-#>   `/home/runner/work/_temp/Library/urbioconnect/ex/lizard_barrier.shp' 
-#>   using driver `ESRI Shapefile'
-#> Simple feature collection with 1 feature and 1 field
-#> Geometry type: MULTIPOLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 326089.6 ymin: 5820342 xmax: 327662.5 ymax: 5821909
-#> Projected CRS: GDA94 / MGA zone 55
 prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
 #> $habitat_raster
 #> class       : SpatRaster
