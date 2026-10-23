@@ -4,19 +4,17 @@ input_help <- list(
   species = list(
     label = "Species name",
     help = c(
-      "The animal or plant you are planning for. It labels the maps, tables
-      and report, and names the download files.",
-      "It does not change the analysis. How far your species can move is set
-      by the interpatch distance."
+      "The species you are planning for. For example, 'Superb Fairy Wren'.",
+      "This name will also label the outputs - maps, tables, and report."
     )
   ),
   habitat_file = list(
     label = "Habitat layer",
     help = c(
-      "Where your species lives: the parks, bushland, creek corridors or
-      gardens that count as habitat for it.",
-      "Upload polygons (a shapefile, GeoPackage or GeoJSON) or a GeoTIFF. In a
-      GeoTIFF, habitat cells should be 1 and every other cell empty (no data).
+      "Where your species lives: parks, bushland, creek corridors or
+      gardens that count as its habitat.",
+      "Upload polygons (a shapefile) or a raster (GeoTIFF). In rasters,
+      habitat cells should be 1 and every other cell empty (no data).
       A cell of 0 is read as habitat, so set those cells to no data first.",
       "The habitat layer sets the area analysed. Anything outside its bounding
       box is left out."
@@ -25,10 +23,9 @@ input_help <- list(
   barrier_file = list(
     label = "Barrier layer",
     help = c(
-      "What your species can't cross, such as roads, railways and buildings.",
-      "Upload lines or polygons, or a GeoTIFF with barrier cells set to 1 and
-      everything else 0 or empty. It must use the same coordinate reference
-      system as the habitat layer.",
+      "What your species can't cross: roads, railways, buildings, etc.",
+      "Upload polygons or raster cells set to 1 and everything else 0 or empty.
+      It must use the same coordinate reference system as the habitat layer.",
       "Habitat under a barrier is removed. A connection can go around the end
       of a barrier, but never across it."
     )
@@ -36,20 +33,18 @@ input_help <- list(
   example_data = list(
     label = "Example data",
     help = c(
-      "Try the app without your own layers. Choosing a dataset fills in the
-      species and replaces both uploads.",
-      "The Blue Tongue Lizard landscape, along Darebin Creek, is about 1.5 km
-      across and runs in about a second. The Superb Fairy Wren landscape, in
-      Knox, is about 14 km across and takes tens of seconds for each
-      distance."
+      "Test out the app with our built-in example data. This fills in species
+      and replaces both uploads.",
+      "Blue Tongue Lizard (Darebin Creek), ~1.5 km. Runs in ~1s per distance",
+      "Superb Fairy Wren (Knox), ~14 km. Runs in ~10s for each distance."
     )
   ),
   scenario_choice = list(
     label = "Scenario layer (optional)",
     help = c(
-      "A change you want to test, such as a new road or a housing
-      development. The app runs the analysis twice: once on the landscape as
-      it is (the baseline), and once with your scenario in place of the layer
+      "A change you want to test, such as a new road or a housing development.
+      The app runs the analysis twice: once on the landscape as
+      it is (baseline), and once with your scenario in place of the layer
       it changes. Both runs use the same distances and cell size, and the
       Results tab shows the difference.",
       "A scenario is the whole layer as it would be after the change. A
@@ -71,22 +66,20 @@ input_help <- list(
     label = "Your scenario layer",
     help = c(
       "The same formats as the habitat and barrier layers. It is put on the
-      baseline's grid, so its cell size doesn't need to match, but it must
-      cover the same place and use the same coordinate reference system."
+      baseline's grid, so its cell size doesn't need to match",
+      "Must cover the same place and use the same coordinate reference system."
     )
   ),
   data_resolution = list(
     label = "Data resolution (m)",
     help = c(
-      "The size of the grid cells the analysis works on, in metres. Both
-      layers are converted to square cells about this wide before anything is
-      measured.",
-      "Smaller cells keep thin roads and narrow gaps sharp, but take longer:
-      halving the cell size makes four times as many cells. Larger cells are
-      faster, but a thin road becomes a whole cell wide, and small patches can
-      merge or disappear.",
-      "Keep it at most half your smallest interpatch distance. Any coarser,
-      and the gaps between patches can't be measured, so only patches that
+      "Size of grid cells used in the analysis, in metres. Layers are converted
+      cells about this wide.",
+      "Smaller cells are slow, but keep thin roads and narrow gaps sharp.",
+      "Larger cells are faster, but smaller patches can merge or disappear.",
+      "Keep cells less than half your smallest interpatch distance. So an
+      interpatch distance of 100m should mean your cells should be 50m or smaller.",
+      "Coarser means gaps between patches can't be measured, so only patches that
       touch will join."
     )
   ),
@@ -96,10 +89,10 @@ input_help <- list(
       "How far your species will cross open ground to reach another patch of
       habitat. Patches closer together than this are joined into one
       connected patch, unless a barrier lies between them.",
-      "Enter up to four distances, separated by commas, such as 100, 250,
-      400, to see how connectivity changes with distance. Each distance is a
-      separate analysis. Use a distance from published studies or local
-      experts on your species.",
+      "You can enter multiple distances to see how connectivity changes.",
+      "For example: 100, 250, 400",
+      "With a maximum of four distances.",
+      "Use a distance from published studies or local experts on your species.",
       "Distances are measured in whole cells, so each is rounded down to a
       multiple of twice the cell size: at 10 m cells, 250 m is treated as
       240 m. Each must be at least twice the cell size. The Your analysis box
