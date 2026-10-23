@@ -92,9 +92,9 @@ lower-level `habitat_buffer()` is an operation and takes the `buffer_radius` dir
 
 ## Buffering happens on a grid
 
-When habitat is stored as a raster, a grid of square cells. `habitat_buffer()` uses a circular focal window of the requested radius, but that circle has to be **discretised** onto the grid. 
+When habitat is stored as a raster, a grid of square cells. `habitat_buffer()` keeps every cell within the requested radius of habitat, but a cell counts as within it only by its centre, so that circle is **discretised** onto the grid.
 
-The number of whole-cell "rings" it can add is `floor(buffer_radius / resolution)`:
+The number of whole-cell "rings" it can add is `floor(buffer_radius / resolution)`. `terra::focalMat()` draws that discretised circle, which is a convenient way to see its shape here:
 
 ```{r}
 #| label: windows
@@ -116,7 +116,7 @@ sapply(
 
 ```
 
-A radius of 100 m (one cell) gives a 3×3 window - one ring. A radius of **50 m is smaller than a single 100 m cell**, so the window collapses to 1×1: there is nowhere to grow, and no buffer is possible. A radius of 150m still only gives one ring - it snaps down to 100m.
+A radius of 100 m (one cell) gives a 3x3 window - one ring. A radius of **50 m is smaller than a single 100 m cell**, so the window collapses to 1x1: there is nowhere to grow, and no buffer is possible. A radius of 150 m is also one ring, but a fuller one: the corner cells (centres 141 m away) are inside 150 m, so the 3x3 block is filled, whereas 100 m gives a plus shape. Both reach one cell out and no further.
 
 ```{r}
 #| label: fig-windows
@@ -149,7 +149,7 @@ plot_tiles(
 
 ## A sub-cell radius does nothing - and `habitat_buffer()` warns
 
-Because the window collapses, buffering by less than one cell leaves the habitat exactly as it was. `habitat_buffer()` detects this and warns you, then returns the habitat unchanged (rather than letting `terra::focal()` error):
+Because no other cell's centre is within reach, buffering by less than one cell leaves the habitat exactly as it was. `habitat_buffer()` detects this and warns you, then gives back the habitat cells alone:
 
 ```{r}
 #| label: rings

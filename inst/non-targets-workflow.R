@@ -101,23 +101,10 @@ habitat_raster <- terra::extend(habitat_rasterised, coarse_template)
 barrier_raster <- terra::extend(barrier_rasterised, coarse_template)
 
 # outputs ----
-# show this output as a DT data table
-areas_connected <- map(
-  .x = distance,
-  .f = function(distances) {
-    habitat_connectivity(
-      habitat = habitat_raster,
-      barrier = barrier_raster,
-      interpatch_distance = distances
-    )
-  }
+# show this output as a DT data table - one row per distance
+results_connect_habitat <- habitat_connectivity(
+  habitat = habitat_raster,
+  barrier = barrier_raster,
+  species = species,
+  interpatch_distance = distance
 )
-
-# show this output as a DT data table too
-results_connect_habitat <- map(
-  .x = areas_connected,
-  .f = function(areas_connected) {
-    summarise_connectivity(areas_connected)
-  }
-) |>
-  list_rbind()
