@@ -26,8 +26,9 @@ details_panel <- function() {
         card_body(
           accordion(
             id = "details",
+            open = FALSE,
             accordion_panel(
-              "2. Prepare your data",
+              "Prepare your data",
               help_sections(c("habitat_file", "barrier_file")),
               p(
                 "Both layers need the same coordinate reference system, and it",
@@ -145,7 +146,7 @@ details_panel <- function() {
               )
             ),
             accordion_panel(
-              "3. Choose your settings",
+              "Choose your settings",
               p(paste0(
                 "The defaults are a cell size of ",
                 input_defaults$data_resolution,
@@ -172,7 +173,7 @@ details_panel <- function() {
               )
             ),
             accordion_panel(
-              "4. Compare a scenario (optional)",
+              "Compare a scenario (optional)",
               help_sections(c(
                 "scenario_choice",
                 "scenario_kind",
@@ -180,7 +181,7 @@ details_panel <- function() {
               ))
             ),
             accordion_panel(
-              "5. Run and read the results",
+              "Run and read the results",
               tags$ol(
                 tags$li(
                   "Choose example data, or upload a habitat and a barrier",
