@@ -905,6 +905,34 @@ server <- function(input, output, session) {
   output$has_comparison <- reactive(!is.null(results$comparison))
   outputOptions(output, "has_comparison", suspendWhenHidden = FALSE)
 
+  output$comparison_plot <- renderPlot(
+    {
+      req(results$comparison)
+      plot_connectivity(results$comparison)
+    },
+    alt = "Baseline and scenario connectivity metrics as two lines of points, one panel per metric, across interpatch distances."
+  )
+
+  output$download_comparison_plot <- downloadHandler(
+    filename = function() {
+      paste0(
+        connectivity_file_stem(results$report_data),
+        "-scenario-comparison.png"
+      )
+    },
+    content = function(file) {
+      size <- urbio_figure_size()
+      ggsave(
+        filename = file,
+        plot = plot_connectivity(results$comparison),
+        width = size$width,
+        height = size$tall_height,
+        dpi = size$dpi,
+        bg = "white"
+      )
+    }
+  )
+
   output$comparison_wide_table <- renderDT({
     req(results$comparison)
 
