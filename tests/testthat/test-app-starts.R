@@ -35,6 +35,15 @@ test_that("the app starts, takes an analysis, and compares the result", {
   # and Before you start took in what About said
   expect_false("About" %in% tabs)
 
+  # the step figures on Before you start are files in www/, so a wrong name
+  # is a broken image rather than an error
+  figures <- '$("img[src^=method-step]").toArray()'
+  app$wait_for_js(paste0(figures, ".every(img => img.complete)"))
+  expect_equal(
+    app$get_js(paste0(figures, ".filter(img => img.naturalWidth > 0).length")),
+    5
+  )
+
   # the app opens on the walkthrough, and one click skips it
   expect_equal(app$get_value(input = "main_nav"), "Before you start")
   app$click("go_to_inputs")

@@ -8,6 +8,12 @@ report_button <- function(id, label) {
   if (has_quarto) button else shinyjs::disabled(button)
 }
 
+# The step-by-step figures on Before you start, drawn by
+# data-raw/method-figures.R
+method_figure <- function(step, alt) {
+  img(src = sprintf("method-step-%d.png", step), alt = alt, class = "img-fluid")
+}
+
 details_panel <- function() {
   # Opened from the foot of Before you start. What it says about each input
   # comes from help.R, so it can't disagree with that input's "i".
@@ -307,7 +313,39 @@ ui <- page_navbar(
             "the interpatch distance. The app grows every patch of habitat",
             "by half that distance on each side. Patches whose grown edges",
             "meet are joined into one connected patch, unless a barrier",
-            "lies between them. Then it measures the connected patches."
+            "lies between them."
+          ),
+          p("Here is how that works on a small part of the lizard example."),
+          # four across, then the whole map at twice their width
+          layout_columns(
+            col_widths = breakpoints(
+              sm = c(6, 6, 6, 6, -3, 6, -3),
+              lg = c(3, 3, 3, 3, -3, 6, -3)
+            ),
+            method_figure(
+              1,
+              "1. Habitat and a road: a square of the lizard map, with patches of habitat above and below a grey road."
+            ),
+            method_figure(
+              2,
+              "2. Grow each patch by 50 m: the grown patches run together over the road and fill most of the square."
+            ),
+            method_figure(
+              3,
+              "3. The road cuts the grown area: the road laid over the grown patches splits them into a part above the road and a part below."
+            ),
+            method_figure(
+              4,
+              "4. Two connected patches: the habitat above the road is one connected patch, in blue, and the habitat below it another, in orange."
+            ),
+            method_figure(
+              5,
+              "5. The square is a small part of the lizard map: the whole map of roads and habitat, with the square outlined in orange, left of centre."
+            )
+          ),
+          p(
+            "Then it measures the connected patches: how many there are, and",
+            "how much habitat you can reach from a point picked at random."
           ),
           # the skip for someone who has used it before, and a one-click start
           # for someone who hasn't
