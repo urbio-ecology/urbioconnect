@@ -29,12 +29,12 @@
     Code
       as.data.frame(formatted)
     Output
-        Distance (m)          Metric Baseline Scenario value    Change % change
-      1           40         Patches        3              2        -1    -33.3
-      2           40       Mesh (ha)    0.915          0.743    -0.173    -18.9
-      3           40    P(connected) 3.67e-05       2.97e-05 -6.91e-06    -18.9
-      4           40  Mean area (m2)     8320           9200       879     10.6
-      5           40 Total area (ha)      2.5           1.84    -0.657    -26.3
+        Distance (m)          Metric Baseline Scenario value    Change  % change
+      1           50         Patches       73             72        -1     -1.37
+      2           50       Mesh (ha)     4.47           4.47 -1.13e-05 -0.000252
+      3           50    P(connected)     0.17           0.17 -4.28e-07 -0.000252
+      4           50  Mean area (m2)     3600           3650      47.6      1.32
+      5           50 Total area (ha)     26.3           26.3   -0.0172   -0.0654
 
 # a comparison is wide by default and long when asked
 

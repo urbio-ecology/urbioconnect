@@ -29,9 +29,9 @@ and the same metric columns as \code{\link[=summarise_connectivity]{summarise_co
 \code{patch_area_total_ha}, and \code{data_resolution}. The \code{change} row is
 \code{scenario - baseline}, so a positive value means the scenario is higher
 than the baseline; the \code{pct_change} row expresses that same change as
-\code{100 * change / baseline}, which is the readable form for metrics whose
-absolute deltas are very small. Metric values are held at full precision  -
-they are not rounded - so \code{change} is exact.
+\code{100 * change / baseline}, which puts every metric on the same scale.
+Metric values are held at full precision - they are not rounded - so
+\code{change} is exact.
 }
 \description{
 We can measure the connectivity of a given habitat and barrier with
