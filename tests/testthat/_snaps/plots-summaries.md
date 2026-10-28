@@ -34,3 +34,47 @@
       Error in `gg_layer()`:
       ! `kind` must be one of "habitat" or "barrier", not "interpatch".
 
+# plot_connectivity draws a comparison's baseline once, beside each scenario
+
+    Code
+      levels(drawn$series)
+    Output
+      [1] "Baseline"        "Bentley Project" "Barrier upgrade"
+
+# plot_connectivity names an unnamed scenario
+
+    Code
+      levels(drawn$series)
+    Output
+      [1] "Baseline" "Scenario"
+
+# plot_connectivity refuses scenarios it can't tell apart
+
+    Code
+      plot_connectivity(compare_scenarios(baseline, list(baseline = scenario)))
+    Condition
+      Error in `plot_connectivity()`:
+      ! A scenario can't be called "baseline".
+      i The plot draws the baseline under that name. Rename the scenario in scenario_name.
+
+---
+
+    Code
+      plot_connectivity(compare_scenarios(baseline, rlang::set_names(rep(list(
+        scenario), 6), LETTERS[1:6])))
+    Condition
+      Error in `plot_connectivity()`:
+      ! Can only plot up to 5 scenarios at once, not 6.
+      i Plot fewer at a time, for example with `dplyr::filter(x, scenario_name %in% c(...))`.
+
+---
+
+    Code
+      plot_connectivity(dplyr::bind_rows(compare_connectivity(scenario, baseline),
+      compare_connectivity(summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+      baseline)))
+    Condition
+      Error in `plot_connectivity()`:
+      ! Can't draw "Scenario" as one line each: more than one comparison gives a value at the same interpatch distance.
+      i Give each scenario its own scenario_name, and compare every scenario against the same baseline.
+
