@@ -13,10 +13,10 @@
       4 <NA>          pct_change Blue Tongue Lizard                  40      4.94
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1              4.45         0.0000169          3245.                26.3  
-      2              2.34         0.00000890         3042.                25.9  
-      3             -2.11        -0.00000802         -203.                -0.426
-      4            -47.4        -47.4                  -6.25              -1.62 
+      1              4.45             0.169          3245.                26.3  
+      2              2.34             0.0890         3042.                25.9  
+      3             -2.11            -0.0802         -203.                -0.426
+      4            -47.4            -47.4              -6.25              -1.62 
         data_resolution
         <chr>          
       1 2x2            
@@ -41,10 +41,10 @@
       4 <NA>          pct_change Blue-tongued Lizard                  50         0
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1              4.47          0.0000170           3600.                26.3
-      2              4.47          0.0000170           3600.                26.3
-      3              0             0                      0                  0  
-      4              0             0                      0                  0  
+      1              4.47              0.170           3600.                26.3
+      2              4.47              0.170           3600.                26.3
+      3              0                 0                  0                  0  
+      4              0                 0                  0                  0  
         data_resolution
         <chr>          
       1 2x2            
@@ -111,10 +111,10 @@
       4 <NA>          pct_change Test Species                  10     -33.3
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1           0.0233           0.0000389             200                0.06
-      2           0.00833          0.0000139             150                0.03
-      3          -0.015           -0.000025              -50               -0.03
-      4         -64.3            -64.3                   -25              -50   
+      1           0.0233               0.389             200                0.06
+      2           0.00833              0.139             150                0.03
+      3          -0.015               -0.25              -50               -0.03
+      4         -64.3                -64.3               -25              -50   
         data_resolution
                   <dbl>
       1               2

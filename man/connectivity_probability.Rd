@@ -4,39 +4,41 @@
 \alias{connectivity_probability}
 \title{Calculate connectivity probability}
 \usage{
-connectivity_probability(effective_mesh_size, area_baseline)
+connectivity_probability(effective_mesh_ha, area_baseline_ha)
 }
 \arguments{
-\item{effective_mesh_size}{As calculated by \code{\link[=effective_mesh_size]{effective_mesh_size()}}}
+\item{effective_mesh_ha}{Number. Effective mesh size in hectares, as
+returned by \code{\link[=effective_mesh_size]{effective_mesh_size()}}.}
 
-\item{area_baseline}{Numeric vector. Area of a connected patch. This
-argument is called "baseline" as when you are doing design scenarios you
-must refer to the baseline area when calculating connectivity probability.
-See vignette, TODO.}
+\item{area_baseline_ha}{Number. Total habitat area of the baseline landscape
+in hectares, as returned by \code{\link[=total_habitat_area]{total_habitat_area()}}.}
 }
 \value{
-Numeric. Probability of connectedness (0-1).
+Numeric. Probability of connectedness: between 0 and 1 for a
+landscape measured against itself.
 }
 \description{
-Computes the probability two randomly chosen points within habitat
-are connected, accounting for fragmentation. This requires the effective
-mesh size (via \code{\link[=effective_mesh_size]{effective_mesh_size()}}), and the area of patches. This means
-that you can calculate the change in connectivity if you calculate the
-effective mesh size of a new habitat/barrier plan, and then use the baseline
+Computes the probability that two randomly chosen points within habitat are
+connected, accounting for fragmentation. This is the effective mesh size
+divided by the total habitat area, both in hectares.
+}
+\details{
+To compare a design scenario against a baseline, pass the scenario's
+effective mesh size, measured against the baseline areas, and the
+baseline's total habitat area. A scenario that adds habitat can then score
+above 1.
 }
 \examples{
-effective_mesh <- effective_mesh_size(
-  area = lizard_areas_connected$area
-  )
+area <- lizard_areas_connected$area
 connectivity_probability(
-  effective_mesh_size = effective_mesh,
-  area_baseline = lizard_areas_connected$area
-  )
-# if you wanted to compare to a scenario, you would consider the effective
-# mesh size to be the new scenario level, and the baseline as so:
+  effective_mesh_ha = effective_mesh_size(area),
+  area_baseline_ha = total_habitat_area(area)
+)
+# a scenario that loses the first patch, measured against the baseline
+scenario_area <- area[-1]
+scenario_mesh_ha <- effective_mesh_size(scenario_area, area_baseline = area)
 connectivity_probability(
-# scenario 1
-  effective_mesh_size = effective_mesh,
-  area_baseline = lizard_areas_connected$area
-  )
+  effective_mesh_ha = scenario_mesh_ha,
+  area_baseline_ha = total_habitat_area(area)
+)
 }

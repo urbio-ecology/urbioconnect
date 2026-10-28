@@ -7,13 +7,13 @@
 total_habitat_area(area)
 }
 \arguments{
-\item{area}{Numeric vector. Area of a connected patch.}
+\item{area}{Numeric vector. Area of each connected patch, in square metres.}
 }
 \value{
 Numeric. Total habitat area in hectares.
 }
 \description{
-Calculate the total habitat area in hectars. A wrapper around summing the
+Calculate the total habitat area in hectares. A wrapper around summing the
 area and multiplying by 0.0001 to give the units in hectares. Intended
 for usage from objects created by \code{\link[=habitat_connectivity]{habitat_connectivity()}}. See examples
 below.

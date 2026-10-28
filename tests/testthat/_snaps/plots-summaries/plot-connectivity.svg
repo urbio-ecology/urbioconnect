@@ -103,15 +103,16 @@
 </defs>
 <g clip-path='url(#cpNDMyLjkzfDcxNC41MnwzMTIuMTZ8NTQwLjI4)'>
 <rect x='432.93' y='312.16' width='281.59' height='228.11' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<polyline points='432.93,511.99 714.52,511.99 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,454.96 714.52,454.96 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,397.93 714.52,397.93 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,340.91 714.52,340.91 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,511.76 714.52,511.76 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,454.73 714.52,454.73 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,397.71 714.52,397.71 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,340.68 714.52,340.68 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='573.72,540.28 573.72,312.16 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,483.48 714.52,483.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,426.45 714.52,426.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,369.42 714.52,369.42 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='432.93,312.39 714.52,312.39 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,540.28 714.52,540.28 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,483.25 714.52,483.25 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,426.22 714.52,426.22 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,369.19 714.52,369.19 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='432.93,312.16 714.52,312.16 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='445.73,540.28 445.73,312.16 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='701.72,540.28 701.72,312.16 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <circle cx='445.73' cy='426.22' r='1.95' style='stroke-width: 0.71; fill: #000000;' />
@@ -188,14 +189,16 @@
 <polyline points='430.19,161.15 432.93,161.15 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='430.19,104.12 432.93,104.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='430.19,47.09 432.93,47.09 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<text x='427.99' y='487.33' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='31.76px' lengthAdjust='spacingAndGlyphs'>-0.025</text>
-<text x='427.99' y='430.30' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.000</text>
-<text x='427.99' y='373.27' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.025</text>
-<text x='427.99' y='316.25' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.050</text>
-<polyline points='430.19,483.48 432.93,483.48 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='430.19,426.45 432.93,426.45 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='430.19,369.42 432.93,369.42 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='430.19,312.39 432.93,312.39 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<text x='427.99' y='544.13' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.950</text>
+<text x='427.99' y='487.10' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.975</text>
+<text x='427.99' y='430.07' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>1.000</text>
+<text x='427.99' y='373.05' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>1.025</text>
+<text x='427.99' y='316.02' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>1.050</text>
+<polyline points='430.19,540.28 432.93,540.28 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='430.19,483.25 432.93,483.25 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='430.19,426.22 432.93,426.22 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='430.19,369.19 432.93,369.19 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='430.19,312.16 432.93,312.16 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <text x='61.25' y='276.77' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.950</text>
 <text x='61.25' y='219.75' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>0.975</text>
 <text x='61.25' y='162.72' text-anchor='end' style='font-size: 11.20px; fill: #4D4D4D; font-family: sans;' textLength='28.03px' lengthAdjust='spacingAndGlyphs'>1.000</text>
