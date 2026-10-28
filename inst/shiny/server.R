@@ -138,6 +138,7 @@ server <- function(input, output, session) {
   # Before you start ----
 
   observeEvent(input$go_to_inputs, nav_select("main_nav", "Inputs"))
+  observeEvent(input$go_to_details, nav_select("main_nav", "Details"))
 
   # straight to a landscape that runs in a second, ready to click Run
   observeEvent(input$try_lizard, {

@@ -25,7 +25,10 @@ test_that("the app starts, takes an analysis, and compares the result", {
     ","
   )[[1]])
 
-  expect_in(c("Before you start", "Inputs", "Results", "Downloads"), tabs)
+  expect_in(
+    c("Before you start", "Inputs", "Results", "Downloads", "Details"),
+    tabs
+  )
 
   # the scenario controls are an input, so they live on Inputs, not a tab
   expect_false("Scenarios" %in% tabs)
@@ -37,6 +40,13 @@ test_that("the app starts, takes an analysis, and compares the result", {
   app$click("go_to_inputs")
   app$wait_for_idle()
   expect_equal(app$get_value(input = "main_nav"), "Inputs")
+
+  # the rest of it is on Details, a link away
+  app$set_inputs(main_nav = "Before you start")
+  app$click("go_to_details")
+  app$wait_for_idle()
+  expect_equal(app$get_value(input = "main_nav"), "Details")
+  app$set_inputs(main_nav = "Inputs")
 
   visible <- function(selector) {
     app$get_js(paste0('$("', selector, '").is(":visible")'))

@@ -36,7 +36,7 @@ library(tidyr)
 library(tidyterra)
 library(urbioconnect)
 
-# Where the analysis settings start. Before you start states them, so ui.R
+# Where the analysis settings start. The Details page states them, so ui.R
 # takes them from here rather than the two drifting apart.
 input_defaults <- list(data_resolution = 10, interpatch_distances = "100")
 

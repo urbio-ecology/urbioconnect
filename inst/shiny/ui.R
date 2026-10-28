@@ -8,77 +8,18 @@ report_button <- function(id, label) {
   if (has_quarto) button else shinyjs::disabled(button)
 }
 
-ui <- page_navbar(
-  title = "Urban Connectedness",
-  # id so which panel is open is an input, settable without reaching for the
-  # DOM. Outputs suspend while hidden, so a test has to open a panel to see it.
-  id = "main_nav",
-  theme = urbio_theme(),
-  # Not Inputs: filling the window squeezed its three cards until the Run
-  # button was clipped. It scrolls instead.
-  fillable = c("Results", "Downloads"),
-
-  header = tagList(
-    shinyjs::useShinyjs(),
-    # a spinner on every output while it recalculates, so a slow plot or table
-    # reads as pending rather than missing
-    useBusyIndicators(),
-    tags$style(HTML(compare_css)),
-    input_help_head
-  ),
-
-  # The app opens here, being the first panel. What it says about each input
+details_panel <- function() {
+  # Opened from the foot of Before you start. What it says about each input
   # comes from help.R, so it can't disagree with that input's "i".
   nav_panel(
-    title = "Before you start",
-    icon = icon("compass"),
+    title = "Details",
+    icon = icon("book-open"),
     layout_columns(
       col_widths = breakpoints(sm = 12, lg = c(-2, 8, -2)),
       card(
         card_body(
-          p(
-            class = "lead",
-            "This app measures how well habitat for one species is connected",
-            "across an urban landscape, and how a planned change would alter",
-            "it."
-          ),
-          # the skip for someone who has used it before, and a one-click start
-          # for someone who hasn't
-          div(
-            class = "d-flex flex-wrap gap-2 mb-3",
-            actionButton(
-              inputId = "go_to_inputs",
-              label = "Go to inputs",
-              icon = icon("arrow-right"),
-              class = "btn-primary"
-            ),
-            actionButton(
-              inputId = "try_lizard",
-              label = "Try the lizard example",
-              icon = icon("play"),
-              class = "btn-outline-primary"
-            )
-          ),
           accordion(
-            id = "before_you_start",
-            open = "1. What the app does",
-            accordion_panel(
-              "1. What the app does",
-              p(
-                "Animals move between patches of habitat, such as parks,",
-                "bushland and creek corridors, and roads, railways and",
-                "buildings get in the way. A planned change, such as a new",
-                "road or a development, can cut patches off from each other."
-              ),
-              p(
-                "You give it two maps, one of the habitat and one of the",
-                "barriers, and a distance your species will cross open ground:",
-                "the interpatch distance. The app grows every patch of habitat",
-                "by half that distance on each side. Patches whose grown edges",
-                "meet are joined into one connected patch, unless a barrier",
-                "lies between them. Then it measures the connected patches."
-              )
-            ),
+            id = "details",
             accordion_panel(
               "2. Prepare your data",
               help_sections(c("habitat_file", "barrier_file")),
@@ -290,20 +231,7 @@ ui <- page_navbar(
               )
             ),
             accordion_panel(
-              "About the method",
-              p(
-                "The method is from Kirk, H., Soanes, K., Amati, M., Bekessy,",
-                "S., Harrison, L., Parris, K., Ramalho, C., van de Ree, R., &",
-                "Threlfall, C. (2023). Ecological connectivity as a planning",
-                "tool for the conservation of wildlife in cities.",
-                em("MethodsX", .noWS = "after"),
-                ", 10, 101989.",
-                a(
-                  href = "https://doi.org/10.1016/j.mex.2022.101989",
-                  target = "_blank",
-                  "https://doi.org/10.1016/j.mex.2022.101989"
-                )
-              ),
+              "About this app",
               p(
                 "Built with R, Shiny and terra, as the urbioconnect R package:",
                 a(
@@ -313,6 +241,99 @@ ui <- page_navbar(
                 )
               )
             )
+          )
+        )
+      )
+    )
+  )
+}
+
+ui <- page_navbar(
+  title = "Urban Connectedness",
+  # id so which panel is open is an input, settable without reaching for the
+  # DOM. Outputs suspend while hidden, so a test has to open a panel to see it.
+  id = "main_nav",
+  theme = urbio_theme(),
+  # Not Inputs: filling the window squeezed its three cards until the Run
+  # button was clipped. It scrolls instead.
+  fillable = c("Results", "Downloads"),
+
+  header = tagList(
+    shinyjs::useShinyjs(),
+    # a spinner on every output while it recalculates, so a slow plot or table
+    # reads as pending rather than missing
+    useBusyIndicators(),
+    tags$style(HTML(compare_css)),
+    input_help_head
+  ),
+
+  # The app opens here, being the first panel
+  nav_panel(
+    title = "Before you start",
+    icon = icon("compass"),
+    layout_columns(
+      col_widths = breakpoints(sm = 12, lg = c(-2, 8, -2)),
+      card(
+        card_body(
+          p(
+            class = "lead",
+            "This app measures how well habitat is connected for a given",
+            "species in an urban landscape, and how planned changes to",
+            "habitat or urban environment would alter the connectedness. It",
+            "uses the method from Kirk et al. (2023),",
+            em(
+              "Ecological connectivity as a planning tool for the",
+              "conservation of wildlife in cities",
+              .noWS = c("after", "inside")
+            ),
+            ", MethodsX 10, 101989 (",
+            a(
+              href = "https://doi.org/10.1016/j.mex.2022.101989",
+              target = "_blank",
+              "https://doi.org/10.1016/j.mex.2022.101989",
+              .noWS = "outside"
+            ),
+            ")."
+          ),
+          p(
+            "Animals move between patches of habitat, such as parks,",
+            "bushland and creek corridors, and roads, railways and",
+            "buildings get in the way. A planned change, such as a new",
+            "road or a development, can cut patches off from each other."
+          ),
+          p(
+            "You give it two maps, one of the habitat and one of the",
+            "barriers, and a distance your species will cross open ground:",
+            "the interpatch distance. The app grows every patch of habitat",
+            "by half that distance on each side. Patches whose grown edges",
+            "meet are joined into one connected patch, unless a barrier",
+            "lies between them. Then it measures the connected patches."
+          ),
+          # the skip for someone who has used it before, and a one-click start
+          # for someone who hasn't
+          div(
+            class = "d-flex flex-wrap gap-2 mb-3",
+            actionButton(
+              inputId = "go_to_inputs",
+              label = "Go to inputs",
+              icon = icon("arrow-right"),
+              class = "btn-primary"
+            ),
+            actionButton(
+              inputId = "try_lizard",
+              label = "Try the lizard example",
+              icon = icon("play"),
+              class = "btn-outline-primary"
+            )
+          ),
+          p(
+            "Preparing your data, choosing settings, comparing a scenario and",
+            "reading the results are all in",
+            strong(
+              actionLink("go_to_details", "Details"),
+              .noWS = c("after", "inside")
+            ),
+            "."
           )
         )
       )
@@ -782,5 +803,7 @@ ui <- page_navbar(
         )
       )
     )
-  )
+  ),
+
+  details_panel()
 )

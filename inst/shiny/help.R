@@ -1,4 +1,4 @@
-# What each input means. The "i" beside its label and the Before you start
+# What each input means. The "i" beside its label and the Details
 # page both read from here, so the two can't disagree.
 input_help <- list(
   species = list(
@@ -140,7 +140,7 @@ help_paragraphs <- function(id) {
   shiny::markdown(glue::glue_collapse(help, sep = "\n\n"))
 }
 
-# For the Before you start page: each input's explanation under its label
+# For the Details page: each input's explanation under its label
 help_sections <- function(ids) {
   tagList(purrr::map(
     ids,
