@@ -63,7 +63,7 @@ read_report_data(path)$connectivity
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue Tongu…                  20       163              4.42          0.0000168
+#> 1 Blue Tongu…                  20       163              4.42              0.168
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 # }

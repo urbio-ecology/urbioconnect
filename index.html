@@ -136,10 +136,10 @@
 <span>  interpatch_distance <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Creating barrier mask</span></span>
-<span><span class="co">#&gt; ✔ Creating barrier mask [43ms]</span></span>
+<span><span class="co">#&gt; ✔ Creating barrier mask [40ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; ✔ Removing habitat underneath barrier [18ms]</span></span>
+<span><span class="co">#&gt; ✔ Removing habitat underneath barrier [19ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -147,23 +147,23 @@
 <span><span class="co">#&gt; ℹ It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; ℹ Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; ✔ Buffering habitat for an interpatch distance of 10m [86ms]</span></span>
+<span><span class="co">#&gt; ✔ Buffering habitat for an interpatch distance of 10m [76ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; ✔ Fragmenting habitat layer along barrier intersection [14ms]</span></span>
+<span><span class="co">#&gt; ✔ Fragmenting habitat layer along barrier intersection [15ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Assigning patches ID to fragments</span></span>
 <span><span class="co">#&gt; ✔ Assigning patches ID to fragments [1.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Summarising area in each patch</span></span>
-<span><span class="co">#&gt; ✔ Summarising area in each patch [129ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarising area in each patch [116ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 9</span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;                     &lt;dbl&gt;     &lt;int&gt;             &lt;dbl&gt;              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 Blue-tongu…                  10       703              3.92          0.0000149</span></span>
+<span><span class="co">#&gt; 1 Blue-tongu…                  10       703              3.92              0.149</span></span>
 <span><span class="co">#&gt; # ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></code></pre></div>
 <p><code>areas</code> already contains the landscape-level summary (effective mesh size, probability of connectedness, patch counts, and so on). The per-patch areas that summary is built from are stored in a list-column, and can be pulled out with <code><a href="reference/patch_sizes.html">patch_sizes()</a></code>:</p>

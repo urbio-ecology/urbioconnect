@@ -1,8 +1,9 @@
 # Calculate effective mesh size
 
-Computes the effective mesh size metric for habitat connectivity, This
-represents the probability that two randomly chosen points within
-habitat remain connected. Intended for usage from objects created by
+Computes the effective mesh size metric for habitat connectivity. This
+is the expected area of habitat reachable from a randomly chosen point
+in habitat without crossing a barrier. Intended for usage from objects
+created by
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
 See examples below.
 
@@ -16,14 +17,14 @@ effective_mesh_size(area, area_baseline = area)
 
 - area:
 
-  Numeric vector. Area of connected patches.
+  Numeric vector. Area of each connected patch, in square metres.
 
 - area_baseline:
 
-  Optional. Defaults to `area` if not specified. Numeric vector of
-  connected patches of a baseline area. This is to allow for comparing
-  the effective mesh size when comparing different scenarios. See future
-  vignette on this topic (TODO).
+  Optional. Defaults to `area` if not specified. Numeric vector of the
+  baseline's connected patch areas, in square metres. This is to allow
+  for comparing the effective mesh size when comparing different
+  scenarios.
 
 ## Value
 

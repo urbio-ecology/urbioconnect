@@ -108,13 +108,13 @@ raster_result <- habitat_connectivity(
   verbose = FALSE
 )
 rast_time <- toc()
-#> 3.212 sec elapsed
+#> 2.995 sec elapsed
 
 raster_result
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703              3.92          0.0000149
+#> 1 Blue-tongu…                  10       703              3.92              0.149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
@@ -159,7 +159,7 @@ vector_result <- sf_habitat_connectivity(
   interpatch_distance = interpatch_dist
 )
 vect_time <- toc()
-#> 19.369 sec elapsed
+#> 10.613 sec elapsed
 
 vector_result
 #> # patch_size_tbl:      data.frame
@@ -205,10 +205,10 @@ exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.
 
-    #> [1] 3.212
+    #> [1] 2.995
 
 Timings for the methods are also important to consider. The raster
-approach took 3.212 seconds, and the vector approach took 19.369
+approach took 2.995 seconds, and the vector approach took 10.613
 seconds.
 
 ## Summarising connectivity metrics
@@ -231,7 +231,7 @@ summarise_connectivity(connectivity = vector_result)
 #> # A tibble: 1 × 9
 #>   species interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                 <dbl>     <int>             <dbl>              <dbl>
-#> 1 lizard                   10       483              4.18          0.0000160
+#> 1 lizard                   10       483              4.18              0.160
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
@@ -244,7 +244,7 @@ raster_result
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703              3.92          0.0000149
+#> 1 Blue-tongu…                  10       703              3.92              0.149
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```

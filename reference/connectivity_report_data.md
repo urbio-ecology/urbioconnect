@@ -128,7 +128,7 @@ report_data$connectivity
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Superb Fai…                 200       282              334.          0.0000225
+#> 1 Superb Fai…                 200       282              334.              0.225
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 names(report_data$patch_id_raster)
@@ -157,10 +157,10 @@ with_scenario$comparison
 #> 4 NA            pct_change Superb Fairy Wren                 200     0.355
 #>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
 #>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1           334.          0.0000225           52556.               1482.  
-#> 2           333.          0.0000224           51828.               1467.  
-#> 3            -0.965      -0.0000000651         -728.                -15.3 
-#> 4            -0.289      -0.289                  -1.38               -1.04
+#> 1           334.              0.225           52556.               1482.  
+#> 2           333.              0.224           51828.               1467.  
+#> 3            -0.965          -0.000651         -728.                -15.3 
+#> 4            -0.289          -0.289              -1.38               -1.04
 #>   data_resolution 
 #>   <chr>           
 #> 1 9.99673x10.00151

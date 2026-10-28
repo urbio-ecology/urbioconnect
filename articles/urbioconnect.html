@@ -358,7 +358,7 @@ computes a set of landscape-level connectivity metrics:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92              0.149</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;dbl&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>The two key metrics are:</p>
@@ -368,8 +368,9 @@ better connectivity:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mtext mathvariant="normal">eff</mtext></msub><mo>=</mo><mfrac><mrow><mo>∑</mo><msubsup><mi>A</mi><mi>i</mi><mn>2</mn></msubsup></mrow><mrow><mo>∑</mo><msub><mi>A</mi><mi>i</mi></msub></mrow></mfrac><mo>×</mo><mn>0.0001</mn></mrow><annotation encoding="application/x-tex">m_{\text{eff}} = \frac{\sum A_i^2}{\sum A_i} \times 0.0001</annotation></semantics></math></p>
 <p><strong>Probability of connectedness</strong> - the probability that
 two randomly chosen points within habitat are in the same connected
-patch. Ranges from 0 (fully fragmented) to 1 (all habitat
-connected):</p>
+patch. Ranges from 0 (fully fragmented) to 1 (all habitat connected). A
+scenario is measured against its baseline’s total habitat area, so one
+that adds habitat can score above 1. Both terms are in hectares:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>c</mi></msub><mo>=</mo><mfrac><msub><mi>m</mi><mtext mathvariant="normal">eff</mtext></msub><mtext mathvariant="normal">total habitat area</mtext></mfrac></mrow><annotation encoding="application/x-tex">P_c = \frac{m_{\text{eff}}}{\text{total habitat area}}</annotation></semantics></math></p>
 <p>Where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mi>i</mi></msub><annotation encoding="application/x-tex">A_i</annotation></semantics></math>
@@ -393,10 +394,10 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[48ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[31ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[33ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[23ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -404,23 +405,23 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[398ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[284ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[58ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[30ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.2s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[59ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[38ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92              0.149</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p><code>areas</code> is a <code>connectivity</code> object: a one-row
@@ -506,9 +507,9 @@ iterate, then <code><a href="https://purrr.tidyverse.org/reference/list_c.html" 
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Blue-tongu…                  30       105              4.43          0.000<span style="text-decoration: underline;">016</span>9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Blue-tongu…                  50        73              4.47          0.000<span style="text-decoration: underline;">017</span>0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92              0.149</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Blue-tongu…                  30       105              4.43              0.169</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Blue-tongu…                  50        73              4.47              0.170</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>Each call to <code><a href="../reference/habitat_connectivity.html">habitat_connectivity()</a></code> already returns a

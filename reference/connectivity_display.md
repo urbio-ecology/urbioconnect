@@ -82,6 +82,6 @@ round_by(display)
 #> # A tibble: 1 × 8
 #>   Species     `Distance (m)` Patches `Mesh (ha)` `P(connected)` `Mean area (m2)`
 #>   <chr>                <dbl>   <int>       <dbl>          <dbl>            <dbl>
-#> 1 Blue Tongu…             20     163        4.42      0.0000168            1612.
+#> 1 Blue Tongu…             20     163        4.42          0.168            1612.
 #> # ℹ 2 more variables: `Total area (ha)` <dbl>, `Resolution (m)` <chr>
 ```

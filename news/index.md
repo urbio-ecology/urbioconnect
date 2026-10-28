@@ -102,6 +102,12 @@
   analysis ran.
   ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
 
+- [`connectivity_probability()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.md)
+  divided an effective mesh size in hectares by an area in square
+  metres, so `prob_connectedness` was 10000 times too small. It now
+  takes `effective_mesh_ha` and `area_baseline_ha`, both in hectares.
+  ([\#182](https://github.com/urbio-ecology/urbioconnect/issues/182))
+
 - New
   [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
   returns the settings an analysis was run with, one row per setting;
@@ -331,8 +337,6 @@
 
 - update
   [`effective_mesh_size()`](https://urbio-ecology.github.io/urbioconnect/reference/effective_mesh_size.md)
-  and
-  [`connectivity_probability()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_probability.md)
   to go from area_squared –\> area_baseline.
   [\#128](https://github.com/urbio-ecology/urbioconnect/issues/128).
   This will help facilitate

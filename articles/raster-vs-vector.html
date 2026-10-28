@@ -158,13 +158,13 @@ the <code>tictoc</code> package</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rast_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 3.212 sec elapsed</span></span>
+<span><span class="co">#&gt; 2.995 sec elapsed</span></span>
 <span></span>
 <span><span class="va">raster_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92              0.149</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p><code><a href="../reference/habitat_connectivity.html">habitat_connectivity()</a></code> returns a
@@ -204,7 +204,7 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_dist</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vect_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 19.369 sec elapsed</span></span>
+<span><span class="co">#&gt; 10.613 sec elapsed</span></span>
 <span></span>
 <span><span class="va">vector_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span></span>
@@ -245,9 +245,9 @@ approximated at the chosen resolution. The vector approach preserves
 exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.</p>
-<pre><code><span><span class="co">#&gt; [1] 3.212</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 2.995</span></span></code></pre>
 <p>Timings for the methods are also important to consider. The raster
-approach took 3.212 seconds, and the vector approach took 19.369
+approach took 2.995 seconds, and the vector approach took 10.613
 seconds.</p>
 </div>
 <div class="section level2">
@@ -267,7 +267,7 @@ supply them again:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lizard                   10       483              4.18          0.000<span style="text-decoration: underline;">016</span>0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lizard                   10       483              4.18              0.160</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>Compare that against the raster summary computed earlier:</p>
@@ -276,7 +276,7 @@ supply them again:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92          0.000<span style="text-decoration: underline;">014</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Blue-tongu…                  10       703              3.92              0.149</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span></span></code></pre></div>
 <p>The metrics - effective mesh size, probability of connectedness, mean

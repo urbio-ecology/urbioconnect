@@ -94,6 +94,6 @@ if (quarto_available()) {
   )
 }
 #> Rendering html report...
-#> Wrote /tmp/RtmpuEyhyA/lizard-report.html
+#> Wrote /tmp/Rtmpmy6WS0/lizard-report.html
 # }
 ```

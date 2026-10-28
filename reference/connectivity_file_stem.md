@@ -44,6 +44,6 @@ report_data <- connectivity_report_data(
 )
 
 connectivity_file_stem(report_data)
-#> [1] "blue-tongue-lizard-connectivity-2026-10-23"
+#> [1] "blue-tongue-lizard-connectivity-2026-10-28"
 # }
 ```

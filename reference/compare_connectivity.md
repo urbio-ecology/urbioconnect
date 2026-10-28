@@ -55,9 +55,9 @@ output: `scenario_name`, `measure`, `species`, `interpatch_distance`,
 `patch_area_mean`, `patch_area_total_ha`, and `data_resolution`. The
 `change` row is `scenario - baseline`, so a positive value means the
 scenario is higher than the baseline; the `pct_change` row expresses
-that same change as `100 * change / baseline`, which is the readable
-form for metrics whose absolute deltas are very small. Metric values are
-held at full precision - they are not rounded - so `change` is exact.
+that same change as `100 * change / baseline`, which puts every metric
+on the same scale. Metric values are held at full precision - they are
+not rounded - so `change` is exact.
 
 ## Details
 
@@ -95,10 +95,10 @@ compare_connectivity(scenario = scenario, baseline = baseline)
 #> 4 NA            pct_change Blue-tongued Lizard                  50     -1.37
 #>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
 #>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1         4.47                1.70e- 5         3600.               26.3   
-#> 2         4.47                1.70e- 5         3648.               26.3   
-#> 3        -0.0000113          -4.28e-11           47.6              -0.0172
-#> 4        -0.000252           -2.52e- 4            1.32             -0.0654
+#> 1         4.47             0.170               3600.               26.3   
+#> 2         4.47             0.170               3648.               26.3   
+#> 3        -0.0000113       -0.000000428           47.6              -0.0172
+#> 4        -0.000252        -0.000252               1.32             -0.0654
 #>   data_resolution
 #>   <chr>          
 #> 1 2x2            
@@ -124,10 +124,10 @@ compare_connectivity(
 #> 4 Bentley Project pct_change Blue-tongued Lizard                  50     -1.37
 #>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
 #>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1         4.47                1.70e- 5         3600.               26.3   
-#> 2         4.47                1.70e- 5         3648.               26.3   
-#> 3        -0.0000113          -4.28e-11           47.6              -0.0172
-#> 4        -0.000252           -2.52e- 4            1.32             -0.0654
+#> 1         4.47             0.170               3600.               26.3   
+#> 2         4.47             0.170               3648.               26.3   
+#> 3        -0.0000113       -0.000000428           47.6              -0.0172
+#> 4        -0.000252        -0.000252               1.32             -0.0654
 #>   data_resolution
 #>   <chr>          
 #> 1 2x2            
