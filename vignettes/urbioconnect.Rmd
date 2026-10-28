@@ -241,7 +241,7 @@ The two key metrics are:
 
 $$m_{\text{eff}} = \frac{\sum A_i^2}{\sum A_i} \times 0.0001$$
 
-**Probability of connectedness** - the probability that two randomly chosen points within habitat are in the same connected patch. Ranges from 0 (fully fragmented) to 1 (all habitat connected):
+**Probability of connectedness** - the probability that two randomly chosen points within habitat are in the same connected patch. Ranges from 0 (fully fragmented) to 1 (all habitat connected). A scenario is measured against its baseline's total habitat area, so one that adds habitat can score above 1. Both terms are in hectares:
 
 $$P_c = \frac{m_{\text{eff}}}{\text{total habitat area}}$$
 
