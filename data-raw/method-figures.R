@@ -1,4 +1,4 @@
-# The five step-by-step figures on the app's Before you start page, drawn from
+# The six step-by-step figures on the app's Before you start page, drawn from
 # a small part of the lizard example. Re-run from the package root, with the
 # package loaded, after changing them:
 #   Rscript -e 'devtools::load_all(); source("data-raw/method-figures.R")'
@@ -40,12 +40,21 @@ buf <- cells(steps$buffered_habitat)
 road <- cells(barrier)
 cut <- cells(!is.na(steps$barrier_mask) & steps$buffered_habitat == 1)
 
-patches <- as.data.frame(
-  crop(steps$patch_id_raster$patch_id, zoom),
-  xy = TRUE,
-  na.rm = TRUE
+# each piece of the cut grown area is one patch, numbered as the habitat in it
+pieces <- patches(fragment_habitat(steps$buffered_habitat, steps$barrier_mask))
+by_patch <- function(layer) {
+  d <- as.data.frame(crop(layer, zoom), xy = TRUE, na.rm = TRUE)
+  names(d)[3] <- "patch_id"
+  d$patch_id <- factor(d$patch_id)
+  d
+}
+grown <- by_patch(pieces)
+patches <- by_patch(steps$patch_id_raster$patch_id)
+
+# two from plot_patches()'s palette; its own pick for these ids is two teals
+patch_colours <- scale_fill_manual(
+  values = colorspace::qualitative_hcl(7)[c(6, 2)]
 )
-patches$patch_id <- factor(patches$patch_id)
 
 step_plot <- function(title, ...) {
   ggplot(mapping = aes(x, y)) +
@@ -83,10 +92,17 @@ figures <- list(
     geom_tile(data = hab, fill = colours[["habitat"]])
   ),
   step_plot(
-    "4. Two connected patches",
+    "4. Identify the patches",
+    geom_tile(data = grown, aes(fill = patch_id)),
+    geom_tile(data = road, fill = colours[["barrier"]]),
+    geom_tile(data = hab, fill = colours[["habitat"]]),
+    patch_colours
+  ),
+  step_plot(
+    "5. Two connected patches",
     geom_tile(data = road, fill = colours[["barrier"]]),
     geom_tile(data = patches, aes(fill = patch_id)),
-    scale_fill_manual(values = c("#0072B2", "#E69F00"))
+    patch_colours
   ),
   ggplot(mapping = aes(x, y)) +
     geom_tile(data = cells(barrier, whole), fill = colours[["barrier"]]) +
@@ -105,7 +121,7 @@ figures <- list(
       linewidth = 1
     ) +
     coord_equal(expand = FALSE) +
-    labs(title = "5. The square is a small part of the lizard map") +
+    labs(title = "6. Zoom out to the whole map") +
     theme_void() +
     theme(panel.background = element_rect(fill = "grey96", colour = "grey70"))
 )
@@ -116,8 +132,8 @@ purrr::iwalk(figures, function(figure, step) {
   ggsave(
     sprintf("inst/shiny/www/method-step-%d.png", step),
     figure,
-    width = if (step == 5) 5 else 3,
-    height = if (step == 5) 5.4 else 3.2,
+    width = 3,
+    height = 3.2,
     dpi = 150
   )
 })

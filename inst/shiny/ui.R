@@ -317,12 +317,9 @@ ui <- page_navbar(
             "lies between them."
           ),
           p("Here is how that works on a small part of the lizard example."),
-          # four across, then the whole map at twice their width
+          # three across on a wide screen, two on a narrow one
           layout_columns(
-            col_widths = breakpoints(
-              sm = c(6, 6, 6, 6, -3, 6, -3),
-              lg = c(3, 3, 3, 3, -3, 6, -3)
-            ),
+            col_widths = breakpoints(sm = 6, lg = 4),
             method_figure(
               1,
               "1. Habitat and a road: a square of the lizard map, with patches of habitat above and below a grey road."
@@ -337,11 +334,15 @@ ui <- page_navbar(
             ),
             method_figure(
               4,
-              "4. Two connected patches: the habitat above the road is one connected patch, in blue, and the habitat below it another, in orange."
+              "4. Identify the patches: each piece of the cut grown area is one patch, the piece above the road in blue and the piece below it in gold."
             ),
             method_figure(
               5,
-              "5. The square is a small part of the lizard map: the whole map of roads and habitat, with the square outlined in orange, left of centre."
+              "5. Two connected patches: the habitat above the road is one connected patch, in blue, and the habitat below it another, in gold."
+            ),
+            method_figure(
+              6,
+              "6. Zoom out to the whole map: the whole lizard map of roads and habitat, with the square outlined in orange, left of centre."
             )
           ),
           p(

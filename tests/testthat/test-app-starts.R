@@ -41,7 +41,7 @@ test_that("the app starts, takes an analysis, and compares the result", {
   app$wait_for_js(paste0(figures, ".every(img => img.complete)"))
   expect_equal(
     app$get_js(paste0(figures, ".filter(img => img.naturalWidth > 0).length")),
-    5
+    6
   )
 
   # the app opens on the walkthrough, and one click skips it
