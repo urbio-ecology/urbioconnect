@@ -24,6 +24,12 @@
 #'   time, so that the difference in connectivity is attributable to it.
 #' @param scenario_name Optional name for the scenario, carried in the
 #'   comparison so several can be stacked.
+#' @param settings Optional named list of whatever produced this analysis that
+#'   it can't derive for itself: the resolutions [prepare_rasters()] was
+#'   called with, where the layers came from, a run id. Each element becomes
+#'   one row of [connectivity_settings()] and of the download bundle's
+#'   `summary/settings.csv`, with a vector written as one comma-separated
+#'   value. Each needs a name of its own, not one the analysis records itself.
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
 #' @returns A `connectivity_report_data` object: a list of
@@ -32,6 +38,9 @@
 #'   * `buffered_habitat` and `patch_id_raster`, lists of `SpatRaster`, one per
 #'     distance and named by it
 #'   * `species` and `interpatch_distance`
+#'   * `settings`, the named character vector the caller recorded, and
+#'     `run_time`, when the analysis ran. [connectivity_settings()] turns the
+#'     two into the settings record.
 #'
 #'   and, when a `scenario` was given, the same view of the scenario
 #'   landscape: `scenario_kind`, `scenario_habitat`, `scenario_barrier`,
@@ -77,11 +86,13 @@ connectivity_report_data <- function(
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
+  settings = NULL,
   verbose = TRUE
 ) {
   check_distances(interpatch_distance)
   check_scalar_character(species)
   check_scenario_name(scenario_name)
+  settings <- check_settings(settings)
 
   scenario_kind <- check_scenario_pair(scenario, scenario_kind)
 
@@ -101,7 +112,8 @@ connectivity_report_data <- function(
       buffered_habitat = baseline$buffered_habitat,
       patch_id_raster = baseline$patch_id_raster,
       species = species,
-      interpatch_distance = interpatch_distance
+      interpatch_distance = interpatch_distance,
+      settings = settings
     ))
   }
 
@@ -141,6 +153,7 @@ connectivity_report_data <- function(
     patch_id_raster = baseline$patch_id_raster,
     species = species,
     interpatch_distance = interpatch_distance,
+    settings = settings,
     scenario_kind = scenario_kind,
     scenario_habitat = scenario_habitat,
     scenario_barrier = scenario_barrier,
@@ -344,6 +357,137 @@ scenario_layer <- function(x) {
   if (x$scenario_kind == "habitat") x$scenario_habitat else x$scenario_barrier
 }
 
+#' The settings one analysis was run with
+#'
+#' A key-value record of the run: what was analysed, what the caller recorded
+#'   about it, what grid that produced, and what built it. One row per
+#'   setting, so a run with one interpatch distance and a run with four have
+#'   the same shape, and a caller recording something of its own adds a row
+#'   rather than a column.
+#'
+#'   The rows an analysis can't know for itself, where the layers came from
+#'   and the resolutions [prepare_rasters()] was called with, are whatever
+#'   the caller passed as `settings` to [connectivity_report_data()].
+#'
+#'   `grid_resolution_m` is the grid the analysis actually ran on, unrounded.
+#'   A nominally 10 m grid comes out as `10.01307 x 9.973856`, and a
+#'   reproduction landing on exactly 10 x 10 is a different grid, so this is
+#'   the one place that doesn't go through [format_resolution()].
+#'
+#' @param x A `connectivity_report_data` object from
+#'   [connectivity_report_data()].
+#'
+#' @returns A tibble of `setting` and `value`, both character. A setting that
+#'   doesn't apply is `NA`, which is written to the CSV as an empty cell.
+#' @seealso [connectivity_report_data()], whose `settings` argument fills the
+#'   caller's rows, and [write_connectivity_assets()], which writes this into
+#'   the download bundle as `summary/settings.csv`.
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' report_data <- connectivity_report_data(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue Tongue Lizard",
+#'   interpatch_distance = c(100, 250, 400),
+#'   settings = list(
+#'     habitat_source = "example data: lizard",
+#'     data_resolution_m = 10
+#'   ),
+#'   verbose = FALSE
+#' )
+#'
+#' connectivity_settings(report_data)
+#' }
+connectivity_settings <- function(x) {
+  check_report_data(x)
+
+  c(
+    species = x$species,
+    interpatch_distance_m = paste(x$interpatch_distance, collapse = ", "),
+    x$settings,
+    grid_settings(x$habitat),
+    scenario_settings(x),
+    build_settings(x$run_time)
+  ) |>
+    tibble::enframe(name = "setting", value = "value")
+}
+
+#' The grid the analysis actually ran on
+#'
+#' @noRd
+grid_settings <- function(habitat) {
+  described <- terra::crs(habitat, describe = TRUE)
+  has_code <- !is.na(described$authority) && !is.na(described$code)
+
+  c(
+    grid_resolution_m = paste(
+      signif(terra::res(habitat), 7),
+      collapse = " x "
+    ),
+    grid_dimensions = paste(dim(habitat)[1:2], collapse = " x "),
+    crs = described$name,
+    crs_code = if (has_code) {
+      paste0(described$authority, ":", described$code)
+    } else {
+      NA_character_
+    }
+  )
+}
+
+#' The scenario, whether or not there was one
+#'
+#' Always both rows, so a missing row never has to mean "off" and two runs
+#' diff cleanly.
+#'
+#' @noRd
+scenario_settings <- function(x) {
+  c(
+    scenario_kind = x$scenario_kind %||% "none",
+    scenario_name = if (has_comparison(x)) {
+      as.character(x$comparison$scenario_name[[1]])
+    } else {
+      NA_character_
+    }
+  )
+}
+
+#' What built this analysis
+#'
+#' terra is here because the numbers depend on it: the package pins a minimum
+#' version because `terra::identical()` once ignored NA cells.
+#'
+#' @noRd
+build_settings <- function(run_time) {
+  c(
+    run_time = format(run_time, "%Y-%m-%dT%H:%M:%S%z"),
+    urbioconnect_version = as.character(utils::packageVersion("urbioconnect")),
+    terra_version = as.character(utils::packageVersion("terra")),
+    r_version = as.character(getRversion()),
+    platform = R.version$platform
+  )
+}
+
+# The settings an analysis records itself, so `check_settings()` can refuse a
+# caller's setting that would shadow one. `test-report-data.R` checks it
+# against `connectivity_settings()`.
+derived_setting_names <- c(
+  "species",
+  "interpatch_distance_m",
+  "grid_resolution_m",
+  "grid_dimensions",
+  "crs",
+  "crs_code",
+  "scenario_kind",
+  "scenario_name",
+  "run_time",
+  "urbioconnect_version",
+  "terra_version",
+  "r_version",
+  "platform"
+)
+
 #' Does this analysis carry a scenario comparison?
 #'
 #' Asked by the manifest and the writers, so the rule lives with the analysis
@@ -377,6 +521,8 @@ new_connectivity_report_data <- function(
   patch_id_raster,
   species,
   interpatch_distance,
+  settings = NULL,
+  run_time = Sys.time(),
   scenario_kind = NULL,
   scenario_habitat = NULL,
   scenario_barrier = NULL,
@@ -392,6 +538,8 @@ new_connectivity_report_data <- function(
       patch_id_raster = patch_id_raster,
       species = species,
       interpatch_distance = interpatch_distance,
+      settings = settings,
+      run_time = run_time,
       scenario_kind = scenario_kind,
       scenario_habitat = scenario_habitat,
       scenario_barrier = scenario_barrier,

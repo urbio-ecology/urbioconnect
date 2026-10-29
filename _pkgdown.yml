@@ -35,6 +35,7 @@ reference:
   - create_barrier_mask
   - drop_habitat_under_barrier
   - habitat_buffer
+  - representable_distance
   - fragment_habitat
   - assign_patches_to_fragments
   - add_patch_area
@@ -67,6 +68,7 @@ reference:
   - zip_connectivity_assets
   - zip_connectivity_reports
   - connectivity_file_stem
+  - connectivity_settings
   - generate_connectivity_report
   - write_connectivity_report
   - render_connectivity_report

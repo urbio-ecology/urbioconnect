@@ -8,20 +8,406 @@ report_button <- function(id, label) {
   if (has_quarto) button else shinyjs::disabled(button)
 }
 
+# The step-by-step figures on Before you start, drawn by
+# data-raw/method-figures.R
+method_figure <- function(step, caption, alt) {
+  tags$figure(
+    img(
+      src = sprintf("method-step-%d.png", step),
+      alt = alt,
+      class = "img-fluid"
+    ),
+    tags$figcaption(class = "small mt-1", paste0(step, ". ", caption))
+  )
+}
+
+details_panel <- function() {
+  # Opened from the foot of Before you start. What it says about each input
+  # comes from help.R, so it can't disagree with that input's "i".
+  nav_panel(
+    title = "Details",
+    icon = icon("book-open"),
+    layout_columns(
+      col_widths = breakpoints(sm = 12, lg = c(-2, 8, -2)),
+      card(
+        card_body(
+          accordion(
+            id = "details",
+            open = FALSE,
+            accordion_panel(
+              "Prepare your data",
+              help_sections(c("habitat_file", "barrier_file")),
+              p(
+                "Both layers need the same coordinate reference system, and it",
+                "should be a projected one in metres, such as GDA2020 / MGA.",
+                "Cell sizes and distances are read in the layers' own units.",
+                "The example data uses GDA94 / MGA zone 55."
+              ),
+
+              h5("Uploading shapefiles"),
+              p(
+                strong("Important:"),
+                "Shapefiles consist of multiple files; upload all required files:"
+              ),
+
+              tags$div(
+                class = "ms-3",
+                h6("Required files"),
+                tags$ul(
+                  tags$li(
+                    tags$code(".shp"),
+                    " - Main file containing geometry"
+                  ),
+                  tags$li(tags$code(".shx"), " - Shape index file"),
+                  tags$li(tags$code(".dbf"), " - Attribute database file")
+                ),
+
+                h6("Optional (but recommended)"),
+                tags$ul(
+                  tags$li(tags$code(".prj"), " - Projection information"),
+                  tags$li(tags$code(".cpg"), " - Character encoding")
+                )
+              ),
+
+              h5("How to upload in the app"),
+              tags$ol(
+                tags$li("Click \"Browse\" on the file input"),
+                tags$li(
+                  strong("Select all shapefile components at once"),
+                  " (hold Ctrl/Cmd to select multiple)",
+                  tags$ul(
+                    tags$li(
+                      "Example: Select ",
+                      tags$code("habitat.shp"),
+                      ", ",
+                      tags$code("habitat.shx"),
+                      ", ",
+                      tags$code("habitat.dbf"),
+                      ", ",
+                      tags$code("habitat.prj"),
+                      " together"
+                    )
+                  )
+                ),
+                tags$li("Click \"Open\"")
+              ),
+
+              h5("Common errors"),
+              tags$div(
+                class = "ms-3",
+                tags$div(
+                  class = "alert alert-warning",
+                  strong("Error: \"Cannot open shapefile; source corrupt\""),
+                  tags$ul(
+                    tags$li(
+                      strong("Cause:"),
+                      " Missing required files (.shx or .dbf)"
+                    ),
+                    tags$li(
+                      strong("Solution:"),
+                      " Make sure you selected ALL shapefiles when uploading"
+                    )
+                  )
+                ),
+                tags$div(
+                  class = "alert alert-warning",
+                  strong("Error: \"Shapefile upload incomplete\""),
+                  tags$ul(
+                    tags$li(strong("Cause:"), " Only one file was uploaded"),
+                    tags$li(
+                      strong("Solution:"),
+                      " Select all files together in the file browser"
+                    )
+                  )
+                )
+              ),
+
+              h5("Alternative formats"),
+              p("If you have trouble with shapefiles, consider using:"),
+              tags$ul(
+                tags$li(
+                  strong("GeoTIFF"),
+                  " (",
+                  tags$code(".tif"),
+                  ", ",
+                  tags$code(".tiff"),
+                  ") - Single file, easier to upload"
+                ),
+                tags$li(
+                  strong("GeoJSON"),
+                  " (",
+                  tags$code(".geojson"),
+                  ") - Single file, text-based vector format"
+                )
+              ),
+              p("You can convert shapefiles to these formats using:"),
+              tags$ul(
+                tags$li("QGIS (free, open source)"),
+                tags$li("ArcGIS"),
+                tags$li(
+                  "R: ",
+                  tags$code("terra::writeRaster()"),
+                  " or ",
+                  tags$code("sf::st_write()")
+                )
+              )
+            ),
+            accordion_panel(
+              "Choose your settings",
+              p(paste0(
+                "The defaults are a cell size of ",
+                input_defaults$data_resolution,
+                " m and one interpatch distance of ",
+                input_defaults$interpatch_distances,
+                " m."
+              )),
+              help_sections(c(
+                "data_resolution",
+                "interpatch_distances",
+                "species"
+              )),
+              p(
+                "Not sure which cell size to use? The rule of thumb is a cell",
+                "size of at most half your smallest interpatch distance. The",
+                "package website has a worked example:",
+                a(
+                  href = "https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.html",
+                  target = "_blank",
+                  "Interpatch distance and raster resolution",
+                  .noWS = "after"
+                ),
+                "."
+              )
+            ),
+            accordion_panel(
+              "Compare a scenario (optional)",
+              help_sections(c(
+                "scenario_choice",
+                "scenario_kind",
+                "scenario_file"
+              ))
+            ),
+            accordion_panel(
+              "Run and read the results",
+              tags$ol(
+                tags$li(
+                  "Choose example data, or upload a habitat and a barrier",
+                  "layer."
+                ),
+                tags$li(
+                  "Set the cell size and one to four interpatch distances. The",
+                  "Your analysis box above the Run button says what will",
+                  "happen."
+                ),
+                tags$li("Choose a scenario, if you have one."),
+                tags$li(
+                  "Click Run Analysis. The lizard example takes about a",
+                  "second; a larger landscape takes longer."
+                ),
+                tags$li(
+                  "The Results tab has maps of the habitat and barriers and of",
+                  "the connected patches, one tab per distance; the tables;",
+                  "and a plot of how the numbers change with distance. Its",
+                  "Scenario view compares the scenario with the baseline."
+                ),
+                tags$li(
+                  "Every table has its own CSV download. The Downloads tab has",
+                  "the GIS layers, the reports, and one archive of everything."
+                )
+              ),
+              h5("What the numbers mean"),
+              p("These are the column names in the results tables."),
+              tags$ul(
+                tags$li(
+                  strong("Patches:"),
+                  "how many separate connected patches there are. More",
+                  "usually means more fragmented."
+                ),
+                tags$li(
+                  strong("Mesh (ha):"),
+                  "the effective mesh size. The size of the connected patch",
+                  "you would be in, on average, from a point picked at random",
+                  "in the habitat. Larger means better connected."
+                ),
+                tags$li(
+                  strong("P(connected):"),
+                  "the probability of connectedness. The chance that two",
+                  "points picked at random in the habitat are in the same",
+                  "connected patch. Higher means better connected."
+                ),
+                tags$li(
+                  strong("Mean area (m2)"),
+                  "and",
+                  strong("Total area (ha):"),
+                  "the average size of a connected patch, and all of the",
+                  "habitat added up."
+                )
+              )
+            ),
+            accordion_panel(
+              "About this app",
+              p(
+                "Built with R, Shiny and terra, as the urbioconnect R package:",
+                a(
+                  href = "https://urbio-ecology.github.io/urbioconnect/",
+                  target = "_blank",
+                  "urbio-ecology.github.io/urbioconnect"
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+}
+
 ui <- page_navbar(
   title = "Urban Connectedness",
   # id so which panel is open is an input, settable without reaching for the
   # DOM. Outputs suspend while hidden, so a test has to open a panel to see it.
   id = "main_nav",
   theme = urbio_theme(),
-  fillable = TRUE,
+  # Not Inputs: filling the window squeezed its three cards until the Run
+  # button was clipped. It scrolls instead.
+  fillable = c("Results", "Downloads"),
 
   header = tagList(
     shinyjs::useShinyjs(),
     # a spinner on every output while it recalculates, so a slow plot or table
     # reads as pending rather than missing
     useBusyIndicators(),
-    tags$style(HTML(compare_css))
+    tags$style(HTML(compare_css)),
+    input_help_head
+  ),
+
+  # The app opens here, being the first panel
+  nav_panel(
+    title = "Before you start",
+    icon = icon("compass"),
+    layout_columns(
+      col_widths = breakpoints(sm = 12, lg = c(-2, 8, -2)),
+      card(
+        card_body(
+          p(
+            class = "lead",
+            "'Urbioconnect' measures how well habitat is connected for a given",
+            "species in an urban landscape, and how planned changes to",
+            "habitat or urban environment would alter the connectedness. It",
+            "uses the method from Kirk et al. (2023),",
+            em(
+              "Ecological connectivity as a planning tool for the",
+              "conservation of wildlife in cities",
+              .noWS = c("after", "inside")
+            ),
+            ", MethodsX 10, 101989 (",
+            a(
+              href = "https://doi.org/10.1016/j.mex.2022.101989",
+              target = "_blank",
+              "https://doi.org/10.1016/j.mex.2022.101989",
+              .noWS = "outside"
+            ),
+            ")."
+          ),
+
+          p(
+            "To use urbioconnect, you need to provide:"
+          ),
+          tags$ul(
+            tags$li("A map of habitat"),
+            tags$li("A map of barriers"),
+            tags$li(
+              "The interpatch distance: how far your species will roam to",
+              "reach another patch of habitat."
+            )
+          ),
+          p(
+            "We use then use this to determine the connectedness of a species'"
+          ),
+          p(
+            "Here is a small, simplified example of how the method works,",
+            "using some example data on the blue-tongued lizard."
+          ),
+          # as many across as fit: seven on a wide screen, two on a phone
+          layout_column_wrap(
+            width = "6.5rem",
+            gap = "0.75rem",
+            fill = FALSE,
+            method_figure(
+              1,
+              "Start with the whole map",
+              "The whole lizard map: roads in grey and habitat in dark green. A small square is outlined left of centre, on a road."
+            ),
+            method_figure(
+              2,
+              "Zoom in: habitat and a road",
+              "The square: patches of habitat above and below a grey road."
+            ),
+            method_figure(
+              3,
+              "Grow each patch by 50 m",
+              "The grown patches run together over the road and fill most of the square."
+            ),
+            method_figure(
+              4,
+              "The road cuts the grown area",
+              "The road laid over the grown patches splits them into a part above the road and a part below."
+            ),
+            method_figure(
+              5,
+              "Identify the patches",
+              "Each piece of the cut grown area is one patch: the piece above the road in blue and the piece below it in gold."
+            ),
+            method_figure(
+              6,
+              "Two connected patches",
+              "The habitat above the road is one connected patch, in blue, and the habitat below it another, in gold."
+            ),
+            method_figure(
+              7,
+              "Zoom out: the two patches on the whole map",
+              "The whole lizard map again, with the blue patch reaching well north of the square and the gold patch well south of it."
+            )
+          ),
+          p(
+            "It measures these connected patches to provide estimates of:"
+          ),
+          tags$ul(
+            tags$li("effective mesh size"),
+            tags$li("probability of connectedness"),
+            tags$li("number of patches"),
+            tags$li("total patch area, and"),
+            tags$li("mean patch area")
+          ),
+          # the skip for someone who has used it before, and a one-click start
+          # for someone who hasn't
+          div(
+            class = "d-flex flex-wrap gap-2 mb-3",
+            actionButton(
+              inputId = "go_to_inputs",
+              label = "Go to inputs",
+              icon = icon("arrow-right"),
+              class = "btn-primary"
+            ),
+            actionButton(
+              inputId = "try_lizard",
+              label = "Try the lizard example",
+              icon = icon("play"),
+              class = "btn-outline-primary"
+            )
+          ),
+          p(
+            "Preparing your data, choosing settings, comparing a scenario and",
+            "reading the results are all in",
+            strong(
+              actionLink("go_to_details", "Details"),
+              .noWS = c("after", "inside")
+            ),
+            "."
+          )
+        )
+      )
+    )
   ),
 
   # Inputs Panel
@@ -35,23 +421,23 @@ ui <- page_navbar(
       card(
         card_header("Data Upload"),
         card_body(
-          textInput(
-            inputId = "species",
-            label = "Species Name",
+          help_input(
+            textInput,
+            "species",
             value = "Superb Fairy Wren",
             placeholder = "Enter species name"
           ),
 
-          fileInput(
-            inputId = "habitat_file",
-            label = "Habitat Layer",
+          help_input(
+            fileInput,
+            "habitat_file",
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
-          fileInput(
-            inputId = "barrier_file",
-            label = "Barrier Layer",
+          help_input(
+            fileInput,
+            "barrier_file",
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
@@ -59,9 +445,9 @@ ui <- page_navbar(
           # Two example landscapes, not one. The lizard is ~200x200 cells and
           # analyses in under a second; the wren is ~1500x1400 and takes tens
           # of seconds, so it is worth knowing which you are asking for.
-          selectInput(
-            inputId = "example_data",
-            label = "Example data",
+          help_input(
+            selectInput,
+            "example_data",
             choices = example_data_choices,
             selected = "none"
           ),
@@ -73,35 +459,28 @@ ui <- page_navbar(
           # an upload has to be told.
           # the supplied scenarios depend on the example data chosen above, so
           # the server fills these in rather than the list living here twice
-          selectInput(
-            inputId = "scenario_choice",
-            label = "Scenario Layer (optional)",
+          help_input(
+            selectInput,
+            "scenario_choice",
             choices = scenario_choices(NULL)
           ),
 
           conditionalPanel(
             condition = "input.scenario_choice == 'upload'",
-            radioButtons(
-              inputId = "scenario_kind",
-              label = "Which layer does your scenario change?",
+            help_input(
+              radioButtons,
+              "scenario_kind",
               choices = c(
                 "Barrier (a new road, say)" = "barrier",
                 "Habitat (a development, say)" = "habitat"
               )
             ),
-            fileInput(
-              inputId = "scenario_file",
-              label = "Scenario Layer",
+            help_input(
+              fileInput,
+              "scenario_file",
               accept = spatial_upload_accept,
               multiple = TRUE
             )
-          ),
-
-          helpText(
-            "A scenario changes one layer and leaves the rest of the",
-            "landscape alone, so the difference in connectivity is",
-            "attributable to that change. It is compared at the same",
-            "interpatch distances as the baseline."
           )
         )
       ),
@@ -110,10 +489,10 @@ ui <- page_navbar(
       card(
         card_header("Analysis Parameters"),
         card_body(
-          numericInput(
-            inputId = "data_resolution",
-            label = "Data resolution (m)",
-            value = 10,
+          help_input(
+            numericInput,
+            "data_resolution",
+            value = input_defaults$data_resolution,
             min = 1,
             max = 100,
             step = 1
@@ -128,40 +507,33 @@ ui <- page_navbar(
             step = 1
           ),
 
-          textInput(
-            inputId = "interpatch_distances",
-            label = "Interpatch Distances (m)",
-            value = "100",
-            placeholder = "e.g., 50, 100, 200"
+          help_input(
+            textInput,
+            "interpatch_distances",
+            value = input_defaults$interpatch_distances,
+            placeholder = "For example, 100, 250, 400"
           ),
 
-          helpText(
-            "Enter interpatch distances as comma-separated values.",
-            "These represent the maximum dispersal distances to analyze."
-          )
+          # the format has to be visible without opening the "i"
+          helpText("Separate distances with commas.")
         )
       )
     ),
 
-    # Action Button - Full Width
+    # What the inputs add up to, just above the button that runs it
     layout_columns(
       col_widths = 12,
       card(
+        card_header("Your analysis"),
         card_body(
+          uiOutput("analysis_preview"),
+          # The run shows its progress in a modal. A spinner on shiny-busy
+          # here would flash on every keystroke, as the card above recalculates.
           actionButton(
             inputId = "run_analysis",
             label = "Run Analysis",
             icon = icon("play"),
             class = "btn-primary btn-lg w-100"
-          ),
-
-          conditionalPanel(
-            condition = "$('html').hasClass('shiny-busy')",
-            div(
-              class = "text-center mt-3",
-              div(class = "spinner-border text-primary", role = "status"),
-              p(class = "mt-2", "Analysis in progress...")
-            )
           )
         )
       )
@@ -419,6 +791,17 @@ ui <- page_navbar(
               code(textOutput("analysis_workdir", inline = TRUE))
             )
           )
+        ),
+        card_footer(
+          # this card shows before a run, so the button is guarded, not a panel
+          conditionalPanel(
+            condition = "output.results_ready",
+            downloadButton(
+              "download_settings_csv",
+              "Download settings CSV",
+              class = "btn-sm"
+            )
+          )
         )
       )
     )
@@ -492,173 +875,5 @@ ui <- page_navbar(
     )
   ),
 
-  # About Panel
-  nav_panel(
-    title = "About",
-    icon = icon("info-circle"),
-    layout_columns(
-      col_widths = 12,
-      card(
-        card_header("Urban Biodiversity Connectivity Analysis"),
-        card_body(
-          h4("Overview"),
-          p(
-            "This application analyzes habitat connectivity for urban \\
-            biodiversity.",
-            "It calculates how habitat patches are connected across different \\
-            interpatch distances,",
-            "accounting for barriers like roads and urban infrastructure."
-          ),
-          hr(),
-          h4("How It Works"),
-          tags$ol(
-            tags$li("Upload habitat and barrier raster data"),
-            tags$li("Specify species name and interpatch distances"),
-            tags$li("Run the analysis to calculate connectivity metrics"),
-            tags$li(
-              "View results including patch ID and connectivity statistics"
-            ),
-            tags$li("Download results and reports")
-          ),
-          hr(),
-          h4("File Upload Guide"),
-
-          h5("Uploading Shapefiles"),
-          p(
-            strong("Important:"),
-            "Shapefiles consist of multiple files; upload all required files:"
-          ),
-
-          tags$div(
-            class = "ms-3",
-            h6("Required Files"),
-            tags$ul(
-              tags$li(tags$code(".shp"), " - Main file containing geometry"),
-              tags$li(tags$code(".shx"), " - Shape index file"),
-              tags$li(tags$code(".dbf"), " - Attribute database file")
-            ),
-
-            h6("Optional (but recommended)"),
-            tags$ul(
-              tags$li(tags$code(".prj"), " - Projection information"),
-              tags$li(tags$code(".cpg"), " - Character encoding")
-            )
-          ),
-
-          h5("How to Upload in the App"),
-          tags$ol(
-            tags$li("Click \"Browse\" on the file input"),
-            tags$li(
-              strong("Select all shapefile components at once"),
-              " (hold Ctrl/Cmd to select multiple)",
-              tags$ul(
-                tags$li(
-                  "Example: Select ",
-                  tags$code("habitat.shp"),
-                  ", ",
-                  tags$code("habitat.shx"),
-                  ", ",
-                  tags$code("habitat.dbf"),
-                  ", ",
-                  tags$code("habitat.prj"),
-                  " together"
-                )
-              )
-            ),
-            tags$li("Click \"Open\"")
-          ),
-
-          h5("Common Errors"),
-          tags$div(
-            class = "ms-3",
-            tags$div(
-              class = "alert alert-warning",
-              strong("Error: \"Cannot open shapefile; source corrupt\""),
-              tags$ul(
-                tags$li(
-                  strong("Cause:"),
-                  " Missing required files (.shx or .dbf)"
-                ),
-                tags$li(
-                  strong("Solution:"),
-                  " Make sure you selected ALL shapefiles when uploading"
-                )
-              )
-            ),
-            tags$div(
-              class = "alert alert-warning",
-              strong("Error: \"Shapefile upload incomplete\""),
-              tags$ul(
-                tags$li(strong("Cause:"), " Only one file was uploaded"),
-                tags$li(
-                  strong("Solution:"),
-                  " Select all files together in the file browser"
-                )
-              )
-            )
-          ),
-
-          h5("Alternative Formats"),
-          p("If you have trouble with shapefiles, consider using:"),
-          tags$ul(
-            tags$li(
-              strong("GeoTIFF"),
-              " (",
-              tags$code(".tif"),
-              ", ",
-              tags$code(".tiff"),
-              ") - Single file, easier to upload"
-            ),
-            tags$li(
-              strong("GeoJSON"),
-              " (",
-              tags$code(".geojson"),
-              ") - Single file, text-based vector format"
-            )
-          ),
-          p("You can convert shapefiles to these formats using:"),
-          tags$ul(
-            tags$li("QGIS (free, open source)"),
-            tags$li("ArcGIS"),
-            tags$li(
-              "R: ",
-              tags$code("terra::writeRaster()"),
-              " or ",
-              tags$code("sf::st_write()")
-            )
-          ),
-
-          hr(),
-          h4("Metrics Calculated"),
-          tags$ul(
-            tags$li(
-              strong("Probability of Connectedness:"),
-              " Overall habitat connectivity"
-            ),
-            tags$li(
-              strong("Number of Patches:"),
-              " Count of distinct habitat patches"
-            ),
-            tags$li(
-              strong("Effective Mesh Size:"),
-              " Measure of landscape fragmentation"
-            ),
-            tags$li(
-              strong("Mean Patch Area:"),
-              " Average size of habitat patches"
-            ),
-            tags$li(
-              strong("Total Patch Area:"),
-              " Sum of all habitat patch areas"
-            )
-          ),
-          hr(),
-          p(
-            class = "text-muted",
-            "Built with R, Shiny, and the terra package for spatial analysis."
-          )
-        )
-      )
-    )
-  )
+  details_panel()
 )

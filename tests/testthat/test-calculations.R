@@ -37,24 +37,47 @@ test_that("total_habitat_area converts square metres to hectares", {
   expect_equal(total_habitat_area(area = c(20000, 30000)), 5)
 })
 
-test_that("connectivity_probability is higher for unfragmented habitat", {
-  unfrag_area <- 1000
-  frag_area <- 5000
-
-  effective_mesh_unfrag <- effective_mesh_size(area = unfrag_area)
-  effective_mesh_frag <- effective_mesh_size(area = frag_area)
-
-  unfrag <- connectivity_probability(
-    effective_mesh_size = effective_mesh_unfrag,
-    area_baseline = unfrag_area
-  )
+test_that("connectivity_probability is 0.5 for two equal patches", {
   frag <- connectivity_probability(
-    effective_mesh_size = effective_mesh_frag,
-    area_baseline = c(frag_area, frag_area)
+    effective_mesh_ha = effective_mesh_size(area = c(5000, 5000)),
+    area_baseline_ha = total_habitat_area(area = c(5000, 5000))
   )
-  expect_gt(unfrag, frag)
-  expect_gt(unfrag, 0)
-  expect_gt(frag, 0)
+  expect_equal(frag, 0.5)
+})
+
+test_that("connectivity_probability matches the unitless formula from areas", {
+  # the hectare conversions in both helpers must cancel
+  area <- lizard_areas_connected$area
+  expect_equal(
+    connectivity_probability(
+      effective_mesh_ha = effective_mesh_size(area = area),
+      area_baseline_ha = total_habitat_area(area = area)
+    ),
+    sum(area^2) / sum(area)^2
+  )
+})
+
+test_that("a scenario's prob_connectedness is measured against the baseline total", {
+  metrics <- connectivity_metrics(
+    area = c(100, 200),
+    area_baseline = c(100, 200, 300)
+  )
+  expect_equal(metrics$prob_connectedness, (100^2 + 200^2) / 600^2)
+})
+
+test_that("connectivity_probability errors unless given two single numbers", {
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(effective_mesh_ha = c(1, 2), area_baseline_ha = 1)
+  })
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(
+      effective_mesh_ha = 1,
+      area_baseline_ha = lizard_areas_connected$area
+    )
+  })
+  expect_snapshot(error = TRUE, {
+    connectivity_probability(effective_mesh_ha = "1", area_baseline_ha = 1)
+  })
 })
 
 test_that("summarise_connectivity returns a tibble with expected columns", {

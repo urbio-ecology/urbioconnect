@@ -41,18 +41,16 @@ test_that("summarise_connectivity with multiple Interpatch distance distances st
 })
 
 test_that("connectivity_probability with single large patch equals single small patch", {
-  small_area <- 1000
-  large_area <- 100000
-  effective_mesh_small <- effective_mesh_size(
-    area = small_area
+  # one patch is wholly connected to itself, whatever its area
+  small <- connectivity_probability(
+    effective_mesh_ha = effective_mesh_size(area = 1000),
+    area_baseline_ha = total_habitat_area(area = 1000)
   )
-  effective_mesh_large <- effective_mesh_size(
-    area = large_area
+  large <- connectivity_probability(
+    effective_mesh_ha = effective_mesh_size(area = 100000),
+    area_baseline_ha = total_habitat_area(area = 100000)
   )
-  # For one patch: prob = (A^2/A * 0.0001) / A = 0.0001 regardless of area
-  small <- connectivity_probability(effective_mesh_small, small_area)
-  large <- connectivity_probability(effective_mesh_large, large_area)
 
   expect_equal(small, large)
-  expect_equal(small, 0.0001)
+  expect_equal(small, 1)
 })

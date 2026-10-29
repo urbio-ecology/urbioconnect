@@ -10,11 +10,11 @@ aggregate_connected_patches(raster)
 \item{raster}{terra SpatRaster. Raster with patch_id and area layers.}
 }
 \value{
-Data frame with patch areas and areas squared.
+Data frame with \code{patch_id} and \code{area} columns.
 }
 \description{
 Aggregate a raster with connected patch areas into a data frame where
-each row is a unique patch, and its area and area squared.
+each row is a unique patch, and its area.
 }
 \examples{
 lizard_habitat <- example_habitat()

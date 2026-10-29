@@ -19,14 +19,14 @@
     Code
       names(res_con_patch)
     Output
-      [1] "patch_id"     "area"         "area_squared"
+      [1] "patch_id" "area"    
 
 # habitat_connectivity returns a data frame with expected columns
 
     Code
       names(hc_quiet)
     Output
-      [1] "patch_id"     "area"         "area_squared"
+      [1] "patch_id" "area"    
 
 # a sweep on the lizard grid gives the patch counts per distance
 

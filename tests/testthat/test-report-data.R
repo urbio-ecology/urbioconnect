@@ -179,9 +179,10 @@ test_that("a scenario and its kind have to arrive together", {
     report_data(scenario = layers$barrier_scenario, scenario_kind = "both")
   })
 
-  # an unchanged scenario is legal, and says so
+  # an unchanged scenario is legal, and says so. invisible(), because the
+  # object carries run_time, which differs on every run
   expect_snapshot(
-    report_data(scenario = layers$barrier, scenario_kind = "barrier")
+    invisible(report_data(scenario = layers$barrier, scenario_kind = "barrier"))
   )
 })
 
@@ -219,6 +220,7 @@ test_that("an analysis survives a write and read round trip", {
   expect_s3_class(read, "connectivity_report_data")
   expect_equal(read$connectivity, written$connectivity)
   expect_named(read$patch_id_raster, c("40", "80"))
+  expect_equal(connectivity_settings(read), connectivity_settings(written))
 
   # the rasters are packed on the way out, so check they come back usable
   expect_s4_class(read$habitat, "SpatRaster")
@@ -251,4 +253,123 @@ test_that("connectivity_report_data() checks its arguments", {
       verbose = FALSE
     )
   })
+})
+
+test_that("connectivity_settings() records the run as one row per setting", {
+  settings <- connectivity_settings(test_report_data(c(40, 80)))
+
+  expect_snapshot(settings$setting)
+  expect_type(settings$value, "character")
+
+  # one row however many distances there were
+  expect_equal(setting_value(settings, "interpatch_distance_m"), "40, 80")
+  expect_equal(setting_value(settings, "scenario_kind"), "none")
+})
+
+test_that("connectivity_settings() carries the caller's own settings", {
+  settings <- test_report_data(
+    settings = list(habitat_source = "a test raster", data_resolution_m = 10)
+  ) |>
+    connectivity_settings()
+
+  expect_snapshot(settings$setting)
+  expect_equal(setting_value(settings, "data_resolution_m"), "10")
+})
+
+test_that("connectivity_settings() records real data's grid", {
+  rasters <- prepare_rasters(example_habitat(), example_barrier(), 10, 500)
+
+  report_data <- connectivity_report_data(
+    habitat = rasters$habitat_raster,
+    barrier = rasters$barrier_raster,
+    species = "Blue Tongue Lizard",
+    interpatch_distance = 100,
+    verbose = FALSE
+  )
+
+  volatile <- c(
+    "run_time",
+    "urbioconnect_version",
+    "terra_version",
+    "r_version",
+    "platform"
+  )
+
+  expect_snapshot(
+    connectivity_settings(report_data) |>
+      dplyr::filter(!setting %in% volatile) |>
+      as.data.frame()
+  )
+})
+
+test_that("connectivity_settings() records NA for a crs with no code", {
+  layers <- scenario_test_layers()
+  proj <- "+proj=tmerc +lat_0=0 +lon_0=147 +k=0.9996 +x_0=500000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs"
+  terra::crs(layers$habitat) <- proj
+  terra::crs(layers$barrier) <- proj
+
+  report_data <- connectivity_report_data(
+    habitat = layers$habitat,
+    barrier = layers$barrier,
+    species = "Superb Fairy Wren",
+    interpatch_distance = 40,
+    verbose = FALSE
+  )
+
+  settings <- connectivity_settings(report_data)
+
+  expect_equal(setting_value(settings, "crs_code"), NA_character_)
+})
+
+test_that("connectivity_settings() writes run_time as ISO 8601", {
+  report_data <- test_report_data(40)
+  report_data$run_time <- as.POSIXct("2020-01-02 03:04:05", tz = "UTC")
+
+  expect_equal(
+    setting_value(connectivity_settings(report_data), "run_time"),
+    "2020-01-02T03:04:05+0000"
+  )
+})
+
+test_that("empty settings are recorded as none", {
+  expect_null(test_report_data(settings = list())$settings)
+})
+
+test_that("connectivity_settings() names the scenario it compared", {
+  settings <- test_report_data(
+    with_scenario = TRUE,
+    scenario_name = "A development"
+  ) |>
+    connectivity_settings()
+
+  expect_equal(setting_value(settings, "scenario_kind"), "habitat")
+  expect_equal(setting_value(settings, "scenario_name"), "A development")
+
+  unnamed <- connectivity_settings(test_report_data(with_scenario = TRUE))
+
+  expect_equal(setting_value(unnamed, "scenario_name"), NA_character_)
+})
+
+test_that("derived_setting_names is what connectivity_settings() builds", {
+  # the two are written out separately, so this stops them drifting
+  expect_setequal(
+    connectivity_settings(test_report_data(40))$setting,
+    derived_setting_names
+  )
+})
+
+test_that("connectivity_report_data() rejects settings it can't record", {
+  expect_snapshot(error = TRUE, {
+    test_report_data(settings = "no names")
+    test_report_data(settings = list(a = 1, 2))
+    test_report_data(settings = list(species = "mine"))
+    test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
+  })
+})
+
+test_that("a setting with several values is recorded as one", {
+  settings <- test_report_data(settings = list(habitat_source = c("a", "b"))) |>
+    connectivity_settings()
+
+  expect_equal(setting_value(settings, "habitat_source"), "a, b")
 })

@@ -13,10 +13,10 @@
       4 <NA>          pct_change Blue Tongue Lizard                  40      4.94
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1              4.45         0.0000169          3245.                26.3  
-      2              2.34         0.00000890         3042.                25.9  
-      3             -2.11        -0.00000802         -203.                -0.426
-      4            -47.4        -47.4                  -6.25              -1.62 
+      1              4.45             0.169          3245.                26.3  
+      2              2.34             0.0890         3042.                25.9  
+      3             -2.11            -0.0802         -203.                -0.426
+      4            -47.4            -47.4              -6.25              -1.62 
         data_resolution
         <chr>          
       1 2x2            
@@ -45,14 +45,14 @@
       8 <NA>          pct_change Superb Fairy Wren                  80         0
         effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
                     <dbl>              <dbl>           <dbl>               <dbl>
-      1             0.915          0.0000367           8322.                2.50
-      2             0.915          0.0000367           8322.                2.50
-      3             0              0                      0                 0   
-      4             0              0                      0                 0   
-      5             0.915          0.0000367           8322.                2.50
-      6             0.915          0.0000367           8322.                2.50
-      7             0              0                      0                 0   
-      8             0              0                      0                 0   
+      1             0.915              0.367           8322.                2.50
+      2             0.915              0.367           8322.                2.50
+      3             0                  0                  0                 0   
+      4             0                  0                  0                 0   
+      5             0.915              0.367           8322.                2.50
+      6             0.915              0.367           8322.                2.50
+      7             0                  0                  0                 0   
+      8             0                  0                  0                 0   
         data_resolution
         <chr>          
       1 10x10          

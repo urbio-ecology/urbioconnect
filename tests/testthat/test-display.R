@@ -39,13 +39,16 @@ test_that("round_by() rounds per column and leaves numbers numeric", {
 })
 
 test_that("format_by() gives each value its own notation", {
-  display <- connectivity_display(test_comparison())
-  formatted <- format_by(display)
+  # the reason format_by() exists: losing one patch changes the count by 1 and
+  # P(connected) by ~1e-07, and a numeric column spanning both prints wholly in
+  # scientific, so the count reads as -1.00e+00
+  comparison <- compare_connectivity(
+    scenario = summarise_connectivity(lizard_areas_connected[-1, ]),
+    baseline = summarise_connectivity(lizard_areas_connected)
+  )
+  formatted <- format_by(connectivity_display(comparison))
 
-  # the reason format_by() exists: this column holds a count and a ~1e-5
-  # probability, and a numeric column spanning both prints wholly in
-  # scientific, so a count of 3 reads as 3.00e+00
-  expect_true(is.character(formatted$Baseline))
+  expect_type(formatted$Change, "character")
   expect_snapshot(as.data.frame(formatted))
 })
 

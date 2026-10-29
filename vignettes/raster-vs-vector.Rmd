@@ -134,7 +134,7 @@ Unlike `habitat_connectivity()`, `sf_habitat_connectivity()` returns the per-pat
 
 ## Comparing raster vs vector
 
-Both approaches identify one connected patch per row of their respective per-patch tables, with patch area and squared area.
+Both approaches give a per-patch table with one row per connected patch, holding its `patch_id` and `area`.
 
 ```{r}
 #| label: compare

@@ -41,6 +41,8 @@ rsconnect/
 
 # png images
 *.png
+# but not the app's own, drawn by data-raw/method-figures.R
+!inst/shiny/www/*.png
 
 # renv via capsule
 renv/

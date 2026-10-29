@@ -5,6 +5,12 @@ test_that("read_geometry returns an sfc object", {
   expect_s3_class(result, "sfc")
 })
 
+test_that("read_geometry reads a file without printing", {
+  shp_path <- system.file("ex/lizard_barrier.shp", package = "urbioconnect")
+
+  expect_silent(read_geometry(shp_path))
+})
+
 test_that("read_geometry strips attribute columns", {
   shp_path <- system.file("ex/lizard_barrier.shp", package = "urbioconnect")
   result <- read_geometry(shp_path)

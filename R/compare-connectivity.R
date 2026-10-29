@@ -32,9 +32,9 @@
 #'   `patch_area_total_ha`, and `data_resolution`. The `change` row is
 #'   `scenario - baseline`, so a positive value means the scenario is higher
 #'   than the baseline; the `pct_change` row expresses that same change as
-#'   `100 * change / baseline`, which is the readable form for metrics whose
-#'   absolute deltas are very small. Metric values are held at full precision  -
-#'   they are not rounded - so `change` is exact.
+#'   `100 * change / baseline`, which puts every metric on the same scale.
+#'   Metric values are held at full precision - they are not rounded - so
+#'   `change` is exact.
 #' @seealso [habitat_connectivity_comparison()], which starts from habitat and
 #'   barrier layers instead of `connectivity` objects,
 #'   [habitat_connectivity()], and [summarise_connectivity()].
@@ -156,10 +156,8 @@ rows_to_comparison <- function(scenario, baseline, scenario_name) {
 #' Build the `pct_change` row
 #'
 #' Expresses each metric's absolute change as a percentage of its baseline
-#' value: `100 * change / baseline`, column-wise. This is the readable form of
-#' the change for metrics whose absolute deltas are tiny  -
-#' `prob_connectedness` moves by around 1e-08, which reads as nothing, but the
-#' same move is a legible -0.29%.
+#' value: `100 * change / baseline`, column-wise. This puts metrics on
+#' different scales side by side.
 #'
 #' A zero baseline yields `NA` rather than `Inf` or `NaN`, since a percentage of
 #' nothing has no meaning.
