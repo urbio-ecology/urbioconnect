@@ -8,6 +8,19 @@
       x Cells past the surface's reach are unmeasured, so the buffer would be truncated.
       i Measure the surface to at least 40m.
 
+# a habitat layer with several layers is an error
+
+    Code
+      habitat_buffer(stacked, 20)
+    Condition
+      Error in `habitat_buffer()`:
+      ! `habitat` must have one layer, not 2.
+    Code
+      habitat_connectivity(stacked, layer, "lizard", 40, verbose = FALSE)
+    Condition
+      Error in `drop_habitat_under_barrier()`:
+      ! `habitat` must have one layer, not 2.
+
 # habitat_buffer() rejects radii it can't use
 
     Code

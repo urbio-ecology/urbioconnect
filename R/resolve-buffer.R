@@ -55,8 +55,10 @@ representable_distance <- function(interpatch_distance, resolution) {
 
   # habitat_buffer() keeps a cell when its centre is within the radius, so a
   # buffer reaches floor(radius / resolution) whole cells along a row or a
-  # column. A negative distance reaches none.
-  pmax(0, 2 * floor(interpatch_distance / 2 / resolution) * resolution)
+  # column, with its tolerance for an exact multiple. A negative distance
+  # reaches none.
+  cells <- floor(interpatch_distance / 2 / resolution * (1 + 1e-9))
+  pmax(0, 2 * cells * resolution)
 }
 
 # warn if the distance can't be represented at this res

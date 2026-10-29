@@ -177,6 +177,7 @@ create_barrier_mask <- function(barrier) {
 #'   )
 #' remaining_habitat
 drop_habitat_under_barrier <- function(habitat, barrier_mask) {
+  check_single_layer(habitat)
   barrier_mask <- align_to(barrier_mask, habitat)
   terra::mask(as_habitat_mask(habitat), barrier_mask)
 }
@@ -471,6 +472,8 @@ connectivity_layers <- function(
     "Measuring the distance to the nearest habitat"
   )
   surface <- buffer_surface(remaining_habitat, buffer_radius)
+  # the steps below run inside map(), so they can't close this one themselves
+  cli::cli_progress_done()
 
   # the grid decides the cell areas, so one call covers every radius
   cell_area <- terra::cellSize(remaining_habitat)

@@ -106,11 +106,7 @@ check_single_layer <- function(
 ) {
   if (terra::nlyr(x) != 1) {
     cli::cli_abort(
-      c(
-        "{.arg {arg}} must have one layer, not {terra::nlyr(x)}.",
-        "i" = "Take one radius at a time, for example {.code buffered[[1]]},
-               or use {.fn habitat_connectivity} for several distances."
-      ),
+      "{.arg {arg}} must have one layer, not {terra::nlyr(x)}.",
       call = call
     )
   }

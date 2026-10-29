@@ -5,7 +5,6 @@
     Condition
       Error in `fragment_habitat()`:
       ! `buffered_habitat` must have one layer, not 2.
-      i Take one radius at a time, for example `buffered[[1]]`, or use `habitat_connectivity()` for several distances.
 
 # add_patch_area returns a two-layer raster named patch_id and area
 
@@ -20,6 +19,45 @@
       names(res_con_patch)
     Output
       [1] "patch_id" "area"    
+
+# habitat_connectivity() reports each step once
+
+    Code
+      invisible(habitat_connectivity(habitat, barrier, "lizard", c(20, 40)))
+    Message
+      i Creating barrier mask
+      v Creating barrier mask [time]
+      
+      i Removing habitat underneath barrier
+      v Removing habitat underneath barrier [time]
+      
+      i Measuring the distance to the nearest habitat
+      v Measuring the distance to the nearest habitat [time]
+      
+      i Buffering habitat for an interpatch distance of 20m
+      v Buffering habitat for an interpatch distance of 20m [time]
+      
+      i Fragmenting habitat layer along barrier intersection
+      v Fragmenting habitat layer along barrier intersection [time]
+      
+      i Assigning patches ID to fragments
+      v Assigning patches ID to fragments [time]
+      
+      i Summarising area in each patch
+      v Summarising area in each patch [time]
+      
+      i Buffering habitat for an interpatch distance of 40m
+      v Buffering habitat for an interpatch distance of 40m [time]
+      
+      i Fragmenting habitat layer along barrier intersection
+      v Fragmenting habitat layer along barrier intersection [time]
+      
+      i Assigning patches ID to fragments
+      v Assigning patches ID to fragments [time]
+      
+      i Summarising area in each patch
+      v Summarising area in each patch [time]
+      
 
 # habitat_connectivity returns a data frame with expected columns
 

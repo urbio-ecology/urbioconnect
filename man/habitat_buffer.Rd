@@ -7,7 +7,7 @@
 habitat_buffer(habitat, buffer_radius)
 }
 \arguments{
-\item{habitat}{Terra SpatRaster. Habitat raster.}
+\item{habitat}{Terra SpatRaster. Habitat raster, with one layer.}
 
 \item{buffer_radius}{Numeric. The radius in metres around the habitat, or a
 vector of radii. Since patches of habitat will be connected when their
@@ -38,8 +38,7 @@ connected. For example, if your interpatch distance is 500m, set
 }
 \details{
 Habitat is any cell that is neither \code{NA} nor \code{0}, whatever value it is
-coded with. Only the first layer of \code{habitat} is read. A cell is within
-the radius when its centre is.
+coded with. A cell is within the radius when its centre is.
 }
 \examples{
 lizard_habitat <- example_habitat()

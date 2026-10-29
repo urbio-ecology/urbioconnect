@@ -66,21 +66,15 @@ test_that("habitat_within() refuses a radius past the surface's reach", {
   expect_no_error(habitat_within(surface, 20))
 })
 
-test_that("habitat_buffer() reads only the first layer", {
+test_that("a habitat layer with several layers is an error", {
   layer <- test_raster(10, 10)
   layer[5, 5] <- 1
+  stacked <- c(layer, layer)
 
-  other <- terra::deepcopy(layer)
-  terra::values(other) <- NA
-  other[2, 2] <- 1
-
-  stacked <- habitat_buffer(c(layer, other), 20)
-
-  expect_equal(terra::nlyr(stacked), 1)
-  expect_equal(
-    terra::values(stacked)[, 1],
-    terra::values(habitat_buffer(layer, 20))[, 1]
-  )
+  expect_snapshot(error = TRUE, {
+    habitat_buffer(stacked, 20)
+    habitat_connectivity(stacked, layer, "lizard", 40, verbose = FALSE)
+  })
 })
 
 test_that("habitat_buffer() rejects radii it can't use", {
@@ -171,18 +165,14 @@ test_that("habitat_buffer() reaches exactly as far as asked on non-square cells"
 })
 
 test_that("habitat_buffer() keeps a cell exactly one radius away", {
-  # 4.3 / 0.1 is 42.99..., which floor() used to turn into 42 rows
-  strip <- test_raster(100, 1, cell = c(0.1, 0.1))
-  strip[1, 1] <- 1
+  # in floating point 3 * 0.1 is past 0.3, and 4.3 / 0.1 is short of 43
+  strip <- test_raster(101, 1, cell = c(0.1, 0.1))
+  strip[51, 1] <- 1
 
-  alone <- suppressWarnings(habitat_buffer(strip, 4.3))
-  swept <- suppressWarnings(habitat_buffer(strip, c(4.3, 12.9)))
+  expect_no_warning(buffered <- habitat_buffer(strip, c(0.3, 0.4, 1.1, 4.3)))
 
-  expect_equal(unname(terra::values(alone)[44, 1]), 1)
-  expect_equal(
-    terra::values(alone)[, 1],
-    terra::values(swept)[, 1]
-  )
+  rows_reached <- (colSums(!is.na(terra::values(buffered))) - 1) / 2
+  expect_equal(unname(rows_reached), c(3, 4, 11, 43))
 })
 
 test_that("habitat_buffer() warns below one cell and keeps only the habitat", {

@@ -17,7 +17,6 @@ is_habitat <- function(values) {
 #'
 #' @noRd
 as_habitat_mask <- function(habitat) {
-  habitat <- habitat[[1]]
   terra::ifel(is_habitat(habitat), 1, NA)
 }
 
@@ -77,8 +76,7 @@ row_gap_cells <- function(present) {
 #' is not the nearest. On the lizard landscape it overstates 20 cells at a
 #' 10 m radius, enough to put them the wrong side of the cut-off.
 #'
-#' @param habitat A `SpatRaster` habitat layer. Only its first layer is read:
-#'   a habitat layer is a mask, and a stack of them is not one.
+#' @param habitat A `SpatRaster` habitat layer, with one layer.
 #' @param max_distance Numeric. How far out the answer has to be right. This
 #'   is what bounds the work: only row offsets that could land within
 #'   `max_distance` are considered.
@@ -87,9 +85,6 @@ row_gap_cells <- function(present) {
 #'   `habitat_within()` checks.
 #' @noRd
 nearest_habitat_distance <- function(habitat, max_distance) {
-  # the one place that decides which layer is the habitat
-  habitat <- habitat[[1]]
-
   resolution <- terra::res(habitat)
   n_rows <- terra::nrow(habitat)
 
@@ -166,7 +161,12 @@ habitat_within <- function(habitat_distance, buffer_radius) {
     ))
   }
 
-  within <- terra::ifel(habitat_distance$distance <= buffer_radius, 1, NA)
+  # the tolerance keeps a cell exactly one radius away: 3 * 0.1 is past 0.3
+  within <- terra::ifel(
+    habitat_distance$distance <= buffer_radius * (1 + 1e-9),
+    1,
+    NA
+  )
   names(within) <- paste0("radius_", buffer_radius)
   within
 }
@@ -197,10 +197,9 @@ buffer_surface <- function(habitat, buffer_radius) {
 #'   `buffer_radius = 250`.
 #'
 #' Habitat is any cell that is neither `NA` nor `0`, whatever value it is
-#'   coded with. Only the first layer of `habitat` is read. A cell is within
-#'   the radius when its centre is.
+#'   coded with. A cell is within the radius when its centre is.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster.
+#' @param habitat Terra SpatRaster. Habitat raster, with one layer.
 #' @param buffer_radius Numeric. The radius in metres around the habitat, or a
 #'   vector of radii. Since patches of habitat will be connected when their
 #'   edge-to-edge gap is <= 2 * `buffer radius`, we recommend you specify
@@ -230,6 +229,7 @@ buffer_surface <- function(habitat, buffer_radius) {
 #' # several radii give one layer each
 #' habitat_buffer(lizard_habitat, buffer_radius = c(10, 20))
 habitat_buffer <- function(habitat, buffer_radius) {
+  check_single_layer(habitat)
   check_distances(buffer_radius)
   surface <- buffer_surface(habitat, buffer_radius)
   purrr::map(buffer_radius, \(radius) habitat_within(surface, radius)) |>

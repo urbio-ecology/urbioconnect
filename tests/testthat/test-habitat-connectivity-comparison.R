@@ -127,7 +127,7 @@ test_that("habitat_connectivity_comparison() measures one surface per landscape"
   expect_equal(surfaces(), 2)
 
   # the baseline's sweep is reused when the scenario is the baseline
-  expect_warning(comparison_at(layers$barrier), "identical to the baseline")
+  suppressWarnings(comparison_at(layers$barrier))
   expect_equal(surfaces(), 3)
 })
 

@@ -76,7 +76,7 @@
       i Connectivity may shift for patches near the cut-off.
       i See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
 
-# representable_distance() is the distance habitat_buffer()'s window spans
+# representable_distance() is the distance habitat_buffer() reaches
 
     Code
       representable_distance(distances, 10)

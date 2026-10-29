@@ -217,6 +217,17 @@ test_that("habitat_connectivity verbose=TRUE returns a data frame", {
   expect_s3_class(hc_verbose, "data.frame")
 })
 
+test_that("habitat_connectivity() reports each step once", {
+  habitat <- test_raster(10, 10)
+  habitat[5, 5] <- 1
+  barrier <- terra::init(habitat, NA)
+
+  expect_snapshot(
+    invisible(habitat_connectivity(habitat, barrier, "lizard", c(20, 40))),
+    transform = \(lines) gsub("\\[[0-9.]+m?s\\]", "[time]", lines)
+  )
+})
+
 test_that("habitat_connectivity returns a data frame with expected columns", {
   expect_s3_class(hc_quiet, "data.frame")
   expect_snapshot(names(hc_quiet))
