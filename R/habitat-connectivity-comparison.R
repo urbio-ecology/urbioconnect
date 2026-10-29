@@ -5,8 +5,7 @@
 #'   habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 #'   full connectivity pipeline on each (via [habitat_connectivity()]) and
 #'   compares them. `interpatch_distance` may be a vector, in which case the
-#'   comparison is run once per distance and the per-distance results are
-#'   stacked.
+#'   result holds one comparison per distance, stacked.
 #'
 #' @details
 #' Change exactly one layer between baseline and scenario so the difference is
@@ -17,10 +16,6 @@
 #'   function aborts; if neither differs it warns (the scenario equals the
 #'   baseline, so every `change` value is zero).
 #'
-#'   Note that this runs the full connectivity pipeline `2 *
-#'   length(interpatch_distance)` times (buffering is the slow step), so a long
-#'   vector of distances will take proportionally longer.
-#'
 #' @param habitat_scenario Terra SpatRaster. The scenario habitat layer.
 #' @param barrier_scenario Terra SpatRaster. The scenario barrier layer.
 #' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
@@ -28,7 +23,7 @@
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which habitat
 #'   patches are considered connected. May be a scalar or a vector; a vector
-#'   runs the comparison once per distance. See [habitat_connectivity()].
+#'   gives one comparison per distance. See [habitat_connectivity()].
 #' @param scenario_name Character. An optional label for the scenario, for
 #'   example "Bentley Project". Passed to [compare_connectivity()], and appears
 #'   in the `scenario_name` column on every row. Defaults to `NULL`, which
@@ -101,37 +96,31 @@ habitat_connectivity_comparison <- function(
     )
   }
 
-  # Distance sweep. Written as a plain purrr::map() (no for loop) so it can
-  # later swap to a parallel backend without restructuring. Each inner call
-  # gets a scalar, so habitat_connectivity() validates it as usual.
-  comparisons <- purrr::map(interpatch_distance, function(distance) {
-    base_conn <- connectivity_at_distance(
-      habitat_baseline,
-      barrier_baseline,
-      species,
-      distance,
-      verbose
-    )
-    # identical layers give an identical result, so don't run the pipeline
-    # (~5s on a real landscape) a second time to produce it
-    scen_conn <- if (scenario_is_baseline) {
-      base_conn
-    } else {
-      connectivity_at_distance(
-        habitat_scenario,
-        barrier_scenario,
-        species,
-        distance,
-        verbose
-      )
-    }
+  base_conn <- habitat_connectivity(
+    habitat = habitat_baseline,
+    barrier = barrier_baseline,
+    species = species,
+    interpatch_distance = interpatch_distance,
+    verbose = verbose
+  )
 
-    compare_connectivity(
-      scenario = scen_conn,
-      baseline = base_conn,
-      scenario_name = scenario_name
+  # identical layers give an identical result, so don't run the pipeline a
+  # second time to produce it
+  scen_conn <- if (scenario_is_baseline) {
+    base_conn
+  } else {
+    habitat_connectivity(
+      habitat = habitat_scenario,
+      barrier = barrier_scenario,
+      species = species,
+      interpatch_distance = interpatch_distance,
+      verbose = verbose
     )
-  })
+  }
 
-  new_compare_connectivity(dplyr::bind_rows(comparisons))
+  rows_to_comparison(
+    scenario = scen_conn,
+    baseline = base_conn,
+    scenario_name = scenario_name
+  )
 }

@@ -25,3 +25,13 @@
     Output
       [1] "patch_id" "area"    
 
+# sf_habitat_connectivity takes one interpatch distance
+
+    Code
+      sf_habitat_connectivity(habitat = habitat, barrier = barrier, species = "lizard",
+        interpatch_distance = c(40, 80))
+    Condition
+      Error in `sf_habitat_connectivity()`:
+      ! `interpatch_distance` must be a scalar (length 1), not length 2.
+      i Did you mean to pass a single value?
+

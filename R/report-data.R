@@ -1,6 +1,6 @@
 #' Everything one connectivity analysis produces
 #'
-#' Runs the connectivity pipeline once per distance and keeps both the summary
+#' Runs the connectivity pipeline over every distance and keeps both the summary
 #'   and the spatial layers the maps need. [habitat_connectivity()] returns the
 #'   summary alone; this also keeps the buffered habitat and the patch-ID
 #'   raster for each distance, which is what the downloadable assets and the
@@ -11,7 +11,7 @@
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
-#'   vector runs the pipeline once per distance.
+#'   vector gives a result for each distance.
 #' @param scenario Optional layer to compare against the baseline: an `sf`,
 #'   `SpatVector` or `SpatRaster` standing in for one of `habitat` and
 #'   `barrier`. It is put on the baseline's own grid with [onto_grid()], so it
@@ -165,11 +165,10 @@ connectivity_report_data <- function(
   )
 }
 
-#' Run the pipeline once per distance, and summarise each run
+#' Run the pipeline over every distance, and summarise each run
 #'
-#' `habitat_connectivity_full()` returns everything `habitat_connectivity()`
-#' does and the intermediate layers besides, so one call per distance per
-#' landscape is all any of this needs.
+#' One sweep through `connectivity_layers()`, which also gives the layers each
+#' distance produced, unless `keep_layers` is `FALSE`.
 #'
 #' @noRd
 connectivity_runs <- function(
@@ -177,16 +176,16 @@ connectivity_runs <- function(
   barrier,
   species,
   interpatch_distance,
-  verbose
+  verbose,
+  keep_layers = TRUE
 ) {
-  runs <- purrr::map(interpatch_distance, function(distance) {
-    habitat_connectivity_full(
-      habitat = habitat,
-      barrier = barrier,
-      interpatch_distance = distance,
-      verbose = verbose
-    )
-  }) |>
+  runs <- connectivity_layers_quietly(
+    habitat,
+    barrier,
+    buffer_radius_from(interpatch_distance),
+    verbose,
+    keep_layers
+  )$at_radius |>
     rlang::set_names(as.character(interpatch_distance))
 
   connectivity <- purrr::map2(
@@ -212,9 +211,6 @@ connectivity_runs <- function(
 }
 
 #' Pair up two already-computed summaries, a distance at a time
-#'
-#' [habitat_connectivity_comparison()] runs the pipeline to get these; here
-#' they have been run already, so only the arithmetic is left.
 #'
 #' @noRd
 rows_to_comparison <- function(scenario, baseline, scenario_name) {

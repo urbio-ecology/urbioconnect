@@ -1,4 +1,14 @@
-# habitat_connectivity() requires one numeric interpatch distance
+# the entry points that take one distance say so
+
+    Code
+      habitat_connectivity_full(layers$habitat, layers$barrier, interpatch_distance = c(
+        40, 80), verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_full()`:
+      ! `interpatch_distance` must be a scalar (length 1), not length 2.
+      i Did you mean to pass a single value?
+
+# habitat_connectivity() requires numeric interpatch distances
 
     Code
       connectivity_at()
@@ -6,17 +16,41 @@
       Error in `habitat_connectivity()`:
       ! `interpatch_distance` is absent but must be supplied.
     Code
-      connectivity_at(interpatch_distance = c(40, 80))
-    Condition
-      Error in `habitat_connectivity()`:
-      ! `interpatch_distance` must be a scalar (length 1), not length 2.
-      i Did you mean to pass a single value?
-    Code
       connectivity_at(interpatch_distance = "40")
     Condition
       Error in `habitat_connectivity()`:
       ! `interpatch_distance` must be <numeric>, not <character>.
       i You supplied: a string
+    Code
+      connectivity_at(interpatch_distance = numeric(0))
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `interpatch_distance` must contain at least one distance.
+      x You supplied a zero-length value.
+    Code
+      connectivity_at(interpatch_distance = c(40, 40))
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `interpatch_distance` must not repeat a distance.
+      x Repeated: 40.
+    Code
+      connectivity_at(interpatch_distance = c(40, -80))
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `interpatch_distance` must be finite and not negative.
+      x Not usable: -80.
+    Code
+      connectivity_at(interpatch_distance = c(40, NA))
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `interpatch_distance` must be finite and not negative.
+      x Not usable: NA.
+    Code
+      connectivity_at(interpatch_distance = Inf)
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `interpatch_distance` must be finite and not negative.
+      x Not usable: Inf.
 
 # warn_buffer_resolution warns when the radius is smaller than one cell
 
@@ -42,7 +76,7 @@
       i Connectivity may shift for patches near the cut-off.
       i See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
 
-# representable_distance() is the distance habitat_buffer()'s window spans
+# representable_distance() is the distance habitat_buffer() reaches
 
     Code
       representable_distance(distances, 10)

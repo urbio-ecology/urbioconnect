@@ -1,9 +1,9 @@
-#' The buffer radius for an interpatch distance
+#' The buffer radius for each interpatch distance
 #'
 #' Two patches are connected when their edge-to-edge gap is at most the
 #' interpatch distance, which happens when each is buffered by half of it. The
 #' radius is an implementation detail of the buffering: `habitat_buffer()` takes
-#' one, nothing above it does.
+#' them, nothing above it does.
 #'
 #' @noRd
 buffer_radius_from <- function(
@@ -11,34 +11,8 @@ buffer_radius_from <- function(
   arg = rlang::caller_arg(interpatch_distance),
   call = rlang::caller_env()
 ) {
-  if (rlang::is_missing(rlang::maybe_missing(interpatch_distance))) {
-    cli::cli_abort(
-      "{.arg {arg}} is absent but must be supplied.",
-      call = call
-    )
-  }
-
-  check_scalar_numeric(interpatch_distance, arg, call)
+  check_distances(interpatch_distance, arg, call)
   interpatch_distance / 2
-}
-
-#' Run the connectivity pipeline at one distance
-#'
-#' @noRd
-connectivity_at_distance <- function(
-  habitat,
-  barrier,
-  species,
-  interpatch_distance,
-  verbose
-) {
-  habitat_connectivity(
-    habitat = habitat,
-    barrier = barrier,
-    species = species,
-    interpatch_distance = interpatch_distance,
-    verbose = verbose
-  )
 }
 
 #' The interpatch distance a grid can represent
@@ -69,11 +43,10 @@ representable_distance <- function(interpatch_distance, resolution) {
     )
   }
 
-  # terra::focalMat() includes a cell when its centre is within the radius, so
-  # the number of rings is floor(radius / resolution). Verified empirically:
-  # d = 350 at 500 m cells is 1x1; d = 500 and d = 600 are 3x3. A negative
-  # distance has no rings either.
-  pmax(0, 2 * floor(interpatch_distance / 2 / resolution) * resolution)
+  # whole cells along a row or column whose centres are within the radius,
+  # with habitat_within()'s tolerance for an exact multiple
+  cells <- floor(interpatch_distance / 2 / resolution * (1 + 1e-9))
+  pmax(0, 2 * cells * resolution)
 }
 
 # warn if the distance can't be represented at this res
@@ -83,7 +56,7 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
   # habitat_connectivity(), so they talk in interpatch distances
   interpatch_distance <- buffer_radius * 2
 
-  # Assumes square cells (callers pass terra::res(habitat)[1]).
+  # Callers pass the smaller cell side.
   treated_as <- representable_distance(interpatch_distance, resolution)
 
   if (treated_as == 0) {

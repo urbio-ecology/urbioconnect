@@ -7,7 +7,8 @@
 fragment_habitat(buffered_habitat, barrier_mask)
 }
 \arguments{
-\item{buffered_habitat}{Terra SpatRaster. Buffered habitat.}
+\item{buffered_habitat}{Terra SpatRaster. Buffered habitat, one layer (one
+radius of \code{\link[=habitat_buffer]{habitat_buffer()}}).}
 
 \item{barrier_mask}{Terra SpatRaster. Barrier mask.}
 }

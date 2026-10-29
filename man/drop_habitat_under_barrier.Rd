@@ -12,11 +12,13 @@ drop_habitat_under_barrier(habitat, barrier_mask)
 \item{barrier_mask}{Terra SpatRaster. Barrier mask.}
 }
 \value{
-Terra SpatRaster with habitat remaining after barrier removal.
+Terra SpatRaster with habitat remaining after barrier removal,
+coded 1 for habitat and \code{NA} everywhere else.
 }
 \description{
-Essentially just performs a \code{\link[terra:mask]{terra::mask()}} operation, to remove the habitat
-parts that are under the mask.
+Performs a \code{\link[terra:mask]{terra::mask()}} operation, to remove the habitat parts that are
+under the mask. Habitat is any cell that is neither \code{NA} nor \code{0}, whatever
+value it is coded with.
 }
 \examples{
 lizard_habitat <- example_habitat()
@@ -24,7 +26,7 @@ lizard_barrier <- example_barrier()
 barrier_mask <- create_barrier_mask(lizard_barrier)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
+  barrier_mask = barrier_mask
   )
 remaining_habitat
 }

@@ -40,6 +40,38 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_comparison() sweeps to what one call per distance gives", {
+  # each landscape is swept in one call, so the pairing of scenario and
+  # baseline rows a distance at a time is what could come apart
+  layers <- scenario_test_layers()
+
+  comparison_at <- function(distance) {
+    habitat_connectivity_comparison(
+      habitat_scenario = layers$habitat,
+      barrier_scenario = layers$barrier_scenario,
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Superb Fairy Wren",
+      interpatch_distance = distance,
+      verbose = FALSE
+    )
+  }
+
+  surfaces <- local_surface_count()
+  swept <- comparison_at(c(40, 160))
+  # one per landscape, not one per distance
+  expect_equal(surfaces(), 2)
+
+  # the baseline differs between the two distances, so a mis-pairing shows
+  baseline_rows <- dplyr::filter(swept, measure == "baseline")
+  expect_gt(length(unique(baseline_rows$n_patches)), 1)
+
+  expect_equal(
+    swept,
+    dplyr::bind_rows(comparison_at(40), comparison_at(160))
+  )
+})
+
 test_that("habitat_connectivity_comparison() passes scenario_name through", {
   layers <- scenario_test_layers()
 

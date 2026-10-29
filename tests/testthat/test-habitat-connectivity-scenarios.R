@@ -90,6 +90,38 @@ test_that("habitat_connectivity_scenarios() runs every scenario per distance", {
   )
 })
 
+test_that("habitat_connectivity_scenarios() sweeps to what one call per distance gives", {
+  # every landscape is swept in one call, so the rows have to come back
+  # distance-major with the scenarios in order inside each distance
+  layers <- scenario_test_layers()
+
+  scenarios_at <- function(distance) {
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
+      barrier_scenarios = list("Barrier upgrade" = layers$barrier_scenario),
+      interpatch_distance = distance,
+      verbose = FALSE
+    )
+  }
+
+  surfaces <- local_surface_count()
+  swept <- scenarios_at(c(40, 160))
+  # one per landscape: the baseline and the two scenarios
+  expect_equal(surfaces(), 3)
+
+  # the baseline differs between the two distances, so a mis-pairing shows
+  baseline_rows <- dplyr::filter(swept, measure == "baseline")
+  expect_gt(length(unique(baseline_rows$n_patches)), 1)
+
+  expect_equal(
+    swept,
+    dplyr::bind_rows(scenarios_at(40), scenarios_at(160))
+  )
+})
+
 test_that("habitat_connectivity_scenarios() warns on a scenario matching baseline", {
   layers <- scenario_test_layers()
 

@@ -48,7 +48,7 @@ plot(v)
 ```
 
 
-`urbioconnect` uses rasters that work on `SpatRaster` (Spatial Raster) objects. Buffering is performed using a focal window (`terra::focal()`), and connected patches are identified using `terra::patches()`.
+`urbioconnect` uses rasters that work on `SpatRaster` (Spatial Raster) objects. Buffering keeps the cells within the radius of habitat, measured as the exact distance from each cell to the nearest habitat cell, and connected patches are identified using `terra::patches()`.
 
 The vector approach works on `sf` objects. Habitat and barriers are represented as polygons. Buffering uses `sf::st_buffer()`, and connectivity is determined by spatial intersection (`sf::st_intersects()`).
 
@@ -232,7 +232,7 @@ Both approaches expose individual functions if you need finer control - for exam
 # Raster step-by-step
 barrier_mask <- create_barrier_mask(barrier_rast)
 remaining <- drop_habitat_under_barrier(habitat_rast, barrier_mask)
-buffered <- habitat_buffer(remaining, interpatch_distance = 10)
+buffered <- habitat_buffer(remaining, buffer_radius = 5)
 fragmented <- fragment_habitat(buffered, barrier_mask)
 patches <- assign_patches_to_fragments(remaining, fragmented) |>
   add_patch_area()
@@ -243,7 +243,7 @@ areas <- aggregate_connected_patches(patches)
 #| label: step-by-step-vector
 #| eval: false
 # Vector step-by-step
-buffered_sf <- sf_habitat_buffer(habitat_sf_clean, interpatch_distance = 10)
+buffered_sf <- sf_habitat_buffer(habitat_sf_clean, buffer_radius = 5)
 fragments_sf <- sf_fragment_habitat(buffered_sf, barrier_sf_clean)
 remaining_sf <- sf_drop_habitat_under_barrier(habitat_sf_clean, barrier_sf_clean)
 patches_sf <- sf_assign_patches_to_fragments(remaining_sf, fragments_sf) |>

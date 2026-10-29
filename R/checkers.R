@@ -96,6 +96,23 @@ check_scalar_character <- function(
   invisible(x)
 }
 
+#' Check a raster has exactly one layer
+#'
+#' @noRd
+check_single_layer <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (terra::nlyr(x) != 1) {
+    cli::cli_abort(
+      "{.arg {arg}} must have one layer, not {terra::nlyr(x)}.",
+      call = call
+    )
+  }
+  invisible(x)
+}
+
 #' Check a scenario label
 #'
 #' `NULL` means "no label", and becomes `NA_character_` in the output. Anything
@@ -351,6 +368,17 @@ check_distances <- function(
       c(
         "{.arg {arg}} must contain at least one distance.",
         "x" = "You supplied a zero-length value."
+      ),
+      call = call
+    )
+  }
+
+  unusable <- unique(x[!is.finite(x) | x < 0])
+  if (length(unusable) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be finite and not negative.",
+        "x" = "Not usable: {.val {unusable}}."
       ),
       call = call
     )

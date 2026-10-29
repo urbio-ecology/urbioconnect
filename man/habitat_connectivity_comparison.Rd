@@ -28,7 +28,7 @@ habitat_connectivity_comparison(
 
 \item{interpatch_distance}{Numeric. The distance (in metres) at which habitat
 patches are considered connected. May be a scalar or a vector; a vector
-runs the comparison once per distance. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
+gives one comparison per distance. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
 
 \item{scenario_name}{Character. An optional label for the scenario, for
 example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears
@@ -50,8 +50,7 @@ objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give 
 habitat/barrier pair and a baseline habitat/barrier pair and it runs the
 full connectivity pipeline on each (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) and
 compares them. \code{interpatch_distance} may be a vector, in which case the
-comparison is run once per distance and the per-distance results are
-stacked.
+result holds one comparison per distance, stacked.
 }
 \details{
 Change exactly one layer between baseline and scenario so the difference is
@@ -61,9 +60,6 @@ habitat change, pass the same barrier to both \code{barrier_baseline} and
 \code{barrier_scenario}. If both the habitat \emph{and} the barrier differ the
 function aborts; if neither differs it warns (the scenario equals the
 baseline, so every \code{change} value is zero).
-
-Note that this runs the full connectivity pipeline \code{2 * length(interpatch_distance)} times (buffering is the slow step), so a long
-vector of distances will take proportionally longer.
 }
 \examples{
 \donttest{
