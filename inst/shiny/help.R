@@ -4,57 +4,47 @@ input_help <- list(
   species = list(
     label = "Species name",
     help = c(
-      "The species you are planning for. For example, 'Superb Fairy Wren'.",
-      "This name will also label the outputs - maps, tables, and report."
+      "The species you are planning for, such as 'Superb Fairy Wren'. It
+      labels the maps, tables and report."
     )
   ),
   habitat_file = list(
     label = "Habitat layer",
     help = c(
-      "Where your species lives: parks, bushland, creek corridors or
-      gardens that count as its habitat.",
-      "Upload either:
-      - polygons, as a shapefile
-      - a raster (GeoTIFF), with habitat cells 1 and every other cell empty
-        (no data). A cell of 0 is read as habitat, so set those cells to no
-        data first.",
-      "The habitat layer sets the area analysed. Anything outside its bounding
-      box is left out."
+      "Where your species lives: parks, bushland, creek corridors or gardens.",
+      "- Polygons, as a shapefile
+      - A raster (GeoTIFF): habitat cells 1, all others empty (no data). A 0
+        counts as habitat.",
+      "Only the area inside its bounding box is analysed."
     )
   ),
   barrier_file = list(
     label = "Barrier layer",
     help = c(
-      "What your species can't cross: roads, railways, buildings, etc.",
-      "Upload either:
-      - polygons
-      - a raster, with barrier cells set to 1 and everything else 0 or empty",
-      "It must use the same coordinate reference system as the habitat layer.",
-      "Habitat under a barrier is removed. A connection can go around the end
-      of a barrier, but never across it."
+      "What your species can't cross: roads, railways, buildings.",
+      "- Polygons
+      - A raster: barrier cells 1, all others 0 or empty",
+      "Same coordinate reference system as the habitat. Habitat under a barrier
+      is removed, and a connection can go around a barrier but never across it."
     )
   ),
   example_data = list(
     label = "Example data",
     help = c(
-      "Test out the app with our built-in example data. This fills in species
-      and replaces both uploads.",
-      "- Blue Tongue Lizard (Darebin Creek), ~1.5 km. Runs in ~1s per distance.
-      - Superb Fairy Wren (Knox), ~14 km. Runs in ~10s per distance."
+      "Try the app on built-in data. Fills in the species and replaces both
+      uploads.",
+      "- Blue Tongue Lizard (Darebin Creek), ~1.5 km, ~1s per distance
+      - Superb Fairy Wren (Knox), ~14 km, ~10s per distance"
     )
   ),
   scenario_choice = list(
     label = "Scenario layer (optional)",
     help = c(
-      "A change you want to test, such as a new road or a housing development.",
-      "The app runs the analysis twice:
-      - once on the landscape as it is (baseline)
-      - once with your scenario in place of the layer it changes",
-      "Both runs use the same distances and cell size, and the Results tab
-      shows the difference.",
-      "A scenario is the whole layer as it would be after the change. A
-      barrier scenario holding only the new road leaves out every existing
-      road, and the landscape looks far better connected than it is."
+      "A change to test, such as a new road or housing development. The app
+      runs the analysis with and without it, and the Results tab compares
+      them.",
+      "Give the whole layer after the change: a barrier scenario holding only
+      the new road leaves out every existing road."
     )
   ),
   scenario_kind = list(
@@ -62,47 +52,37 @@ input_help <- list(
     # a line of its own
     label = "Which layer does it change?",
     help = c(
-      "- Barrier, if the scenario adds or removes roads or other barriers.
-      - Habitat, if it adds or removes habitat.",
-      "Only one layer changes, so any difference in connectivity comes from
-      that change."
+      "- Barrier: it adds or removes roads or other barriers
+      - Habitat: it adds or removes habitat"
     )
   ),
   scenario_file = list(
     label = "Your scenario layer",
     help = c(
-      "The same formats as the habitat and barrier layers. It is put on the
-      baseline's grid, so its cell size doesn't need to match",
-      "Must cover the same place and use the same coordinate reference system."
+      "Same formats, place and coordinate reference system as the layer it
+      replaces. Its cell size doesn't need to match."
     )
   ),
   data_resolution = list(
     label = "Data resolution (m)",
     help = c(
-      "Size of grid cells used in the analysis, in metres. Layers are converted
-      to cells about this wide.",
-      "- Smaller cells are slow, but keep thin roads and narrow gaps sharp.
-      - Larger cells are faster, but smaller patches can merge or disappear.",
-      "Keep cells less than half your smallest interpatch distance. So an
-      interpatch distance of 100m should mean your cells should be 50m or smaller.",
-      "Coarser means gaps between patches can't be measured, so only patches that
-      touch will join."
+      "The width of the grid cells, in metres.",
+      "- Smaller: slower, but thin roads and narrow gaps stay sharp
+      - Larger: faster, but small patches can merge or vanish",
+      "Use at most half your smallest interpatch distance: 50 m or less for
+      100 m."
     )
   ),
   interpatch_distances = list(
     label = "Interpatch distances (m)",
     help = c(
-      "How far your species will cross open ground to reach another patch of
-      habitat. Patches closer together than this are joined into one
-      connected patch, unless a barrier lies between them.",
-      "You can enter multiple distances to see how connectivity changes:
-      - separated by commas, for example 100, 250, 400
-      - with a maximum of four distances",
-      "Use a distance from published studies or local experts on your species.",
-      "Distances are measured in whole cells, so each is rounded down to a
-      multiple of twice the cell size: at 10 m cells, 250 m is treated as
-      240 m. Each must be at least twice the cell size. The Your analysis box
-      above the Run button warns you when either happens."
+      "How far your species will cross open ground. Patches closer than this
+      join into one connected patch, unless a barrier lies between them.",
+      "Up to four, separated by commas, for example 100, 250, 400. Use
+      distances from published studies or local experts.",
+      "Each is rounded down to a multiple of twice the cell size: at 10 m
+      cells, 250 m becomes 240 m. The Your analysis box warns you when this
+      happens."
     )
   )
 )
