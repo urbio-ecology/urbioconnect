@@ -13,8 +13,8 @@ input_help <- list(
     help = c(
       "Where your species lives: parks, bushland, creek corridors or gardens.",
       "- Polygons, as a shapefile
-      - A raster (GeoTIFF): habitat cells 1, all others empty (no data). A 0
-        counts as habitat.",
+      - A raster (GeoTIFF): any cell other than 0 or empty (no data) is
+        habitat.",
       "Only the area inside its bounding box is analysed."
     )
   ),
