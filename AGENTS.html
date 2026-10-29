@@ -49,7 +49,7 @@
 <ul><li>
 <code>R/</code>: package code.</li>
 <li>
-<code>inst/shiny/</code>: the Shiny app, started with <code><a href="reference/run_connectivity_app.html">run_connectivity_app()</a></code>. It is a legacy-layout shiny app: <code>global.R</code>, then <code>ui.R</code> and <code>server.R</code>, all sourced by shiny itself. <code>global.R</code> is the one place packages are attached, and it sources <code>colours.R</code>. Don’t add an <code>app.R</code>: shiny checks for <code>server.R</code> first, so an <code>app.R</code> here is never read. Only change UI and server code in <code>inst/shiny/ui.R</code> and <code>inst/shiny/server.R</code>.</li>
+<code>inst/shiny/</code>: the Shiny app, started with <code><a href="reference/run_connectivity_app.html">run_connectivity_app()</a></code>. It is a legacy-layout shiny app: <code>global.R</code>, then <code>ui.R</code> and <code>server.R</code>, all sourced by shiny itself. <code>global.R</code> is the one place packages are attached, and it sources <code>colours.R</code> and <code>help.R</code>. <code>help.R</code> holds the plain-language explanation of every input, so write that text there and nowhere else. Don’t add an <code>app.R</code>: shiny checks for <code>server.R</code> first, so an <code>app.R</code> here is never read. Only change UI and server code in <code>inst/shiny/ui.R</code> and <code>inst/shiny/server.R</code>.</li>
 <li>
 <code>inst/non-targets-workflow.R</code> and <code>inst/scenario-workflow.R</code>: example workflows.</li>
 <li>

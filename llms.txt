@@ -266,6 +266,8 @@ development of the methods and software.
   : Remove habitat under barriers
 - [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
   : Buffer habitat raster
+- [`representable_distance()`](https://urbio-ecology.github.io/urbioconnect/reference/representable_distance.md)
+  : The interpatch distance a grid can represent
 - [`fragment_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/fragment_habitat.md)
   : Fragment habitat
 - [`assign_patches_to_fragments()`](https://urbio-ecology.github.io/urbioconnect/reference/assign_patches_to_fragments.md)

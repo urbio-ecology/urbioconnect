@@ -2,6 +2,26 @@
 
 ## urbioconnect (development version)
 
+- The shiny app opens on a new “Before you start” page that explains how
+  to prepare the habitat and barrier layers, choose a cell size and
+  interpatch distances, compare a scenario, and read the results, with a
+  button that goes straight to the inputs and one that loads the lizard
+  example. It replaces the About tab.
+  ([\#53](https://github.com/urbio-ecology/urbioconnect/issues/53))
+
+- Every input in the shiny app but the target resolution has an “i”
+  beside its label that opens a plain-language explanation of what it
+  does.
+  ([\#63](https://github.com/urbio-ecology/urbioconnect/issues/63))
+
+- A “Your analysis” box above the shiny app’s Run button describes the
+  analysis as you set it up, and warns before you run it when an
+  interpatch distance is too short for the cell size or will be rounded
+  to whole cells, and when more than four distances are entered. The app
+  never showed the first two warnings before. The Inputs tab now scrolls
+  rather than squeezing its cards into the window.
+  ([\#51](https://github.com/urbio-ecology/urbioconnect/issues/51))
+
 - The shiny app can be shipped as a desktop installer for macOS and
   Windows, built by `shinyelectron` from a pushed version tag. The
   installer carries its own R and its own Quarto, so someone
@@ -67,6 +87,14 @@
 
 - Warnings about a distance that the raster resolution can’t represent
   now talk in interpatch distances, matching the argument you supplied.
+
+- New
+  [`representable_distance()`](https://urbio-ecology.github.io/urbioconnect/reference/representable_distance.md)
+  gives the interpatch distance a grid of a given cell size can
+  represent, which is the rounding
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  warns about.
+  ([\#51](https://github.com/urbio-ecology/urbioconnect/issues/51))
 
 - Functions taking a `dir` to fill create it if it doesn’t exist;
   functions taking a `path` to one file error if that file’s directory

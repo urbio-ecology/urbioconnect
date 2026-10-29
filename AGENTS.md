@@ -13,10 +13,11 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
   [`run_connectivity_app()`](https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.md).
   It is a legacy-layout shiny app: `global.R`, then `ui.R` and
   `server.R`, all sourced by shiny itself. `global.R` is the one place
-  packages are attached, and it sources `colours.R`. Don’t add an
-  `app.R`: shiny checks for `server.R` first, so an `app.R` here is
-  never read. Only change UI and server code in `inst/shiny/ui.R` and
-  `inst/shiny/server.R`.
+  packages are attached, and it sources `colours.R` and `help.R`.
+  `help.R` holds the plain-language explanation of every input, so write
+  that text there and nowhere else. Don’t add an `app.R`: shiny checks
+  for `server.R` first, so an `app.R` here is never read. Only change UI
+  and server code in `inst/shiny/ui.R` and `inst/shiny/server.R`.
 - `inst/non-targets-workflow.R` and `inst/scenario-workflow.R`: example
   workflows.
 - `_dev/`: working notes, never committed (excluded in
