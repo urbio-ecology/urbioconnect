@@ -309,23 +309,24 @@ ui <- page_navbar(
             ),
             ")."
           ),
+
           p(
-            "Animals move between patches of habitat, such as parks,",
-            "bushland and creek corridors. Roads, railways and",
-            "buildings get in the way. A planned change, such as a new",
-            "road or a development, can cut patches off from each other."
+            "To use urbioconnect, you need to provide:"
+          ),
+          tags$ul(
+            tags$li("A map of habitat"),
+            tags$li("A map of barriers"),
+            tags$li(
+              "The interpatch distance: how far your species will roam to",
+              "reach another patch of habitat."
+            )
           ),
           p(
-            "To use urbioconnect, you need to provide:",
-            "Two maps: 1) the habitat and 2) the barriers",
-            "The interpatch distance, a distance your species will cross open",
-            "ground:",
-            "We use this distance to find which patches are still connected,",
-            "and which ones are disconnected by the barriers."
+            "We use then use this to determine the connectedness of a species'"
           ),
           p(
-            "Here is a small example of how this works, using some example",
-            "data on the blue-tongued lizard."
+            "Here is a small, simplified example of how the method works,",
+            "using some example data on the blue-tongued lizard."
           ),
           # as many across as fit: seven on a wide screen, two on a phone
           layout_column_wrap(
@@ -369,7 +370,14 @@ ui <- page_navbar(
             )
           ),
           p(
-            "It measures these connected patches to provide estimates of: ..."
+            "It measures these connected patches to provide estimates of:"
+          ),
+          tags$ul(
+            tags$li("effective mesh size"),
+            tags$li("probability of connectedness"),
+            tags$li("number of patches"),
+            tags$li("total patch area, and"),
+            tags$li("mean patch area")
           ),
           # the skip for someone who has used it before, and a one-click start
           # for someone who hasn't
