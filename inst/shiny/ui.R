@@ -10,8 +10,15 @@ report_button <- function(id, label) {
 
 # The step-by-step figures on Before you start, drawn by
 # data-raw/method-figures.R
-method_figure <- function(step, alt) {
-  img(src = sprintf("method-step-%d.png", step), alt = alt, class = "img-fluid")
+method_figure <- function(step, caption, alt) {
+  tags$figure(
+    img(
+      src = sprintf("method-step-%d.png", step),
+      alt = alt,
+      class = "img-fluid"
+    ),
+    tags$figcaption(class = "small mt-1", paste0(step, ". ", caption))
+  )
 }
 
 details_panel <- function() {
@@ -317,32 +324,38 @@ ui <- page_navbar(
             "lies between them."
           ),
           p("Here is how that works on a small part of the lizard example."),
-          # three across on a wide screen, two on a narrow one
+          # six across on a wide screen, four on a tablet, two on a phone
           layout_columns(
-            col_widths = breakpoints(sm = 6, lg = 4),
+            col_widths = breakpoints(xs = 6, sm = 3, lg = 2),
             method_figure(
               1,
-              "1. Habitat and a road: a square of the lizard map, with patches of habitat above and below a grey road."
+              "Start with the whole map",
+              "The whole lizard map: roads in grey and habitat in dark green, with one connected patch in blue north of a road and another in gold south of it. A small square is outlined where they meet the road."
             ),
             method_figure(
               2,
-              "2. Grow each patch by 50 m: the grown patches run together over the road and fill most of the square."
+              "Zoom in: habitat and a road",
+              "The square: patches of habitat above and below a grey road."
             ),
             method_figure(
               3,
-              "3. The road cuts the grown area: the road laid over the grown patches splits them into a part above the road and a part below."
+              "Grow each patch by 50 m",
+              "The grown patches run together over the road and fill most of the square."
             ),
             method_figure(
               4,
-              "4. Identify the patches: each piece of the cut grown area is one patch, the piece above the road in blue and the piece below it in gold."
+              "The road cuts the grown area",
+              "The road laid over the grown patches splits them into a part above the road and a part below."
             ),
             method_figure(
               5,
-              "5. Two connected patches: the habitat above the road is one connected patch, in blue, and the habitat below it another, in gold."
+              "Identify the patches",
+              "Each piece of the cut grown area is one patch: the piece above the road in blue and the piece below it in gold."
             ),
             method_figure(
               6,
-              "6. Zoom out to the whole map: the whole lizard map of roads and habitat, with the square outlined in orange, left of centre."
+              "Two connected patches",
+              "The habitat above the road is one connected patch, in blue, and the habitat below it another, in gold."
             )
           ),
           p(
