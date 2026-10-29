@@ -63,3 +63,38 @@ test_that("warn_buffer_resolution reports the effective distance when not a clea
     )
   )
 })
+
+test_that("representable_distance() is the distance habitat_buffer()'s window spans", {
+  grid <- terra::rast(
+    nrows = 10,
+    ncols = 10,
+    xmin = 0,
+    xmax = 100,
+    ymin = 0,
+    ymax = 100,
+    crs = "EPSG:28355"
+  )
+  distances <- c(15, 20, 100, 250, 1000)
+
+  # the window is 2 * rings + 1 cells across
+  rings <- purrr::map_dbl(distances, function(distance) {
+    (nrow(terra::focalMat(grid, distance / 2, type = "circle")) - 1) / 2
+  })
+
+  expect_equal(representable_distance(distances, 10), 2 * rings * 10)
+  expect_snapshot(representable_distance(distances, 10))
+})
+
+test_that("a negative distance can't be represented, and still warns", {
+  expect_equal(representable_distance(c(-15, NA), 10), c(0, NA))
+  expect_snapshot(warn_buffer_resolution(buffer_radius = -10, resolution = 10))
+})
+
+test_that("representable_distance() checks its arguments", {
+  expect_snapshot(error = TRUE, {
+    representable_distance("100", 10)
+    representable_distance(100, c(10, 20))
+    representable_distance(100, 0)
+    representable_distance(100, Inf)
+  })
+})

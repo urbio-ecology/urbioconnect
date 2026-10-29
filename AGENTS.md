@@ -7,7 +7,7 @@ urbioconnect analyses habitat connectivity in urban landscapes, and ships a Shin
 ### Where things live
 
 - `R/`: package code.
-- `inst/shiny/`: the Shiny app, started with `run_connectivity_app()`. It is a legacy-layout shiny app: `global.R`, then `ui.R` and `server.R`, all sourced by shiny itself. `global.R` is the one place packages are attached, and it sources `colours.R`. Don't add an `app.R`: shiny checks for `server.R` first, so an `app.R` here is never read. Only change UI and server code in `inst/shiny/ui.R` and `inst/shiny/server.R`.
+- `inst/shiny/`: the Shiny app, started with `run_connectivity_app()`. It is a legacy-layout shiny app: `global.R`, then `ui.R` and `server.R`, all sourced by shiny itself. `global.R` is the one place packages are attached, and it sources `colours.R` and `help.R`. `help.R` holds the plain-language explanation of every input, so write that text there and nowhere else. Don't add an `app.R`: shiny checks for `server.R` first, so an `app.R` here is never read. Only change UI and server code in `inst/shiny/ui.R` and `inst/shiny/server.R`.
 - `inst/non-targets-workflow.R` and `inst/scenario-workflow.R`: example workflows.
 - `_dev/`: working notes, never committed (excluded in `.git/info/exclude`, build-ignored). `todos/pending` and `todos/done` hold tracking docs; `drafts/` holds issue, PR and comment drafts; `specs/` holds specs, plans and reviews; `explore/` holds reprexes, research write-ups, figures and benchmarks; `scripts/` holds deploy scripts.
 

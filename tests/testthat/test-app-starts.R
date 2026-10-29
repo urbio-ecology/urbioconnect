@@ -25,10 +25,37 @@ test_that("the app starts, takes an analysis, and compares the result", {
     ","
   )[[1]])
 
-  expect_in(c("Inputs", "Results", "Downloads", "About"), tabs)
+  expect_in(
+    c("Before you start", "Inputs", "Results", "Downloads", "Details"),
+    tabs
+  )
 
   # the scenario controls are an input, so they live on Inputs, not a tab
   expect_false("Scenarios" %in% tabs)
+  # and Before you start took in what About said
+  expect_false("About" %in% tabs)
+
+  # the step figures on Before you start are files in www/, so a wrong name
+  # is a broken image rather than an error
+  figures <- '$("img[src^=method-step]").toArray()'
+  app$wait_for_js(paste0(figures, ".every(img => img.complete)"))
+  expect_equal(
+    app$get_js(paste0(figures, ".filter(img => img.naturalWidth > 0).length")),
+    7
+  )
+
+  # the app opens on the walkthrough, and one click skips it
+  expect_equal(app$get_value(input = "main_nav"), "Before you start")
+  app$click("go_to_inputs")
+  app$wait_for_idle()
+  expect_equal(app$get_value(input = "main_nav"), "Inputs")
+
+  # the rest of it is on Details, a link away
+  app$set_inputs(main_nav = "Before you start")
+  app$click("go_to_details")
+  app$wait_for_idle()
+  expect_equal(app$get_value(input = "main_nav"), "Details")
+  app$set_inputs(main_nav = "Inputs")
 
   visible <- function(selector) {
     app$get_js(paste0('$("', selector, '").is(":visible")'))
@@ -52,6 +79,21 @@ test_that("the app starts, takes an analysis, and compares the result", {
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
 
+  # every "i" is drawn, and one opens its text. The app's own files say how
+  # many there should be.
+  local_app_server()
+  expect_equal(app$get_js('$(".input-help").length'), length(input_help))
+
+  # a file input's, the one whose label would open the file picker
+  app$click(selector = "#habitat_file-help")
+  app$wait_for_js('$(".popover-body").length > 0')
+  expect_match(app$get_text(".popover-body"), "Where your species lives")
+
+  # the Your analysis card is rewritten in the browser too, where
+  # data_resolution arrives as an integer rather than a double
+  app$set_inputs(interpatch_distances = "15")
+  expect_match(app$get_text("#analysis_preview"), "only patches that touch")
+
   # the settings button sits in a conditionalPanel on results_ready, which only
   # a browser evaluates; the card is on Results, so open it to look
   app$set_inputs(main_nav = "Results")
@@ -65,11 +107,15 @@ test_that("the app starts, takes an analysis, and compares the result", {
   # see that they stay apart
   # the lizard example dataset and its own scenario, both chosen rather than
   # uploaded: that is the path a user takes, and it analyses in under a
-  # second. Choosing the dataset fills in the species and reloads the
-  # scenario choices, which is behaviour only a browser exercises.
-  app$set_inputs(example_data = "lizard")
+  # second. Before you start's button chooses the dataset and opens Inputs;
+  # choosing it fills in the species and reloads the scenario choices, which
+  # is behaviour only a browser exercises.
+  app$set_inputs(main_nav = "Before you start")
+  app$click("try_lizard")
   app$wait_for_idle()
 
+  expect_equal(app$get_value(input = "main_nav"), "Inputs")
+  expect_equal(app$get_value(input = "example_data"), "lizard")
   expect_equal(app$get_value(input = "species"), "Blue Tongue Lizard")
 
   app$set_inputs(
