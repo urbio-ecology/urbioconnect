@@ -291,7 +291,7 @@ ui <- page_navbar(
         card_body(
           p(
             class = "lead",
-            "This app measures how well habitat is connected for a given",
+            "'Urbioconnect' measures how well habitat is connected for a given",
             "species in an urban landscape, and how planned changes to",
             "habitat or urban environment would alter the connectedness. It",
             "uses the method from Kirk et al. (2023),",
@@ -311,19 +311,22 @@ ui <- page_navbar(
           ),
           p(
             "Animals move between patches of habitat, such as parks,",
-            "bushland and creek corridors, and roads, railways and",
+            "bushland and creek corridors. Roads, railways and",
             "buildings get in the way. A planned change, such as a new",
             "road or a development, can cut patches off from each other."
           ),
           p(
-            "You give it two maps, one of the habitat and one of the",
-            "barriers, and a distance your species will cross open ground:",
-            "the interpatch distance. The app grows every patch of habitat",
-            "by half that distance on each side. Patches whose grown edges",
-            "meet are joined into one connected patch, unless a barrier",
-            "lies between them."
+            "To use urbioconnect, you need to provide:",
+            "Two maps: 1) the habitat and 2) the barriers",
+            "The interpatch distance, a distance your species will cross open",
+            "ground:",
+            "We use this distance to find which patches are still connected,",
+            "and which ones are disconnected by the barriers."
           ),
-          p("Here is how that works on a small part of the lizard example."),
+          p(
+            "Here is a small example of how this works, using some example",
+            "data on the blue-tongued lizard."
+          ),
           # six across on a wide screen, four on a tablet, two on a phone
           layout_columns(
             col_widths = breakpoints(xs = 6, sm = 3, lg = 2),
@@ -359,8 +362,7 @@ ui <- page_navbar(
             )
           ),
           p(
-            "Then it measures the connected patches: how many there are, and",
-            "how much habitat you can reach from a point picked at random."
+            "It measures these connected patches to provide estimates of: ..."
           ),
           # the skip for someone who has used it before, and a one-click start
           # for someone who hasn't
