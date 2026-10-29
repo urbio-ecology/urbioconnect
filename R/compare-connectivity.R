@@ -133,26 +133,6 @@ compare_connectivity <- function(scenario, baseline, scenario_name = NULL) {
   new_compare_connectivity(results)
 }
 
-#' Pair up two multi-distance summaries, a distance at a time
-#'
-#' `compare_connectivity()` pairs single rows, while a sweep returns one row
-#' per distance, so this slices the two in step. Shared by the callers that
-#' sweep a whole landscape at once rather than once per distance:
-#' [habitat_connectivity_comparison()] and [connectivity_report_data()].
-#'
-#' @noRd
-rows_to_comparison <- function(scenario, baseline, scenario_name) {
-  purrr::map(seq_len(nrow(baseline)), function(i) {
-    compare_connectivity(
-      scenario = dplyr::slice(scenario, i),
-      baseline = dplyr::slice(baseline, i),
-      scenario_name = scenario_name
-    )
-  }) |>
-    dplyr::bind_rows() |>
-    new_compare_connectivity()
-}
-
 #' Build the `pct_change` row
 #'
 #' Expresses each metric's absolute change as a percentage of its baseline

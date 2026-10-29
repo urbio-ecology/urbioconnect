@@ -5,23 +5,13 @@
 #' radius is an implementation detail of the buffering: `habitat_buffer()` takes
 #' them, nothing above it does.
 #'
-#' Vectorised, because [habitat_connectivity()] sweeps. `scalar = TRUE` is for
-#' the callers that take one distance only, and adds the length constraint on
-#' top of the same checks rather than running a parallel set of them.
-#'
 #' @noRd
 buffer_radius_from <- function(
   interpatch_distance,
-  scalar = FALSE,
   arg = rlang::caller_arg(interpatch_distance),
   call = rlang::caller_env()
 ) {
   check_distances(interpatch_distance, arg, call)
-
-  if (scalar) {
-    check_scalar(interpatch_distance, arg, call)
-  }
-
   interpatch_distance / 2
 }
 
@@ -53,10 +43,8 @@ representable_distance <- function(interpatch_distance, resolution) {
     )
   }
 
-  # habitat_buffer() keeps a cell when its centre is within the radius, so a
-  # buffer reaches floor(radius / resolution) whole cells along a row or a
-  # column, with its tolerance for an exact multiple. A negative distance
-  # reaches none.
+  # whole cells along a row or column whose centres are within the radius,
+  # with habitat_within()'s tolerance for an exact multiple
   cells <- floor(interpatch_distance / 2 / resolution * (1 + 1e-9))
   pmax(0, 2 * cells * resolution)
 }

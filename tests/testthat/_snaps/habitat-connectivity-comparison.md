@@ -80,17 +80,6 @@
       ! `interpatch_distance` must contain at least one distance.
       x You supplied a zero-length value.
 
-# habitat_connectivity_comparison() checks species before any work
-
-    Code
-      habitat_connectivity_comparison(habitat_scenario = layers$habitat_scenario,
-      barrier_scenario = layers$barrier, habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier, species = 1, interpatch_distance = 40)
-    Condition
-      Error in `habitat_connectivity_comparison()`:
-      ! `species` must be <character>, not <numeric>.
-      i You supplied: a number
-
 # habitat_connectivity_comparison() aborts when both layers differ
 
     Code

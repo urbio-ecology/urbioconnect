@@ -7,8 +7,7 @@
 add_patch_area(raster)
 }
 \arguments{
-\item{raster}{terra SpatRaster with one layer. In the workflow, this is the
-patch ID raster.}
+\item{raster}{terra SpatRaster. In the workflow, this is the patch ID raster.}
 }
 \value{
 terra SpatRaster with two layers: patch_id and area.

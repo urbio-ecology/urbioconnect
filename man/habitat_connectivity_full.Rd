@@ -17,10 +17,8 @@ neither \code{NA} nor \code{0}, whatever value it is coded with.}
 
 \item{barrier}{Terra SpatRaster. Barrier raster.}
 
-\item{interpatch_distance}{Numeric. One distance (in metres), unlike
-\code{\link[=habitat_connectivity]{habitat_connectivity()}}, which takes a vector of them: this returns the
-layers one distance produced, and there is only one set of them. See
-\code{\link[=habitat_connectivity]{habitat_connectivity()}} for what the distance means.}
+\item{interpatch_distance}{Numeric. A single distance in metres; see
+\code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }

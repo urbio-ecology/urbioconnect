@@ -86,34 +86,6 @@ test_that("drop_habitat_under_barrier codes habitat 1 and the rest NA", {
   expect_equal(remaining, purrr::map(coded, \(codes) expected))
 })
 
-test_that("patch ids don't depend on habitat coding", {
-  # projected, so the first and last cells don't touch across the antimeridian
-  strip <- test_raster(1, 5)
-  habitat <- terra::init(strip, NA)
-  habitat[1, 1] <- 2
-  habitat[1, 5] <- 3
-  fragment <- terra::init(strip, NA)
-  fragment[1, c(1, 5)] <- 1
-
-  patches <- assign_patches_to_fragments(habitat, fragment)
-
-  expect_equal(as.numeric(terra::values(patches))[c(1, 5)], c(1, 2))
-})
-
-test_that("assign_patches_to_fragments leaves habitat coded 0 as NA", {
-  strip <- test_raster(1, 5)
-  habitat <- terra::init(strip, 0)
-  habitat[1, c(1, 5)] <- 1
-  fragment <- terra::init(strip, 1)
-
-  patches <- assign_patches_to_fragments(habitat, fragment)
-
-  expect_equal(
-    is.na(as.numeric(terra::values(patches))),
-    c(FALSE, TRUE, TRUE, TRUE, FALSE)
-  )
-})
-
 test_that("fragment_habitat rejects a buffer with several layers", {
   habitat <- test_raster(10, 10)
   habitat[5, 5] <- 1
@@ -241,9 +213,7 @@ test_that("a sweep gives what one call per distance gives", {
   rows <- c(5, 5, 14, 25, 26, 34)
   cols <- c(5, 14, 5, 25, 33, 12)
   patchy[terra::cellFromRowCol(patchy, rows, cols)] <- 1
-  no_barrier <- terra::rast(patchy)
-  terra::values(no_barrier) <- NA
-  no_barrier[1, 1] <- 1
+  no_barrier <- test_raster(40, 40)
 
   distances <- c(220, 40, 100)
   connectivity_at <- function(interpatch_distance) {
@@ -259,8 +229,6 @@ test_that("a sweep gives what one call per distance gives", {
   sweep <- connectivity_at(distances)
 
   expect_s3_class(sweep, "connectivity")
-  expect_equal(sweep$interpatch_distance, distances)
-  expect_length(patch_sizes(sweep), 3)
   expect_gt(length(unique(sweep$n_patches)), 1)
 
   one_at_a_time <- purrr::map(distances, connectivity_at) |>

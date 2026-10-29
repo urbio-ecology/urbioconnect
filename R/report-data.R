@@ -1,18 +1,17 @@
 #' Everything one connectivity analysis produces
 #'
-#' Sweeps each landscape once over every distance, sharing the work that does
-#'   not depend on the distance, and keeps both the summary and the spatial
-#'   layers the maps need. [habitat_connectivity()] returns the summary alone;
-#'   this also keeps the buffered habitat and the patch-ID raster for each
-#'   distance, which is what the downloadable assets and the report are built
-#'   from.
+#' Runs the connectivity pipeline over every distance and keeps both the summary
+#'   and the spatial layers the maps need. [habitat_connectivity()] returns the
+#'   summary alone; this also keeps the buffered habitat and the patch-ID
+#'   raster for each distance, which is what the downloadable assets and the
+#'   report are built from.
 #'
 #' @param habitat Terra SpatRaster. The habitat layer.
 #' @param barrier Terra SpatRaster. The barrier layer.
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
-#'   vector is swept in one pass, giving a result for each distance.
+#'   vector gives a result for each distance.
 #' @param scenario Optional layer to compare against the baseline: an `sf`,
 #'   `SpatVector` or `SpatRaster` standing in for one of `habitat` and
 #'   `barrier`. It is put on the baseline's own grid with [onto_grid()], so it
@@ -168,10 +167,8 @@ connectivity_report_data <- function(
 
 #' Run the pipeline over every distance, and summarise each run
 #'
-#' One sweep, not one call per distance: `connectivity_layers()` shares the
-#' barrier mask, the masked habitat, the cell areas and the distance surface
-#' across the distances, and returns the layers and patch areas each distance
-#' produced.
+#' One sweep through `connectivity_layers()`, which also gives the layers each
+#' distance produced, unless `keep_layers` is `FALSE`.
 #'
 #' @noRd
 connectivity_runs <- function(
@@ -179,31 +176,53 @@ connectivity_runs <- function(
   barrier,
   species,
   interpatch_distance,
-  verbose
+  verbose,
+  keep_layers = TRUE
 ) {
-  buffer_radius <- buffer_radius_from(interpatch_distance)
-  layers <- connectivity_layers_quietly(
+  runs <- connectivity_layers_quietly(
     habitat,
     barrier,
-    buffer_radius,
-    verbose
-  )
+    buffer_radius_from(interpatch_distance),
+    verbose,
+    keep_layers
+  )$at_radius |>
+    rlang::set_names(as.character(interpatch_distance))
 
-  runs <- rlang::set_names(
-    layers$at_radius,
-    as.character(interpatch_distance)
-  )
+  connectivity <- purrr::map2(
+    runs,
+    interpatch_distance,
+    function(run, interpatch_distance) {
+      patch_size_tbl(
+        data = run$areas_connected,
+        species = species,
+        interpatch_distance = interpatch_distance,
+        res = terra::res(habitat)
+      ) |>
+        summarise_connectivity()
+    }
+  ) |>
+    dplyr::bind_rows()
 
   list(
-    connectivity = summarise_runs(
-      runs = runs,
-      species = species,
-      interpatch_distance = interpatch_distance,
-      res = terra::res(habitat)
-    ),
+    connectivity = connectivity,
     buffered_habitat = purrr::map(runs, "buffered_habitat"),
     patch_id_raster = purrr::map(runs, "patch_id_raster")
   )
+}
+
+#' Pair up two already-computed summaries, a distance at a time
+#'
+#' @noRd
+rows_to_comparison <- function(scenario, baseline, scenario_name) {
+  purrr::map(seq_len(nrow(baseline)), function(i) {
+    compare_connectivity(
+      scenario = dplyr::slice(scenario, i),
+      baseline = dplyr::slice(baseline, i),
+      scenario_name = scenario_name
+    )
+  }) |>
+    dplyr::bind_rows() |>
+    new_compare_connectivity()
 }
 
 #' A scenario needs to say which layer it replaces, and nothing else may

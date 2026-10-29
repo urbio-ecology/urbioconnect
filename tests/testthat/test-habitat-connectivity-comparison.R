@@ -57,7 +57,10 @@ test_that("habitat_connectivity_comparison() sweeps to what one call per distanc
     )
   }
 
+  surfaces <- local_surface_count()
   swept <- comparison_at(c(40, 160))
+  # one per landscape, not one per distance
+  expect_equal(surfaces(), 2)
 
   # the baseline differs between the two distances, so a mis-pairing shows
   baseline_rows <- dplyr::filter(swept, measure == "baseline")
@@ -105,46 +108,6 @@ test_that("habitat_connectivity_comparison() rejects a missing or empty distance
     comparison_at()
     comparison_at(interpatch_distance = numeric(0))
   })
-})
-
-test_that("habitat_connectivity_comparison() measures one surface per landscape", {
-  layers <- scenario_test_layers()
-  surfaces <- local_surface_count()
-
-  comparison_at <- function(barrier_scenario) {
-    habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat,
-      barrier_scenario = barrier_scenario,
-      habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier,
-      species = "Test Species",
-      interpatch_distance = c(40, 80, 160),
-      verbose = FALSE
-    )
-  }
-
-  comparison_at(layers$barrier_scenario)
-  expect_equal(surfaces(), 2)
-
-  # the baseline's sweep is reused when the scenario is the baseline
-  suppressWarnings(comparison_at(layers$barrier))
-  expect_equal(surfaces(), 3)
-})
-
-test_that("habitat_connectivity_comparison() checks species before any work", {
-  layers <- scenario_test_layers()
-
-  expect_snapshot(
-    error = TRUE,
-    habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat_scenario,
-      barrier_scenario = layers$barrier,
-      habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier,
-      species = 1,
-      interpatch_distance = 40
-    )
-  )
 })
 
 test_that("habitat_connectivity_comparison() warns and returns zero change when scenario equals baseline", {

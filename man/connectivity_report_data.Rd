@@ -25,7 +25,7 @@ connectivity_report_data(
 
 \item{interpatch_distance}{Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
-vector is swept in one pass, giving a result for each distance.}
+vector gives a result for each distance.}
 
 \item{scenario}{Optional layer to compare against the baseline: an \code{sf},
 \code{SpatVector} or \code{SpatRaster} standing in for one of \code{habitat} and
@@ -69,12 +69,11 @@ landscape: \code{scenario_kind}, \code{scenario_habitat}, \code{scenario_barrier
 \code{NULL}. \code{\link[=scenario_layer]{scenario_layer()}} returns whichever layer the scenario changed.
 }
 \description{
-Sweeps each landscape once over every distance, sharing the work that does
-not depend on the distance, and keeps both the summary and the spatial
-layers the maps need. \code{\link[=habitat_connectivity]{habitat_connectivity()}} returns the summary alone;
-this also keeps the buffered habitat and the patch-ID raster for each
-distance, which is what the downloadable assets and the report are built
-from.
+Runs the connectivity pipeline over every distance and keeps both the summary
+and the spatial layers the maps need. \code{\link[=habitat_connectivity]{habitat_connectivity()}} returns the
+summary alone; this also keeps the buffered habitat and the patch-ID
+raster for each distance, which is what the downloadable assets and the
+report are built from.
 }
 \examples{
 \donttest{

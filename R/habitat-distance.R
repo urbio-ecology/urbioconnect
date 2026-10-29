@@ -10,16 +10,6 @@ is_habitat <- function(values) {
   !is.na(values) & values != 0
 }
 
-#' Habitat as 1 where present and NA everywhere else
-#'
-#' Normalised once, so the buffer, the patch ids and the areas agree on
-#' which cells are habitat.
-#'
-#' @noRd
-as_habitat_mask <- function(habitat) {
-  terra::ifel(is_habitat(habitat), 1, NA)
-}
-
 #' Distance along each row to the nearest habitat cell in that row
 #'
 #' Measured in cells, and `Inf` for a row with no habitat in it. Two running
@@ -33,14 +23,11 @@ as_habitat_mask <- function(habitat) {
 #' @noRd
 row_gap_cells <- function(present) {
   n_cols <- nrow(present)
-  n_rows <- ncol(present)
   absent <- n_cols + 1L
   here <- seq_len(n_cols)
 
   # apply() drops to a bare vector when the matrix is one cell wide or tall
-  scan_rows <- function(x, f) {
-    matrix(apply(x, 2, f), nrow = n_cols, ncol = n_rows)
-  }
+  scan_rows <- \(x, f) array(apply(x, 2, f), dim(x))
 
   # `here` recycles down each column; 0 marks a cell with no habitat, and no
   # column index is ever 0
@@ -71,18 +58,15 @@ row_gap_cells <- function(present) {
 #' every cell of the raster, O(cells * radius^2). This is O(cells * radius):
 #' a pass along the rows, then one row offset at a time.
 #'
-#' `terra::distance()` is faster still but approximate: it propagates
-#' distances from neighbour to neighbour and can settle on a habitat cell that
-#' is not the nearest. On the lizard landscape it overstates 20 cells at a
-#' 10 m radius, enough to put them the wrong side of the cut-off.
+#' Not `terra::distance()`: it is faster but approximate, and on the lizard
+#' landscape puts 20 cells the wrong side of a 10 m radius.
 #'
 #' @param habitat A `SpatRaster` habitat layer, with one layer.
 #' @param max_distance Numeric. How far out the answer has to be right. This
 #'   is what bounds the work: only row offsets that could land within
 #'   `max_distance` are considered.
-#' @returns A list of `distance` (a `SpatRaster`) and `reaches`, the
-#'   `max_distance` it was built for. Only exact out to `reaches`, which
-#'   `habitat_within()` checks.
+#' @returns A `SpatRaster`, exact out to `max_distance`. Further out it may
+#'   overstate the distance, which no radius up to `max_distance` can see.
 #' @noRd
 nearest_habitat_distance <- function(habitat, max_distance) {
   resolution <- terra::res(habitat)
@@ -101,15 +85,14 @@ nearest_habitat_distance <- function(habitat, max_distance) {
   within_row <- (row_gap_cells(present) * resolution[1])^2
 
   # +1 because floor() can drop an exact multiple (4.3 / 0.1 is 42.99...);
-  # habitat_within() does the exact comparison
-  offsets <- max(0, min(floor(max_distance / resolution[2]) + 1L, n_rows - 1L))
+  # habitat_within() makes the comparison
+  offsets <- min(floor(max_distance / resolution[2]) + 1L, n_rows - 1L)
 
   # An offset can only improve a cell whose best so far is further than that
   # offset's vertical distance, so the loop stops early.
   squared <- within_row
-  rows_away <- 1L
 
-  while (rows_away <= offsets) {
+  for (rows_away in seq_len(offsets)) {
     vertical <- (rows_away * resolution[2])^2
 
     if (max(squared) <= vertical) {
@@ -126,44 +109,22 @@ nearest_habitat_distance <- function(habitat, max_distance) {
       squared[, down, drop = FALSE],
       within_row[, up, drop = FALSE] + vertical
     )
-    rows_away <- rows_away + 1L
   }
 
-  # out of reach, which reads as "not within" at every radius the surface
-  # covers, and keeps Inf out of the raster
-  squared[is.infinite(squared)] <- NA
-  distance <- sqrt(squared)
-
-  surface <- terra::rast(habitat)
-  terra::values(surface) <- as.vector(distance)
-  names(surface) <- "habitat_distance"
-
-  list(distance = surface, reaches = max_distance)
+  terra::rast(habitat, vals = as.vector(sqrt(squared)))
 }
 
 #' The cells within a given radius of habitat
 #'
-#' @param habitat_distance A surface from `nearest_habitat_distance()`.
-#' @param buffer_radius Numeric. The radius in metres, which must be within
-#'   the surface's reach: past that the surface is `NA`, and an `NA` distance
-#'   reads as "not within", so a buffer built from one would come back
-#'   quietly truncated rather than wrong in any visible way.
+#' @param habitat_distance A surface from `nearest_habitat_distance()`, measured
+#'   out to at least `buffer_radius`.
+#' @param buffer_radius Numeric. The radius in metres.
 #' @returns A `SpatRaster`, 1 within the radius and `NA` outside it.
 #' @noRd
 habitat_within <- function(habitat_distance, buffer_radius) {
-  if (buffer_radius > habitat_distance$reaches) {
-    cli::cli_abort(c(
-      "Can't buffer by {buffer_radius}m using a surface measured to
-       {habitat_distance$reaches}m.",
-      "x" = "Cells past the surface's reach are unmeasured, so the buffer
-             would be truncated.",
-      "i" = "Measure the surface to at least {buffer_radius}m."
-    ))
-  }
-
   # the tolerance keeps a cell exactly one radius away: 3 * 0.1 is past 0.3
   within <- terra::ifel(
-    habitat_distance$distance <= buffer_radius * (1 + 1e-9),
+    habitat_distance <= buffer_radius * (1 + 1e-9),
     1,
     NA
   )

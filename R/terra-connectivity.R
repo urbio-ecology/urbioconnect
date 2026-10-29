@@ -179,7 +179,8 @@ create_barrier_mask <- function(barrier) {
 drop_habitat_under_barrier <- function(habitat, barrier_mask) {
   check_single_layer(habitat)
   barrier_mask <- align_to(barrier_mask, habitat)
-  terra::mask(as_habitat_mask(habitat), barrier_mask)
+  # coded 1 here, so every later step agrees on which cells are habitat
+  terra::mask(terra::ifel(is_habitat(habitat), 1, NA), barrier_mask)
 }
 
 #' Fragment habitat
@@ -229,16 +230,15 @@ fragment_habitat <- function(buffered_habitat, barrier_mask) {
 assign_patches_to_fragments <- function(remaining_habitat, fragment) {
   patch_id_raster <- terra::patches(fragment)
   patch_id_raster <- align_to(patch_id_raster, remaining_habitat)
-  # patch ids don't depend on how habitat is coded
-  terra::mask(patch_id_raster, remaining_habitat, maskvalues = c(NA, 0))
+  patch_id_raster <- remaining_habitat * patch_id_raster
+  patch_id_raster
 }
 
 #' Add patch area layer
 #'
 #' Adds an area layer to the raster of the area of each patch.
 #'
-#' @param raster terra SpatRaster with one layer. In the workflow, this is the
-#'   patch ID raster.
+#' @param raster terra SpatRaster. In the workflow, this is the patch ID raster.
 #' @returns terra SpatRaster with two layers: patch_id and area.
 #' @export
 #' @examples
@@ -258,13 +258,7 @@ assign_patches_to_fragments <- function(remaining_habitat, fragment) {
 #' library(terra)
 #' add_patch_area(fragment_patches)
 add_patch_area <- function(raster) {
-  check_single_layer(raster)
-  with_cell_area(raster, terra::cellSize(raster))
-}
-
-#' @noRd
-with_cell_area <- function(raster, area) {
-  raster_with_area <- c(raster, area)
+  raster_with_area <- c(raster, terra::cellSize(raster))
   names(raster_with_area) <- c("patch_id", "area")
   raster_with_area
 }
@@ -383,47 +377,18 @@ habitat_connectivity <- function(
   interpatch_distance,
   verbose = TRUE
 ) {
+  # checked before the sweep, so an error names this function and comes first
   check_scalar_character(species)
-  # validated up front, so an error names this function
-  buffer_radius <- buffer_radius_from(interpatch_distance)
+  check_distances(interpatch_distance)
 
-  layers <- connectivity_layers_quietly(
+  connectivity_runs(
     habitat,
     barrier,
-    buffer_radius,
-    verbose,
-    # only the summary is wanted here, so each radius's rasters can go
-    keep_layers = FALSE
-  )
-
-  summarise_runs(
-    runs = layers$at_radius,
-    species = species,
-    interpatch_distance = interpatch_distance,
-    res = terra::res(habitat)
-  )
-}
-
-#' Summarise the per-radius runs into one `connectivity` row per distance
-#'
-#' @param runs One list per distance, each holding `areas_connected`.
-#' @noRd
-summarise_runs <- function(runs, species, interpatch_distance, res) {
-  purrr::map2(
-    purrr::map(runs, "areas_connected"),
+    species,
     interpatch_distance,
-    function(areas, distance) {
-      patch_size_tbl(
-        data = areas,
-        species = species,
-        interpatch_distance = distance,
-        res = res
-      ) |>
-        summarise_connectivity()
-    }
-  ) |>
-    dplyr::bind_rows() |>
-    new_connectivity()
+    verbose,
+    keep_layers = FALSE
+  )$connectivity
 }
 
 #' `connectivity_layers()`, silenced when the caller asked for quiet
@@ -443,9 +408,9 @@ connectivity_layers_quietly <- function(
 #' Run the connectivity pipeline at every buffer radius
 #'
 #' The engine behind [habitat_connectivity()] and
-#' [habitat_connectivity_full()]. The barrier mask, remaining habitat, distance
-#' surface and cell areas do not depend on the radius, so they are made once;
-#' only the buffer threshold, fragmenting, patch and aggregation steps run per
+#' [habitat_connectivity_full()]. The barrier mask, remaining habitat and
+#' distance surface do not depend on the radius, so they are made once; only
+#' the buffer threshold, fragmenting, patch and aggregation steps run per
 #' radius.
 #'
 #' @param keep_layers Whether to keep each radius's (large) rasters too.
@@ -475,14 +440,11 @@ connectivity_layers <- function(
   # the steps below run inside map(), so they can't close this one themselves
   cli::cli_progress_done()
 
-  # the grid decides the cell areas, so one call covers every radius
-  cell_area <- terra::cellSize(remaining_habitat)
-
-  at_radius <- purrr::map(seq_along(buffer_radius), function(i) {
+  at_radius <- purrr::map(buffer_radius, function(radius) {
     cli::cli_progress_step(
-      "Buffering habitat for an interpatch distance of {2 * buffer_radius[[i]]}m"
+      "Buffering habitat for an interpatch distance of {2 * radius}m"
     )
-    buffered_habitat <- habitat_within(surface, buffer_radius[[i]])
+    buffered_habitat <- habitat_within(surface, radius)
 
     cli::cli_progress_step(
       "Fragmenting habitat layer along barrier intersection"
@@ -497,7 +459,7 @@ connectivity_layers <- function(
       remaining_habitat = remaining_habitat,
       fragment = fragmentation_raster
     ) |>
-      with_cell_area(cell_area)
+      add_patch_area()
 
     cli::cli_progress_step("Summarising area in each patch")
     areas_connected <- aggregate_connected_patches(patch_id_raster)
@@ -530,10 +492,8 @@ connectivity_layers <- function(
 #' for mapping and reporting.
 #'
 #' @inheritParams habitat_connectivity
-#' @param interpatch_distance Numeric. One distance (in metres), unlike
-#'   [habitat_connectivity()], which takes a vector of them: this returns the
-#'   layers one distance produced, and there is only one set of them. See
-#'   [habitat_connectivity()] for what the distance means.
+#' @param interpatch_distance Numeric. A single distance in metres; see
+#'   [habitat_connectivity()].
 #' @returns Named list with elements: `buffered_habitat`, `patch_id_raster`,
 #'   `areas_connected`, `barrier_mask`, `remaining_habitat`.
 #' @examples
@@ -553,7 +513,8 @@ habitat_connectivity_full <- function(
   interpatch_distance,
   verbose = TRUE
 ) {
-  buffer_radius <- buffer_radius_from(interpatch_distance, scalar = TRUE)
+  buffer_radius <- buffer_radius_from(interpatch_distance)
+  check_scalar(interpatch_distance)
 
   layers <- connectivity_layers_quietly(
     habitat,

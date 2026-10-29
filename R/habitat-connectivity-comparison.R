@@ -16,11 +16,6 @@
 #'   function aborts; if neither differs it warns (the scenario equals the
 #'   baseline, so every `change` value is zero).
 #'
-#'   Each landscape is swept once, by a single [habitat_connectivity()] call
-#'   that shares the work not depending on the distance across the whole
-#'   vector. That work is done once per landscape (twice in all, once when the
-#'   scenario is identical to the baseline), not once per distance.
-#'
 #' @param habitat_scenario Terra SpatRaster. The scenario habitat layer.
 #' @param barrier_scenario Terra SpatRaster. The scenario barrier layer.
 #' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
@@ -65,7 +60,6 @@ habitat_connectivity_comparison <- function(
   scenario_name = NULL,
   verbose = TRUE
 ) {
-  check_scalar_character(species)
   check_scenario_name(scenario_name)
   check_distances(interpatch_distance)
 
@@ -102,8 +96,6 @@ habitat_connectivity_comparison <- function(
     )
   }
 
-  # One sweep per landscape: habitat_connectivity() takes the whole vector and
-  # shares the distance-independent work across it.
   base_conn <- habitat_connectivity(
     habitat = habitat_baseline,
     barrier = barrier_baseline,

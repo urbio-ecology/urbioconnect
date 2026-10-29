@@ -373,8 +373,6 @@ check_distances <- function(
     )
   }
 
-  # NA and Inf used to fail deep inside the pipeline, and a negative distance
-  # buffered to nothing and was reported as a real answer
   unusable <- unique(x[!is.finite(x) | x < 0])
   if (length(unusable) > 0) {
     cli::cli_abort(

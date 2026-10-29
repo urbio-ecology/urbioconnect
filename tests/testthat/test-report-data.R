@@ -25,23 +25,6 @@ test_that("connectivity_report_data() keeps a summary and layers per distance", 
   })
 })
 
-test_that("connectivity_report_data() measures one surface per landscape", {
-  layers <- scenario_test_layers()
-  surfaces <- local_surface_count()
-
-  connectivity_report_data(
-    habitat = layers$habitat,
-    barrier = layers$barrier,
-    species = "Test Species",
-    interpatch_distance = c(40, 80, 160),
-    scenario = layers$barrier_scenario,
-    scenario_kind = "barrier",
-    verbose = FALSE
-  )
-
-  expect_equal(surfaces(), 2)
-})
-
 test_that("a scenario gives the same comparison, for half the pipeline runs", {
   layers <- scenario_test_layers()
 
@@ -59,6 +42,7 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
     verbose = FALSE
   )
 
+  surfaces <- local_surface_count()
   together <- connectivity_report_data(
     habitat = layers$habitat,
     barrier = layers$barrier,
@@ -68,6 +52,8 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
     scenario_kind = "habitat",
     verbose = FALSE
   )
+  # one per landscape, not one per distance
+  expect_equal(surfaces(), 2)
 
   expect_equal(together$comparison, separately)
   # a scenario that changed nothing would make the line above vacuous

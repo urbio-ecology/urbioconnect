@@ -51,9 +51,7 @@ the baseline barrier, and barrier scenarios against the baseline habitat.
 There's no way to write a scenario that changes both, which is what
 \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} has to check for.
 
-Each landscape is swept once over the whole of \code{interpatch_distance}, and
-the baseline sweep is reused by every scenario. The work that does not
-depend on the distance is shared across the distances within each sweep.
+The baseline is run once and reused by every scenario.
 }
 \examples{
 \donttest{

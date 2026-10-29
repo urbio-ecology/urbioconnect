@@ -60,11 +60,6 @@ habitat change, pass the same barrier to both \code{barrier_baseline} and
 \code{barrier_scenario}. If both the habitat \emph{and} the barrier differ the
 function aborts; if neither differs it warns (the scenario equals the
 baseline, so every \code{change} value is zero).
-
-Each landscape is swept once, by a single \code{\link[=habitat_connectivity]{habitat_connectivity()}} call
-that shares the work not depending on the distance across the whole
-vector. That work is done once per landscape (twice in all, once when the
-scenario is identical to the baseline), not once per distance.
 }
 \examples{
 \donttest{

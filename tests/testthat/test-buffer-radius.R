@@ -3,7 +3,6 @@ test_that("buffer_radius_from() halves the interpatch distance", {
   # half of it, so the two meet in the middle
   expect_equal(buffer_radius_from(250), 125)
   expect_equal(buffer_radius_from(0), 0)
-  # vectorised, because habitat_connectivity() sweeps
   expect_equal(buffer_radius_from(c(250, 500)), c(125, 250))
 })
 

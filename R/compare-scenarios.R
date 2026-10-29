@@ -93,9 +93,7 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   There's no way to write a scenario that changes both, which is what
 #'   [habitat_connectivity_comparison()] has to check for.
 #'
-#'   Each landscape is swept once over the whole of `interpatch_distance`, and
-#'   the baseline sweep is reused by every scenario. The work that does not
-#'   depend on the distance is shared across the distances within each sweep.
+#'   The baseline is run once and reused by every scenario.
 #'
 #' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
 #' @param barrier_baseline Terra SpatRaster. The baseline barrier layer.
@@ -146,7 +144,6 @@ habitat_connectivity_scenarios <- function(
   interpatch_distance,
   verbose = TRUE
 ) {
-  check_scalar_character(species)
   check_distances(interpatch_distance)
   check_scenario_layers(habitat_scenarios, barrier_scenarios)
 
@@ -170,8 +167,6 @@ habitat_connectivity_scenarios <- function(
     barrier_baseline
   )
 
-  # One sweep per landscape, each sharing its distance-independent work across
-  # the whole vector. The baseline is swept once and reused by every scenario.
   base_conn <- habitat_connectivity(
     habitat = habitat_baseline,
     barrier = barrier_baseline,

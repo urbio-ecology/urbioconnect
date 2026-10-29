@@ -19,38 +19,6 @@ test_that("habitat_connectivity_scenarios() stacks habitat then barrier scenario
   expect_snapshot(results)
 })
 
-test_that("habitat_connectivity_scenarios() measures one surface per landscape", {
-  layers <- scenario_test_layers()
-  surfaces <- local_surface_count()
-
-  habitat_connectivity_scenarios(
-    habitat_baseline = layers$habitat,
-    barrier_baseline = layers$barrier,
-    species = "Test Species",
-    habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
-    barrier_scenarios = list("Barrier upgrade" = layers$barrier_scenario),
-    interpatch_distance = c(40, 80, 160),
-    verbose = FALSE
-  )
-
-  expect_equal(surfaces(), 3)
-})
-
-test_that("habitat_connectivity_scenarios() checks species before any work", {
-  layers <- scenario_test_layers()
-
-  expect_snapshot(
-    error = TRUE,
-    habitat_connectivity_scenarios(
-      habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier,
-      species = 1,
-      habitat_scenarios = list("Bentley Project" = layers$habitat_scenario),
-      interpatch_distance = 40
-    )
-  )
-})
-
 test_that("habitat_connectivity_scenarios() takes either list on its own", {
   layers <- scenario_test_layers()
 
@@ -139,7 +107,10 @@ test_that("habitat_connectivity_scenarios() sweeps to what one call per distance
     )
   }
 
+  surfaces <- local_surface_count()
   swept <- scenarios_at(c(40, 160))
+  # one per landscape: the baseline and the two scenarios
+  expect_equal(surfaces(), 3)
 
   # the baseline differs between the two distances, so a mis-pairing shows
   baseline_rows <- dplyr::filter(swept, measure == "baseline")

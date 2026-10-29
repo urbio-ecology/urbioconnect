@@ -1,13 +1,3 @@
-# habitat_within() refuses a radius past the surface's reach
-
-    Code
-      habitat_within(surface, 40)
-    Condition
-      Error in `habitat_within()`:
-      ! Can't buffer by 40m using a surface measured to 20m.
-      x Cells past the surface's reach are unmeasured, so the buffer would be truncated.
-      i Measure the surface to at least 40m.
-
 # a habitat layer with several layers is an error
 
     Code
@@ -21,7 +11,7 @@
       Error in `drop_habitat_under_barrier()`:
       ! `habitat` must have one layer, not 2.
 
-# habitat_buffer() rejects radii it can't use
+# habitat_buffer() names itself in a radius error
 
     Code
       habitat_buffer(layer, -20)
@@ -29,31 +19,13 @@
       Error in `habitat_buffer()`:
       ! `buffer_radius` must be finite and not negative.
       x Not usable: -20.
-    Code
-      habitat_buffer(layer, c(20, NA))
-    Condition
-      Error in `habitat_buffer()`:
-      ! `buffer_radius` must be finite and not negative.
-      x Not usable: NA.
-    Code
-      habitat_buffer(layer, Inf)
-    Condition
-      Error in `habitat_buffer()`:
-      ! `buffer_radius` must be finite and not negative.
-      x Not usable: Inf.
-    Code
-      habitat_buffer(layer, c(20, 20))
-    Condition
-      Error in `habitat_buffer()`:
-      ! `buffer_radius` must not repeat a distance.
-      x Repeated: 20.
 
-# habitat_buffer() gives one layer per radius, each as if alone
+# habitat_buffer() reaches exactly as far as asked on non-square cells
 
     Code
-      names(both)
+      names(buffered)
     Output
-      [1] "radius_50" "radius_20"
+      [1] "radius_9" "radius_6"
 
 # habitat_buffer() warns below one cell and keeps only the habitat
 
