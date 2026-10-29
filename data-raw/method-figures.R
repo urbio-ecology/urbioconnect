@@ -1,5 +1,6 @@
-# The six step-by-step figures on the app's Before you start page: the whole
-# lizard example, then a small part of it. Their captions are in ui.R. Re-run
+# The seven step-by-step figures on the app's Before you start page: the whole
+# lizard example, a small part of it, then the whole again. Their captions are
+# in ui.R. Re-run
 # from the package root, with the package loaded, after changing them:
 #   Rscript -e 'devtools::load_all(); source("data-raw/method-figures.R")'
 library(ggplot2)
@@ -79,15 +80,15 @@ map_plot <- function(..., where = zoom) {
     )
 }
 
-figures <- list(
+# the whole map with the square outlined, and anything else drawn over it
+whole_map <- function(...) {
   map_plot(
     geom_tile(data = cells(barrier, whole), fill = colours[["barrier"]]),
     geom_tile(
       data = cells(steps$remaining_habitat, whole),
       fill = colours[["habitat"]]
     ),
-    geom_tile(data = reach, aes(fill = patch_id)),
-    patch_colours,
+    ...,
     annotate(
       "rect",
       xmin = zoom$xmin,
@@ -99,7 +100,11 @@ figures <- list(
       linewidth = 0.6
     ),
     where = whole
-  ),
+  )
+}
+
+figures <- list(
+  whole_map(),
   map_plot(
     geom_tile(data = road, fill = colours[["barrier"]]),
     geom_tile(data = hab, fill = colours[["habitat"]])
@@ -123,7 +128,8 @@ figures <- list(
     geom_tile(data = road, fill = colours[["barrier"]]),
     geom_tile(data = patches, aes(fill = patch_id)),
     patch_colours
-  )
+  ),
+  whole_map(geom_tile(data = reach, aes(fill = patch_id)), patch_colours)
 )
 
 # a few KB each, and still sharp on a high-density screen at the size shown

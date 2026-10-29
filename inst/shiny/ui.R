@@ -327,13 +327,15 @@ ui <- page_navbar(
             "Here is a small example of how this works, using some example",
             "data on the blue-tongued lizard."
           ),
-          # six across on a wide screen, four on a tablet, two on a phone
-          layout_columns(
-            col_widths = breakpoints(xs = 6, sm = 3, lg = 2),
+          # as many across as fit: seven on a wide screen, two on a phone
+          layout_column_wrap(
+            width = "6.5rem",
+            gap = "0.75rem",
+            fill = FALSE,
             method_figure(
               1,
               "Start with the whole map",
-              "The whole lizard map: roads in grey and habitat in dark green, with one connected patch in blue north of a road and another in gold south of it. A small square is outlined where they meet the road."
+              "The whole lizard map: roads in grey and habitat in dark green. A small square is outlined left of centre, on a road."
             ),
             method_figure(
               2,
@@ -359,6 +361,11 @@ ui <- page_navbar(
               6,
               "Two connected patches",
               "The habitat above the road is one connected patch, in blue, and the habitat below it another, in gold."
+            ),
+            method_figure(
+              7,
+              "Zoom out: the two patches on the whole map",
+              "The whole lizard map again, with the blue patch reaching well north of the square and the gold patch well south of it."
             )
           ),
           p(
