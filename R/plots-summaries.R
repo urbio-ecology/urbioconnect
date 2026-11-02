@@ -19,7 +19,8 @@ col2hex <- function(color_name) {
 #'
 #' @param barrier Terra SpatRaster. Barrier layer (e.g., roads).
 #' @param buffered Terra SpatRaster. Buffered habitat layer.
-#' @param habitat Terra SpatRaster. Original habitat layer.
+#' @param habitat Terra SpatRaster. Original habitat layer. Habitat is any cell
+#'   that is neither `NA` nor `0`.
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
 #'   are connected, those 501m apart are not connected. This is passed
@@ -75,7 +76,8 @@ gg_barrier_habitat_interpatch_dist <- function(
   # First, reclassify your rasters to assign actual color values
   barrier_coloured <- terra::subst(barrier, 1, col_barrier)
   interpatch_coloured <- terra::subst(buffered, 1, col_interpatch_dist)
-  habitat_coloured <- terra::subst(habitat, 1, col_habitat)
+  habitat_present <- terra::ifel(is_habitat(habitat), 1, NA)
+  habitat_coloured <- terra::subst(habitat_present, 1, col_habitat)
 
   # Now plot them in layers (bottom to top)
   ggplot2::ggplot() +
@@ -126,8 +128,9 @@ gg_barrier_habitat_interpatch_dist <- function(
 #' zone, so a barrier drawn alone is white on that same green: white on white
 #' would be nothing at all.
 #'
-#' @param layer A `SpatRaster`. Cells equal to 1 are the layer; everything
-#'   else is background, whether it is 0 or `NA`.
+#' @param layer A `SpatRaster`. In a habitat, any cell that is neither `NA`
+#'   nor `0` is the layer; in a barrier, cells equal to 1 are. Everything else
+#'   is background.
 #' @param kind Which layer this is, `"habitat"` or `"barrier"`. Decides the
 #'   fill and the background.
 #' @param title Plot title. Defaults to `kind`, sentence case.
@@ -153,7 +156,8 @@ gg_layer <- function(layer, kind = c("habitat", "barrier"), title = NULL) {
   label <- to_sentence(kind)
 
   # anything that isn't the layer is background, so 0 and NA read alike
-  present <- terra::ifel(layer == 1, 1, NA)
+  in_layer <- if (kind == "habitat") is_habitat(layer) else layer == 1
+  present <- terra::ifel(in_layer, 1, NA)
 
   ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = terra::subst(present, 1, fill)) +

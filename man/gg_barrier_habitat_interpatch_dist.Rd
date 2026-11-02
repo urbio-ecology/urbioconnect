@@ -21,7 +21,8 @@ gg_barrier_habitat_interpatch_dist(
 
 \item{buffered}{Terra SpatRaster. Buffered habitat layer.}
 
-\item{habitat}{Terra SpatRaster. Original habitat layer.}
+\item{habitat}{Terra SpatRaster. Original habitat layer. Habitat is any cell
+that is neither \code{NA} nor \code{0}.}
 
 \item{interpatch_distance}{Numeric. The distance (in meters) where habitat
 patches are considered connected. E.g., if set to 500, patches 498m apart

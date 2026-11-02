@@ -67,6 +67,32 @@ test_that("drop_habitat_under_barrier removes habitat cells covered by barriers"
   expect_true(all(vals[-centre_cell_idx] == 1, na.rm = TRUE))
 })
 
+test_that("drop_habitat_under_barrier codes habitat 1 and the rest NA", {
+  barrier_mask <- create_barrier_mask(small_rast(val = NA))
+  remaining <- function(absent, present) {
+    habitat <- small_rast(val = absent)
+    habitat[1:2, 1:2] <- present
+    drop_habitat_under_barrier(habitat, barrier_mask) |>
+      terra::as.matrix(wide = TRUE)
+  }
+
+  expected <- matrix(NA_real_, 5, 5)
+  expected[1:2, 1:2] <- 1
+  expect_equal(remaining(absent = 0, present = 1), expected)
+  expect_equal(remaining(absent = NA, present = 2), expected)
+})
+
+test_that("habitat_connectivity rejects a habitat with several layers", {
+  layer <- small_rast(val = 1)
+  stacked <- c(layer, layer)
+  barrier <- small_rast(val = NA)
+
+  expect_snapshot(
+    error = TRUE,
+    habitat_connectivity(stacked, barrier, "lizard", 60, verbose = FALSE)
+  )
+})
+
 test_that("fragment_habitat cuts interpatch distance at barrier cells", {
   buffered <- small_rast(val = 1)
 
@@ -163,6 +189,24 @@ test_that("habitat_connectivity returns a data frame with expected columns", {
   expect_s3_class(hc_quiet, "data.frame")
   expect_snapshot(names(hc_quiet))
   expect_gt(nrow(hc_quiet), 0)
+})
+
+test_that("habitat coded 0 or 2 gives the same answer as habitat coded 1", {
+  layers <- scenario_test_layers()
+  connectivity_of <- function(habitat) {
+    habitat_connectivity(
+      habitat,
+      layers$barrier,
+      species = "lizard",
+      interpatch_distance = 60,
+      verbose = FALSE
+    )
+  }
+
+  expected <- connectivity_of(layers$habitat)
+  expect_equal(expected$n_patches, 3)
+  expect_equal(connectivity_of(terra::subst(layers$habitat, NA, 0)), expected)
+  expect_equal(connectivity_of(layers$habitat * 2), expected)
 })
 
 test_that("align_to resamples rasters with mismatched geometry", {
