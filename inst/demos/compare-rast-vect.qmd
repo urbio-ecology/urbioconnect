@@ -22,8 +22,7 @@ Using `{terra}`
 prepared_rasters <- prepare_rasters(
   habitat = habitat,
   barrier = barrier,
-  data_resolution = 10,
-  target_resolution = 500
+  data_resolution = 10
 )
 
 habitat_raster <- prepared_rasters$habitat_raster
@@ -40,7 +39,6 @@ areas_connected <- habitat_connectivity(
 )
 
 buffering_dist <- 250
-overlay_res <- 500
 base_res <- 10
 
 summarise_connectivity(

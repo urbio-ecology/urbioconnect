@@ -13,11 +13,11 @@
       settings_csv$setting
     Output
        [1] "species"               "interpatch_distance_m" "habitat_source"       
-       [4] "barrier_source"        "data_resolution_m"     "target_resolution_m"  
-       [7] "grid_resolution_m"     "grid_dimensions"       "crs"                  
-      [10] "crs_code"              "scenario_kind"         "scenario_name"        
-      [13] "run_time"              "urbioconnect_version"  "terra_version"        
-      [16] "r_version"             "platform"             
+       [4] "barrier_source"        "data_resolution_m"     "grid_resolution_m"    
+       [7] "grid_dimensions"       "crs"                   "crs_code"             
+      [10] "scenario_kind"         "scenario_name"         "run_time"             
+      [13] "urbioconnect_version"  "terra_version"         "r_version"            
+      [16] "platform"             
 
 # uploaded layers and an uploaded scenario reach the analysis
 

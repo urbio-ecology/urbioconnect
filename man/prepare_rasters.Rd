@@ -4,21 +4,15 @@
 \alias{prepare_rasters}
 \title{Prepare habitat and barrier rasters}
 \usage{
-prepare_rasters(
-  habitat,
-  barrier,
-  data_resolution = 10,
-  target_resolution = 500
-)
+prepare_rasters(habitat, barrier, data_resolution = 10)
 }
 \arguments{
-\item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data.}
+\item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data. In a raster,
+habitat is any cell that is neither \code{NA} nor \code{0}.}
 
 \item{barrier}{SF object or \code{SpatRaster}. Barrier spatial data.}
 
-\item{data_resolution}{Numeric. Fine resolution in meters. Default, 10.}
-
-\item{target_resolution}{Numeric. Coarse resolution in meters. Default, 500.}
+\item{data_resolution}{Numeric. Cell size in metres. Default, 10.}
 }
 \value{
 List with \code{habitat_raster} and \code{barrier_raster} elements.
@@ -27,6 +21,11 @@ List with \code{habitat_raster} and \code{barrier_raster} elements.
 Put habitat and barrier layers on one grid. Either layer may be a vector
 (\code{sf} or \code{SpatVector}), which is rasterised, or a \code{SpatRaster}, which is
 resampled onto the grid.
+}
+\details{
+The grid covers the extent of \code{habitat}, and the analysis stops at its edge,
+so a barrier that carries on past the study area should be drawn past the
+edge of the habitat.
 }
 \examples{
 lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>

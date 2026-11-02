@@ -12,6 +12,12 @@ test_that("the app's analysis path runs and every result output renders", {
     expect_equal(nrow(results$results_connect_habitat), 1)
     expect_s3_class(results$results_connect_habitat, "connectivity")
 
+    # no empty strip beside or below the maps (#178)
+    expect_identical(
+      as.vector(terra::ext(results$habitat_raster)),
+      as.vector(terra::ext(results$habitat))
+    )
+
     # each of these has broken at least once: the tables on the patch_size
     # list-column, the maps on a renamed loop variable
     outputs <- c(
@@ -78,14 +84,14 @@ test_that("the app's downloads produce files with content", {
 
     expect_contains(readLines(output$download_settings_csv), "scenario_name,")
 
-    # the app's own rows: where the layers came from and the resolutions
+    # the app's own rows: where the layers came from and the resolution
     # prepare_rasters() was given, none of which the analysis can derive
     expect_snapshot(settings_csv$setting)
     expect_equal(
       setting_value(settings_csv, "habitat_source"),
       "example data: lizard"
     )
-    expect_equal(setting_value(settings_csv, "target_resolution_m"), "500")
+    expect_equal(setting_value(settings_csv, "data_resolution_m"), "10")
 
     # named after the species and date, not the raw species with its spaces
     stem <- connectivity_file_stem(results$report_data)

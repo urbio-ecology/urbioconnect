@@ -96,6 +96,23 @@ check_scalar_character <- function(
   invisible(x)
 }
 
+#' Check a raster has exactly one layer
+#'
+#' @noRd
+check_single_layer <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (terra::nlyr(x) != 1) {
+    cli::cli_abort(
+      "{.arg {arg}} must have one layer, not {terra::nlyr(x)}.",
+      call = call
+    )
+  }
+  invisible(x)
+}
+
 #' Check a scenario label
 #'
 #' `NULL` means "no label", and becomes `NA_character_` in the output. Anything
@@ -324,7 +341,7 @@ check_report_data <- function(
   invisible(x)
 }
 
-#' Check a vector of interpatch distances
+#' Check a vector of distances
 #'
 #' A sweep over `numeric(0)` returns no rows and no error, which is how a
 #' zero-length distance once produced an empty comparison table.
@@ -356,6 +373,17 @@ check_distances <- function(
     )
   }
 
+  unusable <- unique(x[!is.finite(x) | x < 0])
+  if (length(unusable) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be finite and not negative.",
+        "x" = "Not usable: {.val {unusable}}."
+      ),
+      call = call
+    )
+  }
+
   # a repeated distance gives two identical result rows, and two layers under
   # the same name, which later lookups can't tell apart
   duplicates <- unique(x[duplicated(x)])
@@ -370,6 +398,23 @@ check_distances <- function(
   }
 
   invisible(x)
+}
+
+#' Check one distance
+#'
+#' The length comes first, so a vector is told to give one value.
+#'
+#' @noRd
+check_distance <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  # a missing argument is left to check_distances(), which names it
+  if (!rlang::is_missing(rlang::maybe_missing(x))) {
+    check_scalar(x, arg, call)
+  }
+  check_distances(x, arg, call)
 }
 
 #' Does a layer reach the grid it is being put on?

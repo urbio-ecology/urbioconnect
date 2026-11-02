@@ -88,10 +88,14 @@ onto_grid <- function(layer, grid, background) {
 #' (`sf` or `SpatVector`), which is rasterised, or a `SpatRaster`, which is
 #' resampled onto the grid.
 #'
-#' @param habitat SF object or `SpatRaster`. Habitat spatial data.
+#' The grid covers the extent of `habitat`, and the analysis stops at its edge,
+#' so a barrier that carries on past the study area should be drawn past the
+#' edge of the habitat.
+#'
+#' @param habitat SF object or `SpatRaster`. Habitat spatial data. In a raster,
+#'   habitat is any cell that is neither `NA` nor `0`.
 #' @param barrier SF object or `SpatRaster`. Barrier spatial data.
-#' @param data_resolution Numeric. Fine resolution in meters. Default, 10.
-#' @param target_resolution Numeric. Coarse resolution in meters. Default, 500.
+#' @param data_resolution Numeric. Cell size in metres. Default, 10.
 #' @returns List with `habitat_raster` and `barrier_raster` elements.
 #' @examples
 #' lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
@@ -105,26 +109,16 @@ onto_grid <- function(layer, grid, background) {
 prepare_rasters <- function(
   habitat,
   barrier,
-  data_resolution = 10,
-  target_resolution = 500
+  data_resolution = 10
 ) {
-  aggregation_factor <- target_resolution / data_resolution
-
   grid <- empty_grid(habitat, resolution = data_resolution)
 
   habitat_raster <- onto_grid(habitat, grid, background = NA)
   barrier_raster <- onto_grid(barrier, grid, background = 0)
 
-  # aggregate rasters to make them the size of the overlay raster
-  coarse_raster <- terra::aggregate(barrier_raster * 0, aggregation_factor)
-  coarse_template <- terra::disagg(coarse_raster, aggregation_factor)
-
-  habitat_raster_final <- terra::extend(habitat_raster, coarse_template)
-  barrier_raster_final <- terra::extend(barrier_raster, coarse_template)
-
   list(
-    habitat_raster = habitat_raster_final,
-    barrier_raster = barrier_raster_final
+    habitat_raster = habitat_raster,
+    barrier_raster = barrier_raster
   )
 }
 
@@ -164,6 +158,8 @@ prepare_rasters <- function(
 #' plot(lizard_buff, col = "lightgreen", legend = FALSE)
 #' plot(lizard_habitat, col = "darkgreen", legend = FALSE, add = TRUE)
 habitat_buffer <- function(habitat, buffer_radius) {
+  check_distance(buffer_radius)
+
   resolution <- terra::res(habitat)[1]
   warn_buffer_resolution(
     buffer_radius = buffer_radius,
@@ -218,14 +214,24 @@ create_barrier_mask <- function(barrier) {
   barrier_multiplier
 }
 
+#' Is a cell habitat?
+#'
+#' Absence is `NA` from [onto_grid()], or `0` from a GeoTIFF read off disk.
+#'
+#' @noRd
+is_habitat <- function(values) {
+  !is.na(values) & values != 0
+}
+
 #' Remove habitat under barriers
 #'
-#' Essentially just performs a [terra::mask()] operation, to remove the habitat
-#'   parts that are under the mask.
+#' Performs a [terra::mask()] operation, to remove the habitat parts that are
+#'   under the mask. Habitat is any cell that is neither `NA` nor `0`.
 #'
 #' @param habitat Terra SpatRaster. Habitat layer.
 #' @param barrier_mask Terra SpatRaster. Barrier mask.
-#' @returns Terra SpatRaster with habitat remaining after barrier removal.
+#' @returns Terra SpatRaster with habitat remaining after barrier removal,
+#'   coded 1 for habitat and `NA` everywhere else.
 #' @export
 #' @examples
 #' lizard_habitat <- example_habitat()
@@ -237,9 +243,10 @@ create_barrier_mask <- function(barrier) {
 #'   )
 #' remaining_habitat
 drop_habitat_under_barrier <- function(habitat, barrier_mask) {
+  check_single_layer(habitat)
   barrier_mask <- align_to(barrier_mask, habitat)
-  habitat_no_barriers <- terra::mask(habitat, barrier_mask)
-  habitat_no_barriers
+  # coded 1 here, so every later step agrees on which cells are habitat
+  terra::mask(terra::ifel(is_habitat(habitat), 1, NA), barrier_mask)
 }
 
 #' Fragment habitat
@@ -377,7 +384,8 @@ aggregate_connected_patches <- function(raster) {
 #'   * [assign_patches_to_fragments()]: Assign patch ID to fragments.
 #'   * [aggregate_connected_patches()]: Summarise area in each patch.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster.
+#' @param habitat Terra SpatRaster. Habitat raster. Habitat is any cell that is
+#'   neither `NA` nor `0`.
 #' @param barrier Terra SpatRaster. Barrier raster.
 #' @param species Species name. E.g., "Blue-tongued Lizard".
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat

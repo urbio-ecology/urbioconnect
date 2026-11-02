@@ -20,8 +20,8 @@ steps <- habitat_connectivity_full(habitat, barrier, distance, verbose = FALSE)
 
 # picked by eye: a road between two patches that would otherwise join
 zoom <- ext(
-  xmin(habitat) + c(500, 740),
-  ymin(habitat) + c(1100, 1340)
+  c(326609.6, 326849.6),
+  c(5820993.6, 5821233.6)
 )
 
 colours <- c(

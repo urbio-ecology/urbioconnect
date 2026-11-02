@@ -24,7 +24,7 @@
 #' @param scenario_name Optional name for the scenario, carried in the
 #'   comparison so several can be stacked.
 #' @param settings Optional named list of whatever produced this analysis that
-#'   it can't derive for itself: the resolutions [prepare_rasters()] was
+#'   it can't derive for itself: the resolution [prepare_rasters()] was
 #'   called with, where the layers came from, a run id. Each element becomes
 #'   one row of [connectivity_settings()] and of the download bundle's
 #'   `summary/settings.csv`, with a vector written as one comma-separated
@@ -389,7 +389,7 @@ scenario_layer <- function(x) {
 #'   rather than a column.
 #'
 #'   The rows an analysis can't know for itself, where the layers came from
-#'   and the resolutions [prepare_rasters()] was called with, are whatever
+#'   and the resolution [prepare_rasters()] was called with, are whatever
 #'   the caller passed as `settings` to [connectivity_report_data()].
 #'
 #'   `grid_resolution_m` is the grid the analysis actually ran on, unrounded.

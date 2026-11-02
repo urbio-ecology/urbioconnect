@@ -1,10 +1,3 @@
-# every input but target_resolution has an i, outside its label
-
-    Code
-      setdiff(ids_ending("label"), ids_ending("help"))
-    Output
-      [1] "target_resolution"
-
 # help_input() fails for an input with no help
 
     Code
