@@ -97,7 +97,7 @@
       1               species  Blue Tongue Lizard
       2 interpatch_distance_m                 100
       3     grid_resolution_m 10.01307 x 9.973856
-      4       grid_dimensions           200 x 200
+      4       grid_dimensions           153 x 153
       5                   crs GDA94 / MGA zone 55
       6              crs_code          EPSG:28355
       7         scenario_kind                none

@@ -213,14 +213,13 @@ habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
 rasters <- prepare_rasters(
   habitat = habitat_sf,
   barrier = barrier_sf,
-  data_resolution = 10,
-  target_resolution = 500
+  data_resolution = 10
 )
 habitat_rast <- rasters$habitat_raster
 barrier_rast <- rasters$barrier_raster
 ```
 
-`prepare_rasters()` handles the conversion from `sf` to `SpatRaster` at the resolutions you specify, aligning the habitat and barrier grids so they are ready for the raster approach.
+`prepare_rasters()` handles the conversion from `sf` to `SpatRaster` at the resolution you specify, aligning the habitat and barrier grids so they are ready for the raster approach.
 
 ## Analysis step-by-step 
 

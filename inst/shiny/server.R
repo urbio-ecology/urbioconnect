@@ -280,7 +280,7 @@ server <- function(input, output, session) {
         withProgress(message = "Loading data...", value = 0.1, {
           # An example dataset brings its own layers; otherwise they are
           # uploaded. Either way they go through prepare_rasters() below, so
-          # the resolution controls mean the same thing for both.
+          # the resolution control means the same thing for both.
           dataset <- chosen_dataset()
 
           if (!is.null(dataset)) {
@@ -303,7 +303,6 @@ server <- function(input, output, session) {
 
           # Get parameters
           base_res <- input$data_resolution
-          overlay_res <- input$target_resolution
           interpatch_dists <- interpatch_distances_parsed()
           results$interpatch_distances <- interpatch_dists
 
@@ -313,8 +312,7 @@ server <- function(input, output, session) {
           rasters <- prepare_rasters(
             habitat = habitat_data,
             barrier = barrier_data,
-            data_resolution = base_res,
-            target_resolution = overlay_res
+            data_resolution = base_res
           )
 
           results$habitat_raster <- rasters$habitat_raster
@@ -346,8 +344,7 @@ server <- function(input, output, session) {
             settings = list(
               habitat_source = layer_source(input$habitat_file),
               barrier_source = layer_source(input$barrier_file),
-              data_resolution_m = base_res,
-              target_resolution_m = overlay_res
+              data_resolution_m = base_res
             ),
             verbose = FALSE
           )

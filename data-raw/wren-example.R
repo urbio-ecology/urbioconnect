@@ -35,11 +35,7 @@ wren_habitat <- read_geometry(wren_habitat_file_path) |>
 # barrier_file <- file.path("ex/lizard_barrier.shp")
 
 ###
-target_resolution <- 500
 data_resolution <- 10
-
-# determined from user input
-aggregation_factor <- target_resolution / data_resolution
 
 # input from the user - can be one number, up to 4 numbers
 # e.g., distance <- c(100, 250, 400)
@@ -49,8 +45,7 @@ distance <- 100
 wren_baseline_rasters <- prepare_rasters(
   habitat = wren_habitat,
   barrier = wren_barrier,
-  data_resolution = data_resolution,
-  target_resolution = target_resolution
+  data_resolution = data_resolution
 )
 
 wren_habitat_baseline <- wren_baseline_rasters$habitat_raster
@@ -59,8 +54,7 @@ wren_barrier_baseline <- wren_baseline_rasters$barrier_raster
 wren_scenario_rasters <- prepare_rasters(
   habitat = wren_habitat,
   barrier = wren_barrier_scenario,
-  data_resolution = data_resolution,
-  target_resolution = target_resolution
+  data_resolution = data_resolution
 )
 
 wren_barrier_scenario <- wren_scenario_rasters$barrier_raster

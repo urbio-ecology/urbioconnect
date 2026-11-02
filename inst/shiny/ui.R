@@ -442,7 +442,7 @@ ui <- page_navbar(
             multiple = TRUE
           ),
 
-          # Two example landscapes, not one. The lizard is ~200x200 cells and
+          # Two example landscapes, not one. The lizard is ~150x150 cells and
           # analyses in under a second; the wren is ~1500x1400 and takes tens
           # of seconds, so it is worth knowing which you are asking for.
           help_input(
@@ -495,15 +495,6 @@ ui <- page_navbar(
             value = input_defaults$data_resolution,
             min = 1,
             max = 100,
-            step = 1
-          ),
-
-          numericInput(
-            inputId = "target_resolution",
-            label = "Target resolution (m)",
-            value = 500,
-            min = 1,
-            max = 1000,
             step = 1
           ),
 
