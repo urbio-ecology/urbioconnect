@@ -11,14 +11,7 @@ buffer_radius_from <- function(
   arg = rlang::caller_arg(interpatch_distance),
   call = rlang::caller_env()
 ) {
-  if (rlang::is_missing(rlang::maybe_missing(interpatch_distance))) {
-    cli::cli_abort(
-      "{.arg {arg}} is absent but must be supplied.",
-      call = call
-    )
-  }
-
-  check_scalar_numeric(interpatch_distance, arg, call)
+  check_distance(interpatch_distance, arg, call)
   interpatch_distance / 2
 }
 

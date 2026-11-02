@@ -1,11 +1,11 @@
-test_that("buffer_radius_from() halves the interpatch distance", {
+test_that("buffer_radius_from() halves the interpatch distance, including 0", {
   # interpatch_distance is the full edge-to-edge gap; each patch is buffered by
   # half of it, so the two meet in the middle
   expect_equal(buffer_radius_from(250), 125)
   expect_equal(buffer_radius_from(0), 0)
 })
 
-test_that("habitat_connectivity() requires one numeric interpatch distance", {
+test_that("habitat_connectivity() requires one usable interpatch distance", {
   layers <- scenario_test_layers()
 
   # the errors are attributed to the function the user called, so they are
@@ -23,7 +23,21 @@ test_that("habitat_connectivity() requires one numeric interpatch distance", {
   expect_snapshot(error = TRUE, {
     connectivity_at()
     connectivity_at(interpatch_distance = c(40, 80))
+    connectivity_at(interpatch_distance = numeric(0))
     connectivity_at(interpatch_distance = "40")
+    connectivity_at(interpatch_distance = -100)
+    connectivity_at(interpatch_distance = NA_real_)
+    connectivity_at(interpatch_distance = Inf)
+  })
+})
+
+test_that("habitat_buffer() requires one radius that is finite and not negative", {
+  habitat <- scenario_test_layers()$habitat
+
+  expect_snapshot(error = TRUE, {
+    habitat_buffer(habitat)
+    habitat_buffer(habitat, -5)
+    habitat_buffer(habitat, c(10, 10))
   })
 })
 
@@ -85,9 +99,8 @@ test_that("representable_distance() is the distance habitat_buffer()'s window sp
   expect_snapshot(representable_distance(distances, 10))
 })
 
-test_that("a negative distance can't be represented, and still warns", {
+test_that("representable_distance() gives 0 for a negative distance and keeps NA", {
   expect_equal(representable_distance(c(-15, NA), 10), c(0, NA))
-  expect_snapshot(warn_buffer_resolution(buffer_radius = -10, resolution = 10))
 })
 
 test_that("representable_distance() checks its arguments", {
