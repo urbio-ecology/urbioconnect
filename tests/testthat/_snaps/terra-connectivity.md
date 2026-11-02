@@ -1,3 +1,11 @@
+# habitat_connectivity rejects a habitat with several layers
+
+    Code
+      habitat_connectivity(stacked, barrier, "lizard", 60, verbose = FALSE)
+    Condition
+      Error in `drop_habitat_under_barrier()`:
+      ! `habitat` must have one layer, not 2.
+
 # add_patch_area returns a two-layer raster named patch_id and area
 
     Code

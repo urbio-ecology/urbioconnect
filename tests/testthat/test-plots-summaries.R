@@ -139,6 +139,27 @@ test_that("gg_layer renders correctly", {
   )
 })
 
+test_that("the maps colour habitat coded 2 as they colour habitat coded 1", {
+  layers <- scenario_test_layers()
+  habitat <- layers$habitat
+  barrier <- layers$barrier
+  buffer <- habitat_buffer(habitat, 20)
+  # cells of each colour in each layer, so a failure reads as counts
+  fills <- function(plot) {
+    purrr::map(ggplot2::ggplot_build(plot)$data, \(layer) table(layer$fill))
+  }
+  combined_map <- function(habitat) {
+    gg_barrier_habitat_interpatch_dist(barrier, buffer, habitat, 40, "lizard")
+  }
+
+  layer <- fills(gg_layer(habitat, "habitat"))
+  combined <- fills(combined_map(habitat))
+  expect_contains(names(layer[[1]]), urbio_colours()$habitat)
+  expect_contains(unlist(purrr::map(combined, names)), urbio_colours()$habitat)
+  expect_equal(fills(gg_layer(habitat * 2, "habitat")), layer)
+  expect_equal(fills(combined_map(habitat * 2)), combined)
+})
+
 # plot_patches ----------------------------------------------------------
 
 test_that("plot_patches returns a ggplot", {

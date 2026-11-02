@@ -75,7 +75,8 @@ gg_barrier_habitat_interpatch_dist <- function(
   # First, reclassify your rasters to assign actual color values
   barrier_coloured <- terra::subst(barrier, 1, col_barrier)
   interpatch_coloured <- terra::subst(buffered, 1, col_interpatch_dist)
-  habitat_coloured <- terra::subst(habitat, 1, col_habitat)
+  habitat_present <- terra::ifel(is_habitat(habitat), 1, NA)
+  habitat_coloured <- terra::subst(habitat_present, 1, col_habitat)
 
   # Now plot them in layers (bottom to top)
   ggplot2::ggplot() +
@@ -153,7 +154,8 @@ gg_layer <- function(layer, kind = c("habitat", "barrier"), title = NULL) {
   label <- to_sentence(kind)
 
   # anything that isn't the layer is background, so 0 and NA read alike
-  present <- terra::ifel(layer == 1, 1, NA)
+  in_layer <- if (kind == "habitat") is_habitat(layer) else layer == 1
+  present <- terra::ifel(in_layer, 1, NA)
 
   ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = terra::subst(present, 1, fill)) +
