@@ -53,7 +53,7 @@ habitat
 barrier
 ```
 
-The habitat raster has value 1 where lizard habitat exists, NA elsewhere. 
+The habitat raster has value 1 where lizard habitat exists, NA elsewhere. Any value other than `0` or `NA` counts as habitat, so a layer coded 0 and 1 works as well.
 
 ```{r}
 #| label: plot-habitat

@@ -19,7 +19,8 @@ col2hex <- function(color_name) {
 #'
 #' @param barrier Terra SpatRaster. Barrier layer (e.g., roads).
 #' @param buffered Terra SpatRaster. Buffered habitat layer.
-#' @param habitat Terra SpatRaster. Original habitat layer.
+#' @param habitat Terra SpatRaster. Original habitat layer. Habitat is any cell
+#'   that is neither `NA` nor `0`.
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
 #'   are connected, those 501m apart are not connected. This is passed
@@ -127,8 +128,9 @@ gg_barrier_habitat_interpatch_dist <- function(
 #' zone, so a barrier drawn alone is white on that same green: white on white
 #' would be nothing at all.
 #'
-#' @param layer A `SpatRaster`. Cells equal to 1 are the layer; everything
-#'   else is background, whether it is 0 or `NA`.
+#' @param layer A `SpatRaster`. In a habitat, any cell that is neither `NA`
+#'   nor `0` is the layer; in a barrier, cells equal to 1 are. Everything else
+#'   is background.
 #' @param kind Which layer this is, `"habitat"` or `"barrier"`. Decides the
 #'   fill and the background.
 #' @param title Plot title. Defaults to `kind`, sentence case.

@@ -7,8 +7,9 @@
 gg_layer(layer, kind = c("habitat", "barrier"), title = NULL)
 }
 \arguments{
-\item{layer}{A \code{SpatRaster}. Cells equal to 1 are the layer; everything
-else is background, whether it is 0 or \code{NA}.}
+\item{layer}{A \code{SpatRaster}. In a habitat, any cell that is neither \code{NA}
+nor \code{0} is the layer; in a barrier, cells equal to 1 are. Everything else
+is background.}
 
 \item{kind}{Which layer this is, \code{"habitat"} or \code{"barrier"}. Decides the
 fill and the background.}

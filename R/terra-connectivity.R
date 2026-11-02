@@ -92,7 +92,8 @@ onto_grid <- function(layer, grid, background) {
 #' so a barrier that carries on past the study area should be drawn past the
 #' edge of the habitat.
 #'
-#' @param habitat SF object or `SpatRaster`. Habitat spatial data.
+#' @param habitat SF object or `SpatRaster`. Habitat spatial data. In a raster,
+#'   habitat is any cell that is neither `NA` nor `0`.
 #' @param barrier SF object or `SpatRaster`. Barrier spatial data.
 #' @param data_resolution Numeric. Cell size in metres. Default, 10.
 #' @returns List with `habitat_raster` and `barrier_raster` elements.
@@ -383,7 +384,8 @@ aggregate_connected_patches <- function(raster) {
 #'   * [assign_patches_to_fragments()]: Assign patch ID to fragments.
 #'   * [aggregate_connected_patches()]: Summarise area in each patch.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster.
+#' @param habitat Terra SpatRaster. Habitat raster. Habitat is any cell that is
+#'   neither `NA` nor `0`.
 #' @param barrier Terra SpatRaster. Barrier raster.
 #' @param species Species name. E.g., "Blue-tongued Lizard".
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat
