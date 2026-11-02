@@ -50,7 +50,7 @@ upload_value <- function(path) {
   )
 }
 
-# The app's own example-data path, on the lizard landscape: ~200x200 cells
+# The app's own example-data path, on the lizard landscape: ~150x150 cells
 # after prepare_rasters, so a full analysis with a scenario comparison is
 # under a second. The wren dataset is the same call with
 # example_data = "wren", and costs tens of seconds, so nothing uses it by
@@ -71,7 +71,6 @@ app_lizard_inputs <- function(
       wren = "Superb Fairy Wren"
     )[[example_data]],
     data_resolution = 10,
-    target_resolution = 500,
     interpatch_distances = interpatch_distances,
     scenario_choice = scenario_choice,
     run_analysis = 1
@@ -98,7 +97,6 @@ app_upload_inputs <- function(
       system.file("ex", "lizard_barrier.shp", package = "urbioconnect")
     ),
     data_resolution = 10,
-    target_resolution = 500,
     interpatch_distances = interpatch_distances,
     scenario_choice = scenario_choice,
     run_analysis = 1

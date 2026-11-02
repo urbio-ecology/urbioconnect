@@ -90,8 +90,7 @@ onto_grid <- function(layer, grid, background) {
 #'
 #' @param habitat SF object or `SpatRaster`. Habitat spatial data.
 #' @param barrier SF object or `SpatRaster`. Barrier spatial data.
-#' @param data_resolution Numeric. Fine resolution in meters. Default, 10.
-#' @param target_resolution Numeric. Coarse resolution in meters. Default, 500.
+#' @param data_resolution Numeric. Cell size in metres. Default, 10.
 #' @returns List with `habitat_raster` and `barrier_raster` elements.
 #' @examples
 #' lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
@@ -105,26 +104,16 @@ onto_grid <- function(layer, grid, background) {
 prepare_rasters <- function(
   habitat,
   barrier,
-  data_resolution = 10,
-  target_resolution = 500
+  data_resolution = 10
 ) {
-  aggregation_factor <- target_resolution / data_resolution
-
   grid <- empty_grid(habitat, resolution = data_resolution)
 
   habitat_raster <- onto_grid(habitat, grid, background = NA)
   barrier_raster <- onto_grid(barrier, grid, background = 0)
 
-  # aggregate rasters to make them the size of the overlay raster
-  coarse_raster <- terra::aggregate(barrier_raster * 0, aggregation_factor)
-  coarse_template <- terra::disagg(coarse_raster, aggregation_factor)
-
-  habitat_raster_final <- terra::extend(habitat_raster, coarse_template)
-  barrier_raster_final <- terra::extend(barrier_raster, coarse_template)
-
   list(
-    habitat_raster = habitat_raster_final,
-    barrier_raster = barrier_raster_final
+    habitat_raster = habitat_raster,
+    barrier_raster = barrier_raster
   )
 }
 

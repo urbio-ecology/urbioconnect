@@ -230,7 +230,11 @@ test_that("connectivity_settings() carries the caller's own settings", {
 })
 
 test_that("connectivity_settings() records real data's grid", {
-  rasters <- prepare_rasters(example_habitat(), example_barrier(), 10, 500)
+  rasters <- prepare_rasters(
+    example_habitat(),
+    example_barrier(),
+    data_resolution = 10
+  )
 
   report_data <- connectivity_report_data(
     habitat = rasters$habitat_raster,

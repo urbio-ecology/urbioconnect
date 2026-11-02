@@ -4,21 +4,14 @@
 \alias{prepare_rasters}
 \title{Prepare habitat and barrier rasters}
 \usage{
-prepare_rasters(
-  habitat,
-  barrier,
-  data_resolution = 10,
-  target_resolution = 500
-)
+prepare_rasters(habitat, barrier, data_resolution = 10)
 }
 \arguments{
 \item{habitat}{SF object or \code{SpatRaster}. Habitat spatial data.}
 
 \item{barrier}{SF object or \code{SpatRaster}. Barrier spatial data.}
 
-\item{data_resolution}{Numeric. Fine resolution in meters. Default, 10.}
-
-\item{target_resolution}{Numeric. Coarse resolution in meters. Default, 500.}
+\item{data_resolution}{Numeric. Cell size in metres. Default, 10.}
 }
 \value{
 List with \code{habitat_raster} and \code{barrier_raster} elements.

@@ -1,4 +1,4 @@
-test_that("every input but target_resolution has an i, outside its label", {
+test_that("every input has an i, outside its label", {
   skip_if_no_app()
   app_dir <- local_app_server()
   source(file.path(app_dir, "ui.R"), local = TRUE)
@@ -14,7 +14,7 @@ test_that("every input but target_resolution has an i, outside its label", {
   }
 
   expect_setequal(ids_ending("help"), names(input_help))
-  expect_snapshot(setdiff(ids_ending("label"), ids_ending("help")))
+  expect_setequal(ids_ending("label"), names(input_help))
 
   # a label holding only its text: a screen reader reads the "i" as part of
   # any label it sits in, and a click on it would reach the input

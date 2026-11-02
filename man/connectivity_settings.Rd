@@ -23,7 +23,7 @@ rather than a column.
 }
 \details{
 The rows an analysis can't know for itself, where the layers came from
-and the resolutions \code{\link[=prepare_rasters]{prepare_rasters()}} was called with, are whatever
+and the resolution \code{\link[=prepare_rasters]{prepare_rasters()}} was called with, are whatever
 the caller passed as \code{settings} to \code{\link[=connectivity_report_data]{connectivity_report_data()}}.
 
 \code{grid_resolution_m} is the grid the analysis actually ran on, unrounded.
