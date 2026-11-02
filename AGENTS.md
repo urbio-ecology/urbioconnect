@@ -37,6 +37,10 @@ These add to the general test style later in this file.
 - `devtools::test()` passing does not mean `R CMD check` will. It uses `load_all()`, so it never sees a missing export, a broken example, or anything that only shows up once the package is installed. The local gate for that is `devtools::check()`, which installs the package, runs `tests/testthat.R` with `NOT_CRAN=true`, and checks the examples and docs as well.
 - Don't hand-roll the installed test run (`R CMD INSTALL` then `cd tests && Rscript testthat.R`). It takes as long as a check while testing less, and GitHub CI already does it on every push - that is what CI is for. `devtools::check()` locally, CI for the rest.
 
+### Benchmarks
+
+- Time code with the bench package: `bench::mark()` for one version, `cross::run_versions()` to compare versions. Never time it yourself with `system.time()` or by subtracting `Sys.time()`s.
+
 ### Testing the shiny app
 
 Two kinds of test, and they see different things. Both are needed.
