@@ -25,7 +25,9 @@ input_help <- list(
       "- Polygons
       - A raster: barrier cells 1, all others 0 or empty",
       "Same coordinate reference system as the habitat. Habitat under a barrier
-      is removed, and a connection can go around a barrier but never across it."
+      is removed, and a connection can go around a barrier but never across it.",
+      "The analysis stops at the edge of the habitat layer, so draw a barrier
+      that carries on beyond your study area past that edge."
     )
   ),
   example_data = list(

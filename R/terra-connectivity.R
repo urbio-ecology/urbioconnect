@@ -88,6 +88,10 @@ onto_grid <- function(layer, grid, background) {
 #' (`sf` or `SpatVector`), which is rasterised, or a `SpatRaster`, which is
 #' resampled onto the grid.
 #'
+#' The grid covers the extent of `habitat`, and the analysis stops at its edge,
+#' so a barrier that carries on past the study area should be drawn past the
+#' edge of the habitat.
+#'
 #' @param habitat SF object or `SpatRaster`. Habitat spatial data.
 #' @param barrier SF object or `SpatRaster`. Barrier spatial data.
 #' @param data_resolution Numeric. Cell size in metres. Default, 10.

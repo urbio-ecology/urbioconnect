@@ -21,6 +21,11 @@ Put habitat and barrier layers on one grid. Either layer may be a vector
 (\code{sf} or \code{SpatVector}), which is rasterised, or a \code{SpatRaster}, which is
 resampled onto the grid.
 }
+\details{
+The grid covers the extent of \code{habitat}, and the analysis stops at its edge,
+so a barrier that carries on past the study area should be drawn past the
+edge of the habitat.
+}
 \examples{
 lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
   sf::st_as_sf()
