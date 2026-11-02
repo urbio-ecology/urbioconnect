@@ -96,6 +96,11 @@
   warns about.
   ([\#51](https://github.com/urbio-ecology/urbioconnect/issues/51))
 
+- [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md),
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  and the other analysis functions now give an error for a negative,
+  `NA` or infinite distance.
+
 - Functions taking a `dir` to fill create it if it doesn’t exist;
   functions taking a `path` to one file error if that file’s directory
   doesn’t, as
