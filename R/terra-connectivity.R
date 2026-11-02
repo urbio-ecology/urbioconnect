@@ -164,6 +164,8 @@ prepare_rasters <- function(
 #' plot(lizard_buff, col = "lightgreen", legend = FALSE)
 #' plot(lizard_habitat, col = "darkgreen", legend = FALSE, add = TRUE)
 habitat_buffer <- function(habitat, buffer_radius) {
+  check_distance(buffer_radius)
+
   resolution <- terra::res(habitat)[1]
   warn_buffer_resolution(
     buffer_radius = buffer_radius,

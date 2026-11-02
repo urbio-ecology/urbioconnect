@@ -66,7 +66,7 @@
       # change = scenario - baseline (positive = scenario is higher)
       # pct_change = 100 * change / baseline
 
-# habitat_connectivity_comparison() rejects a missing or empty distance
+# habitat_connectivity_comparison() rejects a missing, empty or unusable distance
 
     Code
       comparison_at()
@@ -79,6 +79,12 @@
       Error in `habitat_connectivity_comparison()`:
       ! `interpatch_distance` must contain at least one distance.
       x You supplied a zero-length value.
+    Code
+      comparison_at(interpatch_distance = c(100, -50, NA, -50, NA))
+    Condition
+      Error in `habitat_connectivity_comparison()`:
+      ! `interpatch_distance` must be finite and not negative.
+      x Not usable: -50 and NA.
 
 # habitat_connectivity_comparison() aborts when both layers differ
 

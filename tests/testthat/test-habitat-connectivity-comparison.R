@@ -57,7 +57,7 @@ test_that("habitat_connectivity_comparison() passes scenario_name through", {
   expect_equal(results$scenario_name, rep("Bentley Project", 4))
 })
 
-test_that("habitat_connectivity_comparison() rejects a missing or empty distance", {
+test_that("habitat_connectivity_comparison() rejects a missing, empty or unusable distance", {
   layers <- scenario_test_layers()
 
   comparison_at <- function(...) {
@@ -75,6 +75,7 @@ test_that("habitat_connectivity_comparison() rejects a missing or empty distance
   expect_snapshot(error = TRUE, {
     comparison_at()
     comparison_at(interpatch_distance = numeric(0))
+    comparison_at(interpatch_distance = c(100, -50, NA, -50, NA))
   })
 })
 
