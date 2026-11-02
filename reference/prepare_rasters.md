@@ -7,19 +7,15 @@ resampled onto the grid.
 ## Usage
 
 ``` r
-prepare_rasters(
-  habitat,
-  barrier,
-  data_resolution = 10,
-  target_resolution = 500
-)
+prepare_rasters(habitat, barrier, data_resolution = 10)
 ```
 
 ## Arguments
 
 - habitat:
 
-  SF object or `SpatRaster`. Habitat spatial data.
+  SF object or `SpatRaster`. Habitat spatial data. In a raster, habitat
+  is any cell that is neither `NA` nor `0`.
 
 - barrier:
 
@@ -27,15 +23,17 @@ prepare_rasters(
 
 - data_resolution:
 
-  Numeric. Fine resolution in meters. Default, 10.
-
-- target_resolution:
-
-  Numeric. Coarse resolution in meters. Default, 500.
+  Numeric. Cell size in metres. Default, 10.
 
 ## Value
 
 List with `habitat_raster` and `barrier_raster` elements.
+
+## Details
+
+The grid covers the extent of `habitat`, and the analysis stops at its
+edge, so a barrier that carries on past the study area should be drawn
+past the edge of the habitat.
 
 ## Examples
 
@@ -46,9 +44,9 @@ lizard_barrier_shp <- example_barrier_shp()
 prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
 #> $habitat_raster
 #> class       : SpatRaster
-#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> size        : 152, 153, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.01307, 10.02632  (x, y)
-#> extent      : 326109.6, 328112.2, 5819883, 5821888  (xmin, xmax, ymin, ymax)
+#> extent      : 326109.6, 327641.6, 5820364, 5821888  (xmin, xmax, ymin, ymax)
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> name        : layer
@@ -57,9 +55,9 @@ prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
 #> 
 #> $barrier_raster
 #> class       : SpatRaster
-#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> size        : 152, 153, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.01307, 10.02632  (x, y)
-#> extent      : 326109.6, 328112.2, 5819883, 5821888  (xmin, xmax, ymin, ymax)
+#> extent      : 326109.6, 327641.6, 5820364, 5821888  (xmin, xmax, ymin, ymax)
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> name        : layer
@@ -71,9 +69,9 @@ prepare_rasters(lizard_habitat_sf, lizard_barrier_shp)
 prepare_rasters(example_habitat(), lizard_barrier_shp)
 #> $habitat_raster
 #> class       : SpatRaster
-#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> size        : 153, 153, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.01307, 9.973856  (x, y)
-#> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)
+#> extent      : 326109.6, 327641.6, 5820362, 5821888  (xmin, xmax, ymin, ymax)
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> name        : Pseudo Layer
@@ -82,9 +80,9 @@ prepare_rasters(example_habitat(), lizard_barrier_shp)
 #> 
 #> $barrier_raster
 #> class       : SpatRaster
-#> size        : 200, 200, 1  (nrow, ncol, nlyr)
+#> size        : 153, 153, 1  (nrow, ncol, nlyr)
 #> resolution  : 10.01307, 9.973856  (x, y)
-#> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)
+#> extent      : 326109.6, 327641.6, 5820362, 5821888  (xmin, xmax, ymin, ymax)
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> name        : layer

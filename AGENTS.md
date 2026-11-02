@@ -84,6 +84,13 @@ These add to the general test style later in this file.
   testing less, and GitHub CI already does it on every push - that is
   what CI is for. `devtools::check()` locally, CI for the rest.
 
+### Benchmarks
+
+- Time code with the bench package: `bench::mark()` for one version,
+  `cross::run_versions()` to compare versions. Never time it yourself
+  with [`system.time()`](https://rdrr.io/r/base/system.time.html) or by
+  subtracting [`Sys.time()`](https://rdrr.io/r/base/Sys.time.html)s.
+
 ### Testing the shiny app
 
 Two kinds of test, and they see different things. Both are needed.

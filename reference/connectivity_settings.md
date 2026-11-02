@@ -27,7 +27,7 @@ doesn't apply is `NA`, which is written to the CSV as an empty cell.
 ## Details
 
 The rows an analysis can't know for itself, where the layers came from
-and the resolutions
+and the resolution
 [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
 was called with, are whatever the caller passed as `settings` to
 [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md).
@@ -75,7 +75,7 @@ connectivity_settings(report_data)
 #>  8 crs_code              EPSG:28355              
 #>  9 scenario_kind         none                    
 #> 10 scenario_name         NA                      
-#> 11 run_time              2026-11-02T04:38:51+0000
+#> 11 run_time              2026-11-02T04:53:02+0000
 #> 12 urbioconnect_version  0.1.0.9000              
 #> 13 terra_version         1.9.50                  
 #> 14 r_version             4.6.2                   

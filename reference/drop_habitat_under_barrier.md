@@ -1,8 +1,9 @@
 # Remove habitat under barriers
 
-Essentially just performs a
+Performs a
 [`terra::mask()`](https://rspatial.github.io/terra/reference/mask.html)
-operation, to remove the habitat parts that are under the mask.
+operation, to remove the habitat parts that are under the mask. Habitat
+is any cell that is neither `NA` nor `0`.
 
 ## Usage
 
@@ -22,7 +23,8 @@ drop_habitat_under_barrier(habitat, barrier_mask)
 
 ## Value
 
-Terra SpatRaster with habitat remaining after barrier removal.
+Terra SpatRaster with habitat remaining after barrier removal, coded 1
+for habitat and `NA` everywhere else.
 
 ## Examples
 

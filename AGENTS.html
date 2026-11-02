@@ -85,6 +85,10 @@
 <li>Don’t hand-roll the installed test run (<code>R CMD INSTALL</code> then <code>cd tests &amp;&amp; Rscript testthat.R</code>). It takes as long as a check while testing less, and GitHub CI already does it on every push - that is what CI is for. <code>devtools::check()</code> locally, CI for the rest.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="benchmarks">Benchmarks<a class="anchor" aria-label="anchor" href="#benchmarks"></a></h3>
+<ul><li>Time code with the bench package: <code>bench::mark()</code> for one version, <code>cross::run_versions()</code> to compare versions. Never time it yourself with <code><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time()</a></code> or by subtracting <code><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time()</a></code>s.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="testing-the-shiny-app">Testing the shiny app<a class="anchor" aria-label="anchor" href="#testing-the-shiny-app"></a></h3>
 <p>Two kinds of test, and they see different things. Both are needed.</p>
 <ul><li>

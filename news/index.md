@@ -9,9 +9,8 @@
   example. It replaces the About tab.
   ([\#53](https://github.com/urbio-ecology/urbioconnect/issues/53))
 
-- Every input in the shiny app but the target resolution has an “i”
-  beside its label that opens a plain-language explanation of what it
-  does.
+- Every input in the shiny app has an “i” beside its label that opens a
+  plain-language explanation of what it does.
   ([\#63](https://github.com/urbio-ecology/urbioconnect/issues/63))
 
 - A “Your analysis” box above the shiny app’s Run button describes the
@@ -51,7 +50,7 @@
   now one vector, which is how they came to disagree.
 
 - The shiny app offers two example datasets rather than one. The Blue
-  Tongue Lizard landscape is about 200x200 cells and analyses in under a
+  Tongue Lizard landscape is about 150x150 cells and analyses in under a
   second; the Superb Fairy Wren one is about 1500x1400 and takes tens of
   seconds, so which you are asking for is now a choice rather than a
   tick box. Each dataset brings its own scenarios, and the scenario
@@ -238,6 +237,11 @@
   connectivity.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
 
+- [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  and the maps count any cell other than 0 or `NA` as habitat, so
+  habitat coded 1 and 0, as GeoTIFFs often are, gives the same patches
+  as habitat coded 1 and `NA`.
+
 - [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
   now saves at the shared figure size rather than whatever size the last
   graphics device happened to be, and slugifies the species in the file
@@ -248,6 +252,17 @@
   now gives the same patch count as the connectivity summary. It counted
   the cells outside any patch as patches too, so the map reported more
   patches than the summary table beside it.
+
+- [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+  loses `target_resolution`, and the shiny app its “Target resolution”
+  input. The grid now ends at the edge of the habitat layer on all four
+  sides. It used to be padded east and south to a whole number of
+  `target_resolution` cells, which left an empty strip beside and below
+  the maps, and let a connection go round the end of a barrier that
+  stopped at the edge of the data, so the same inputs can now give more
+  patches. A barrier that carries on past the study area should be drawn
+  past the edge of the habitat.
+  ([\#178](https://github.com/urbio-ecology/urbioconnect/issues/178))
 
 - New
   [`quarto_available()`](https://urbio-ecology.github.io/urbioconnect/reference/quarto_available.md)

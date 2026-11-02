@@ -128,7 +128,8 @@ Heidelberg, Melbourne.</p>
 <span><span class="co">#&gt; min value   :     0</span></span>
 <span><span class="co">#&gt; max value   :     1</span></span></code></pre></div>
 <p>The habitat raster has value 1 where lizard habitat exists, NA
-elsewhere.</p>
+elsewhere. Any value other than <code>0</code> or <code>NA</code> counts
+as habitat, so a layer coded 0 and 1 works as well.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">habitat</span>, main <span class="op">=</span> <span class="st">"Lizard Habitat"</span>, col <span class="op">=</span> <span class="st">"seagreen"</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="urbioconnect_files/figure-html/plot-habitat-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
@@ -394,10 +395,10 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[31ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[33ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[20ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[62ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -405,16 +406,16 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[199ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[322ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[35ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[21ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[1.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.1s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[38ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[43ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>

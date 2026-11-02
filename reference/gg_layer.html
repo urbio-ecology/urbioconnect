@@ -60,8 +60,9 @@ into an analysis, and at a scenario layer against the layer it replaces.</p>
 
 
 <dl><dt id="arg-layer">layer<a class="anchor" aria-label="anchor" href="#arg-layer"></a></dt>
-<dd><p>A <code>SpatRaster</code>. Cells equal to 1 are the layer; everything
-else is background, whether it is 0 or <code>NA</code>.</p></dd>
+<dd><p>A <code>SpatRaster</code>. In a habitat, any cell that is neither <code>NA</code>
+nor <code>0</code> is the layer; in a barrier, cells equal to 1 are. Everything else
+is background.</p></dd>
 
 
 <dt id="arg-kind">kind<a class="anchor" aria-label="anchor" href="#arg-kind"></a></dt>

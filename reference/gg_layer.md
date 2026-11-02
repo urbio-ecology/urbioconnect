@@ -15,8 +15,9 @@ gg_layer(layer, kind = c("habitat", "barrier"), title = NULL)
 
 - layer:
 
-  A `SpatRaster`. Cells equal to 1 are the layer; everything else is
-  background, whether it is 0 or `NA`.
+  A `SpatRaster`. In a habitat, any cell that is neither `NA` nor `0` is
+  the layer; in a barrier, cells equal to 1 are. Everything else is
+  background.
 
 - kind:
 

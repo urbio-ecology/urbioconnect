@@ -31,7 +31,8 @@ gg_barrier_habitat_interpatch_dist(
 
 - habitat:
 
-  Terra SpatRaster. Original habitat layer.
+  Terra SpatRaster. Original habitat layer. Habitat is any cell that is
+  neither `NA` nor `0`.
 
 - interpatch_distance:
 

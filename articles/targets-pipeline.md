@@ -114,7 +114,7 @@ targets with
 ``` r
 
   species <- tar_target("Blue-Tongued-Lizard")
-  target_resolution <- tar_target(500)
+  data_resolution <- tar_target(10)
   interpatch_distance <- tar_target(10)
 ```
 

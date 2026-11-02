@@ -52,12 +52,7 @@ resampled onto the grid.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_rasters</span><span class="op">(</span></span>
-<span>  <span class="va">habitat</span>,</span>
-<span>  <span class="va">barrier</span>,</span>
-<span>  data_resolution <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  target_resolution <span class="op">=</span> <span class="fl">500</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_rasters</span><span class="op">(</span><span class="va">habitat</span>, <span class="va">barrier</span>, data_resolution <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,7 +60,8 @@ resampled onto the grid.</p>
 
 
 <dl><dt id="arg-habitat">habitat<a class="anchor" aria-label="anchor" href="#arg-habitat"></a></dt>
-<dd><p>SF object or <code>SpatRaster</code>. Habitat spatial data.</p></dd>
+<dd><p>SF object or <code>SpatRaster</code>. Habitat spatial data. In a raster,
+habitat is any cell that is neither <code>NA</code> nor <code>0</code>.</p></dd>
 
 
 <dt id="arg-barrier">barrier<a class="anchor" aria-label="anchor" href="#arg-barrier"></a></dt>
@@ -73,16 +69,18 @@ resampled onto the grid.</p>
 
 
 <dt id="arg-data-resolution">data_resolution<a class="anchor" aria-label="anchor" href="#arg-data-resolution"></a></dt>
-<dd><p>Numeric. Fine resolution in meters. Default, 10.</p></dd>
-
-
-<dt id="arg-target-resolution">target_resolution<a class="anchor" aria-label="anchor" href="#arg-target-resolution"></a></dt>
-<dd><p>Numeric. Coarse resolution in meters. Default, 500.</p></dd>
+<dd><p>Numeric. Cell size in metres. Default, 10.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>List with <code>habitat_raster</code> and <code>barrier_raster</code> elements.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The grid covers the extent of <code>habitat</code>, and the analysis stops at its edge,
+so a barrier that carries on past the study area should be drawn past the
+edge of the habitat.</p>
     </div>
 
     <div class="section level2">
@@ -93,9 +91,9 @@ resampled onto the grid.</p>
 <span class="r-in"><span><span class="fu">prepare_rasters</span><span class="op">(</span><span class="va">lizard_habitat_sf</span>, <span class="va">lizard_barrier_shp</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $habitat_raster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 200, 200, 1  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 152, 153, 1  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 10.01307, 10.02632  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 328112.2, 5819883, 5821888  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 327641.6, 5820364, 5821888  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> name        : layer</span>
@@ -104,9 +102,9 @@ resampled onto the grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $barrier_raster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 200, 200, 1  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 152, 153, 1  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 10.01307, 10.02632  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 328112.2, 5819883, 5821888  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 327641.6, 5820364, 5821888  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> name        : layer</span>
@@ -118,9 +116,9 @@ resampled onto the grid.</p>
 <span class="r-in"><span><span class="fu">prepare_rasters</span><span class="op">(</span><span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">lizard_barrier_shp</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $habitat_raster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 200, 200, 1  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 153, 153, 1  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 10.01307, 9.973856  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 327641.6, 5820362, 5821888  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> name        : Pseudo Layer</span>
@@ -129,9 +127,9 @@ resampled onto the grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $barrier_raster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 200, 200, 1  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 153, 153, 1  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 10.01307, 9.973856  (x, y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 328112.2, 5819894, 5821888  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 326109.6, 327641.6, 5820362, 5821888  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> name        : layer</span>
