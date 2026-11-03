@@ -511,7 +511,11 @@ server <- function(input, output, session) {
             plot_patches(
               patch_id = my_patch_id,
               interpatch_distance = my_interpatch_distance,
-              species = my_species
+              species = my_species,
+              barrier = results$barrier_raster,
+              buffered = results$buffered_habitat[[as.character(
+                my_interpatch_distance
+              )]]
             )
           })
         })

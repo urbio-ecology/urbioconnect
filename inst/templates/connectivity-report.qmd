@@ -87,8 +87,9 @@ distance_tabs(function(distance) {
 
 # Connected patches
 
-Habitat coloured by the patch it belongs to. Patches sharing a colour are
-connected at this distance.
+Habitat coloured by the patch it belongs to, with the barrier in grey. The pale
+area around a patch, its buffered habitat cut by the barrier, is what joins it
+into one patch. The colours repeat, so two patches can share one.
 
 ```{r}
 #| label: maps-patches
@@ -97,7 +98,9 @@ distance_tabs(function(distance) {
   plot_patches(
     patch_id = report$patch_id_raster[[as.character(distance)]],
     interpatch_distance = distance,
-    species = report$species
+    species = report$species,
+    barrier = report$barrier,
+    buffered = report$buffered_habitat[[as.character(distance)]]
   )
 })
 ```

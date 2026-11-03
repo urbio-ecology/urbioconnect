@@ -199,6 +199,51 @@ test_that("plot_patches does not count NA or NaN cells as patches", {
   expect_match(result$labels$subtitle, "# patches: 3\n", fixed = TRUE)
 })
 
+test_that("plot_patches draws the barrier, and shades each patch's zone", {
+  one_row <- function(vals) {
+    terra::rast(
+      nrows = 1,
+      ncols = 9,
+      extent = terra::ext(0, 90, 0, 10),
+      crs = "EPSG:28355",
+      vals = vals
+    )
+  }
+  # the barrier either side of cell 4 cuts its buffer off from all habitat
+  habitat <- one_row(c(1, NA, NA, NA, NA, NA, 1, NA, NA))
+  barrier <- one_row(c(0, 0, 1, 0, 1, 0, 0, 0, 0))
+  buffered <- one_row(c(1, 1, 1, 1, NA, 1, 1, 1, 1))
+  mask <- create_barrier_mask(barrier)
+  patch_id <- assign_patches_to_fragments(
+    drop_habitat_under_barrier(habitat, mask),
+    fragment_habitat(buffered, mask)
+  ) |>
+    add_patch_area()
+  fills <- function(...) {
+    drawn <- ggplot2::layer_data(plot_patches(patch_id, 40, ...))
+    drawn$fill[order(drawn$x)]
+  }
+
+  inputs <- terra::values(c(habitat, barrier, buffered))
+  colnames(inputs) <- c("habitat", "barrier", "buffered")
+  barrier_only <- fills(barrier = barrier)
+  with_zone <- fills(barrier = barrier, buffered = buffered)
+
+  expect_snapshot(data.frame(inputs, barrier_only, with_zone))
+  # as the analysis does, a barrier on another grid is put on the habitat's
+  expect_equal(
+    fills(barrier = terra::disagg(barrier, 2), buffered = buffered),
+    fills(barrier = barrier, buffered = buffered)
+  )
+})
+
+test_that("plot_patches needs the barrier to draw the zone", {
+  expect_snapshot(
+    plot_patches(patch_id_raster, interpatch_dist, buffered = buffered),
+    error = TRUE
+  )
+})
+
 test_that("plot_patches renders correctly", {
   skip_on_ci()
   vdiffr::expect_doppelganger(
@@ -206,7 +251,9 @@ test_that("plot_patches renders correctly", {
     plot_patches(
       patch_id_raster,
       interpatch_distance = interpatch_dist,
-      species = "Blue Tongue Lizard"
+      species = "Blue Tongue Lizard",
+      barrier = lizard_barrier,
+      buffered = buffered
     )
   )
 })

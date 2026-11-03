@@ -34,3 +34,27 @@
       Error in `gg_layer()`:
       ! `kind` must be one of "habitat" or "barrier", not "interpatch".
 
+# plot_patches draws the barrier, and shades each patch's zone
+
+    Code
+      data.frame(inputs, barrier_only, with_zone)
+    Output
+        habitat barrier buffered barrier_only with_zone
+      1       1       0        1      #E16A86   #E16A86
+      2      NA       0        1         <NA>   #FFCAD3
+      3      NA       1        1       grey55    grey55
+      4      NA       0        1         <NA>      <NA>
+      5      NA       1       NA       grey55    grey55
+      6      NA       0        1         <NA>   #BFE476
+      7       1       0        1      #799D00   #799D00
+      8      NA       0        1         <NA>   #BFE476
+      9      NA       0        1         <NA>   #BFE476
+
+# plot_patches needs the barrier to draw the zone
+
+    Code
+      plot_patches(patch_id_raster, interpatch_dist, buffered = buffered)
+    Condition
+      Error in `plot_patches()`:
+      ! `buffered` needs `barrier`, which cuts the buffer into zones.
+
