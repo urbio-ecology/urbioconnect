@@ -272,3 +272,104 @@ test_that("plot_connectivity renders correctly", {
     plot_connectivity(results_connect)
   )
 })
+
+test_that("comparison_plot_data() has the baseline once, beside each scenario", {
+  comparison <- scenario_test_comparison()
+  drawn <- comparison_plot_data(comparison)
+
+  expect_snapshot(levels(drawn$series))
+
+  # every scenario carries its own copy of the baseline rows
+  expect_equal(nrow(drawn), 3 * 2 * 4)
+
+  # the development removes a patch, so its bar can't pass for the baseline's
+  expect_equal(
+    drawn$value[
+      drawn$series == "Bentley Project" & drawn$name == "n_patches"
+    ],
+    comparison$n_patches[
+      comparison$scenario_name == "Bentley Project" &
+        comparison$measure == "scenario"
+    ]
+  )
+})
+
+test_that("comparison_plot_data() names an unnamed scenario", {
+  drawn <- comparison_plot_data(test_comparison())
+
+  expect_snapshot(levels(drawn$series))
+})
+
+test_that("comparison_plot_data() keeps a P(connected) above 1 as it is", {
+  comparison <- pc_above_one_comparison()
+  measured <- comparison$measure %in% c("baseline", "scenario")
+  drawn <- comparison_plot_data(comparison)
+
+  # if P(connected) stops being able to exceed 1, this plot needs rethinking
+  expect_gt(
+    comparison$prob_connectedness[comparison$measure == "scenario"],
+    1
+  )
+
+  expect_setequal(
+    drawn$value[drawn$name == "prob_connectedness"],
+    comparison$prob_connectedness[measured]
+  )
+})
+
+test_that("plot_connectivity refuses scenarios it can't tell apart", {
+  baseline <- summarise_connectivity(lizard_areas_connected)
+  scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
+
+  expect_snapshot(
+    plot_connectivity(
+      compare_scenarios(baseline, list(baseline = scenario))
+    ),
+    error = TRUE
+  )
+  expect_snapshot(
+    plot_connectivity(
+      compare_scenarios(
+        baseline,
+        rlang::set_names(rep(list(scenario), 6), LETTERS[1:6])
+      )
+    ),
+    error = TRUE
+  )
+
+  # two unnamed comparisons, stacked: both are "Scenario"
+  expect_snapshot(
+    plot_connectivity(dplyr::bind_rows(
+      compare_connectivity(scenario, baseline),
+      compare_connectivity(
+        summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+        baseline
+      )
+    )),
+    error = TRUE
+  )
+})
+
+test_that("plot_connectivity renders a comparison correctly", {
+  skip_on_ci()
+  vdiffr::expect_doppelganger(
+    "plot-connectivity-comparison",
+    plot_connectivity(lizard_road_comparison())
+  )
+
+  # several scenarios, at a single distance
+  vdiffr::expect_doppelganger(
+    "plot-connectivity-comparison-one-distance",
+    plot_connectivity(compare_scenarios(
+      baseline = summarise_connectivity(lizard_areas_connected),
+      scenarios = list(
+        "Bentley Project" = summarise_connectivity(
+          lizard_areas_connected[-1, ]
+        ),
+        "Barrier upgrade" = summarise_connectivity(
+          lizard_areas_connected[-(1:5), ]
+        )
+      )
+    ))
+  )
+})
