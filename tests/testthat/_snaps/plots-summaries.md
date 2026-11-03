@@ -58,3 +58,47 @@
       Error in `plot_patches()`:
       ! `buffered` needs `barrier`, which cuts the buffer into zones.
 
+# comparison_plot_data() has the baseline once, beside each scenario
+
+    Code
+      levels(drawn$series)
+    Output
+      [1] "Baseline"        "Bentley Project" "Barrier upgrade"
+
+# comparison_plot_data() names an unnamed scenario
+
+    Code
+      levels(drawn$series)
+    Output
+      [1] "Baseline" "Scenario"
+
+# plot_connectivity refuses scenarios it can't tell apart
+
+    Code
+      plot_connectivity(compare_scenarios(baseline, list(baseline = scenario)))
+    Condition
+      Error in `plot_connectivity()`:
+      ! A scenario can't be called "baseline".
+      i The plot draws the baseline under that name. Rename the scenario in scenario_name.
+
+---
+
+    Code
+      plot_connectivity(compare_scenarios(baseline, rlang::set_names(rep(list(
+        scenario), 6), LETTERS[1:6])))
+    Condition
+      Error in `plot_connectivity()`:
+      ! Can only plot up to 5 scenarios at once, not 6.
+      i Plot fewer at a time, for example with `dplyr::filter(x, scenario_name %in% c(...))`.
+
+---
+
+    Code
+      plot_connectivity(dplyr::bind_rows(compare_connectivity(scenario, baseline),
+      compare_connectivity(summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+      baseline)))
+    Condition
+      Error in `plot_connectivity()`:
+      ! Can't draw "Scenario" as one bar per interpatch distance: more than one comparison gives a value at the same distance.
+      i Give each scenario its own scenario_name, and compare every scenario against the same baseline.
+

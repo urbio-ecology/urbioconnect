@@ -346,14 +346,36 @@ plot_patches <- function(
 
 #' Plot connectivity metrics across interpatch distances
 #'
-#' Creates faceted line plots showing how connectivity metrics change with
-#' different interpatch distances. This works best when you have multiple
-#' interpatch distances, otherwise it will just be a plot with one point.
+#' Draws how the connectivity metrics change with the interpatch distance, a
+#'   panel per metric, each on its own scale.
 #'
-#' @param results_connect_habitat Data frame. Connectivity summary results with
-#'   columns for species, interpatch distance, and various metrics.
+#'   Given a `connectivity` object, it draws a point per distance joined by a
+#'   line. A single distance is a single point.
 #'
-#' @returns A ggplot2 object with faceted plots of connectivity metrics.
+#'   Given a `compare_connectivity` object, it draws a bar for the baseline and
+#'   for each scenario at every interpatch distance, side by side, so you can
+#'   see where a scenario departs from the baseline and whether that holds
+#'   across distances.
+#'
+#'   The four metrics are `n_patches`, `prob_connectedness`, `patch_area_mean`
+#'   and `patch_area_total_ha`. `effective_mesh_ha` is left out because it is
+#'   `prob_connectedness` multiplied by the habitat area, which is the same at
+#'   every distance, so its panel would have the same shape.
+#'
+#'   Values are drawn as they are. In a comparison, `prob_connectedness` is
+#'   measured against the baseline's habitat area, so a scenario that adds
+#'   habitat can score above 1, and the plot shows that rather than capping it.
+#'
+#' @param x A `connectivity` object, from [habitat_connectivity()] or
+#'   [summarise_connectivity()], with a row per interpatch distance. Or a
+#'   `compare_connectivity` object, from [compare_connectivity()],
+#'   [compare_scenarios()], [habitat_connectivity_comparison()] or
+#'   [habitat_connectivity_scenarios()], with up to five scenarios. A scenario
+#'   is labelled by its `scenario_name`, or "Scenario" when it has none.
+#' @param ... Not used.
+#'
+#' @returns A ggplot2 object with a panel per connectivity metric.
+#' @seealso [connectivity_display()] for a comparison as a table.
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
@@ -371,46 +393,230 @@ plot_patches <- function(
 #'   }
 #' ) |> purrr::list_rbind()
 #' plot_connectivity(results)
+#'
+#' # a scenario against its baseline
+#' baseline <- summarise_connectivity(lizard_areas_connected)
+#' compare_scenarios(
+#'   baseline = baseline,
+#'   scenarios = list(
+#'     "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
+#'     "Barrier upgrade" = summarise_connectivity(
+#'       lizard_areas_connected[-(1:5), ]
+#'     )
+#'   )
+#' ) |>
+#'   plot_connectivity()
 #' @export
-plot_connectivity <- function(results_connect_habitat) {
-  geo_cols <- scico::scico(n = 6, palette = "bukavu") |> as.list()
+plot_connectivity <- function(x, ...) {
+  UseMethod("plot_connectivity")
+}
 
-  names(geo_cols) <- c(
-    "dark_blue",
-    "mid_blue",
-    "light_blue",
-    "dark_green",
-    "tan",
-    "offwhite"
-  )
+#' @rdname plot_connectivity
+#' @export
+plot_connectivity.default <- function(x, ...) {
+  rlang::check_dots_empty()
 
-  results_for_plot <- results_connect_habitat |>
-    dplyr::select(
-      species:patch_area_total_ha,
-      -effective_mesh_ha
-    ) |>
-    tidyr::pivot_longer(
-      cols = -c(species, interpatch_distance)
-    )
+  plot_data <- x |>
+    dplyr::select("interpatch_distance", dplyr::all_of(plotted_metrics())) |>
+    tidyr::pivot_longer(cols = -"interpatch_distance")
 
-  ggplot2::ggplot(
-    data = results_for_plot,
+  over_distance <- ggplot2::ggplot(
+    data = plot_data,
     ggplot2::aes(
-      x = interpatch_distance,
-      y = value
+      x = .data$interpatch_distance,
+      y = .data$value
     )
   ) +
     ggplot2::geom_point() +
-    ggplot2::geom_line(colour = geo_cols$dark_green) +
+    distance_line(x$interpatch_distance, colour = series_colours()[[1]]) +
+    ggplot2::scale_x_continuous(
+      breaks = unique(x$interpatch_distance),
+      labels = \(x) glue::glue("{x}m")
+    )
+
+  connectivity_plot_layout(over_distance)
+}
+
+#' @rdname plot_connectivity
+#' @export
+plot_connectivity.compare_connectivity <- function(x, ...) {
+  rlang::check_dots_empty()
+
+  scenarios <- unique(scenario_labels(x$scenario_name))
+  check_scenario_not_baseline(scenarios)
+  check_scenario_count(scenarios)
+
+  plot_data <- comparison_plot_data(x)
+  colours <- series_colours()[seq_len(nlevels(plot_data$series))]
+
+  bars <- ggplot2::ggplot(
+    data = plot_data,
+    ggplot2::aes(
+      x = factor(.data$interpatch_distance),
+      y = .data$value,
+      fill = .data$series
+    )
+  ) +
+    ggplot2::geom_col(position = ggplot2::position_dodge()) +
+    ggplot2::scale_x_discrete(labels = \(x) glue::glue("{x}m")) +
+    ggplot2::scale_fill_manual(values = colours, name = NULL)
+
+  connectivity_plot_layout(bars) +
+    ggplot2::theme(legend.position = "bottom")
+}
+
+#' @noRd
+plotted_metrics <- function() {
+  c("n_patches", "prob_connectedness", "patch_area_mean", "patch_area_total_ha")
+}
+
+#' One row per series, distance and metric
+#'
+#' Each scenario carries its own copy of the baseline, so the baseline is
+#' kept once. It comes first, so it takes the first colour.
+#'
+#' @noRd
+comparison_plot_data <- function(x, call = rlang::caller_env()) {
+  rows <- tibble::as_tibble(x)
+
+  baseline <- rows |>
+    dplyr::filter(.data$measure == "baseline") |>
+    dplyr::mutate(series = "Baseline")
+
+  scenarios <- rows |>
+    dplyr::filter(.data$measure == "scenario") |>
+    dplyr::mutate(series = scenario_labels(.data$scenario_name))
+
+  bars <- dplyr::bind_rows(baseline, scenarios) |>
+    dplyr::select(
+      "series",
+      "interpatch_distance",
+      dplyr::all_of(plotted_metrics())
+    ) |>
+    dplyr::distinct()
+
+  check_one_bar_per_distance(bars, call = call)
+
+  bars |>
+    dplyr::mutate(
+      series = factor(.data$series, levels = unique(.data$series))
+    ) |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(plotted_metrics()),
+      names_to = "name",
+      values_to = "value"
+    )
+}
+
+#' The baseline's colour, then one per scenario
+#'
+#' The baseline keeps the over-distance plot's green. The scenarios take
+#' Okabe-Ito's colour-blind-safe hues, less its green, too close to the
+#' baseline's, and its yellow, too pale to see on white.
+#'
+#' @noRd
+series_colours <- function() {
+  baseline <- scico::scico(n = 6, palette = "bukavu")[[4]]
+
+  c(baseline, "#0072B2", "#D55E00", "#CC79A7", "#E69F00", "#56B4E9")
+}
+
+#' @noRd
+scenario_labels <- function(scenario_name) {
+  dplyr::coalesce(scenario_name, "Scenario")
+}
+
+#' Checked on the names rather than the drawn bars: a scenario called
+#' "Baseline" with the baseline's values would be dropped as a duplicate
+#'
+#' @noRd
+check_scenario_not_baseline <- function(
+  scenarios,
+  call = rlang::caller_env()
+) {
+  baseline <- scenarios[tolower(scenarios) == "baseline"]
+
+  if (length(baseline) > 0) {
+    cli::cli_abort(
+      c(
+        "A scenario can't be called {.val {baseline}}.",
+        "i" = "The plot draws the baseline under that name. Rename the
+               scenario in {.field scenario_name}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(scenarios)
+}
+
+#' One colour each, after the baseline's
+#'
+#' @noRd
+check_scenario_count <- function(scenarios, call = rlang::caller_env()) {
+  most <- length(series_colours()) - 1
+
+  if (length(scenarios) > most) {
+    cli::cli_abort(
+      c(
+        "Can only plot up to {most} scenarios at once, not
+         {length(scenarios)}.",
+        "i" = "Plot fewer at a time, for example with
+               {.code dplyr::filter(x, scenario_name %in% c(...))}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(scenarios)
+}
+
+#' Two scenarios sharing a label, or comparisons against different
+#' baselines, would otherwise draw one bar over the other, hiding the shorter
+#'
+#' @noRd
+check_one_bar_per_distance <- function(bars, call = rlang::caller_env()) {
+  clashes <- bars |>
+    dplyr::count(.data$series, .data$interpatch_distance) |>
+    dplyr::filter(.data$n > 1)
+
+  if (nrow(clashes) > 0) {
+    cli::cli_abort(
+      c(
+        "Can't draw {.val {unique(clashes$series)}} as one bar per interpatch
+         distance: more than one comparison gives a value at the same
+         distance.",
+        "i" = "Give each scenario its own {.field scenario_name}, and compare
+               every scenario against the same baseline."
+      ),
+      call = call
+    )
+  }
+
+  invisible(bars)
+}
+
+#' A line, unless there is a single distance to join
+#'
+#' A line of one point makes ggplot2 message when the plot is drawn.
+#'
+#' @noRd
+distance_line <- function(distances, ...) {
+  if (dplyr::n_distinct(distances) > 1) {
+    ggplot2::geom_line(...)
+  }
+}
+
+#' What both plots share: the panels, the y axis and the theme
+#'
+#' @noRd
+connectivity_plot_layout <- function(plot) {
+  plot +
     ggplot2::facet_wrap(
       ~name,
       scales = "free",
       ncol = 2,
       labeller = ggplot2::labeller(name = to_sentence)
-    ) +
-    ggplot2::scale_x_continuous(
-      breaks = results_connect_habitat$interpatch_distance,
-      labels = \(x) glue::glue("{x}m")
     ) +
     ggplot2::scale_y_continuous(
       labels = scales::label_number(scale_cut = scales::cut_short_scale())

@@ -53,7 +53,14 @@ test_that("a scenario comparison reaches the manifest and a CSV", {
 
   manifest <- write_connectivity_assets(report_data, dir, reports = FALSE)
 
-  expect_in("summary/scenario-comparison.csv", manifest$path)
+  expect_in(
+    c("summary/scenario-comparison.csv", "summary/scenario-comparison.png"),
+    manifest$path
+  )
+  expect_gt(
+    file.size(file.path(dir, "summary", "scenario-comparison.png")),
+    0
+  )
 
   comparison <- readr::read_csv(
     file.path(dir, "summary", "scenario-comparison.csv"),
@@ -72,18 +79,20 @@ test_that("a scenario comparison reaches the manifest and a CSV", {
   expect_type(comparison$effective_mesh_ha, "double")
 })
 
-test_that("an analysis with no scenario has no comparison CSV", {
+test_that("an analysis with no scenario has no comparison files", {
   report_data <- test_report_data(40)
   dir <- withr::local_tempdir()
 
   manifest <- write_connectivity_assets(report_data, dir, reports = FALSE)
 
-  expect_false("summary/scenario-comparison.csv" %in% manifest$path)
-  expect_false(file.exists(file.path(
-    dir,
-    "summary",
-    "scenario-comparison.csv"
-  )))
+  expect_equal(
+    grep("^summary/scenario-comparison", manifest$path, value = TRUE),
+    character()
+  )
+  expect_equal(
+    list.files(file.path(dir, "summary"), "^scenario-comparison"),
+    character()
+  )
 })
 
 test_that("the manifest lists the reports only when asked", {
