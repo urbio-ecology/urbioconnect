@@ -395,10 +395,10 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[33ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[32ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[57ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[50ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -406,16 +406,16 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[299ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[214ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[22ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[19ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.2s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[1.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[46ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[39ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>
@@ -526,6 +526,12 @@ changes using <code><a href="../reference/plot_connectivity.html">plot_connectiv
 showing each connectivity metric (number of patches, probability of
 connectedness, mean patch area, total habitat area) as a function of
 interpatch distance.</p>
+<p>Give it a scenario comparison instead, from
+<code><a href="../reference/compare_connectivity.html">compare_connectivity()</a></code>, <code><a href="../reference/compare_scenarios.html">compare_scenarios()</a></code>,
+<code><a href="../reference/habitat_connectivity_comparison.html">habitat_connectivity_comparison()</a></code> or
+<code><a href="../reference/habitat_connectivity_scenarios.html">habitat_connectivity_scenarios()</a></code>, and it draws a bar for
+the baseline and each scenario, side by side at each interpatch
+distance, so you can see where a scenario departs from the baseline.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>

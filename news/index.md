@@ -76,6 +76,14 @@
   travels into the report and the download.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
 
+- The shiny app’s Scenario tab, the report and the download bundle now
+  show the scenario comparison as a plot, and the app offers it as a
+  PNG; the bundle’s copy is `summary/scenario-comparison.png`. The app
+  names its comparison after the scenario chosen, so the plot’s legend,
+  a new Scenario column in the comparison table and the downloaded CSV’s
+  `scenario_name` all say which scenario it was.
+  ([\#163](https://github.com/urbio-ecology/urbioconnect/issues/163))
+
 - The shiny app gains a Reports card, with buttons for the HTML report,
   the PDF report, and both as a zip. The two report buttons existed but
   had no handlers, so they did nothing. Without the Quarto command line
@@ -252,6 +260,12 @@
   now gives the same patch count as the connectivity summary. It counted
   the cells outside any patch as patches too, so the map reported more
   patches than the summary table beside it.
+
+- [`plot_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_connectivity.md)
+  now also draws a scenario comparison, as bars for the baseline and
+  each scenario side by side at each interpatch distance. Its argument
+  is now `x` rather than `results_connect_habitat`.
+  ([\#163](https://github.com/urbio-ecology/urbioconnect/issues/163))
 
 - [`plot_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_patches.md)
   gains `barrier` and `buffered`, to draw the barrier in grey and shade
