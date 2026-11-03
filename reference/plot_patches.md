@@ -5,7 +5,14 @@ Visualizes habitat patches colored by their connected fragment ID.
 ## Usage
 
 ``` r
-plot_patches(patch_id, interpatch_distance, species = "Species", n_cols = 7)
+plot_patches(
+  patch_id,
+  interpatch_distance,
+  species = "Species",
+  n_cols = 7,
+  barrier = NULL,
+  buffered = NULL
+)
 ```
 
 ## Arguments
@@ -32,9 +39,27 @@ plot_patches(patch_id, interpatch_distance, species = "Species", n_cols = 7)
 
   Integer. Number of colors to cycle through (default: 7).
 
+- barrier:
+
+  Terra SpatRaster, optional. The barrier layer the patches were found
+  with, 1 where there is a barrier.
+
+- buffered:
+
+  Terra SpatRaster, optional. Needs `barrier`. The buffered habitat the
+  patches were found with, from
+  [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md).
+
 ## Value
 
 A ggplot2 object showing patches with distinct colors.
+
+## Details
+
+With `barrier`, the barrier is drawn in grey. With `buffered` as well,
+each patch's connecting zone, the buffered habitat cut by the barrier
+that joins it into one patch, is shaded a paler version of its colour.
+Buffer cut off from all habitat joins no patch, so it is left blank.
 
 ## Examples
 
@@ -55,7 +80,29 @@ fragment_patches <- assign_patches_to_fragments(
   fragment = fragmented
   ) |> add_patch_area()
 
-plot_patches(fragment_patches, interpatch_distance = interpatch_distance)
+plot_patches(
+  patch_id = fragment_patches,
+  interpatch_distance = interpatch_distance
+  )
+#> <SpatRaster> resampled to 500554 cells.
+
+
+# with the barrier
+plot_patches(
+  fragment_patches,
+  interpatch_distance,
+  barrier = lizard_barrier
+)
+#> <SpatRaster> resampled to 500554 cells.
+
+
+# with the barrier, and each patch's connecting zone shaded
+plot_patches(
+  fragment_patches,
+  interpatch_distance,
+  barrier = lizard_barrier,
+  buffered = buffered_habitat
+)
 #> <SpatRaster> resampled to 500554 cells.
 
 

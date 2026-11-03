@@ -253,6 +253,12 @@
   the cells outside any patch as patches too, so the map reported more
   patches than the summary table beside it.
 
+- [`plot_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_patches.md)
+  gains `barrier` and `buffered`, to draw the barrier in grey and shade
+  the zone that joins each patch. The app, the report and the downloaded
+  maps pass both.
+  ([\#179](https://github.com/urbio-ecology/urbioconnect/issues/179))
+
 - [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
   loses `target_resolution`, and the shiny app its “Target resolution”
   input. The grid now ends at the edge of the habitat layer on all four
