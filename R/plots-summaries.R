@@ -201,6 +201,11 @@ to_sentence <- function(x) {
 #'
 #' Visualizes habitat patches colored by their connected fragment ID.
 #'
+#' With `barrier`, the barrier is drawn in grey. With `buffered` as well, each
+#' patch's connecting zone, the buffered habitat cut by the barrier that joins
+#' it into one patch, is shaded a paler version of its colour. Buffer cut off
+#' from all habitat joins no patch, so it is left blank.
+#'
 #' @param patch_id Terra SpatRaster. Raster with patch IDs.
 #' @param interpatch_distance Numeric. The distance (in meters) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
@@ -211,6 +216,10 @@ to_sentence <- function(x) {
 #'   distance of 500 will be converted to 250.
 #' @param species Character. Species name (default: "Species").
 #' @param n_cols Integer. Number of colors to cycle through (default: 7).
+#' @param barrier Terra SpatRaster, optional. The barrier layer the patches
+#'   were found with, 1 where there is a barrier.
+#' @param buffered Terra SpatRaster, optional. Needs `barrier`. The buffered
+#'   habitat the patches were found with, from [habitat_connectivity_full()].
 #'
 #' @returns A ggplot2 object showing patches with distinct colors.
 #' @export
@@ -231,7 +240,25 @@ to_sentence <- function(x) {
 #'   fragment = fragmented
 #'   ) |> add_patch_area()
 #'
-#' plot_patches(fragment_patches, interpatch_distance = interpatch_distance)
+#' plot_patches(
+#'   patch_id = fragment_patches,
+#'   interpatch_distance = interpatch_distance
+#'   )
+#'
+#' # with the barrier
+#' plot_patches(
+#'   fragment_patches,
+#'   interpatch_distance,
+#'   barrier = lizard_barrier
+#' )
+#'
+#' # with the barrier, and each patch's connecting zone shaded
+#' plot_patches(
+#'   fragment_patches,
+#'   interpatch_distance,
+#'   barrier = lizard_barrier,
+#'   buffered = buffered_habitat
+#' )
 #'
 #' #' add north arrow and scale bar with ggspatial
 #' library(ggspatial)
@@ -245,8 +272,21 @@ plot_patches <- function(
   patch_id,
   interpatch_distance,
   species = "Species",
-  n_cols = 7
+  n_cols = 7,
+  barrier = NULL,
+  buffered = NULL
 ) {
+  # the barrier is drawn whenever it is given; the zones also need the buffered
+  # habitat, which the barrier cuts into one zone per patch
+  draw_barrier <- !is.null(barrier)
+  shade_zones <- !is.null(buffered)
+
+  if (shade_zones && !draw_barrier) {
+    cli::cli_abort(
+      "{.arg buffered} needs {.arg barrier}, which cuts the buffer into zones."
+    )
+  }
+
   raster_patches <- patch_id$patch_id |> terra::values()
 
   unique_vals <- unique(raster_patches[!is.na(raster_patches)])
@@ -259,13 +299,29 @@ plot_patches <- function(
   colour_map <- my_colours[colour_indices]
   names(colour_map) <- unique_vals
 
-  patch_raster <- terra::as.factor(patch_id$patch_id)
+  # one layer, so it draws as one image: a habitat cell holds its patch id, a
+  # zone cell the id negated, and a barrier cell 0
+  cells <- patch_id$patch_id
+  if (shade_zones) {
+    # as assign_patches_to_fragments() labels it, so its ids are the patch ids
+    mask <- create_barrier_mask(barrier)
+    zone <- buffered |> fragment_habitat(mask) |> terra::patches()
+    cells <- terra::cover(cells, -zone)
+    zone_colours <- colorspace::lighten(colour_map, 0.65)
+    names(zone_colours) <- -unique_vals
+    colour_map <- c(colour_map, zone_colours)
+  }
+  if (draw_barrier) {
+    barrier <- align_to(barrier, cells)
+    cells <- terra::cover(terra::ifel(barrier == 1, 0, NA), cells)
+    colour_map <- c(colour_map, "0" = "grey55")
+  }
 
   ggplot2::ggplot() +
-    tidyterra::geom_spatraster(data = patch_raster) +
+    tidyterra::geom_spatraster(data = terra::as.factor(cells)) +
     ggplot2::scale_fill_manual(values = colour_map, na.value = NA) +
     ggplot2::theme_minimal() +
-    ggplot2::theme(legend.position = "none", aspect.ratio = 1) +
+    ggplot2::theme(legend.position = "none") +
     ggplot2::theme_sub_panel(
       border = ggplot2::element_rect(
         colour = "grey85"
@@ -278,8 +334,7 @@ plot_patches <- function(
         "Patches of {species} habitat"
       ),
       subtitle = glue::glue(
-        "# patches: {n_patches}\nInterpatch Distance size:\\
-        {interpatch_distance}m\n{n_cols} colours"
+        "# patches: {n_patches}\nInterpatch Distance size: {interpatch_distance}m"
       )
     ) +
     ggplot2::theme_sub_axis(

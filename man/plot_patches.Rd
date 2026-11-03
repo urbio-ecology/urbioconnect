@@ -4,7 +4,14 @@
 \alias{plot_patches}
 \title{Plot connected habitat patches}
 \usage{
-plot_patches(patch_id, interpatch_distance, species = "Species", n_cols = 7)
+plot_patches(
+  patch_id,
+  interpatch_distance,
+  species = "Species",
+  n_cols = 7,
+  barrier = NULL,
+  buffered = NULL
+)
 }
 \arguments{
 \item{patch_id}{Terra SpatRaster. Raster with patch IDs.}
@@ -20,12 +27,24 @@ distance of 500 will be converted to 250.}
 \item{species}{Character. Species name (default: "Species").}
 
 \item{n_cols}{Integer. Number of colors to cycle through (default: 7).}
+
+\item{barrier}{Terra SpatRaster, optional. The barrier layer the patches
+were found with, 1 where there is a barrier.}
+
+\item{buffered}{Terra SpatRaster, optional. Needs \code{barrier}. The buffered
+habitat the patches were found with, from \code{\link[=habitat_connectivity_full]{habitat_connectivity_full()}}.}
 }
 \value{
 A ggplot2 object showing patches with distinct colors.
 }
 \description{
 Visualizes habitat patches colored by their connected fragment ID.
+}
+\details{
+With \code{barrier}, the barrier is drawn in grey. With \code{buffered} as well, each
+patch's connecting zone, the buffered habitat cut by the barrier that joins
+it into one patch, is shaded a paler version of its colour. Buffer cut off
+from all habitat joins no patch, so it is left blank.
 }
 \examples{
 lizard_habitat <- example_habitat()
@@ -44,7 +63,25 @@ fragment_patches <- assign_patches_to_fragments(
   fragment = fragmented
   ) |> add_patch_area()
 
-plot_patches(fragment_patches, interpatch_distance = interpatch_distance)
+plot_patches(
+  patch_id = fragment_patches,
+  interpatch_distance = interpatch_distance
+  )
+
+# with the barrier
+plot_patches(
+  fragment_patches,
+  interpatch_distance,
+  barrier = lizard_barrier
+)
+
+# with the barrier, and each patch's connecting zone shaded
+plot_patches(
+  fragment_patches,
+  interpatch_distance,
+  barrier = lizard_barrier,
+  buffered = buffered_habitat
+)
 
 #' add north arrow and scale bar with ggspatial
 library(ggspatial)
