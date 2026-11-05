@@ -68,46 +68,26 @@ server <- function(input, output, session) {
       choices = scenario_choices(input$example_data)
     )
 
+    # dimmed as well as disabled: a disabled file input's Browse button still
+    # looks clickable
     purrr::walk(
       c("species", "habitat_file", "barrier_file"),
       function(id) {
-        if (using_example) {
-          shinyjs::disable(id)
-        } else {
-          shinyjs::enable(id)
-        }
-        shinyjs::runjs(sprintf(
-          "$('#%s').closest('.form-group').css('opacity', '%s');",
-          id,
-          if (using_example) "0.5" else "1"
-        ))
+        shinyjs::toggleState(id, condition = !using_example)
+        shinyjs::toggleClass(
+          selector = glue(".form-group:has(#{id})"),
+          class = "opacity-50",
+          condition = using_example
+        )
       }
     )
   })
-  # Reactive values to store results ----
-  results <- reactiveValues(
-    ready = FALSE,
-    report_data = NULL,
-    habitat_raster = NULL,
-    barrier_raster = NULL,
-    buffered_habitat = NULL,
-    patch_id_raster = NULL,
-    interpatch_distances = NULL,
-    results_connect_habitat = NULL,
-    areas_connected = NULL,
-    comparison = NULL,
-    scenario_layer = NULL,
-    scenario_kind = NULL,
-    scenario_habitat = NULL,
-    scenario_barrier = NULL,
-    scenario_buffered = NULL
-  )
 
   # Parse interpatch distances ----
   interpatch_distances_parsed <- reactive({
-    req(input$interpatch_distances)
-    entries <- trimws(strsplit(input$interpatch_distances, ",")[[1]])
-    entries <- entries[entries != ""]
+    # not req(), so an empty box reaches the "at least one" check below, which
+    # says what is wrong
+    entries <- extract_interpatch_distances(input$interpatch_distances)
     distances <- suppressWarnings(as.numeric(entries))
     unparsed <- entries[is.na(distances)]
 
@@ -273,21 +253,31 @@ server <- function(input, output, session) {
   }
 
   # Main analysis ----
-  observeEvent(input$run_analysis, {
-    # Show modal with progress
+
+  # Everything the last Run produced, as one connectivity_report_data: the
+  # summary, the layers each distance produced, and the scenario landscape
+  # beside them. Every output is drawn from it, so none mixes two runs, and it
+  # is what the reports and the asset bundle are written from. Before a run,
+  # and after one that fails, it gives a silent error, which empties every
+  # output that reads it.
+  analysis <- eventReactive(input$run_analysis, {
     showModal(modalDialog(
       title = "Running Analysis",
       "Processing your data... This may take a few moments.",
       easyClose = FALSE,
       footer = NULL
     ))
+    on.exit(removeModal())
 
     tryCatch(
       {
         check_scenario_choice()
+        # before the layers are read, so a bad box fails at once
+        distances <- interpatch_distances_parsed()
 
-        # Read files
-        withProgress(message = "Loading data...", value = 0.1, {
+        # withProgress() returns its block's value: the
+        # connectivity_report_data() at the end of it
+        report_data <- withProgress(message = "Loading data...", value = 0.1, {
           # An example dataset brings its own layers; otherwise they are
           # uploaded. Either way they go through prepare_rasters() below, so
           # the resolution control means the same thing for both.
@@ -307,26 +297,13 @@ server <- function(input, output, session) {
             barrier_data <- read_uploaded_file(input$barrier_file)
           }
 
-          # Store for later use
-          results$habitat <- habitat_data
-          results$barrier <- barrier_data
-
-          # Get parameters
-          base_res <- input$data_resolution
-          interpatch_dists <- interpatch_distances_parsed()
-          results$interpatch_distances <- interpatch_dists
-
           incProgress(0.2, message = "Preparing rasters...")
 
-          # Prepare rasters
           rasters <- prepare_rasters(
             habitat = habitat_data,
             barrier = barrier_data,
-            data_resolution = base_res
+            data_resolution = input$data_resolution
           )
-
-          results$habitat_raster <- rasters$habitat_raster
-          results$barrier_raster <- rasters$barrier_raster
 
           incProgress(0.3, message = "Calculating connectivity...")
 
@@ -343,117 +320,86 @@ server <- function(input, output, session) {
           habitat_scenario <- if (scenario_changes_habitat) scenario$layer
           barrier_scenario <- if (scenario_changes_barrier) scenario$layer
 
-          # One object holding the whole analysis: the summary, the layers
-          # each distance produced, and the scenario landscape beside them.
-          # The tables, plots and downloads below all read from it, and it is
-          # what the asset bundle is written from. A scenario goes in here
-          # rather than being compared separately, so the baseline pipeline
-          # runs once rather than once for the analysis and again for the
-          # comparison.
-          report_data <- connectivity_report_data(
-            habitat = results$habitat_raster,
-            barrier = results$barrier_raster,
+          # A scenario goes in here rather than being compared separately, so
+          # the baseline pipeline runs once rather than once for the analysis
+          # and again for the comparison.
+          connectivity_report_data(
+            habitat = rasters$habitat_raster,
+            barrier = rasters$barrier_raster,
             species = input$species,
-            interpatch_distance = interpatch_dists,
+            interpatch_distance = distances,
             habitat_scenario = habitat_scenario,
             barrier_scenario = barrier_scenario,
             scenario_name = scenario$name,
             settings = list(
               habitat_source = layer_source(input$habitat_file),
               barrier_source = layer_source(input$barrier_file),
-              data_resolution_m = base_res
+              data_resolution_m = input$data_resolution
             ),
             verbose = FALSE
           )
-
-          incProgress(0.5, message = "Summarising results...")
-
-          results$report_data <- report_data
-          results$results_connect_habitat <- report_data$connectivity
-          results$buffered_habitat <- report_data$buffered_habitat
-          results$patch_id_raster <- report_data$patch_id_raster
-          results$areas_connected <- patch_sizes(report_data$connectivity)
-
-          results$comparison <- report_data$comparison
-          results$scenario_layer <- scenario_layer(report_data)
-          results$scenario_kind <- report_data$scenario_kind
-          results$scenario_habitat <- report_data$scenario_habitat
-          results$scenario_barrier <- report_data$scenario_barrier
-          results$scenario_buffered <- report_data$scenario_buffered_habitat
-
-          incProgress(0.9, message = "Finalizing...")
-
-          results$ready <- TRUE
         })
 
-        removeModal()
-
-        # Show success message
-        showNotification(
-          "Analysis complete!",
-          type = "message",
-          duration = 3
-        )
+        showNotification("Analysis complete!", type = "message", duration = 3)
+        report_data
       },
       error = function(e) {
-        removeModal()
         showNotification(
-          paste("Error:", e$message),
+          paste("Error:", conditionMessage(e)),
           type = "error",
           duration = NULL
         )
+        # silent, so it empties the outputs rather than printing in each one,
+        # and doesn't end the session from the observers below
+        req(FALSE)
       }
     )
   })
 
   # Output: Results ready flag ----
-  output$results_ready <- reactive({
-    results$ready
-  })
+
+  # Never suspended, so the analysis runs when Run is clicked even with Results
+  # closed: an eventReactive waits until something reads it. A conditionalPanel
+  # reads its silent error as false.
+  output$results_ready <- reactive(isTruthy(analysis()))
   outputOptions(output, "results_ready", suspendWhenHidden = FALSE)
 
   # Output: Analysis Metadata ----
-  output$analysis_species <- renderText({
-    req(results$ready)
-    input$species
-  })
+  output$analysis_species <- renderText(analysis()$species)
 
   output$analysis_timestamp <- renderText({
-    req(results$ready)
-    format(results$report_data$run_time, "%Y-%m-%d %H:%M:%S %Z")
+    format(analysis()$run_time, "%Y-%m-%d %H:%M:%S %Z")
   })
 
   output$analysis_session <- renderText({
-    req(results$ready)
+    req(analysis())
     paste0("R ", getRversion(), " on ", Sys.info()["sysname"])
   })
 
   output$analysis_buffers <- renderText({
-    req(results$ready)
-    paste(results$interpatch_distances, collapse = ", ")
+    paste(analysis()$interpatch_distance, collapse = ", ")
   })
 
   output$analysis_workdir <- renderText({
-    req(results$ready)
+    req(analysis())
     getwd()
   })
 
   # One tab per interpatch distance. Every tabbed view of the analysis is this
-  # shape, so they share it: `content` says what one panel holds, and `ready`
-  # has to be a function, because a promise would be forced once and then stop
-  # tracking.
-  distance_tabs <- function(content, ready = \() results$ready, id = NULL) {
+  # shape, so they share it: `content` says what one panel holds, and the tabs
+  # stay empty until `ready()` has a value.
+  distance_tabs <- function(content, id, ready = analysis) {
     renderUI({
       req(ready())
 
-      panels <- map(results$interpatch_distances, function(distance) {
+      panels <- map(analysis()$interpatch_distance, function(distance) {
         nav_panel(
           title = paste0("Interpatch: ", distance, "m"),
           content(distance)
         )
       })
 
-      do.call(navset_tab, c(if (is.null(id)) NULL else list(id = id), panels))
+      do.call(navset_tab, c(list(id = id), panels))
     })
   }
 
@@ -465,6 +411,20 @@ server <- function(input, output, session) {
     }
   }
 
+  # One landscape at one distance. The baseline maps and both sides of a
+  # comparison are all drawn with this, so the only difference you see between
+  # two of them is the one the scenario made.
+  landscape_plot <- function(habitat, barrier, buffered, distance, species) {
+    gg_barrier_habitat_interpatch_dist(
+      barrier = barrier,
+      buffered = buffered,
+      habitat = habitat,
+      interpatch_distance = distance,
+      species = species,
+      col_paper = "grey96"
+    )
+  }
+
   # Output: Habitat, Buffered Habitat, and Barrier - Tabbed Plots ----
   output$gg_barrier_habitat_buffer_tabs <- distance_tabs(
     distance_plot("barrier_habitat_interpatch"),
@@ -472,31 +432,27 @@ server <- function(input, output, session) {
   )
 
   # Render each barrier/habitat/interpatch plot dynamically ----
-  observe({
-    req(results$ready)
 
-    walk2(
-      .x = results$buffered_habitat,
-      .y = results$interpatch_distances,
-      .f = function(buffered_habitat, distance) {
-        output_name <- paste0("barrier_habitat_interpatch_", distance)
-        local({
-          my_buffered <- buffered_habitat
-          my_distance <- distance
-          output[[output_name]] <- renderPlot({
-            # review: this is the re-use section, set up module
-            gg_barrier_habitat_interpatch_dist(
-              barrier = results$barrier_raster,
-              buffered = my_buffered,
-              habitat = results$habitat_raster,
-              interpatch_distance = my_distance,
-              species = input$species,
-              col_paper = "grey96"
-            )
-          })
-        })
-      }
-    )
+  # Each plot reads analysis() rather than holding its layers, so one left over
+  # from a distance the last run dropped holds nothing, and its req() keeps it
+  # empty. The req() comes before the call: inside a terra argument, S4
+  # dispatch would turn its silent error into a real one.
+  observe({
+    walk(analysis()$interpatch_distance, function(distance) {
+      key <- as.character(distance)
+
+      output[[paste0("barrier_habitat_interpatch_", distance)]] <- renderPlot({
+        data <- analysis()
+        buffered <- req(data$buffered_habitat[[key]])
+        landscape_plot(
+          data$habitat,
+          data$barrier,
+          buffered,
+          distance,
+          data$species
+        )
+      })
+    })
   })
 
   # Output: Patch ID - Tabbed Plots ----
@@ -507,41 +463,36 @@ server <- function(input, output, session) {
 
   # Render each patch plot dynamically ----
   observe({
-    req(results$ready)
+    walk(analysis()$interpatch_distance, function(distance) {
+      key <- as.character(distance)
 
-    walk2(
-      .x = results$patch_id_raster,
-      .y = results$interpatch_distances,
-      .f = function(patch_id, interpatch_distance) {
-        output_name <- paste0("patch_plot_", interpatch_distance)
-        local({
-          my_patch_id <- patch_id
-          my_interpatch_distance <- interpatch_distance
-          my_species <- input$species
-          output[[output_name]] <- renderPlot({
-            plot_patches(
-              patch_id = my_patch_id,
-              interpatch_distance = my_interpatch_distance,
-              species = my_species,
-              barrier = results$barrier_raster,
-              buffered = results$buffered_habitat[[as.character(
-                my_interpatch_distance
-              )]],
-              directions = results$report_data$directions
-            )
-          })
-        })
-      }
-    )
+      output[[paste0("patch_plot_", distance)]] <- renderPlot({
+        data <- analysis()
+        patch_id <- req(data$patch_id_raster[[key]])
+        plot_patches(
+          patch_id = patch_id,
+          interpatch_distance = distance,
+          species = data$species,
+          barrier = data$barrier,
+          buffered = data$buffered_habitat[[key]],
+          directions = data$directions
+        )
+      })
+    })
+  })
+
+  # every distance's patches in one table, for the table and its CSV
+  patch_areas <- reactive({
+    data <- analysis()
+
+    patch_sizes(data$connectivity) |>
+      setNames(data$interpatch_distance) |>
+      bind_rows(.id = "interpatch")
   })
 
   # Output: Area and patch information table (combined from all buffers) ----
   output$summary_table <- renderDT({
-    req(results$areas_connected)
-
-    results$areas_connected |>
-      setNames(results$interpatch_distances) |>
-      bind_rows(.id = "interpatch") |>
+    patch_areas() |>
       datatable(
         options = list(
           pageLength = 10,
@@ -553,10 +504,8 @@ server <- function(input, output, session) {
 
   # Output: Connectivity summary table ----
   output$results_connect_habitat_table <- renderDT({
-    req(results$results_connect_habitat)
-
     display_dt(
-      connectivity_display(results$results_connect_habitat),
+      connectivity_display(analysis()$connectivity),
       pageLength = 10,
       dom = "tip"
     )
@@ -564,12 +513,10 @@ server <- function(input, output, session) {
 
   # Output: Longer format prob connectedness table ----
   output$results_connect_habitat_longer_table <- renderDT({
-    req(results$results_connect_habitat)
-
     # the labels and which columns identify a row both come from the package,
     # so renaming one doesn't break this. One column of every metric needs
     # significant figures rather than the per-column rules.
-    display <- connectivity_display(results$results_connect_habitat)
+    display <- connectivity_display(analysis()$connectivity)
 
     display$data |>
       pivot_longer(
@@ -589,20 +536,18 @@ server <- function(input, output, session) {
 
   # Output: Visualization of connectivity changes ----
   output$plot_connectivity_output <- renderPlot({
-    req(results$results_connect_habitat)
-    plot_connectivity(results$results_connect_habitat)
+    plot_connectivity(analysis()$connectivity)
   })
 
   # Downloads ----
 
-  # A download named after the analysis. filename runs before content, so the
-  # req() has to be here too.
+  # A download named after the analysis. filename runs before content, so it
+  # is what stops a download before there is an analysis to name it after.
   stem_filename <- function(suffix) {
     force(suffix)
 
     function() {
-      req(results$report_data)
-      paste0(connectivity_file_stem(results$report_data), suffix)
+      paste0(connectivity_file_stem(analysis()), suffix)
     }
   }
 
@@ -613,7 +558,7 @@ server <- function(input, output, session) {
     content = function(file) {
       # patch_size is a list-column of per-patch tables; it writes as an empty
       # column. The per-patch data has its own download.
-      results$results_connect_habitat |>
+      analysis()$connectivity |>
         select(-patch_size) |>
         write_csv(file)
     }
@@ -624,7 +569,9 @@ server <- function(input, output, session) {
       paste0("habitat_patches_", Sys.Date(), ".tif")
     },
     content = function(file) {
-      terra::writeRaster(results$habitat_raster, file, overwrite = TRUE)
+      # read first: inside a terra call the silent error becomes a real one
+      habitat <- analysis()$habitat
+      terra::writeRaster(habitat, file, overwrite = TRUE)
     }
   )
 
@@ -636,7 +583,7 @@ server <- function(input, output, session) {
       size <- urbio_figure_size()
       ggsave(
         filename = file,
-        plot = plot_connectivity(results$results_connect_habitat),
+        plot = plot_connectivity(analysis()$connectivity),
         width = size$width,
         height = size$tall_height,
         dpi = size$dpi,
@@ -649,10 +596,7 @@ server <- function(input, output, session) {
   output$download_areas_csv <- downloadHandler(
     filename = stem_filename("-areas.csv"),
     content = function(file) {
-      results$areas_connected |>
-        setNames(results$interpatch_distances) |>
-        bind_rows(.id = "interpatch") |>
-        write_csv(file)
+      write_csv(patch_areas(), file)
     }
   )
 
@@ -660,8 +604,7 @@ server <- function(input, output, session) {
   output$download_settings_csv <- downloadHandler(
     filename = stem_filename("-settings.csv"),
     content = function(file) {
-      req(results$report_data)
-      write_csv(connectivity_settings(results$report_data), file, na = "")
+      write_csv(connectivity_settings(analysis()), file, na = "")
     }
   )
 
@@ -755,29 +698,24 @@ server <- function(input, output, session) {
 
   # drives the Results tab's scenario section, which stays hidden until there
   # is a comparison to show
-  output$has_comparison <- reactive(!is.null(results$comparison))
+  output$has_comparison <- reactive(!is.null(analysis()$comparison))
   outputOptions(output, "has_comparison", suspendWhenHidden = FALSE)
 
+  # a silent error when the run had no scenario, so its outputs stay empty
+  comparison <- reactive(req(analysis()$comparison))
+
   output$comparison_plot <- renderPlot(
-    {
-      req(results$comparison)
-      plot_connectivity(results$comparison)
-    },
+    plot_connectivity(comparison()),
     alt = "Baseline and scenario metrics across interpatch distances"
   )
 
   output$download_comparison_plot <- downloadHandler(
-    filename = function() {
-      paste0(
-        connectivity_file_stem(results$report_data),
-        "-scenario-comparison.png"
-      )
-    },
+    filename = stem_filename("-scenario-comparison.png"),
     content = function(file) {
       size <- urbio_figure_size()
       ggsave(
         filename = file,
-        plot = plot_connectivity(results$comparison),
+        plot = plot_connectivity(comparison()),
         width = size$width,
         height = size$tall_height,
         dpi = size$dpi,
@@ -787,58 +725,32 @@ server <- function(input, output, session) {
   )
 
   output$comparison_wide_table <- renderDT({
-    req(results$comparison)
-
     display_dt(
-      connectivity_display(results$comparison),
+      connectivity_display(comparison()),
       pageLength = 10,
       dom = "t"
     )
   })
 
   output$comparison_long_table <- renderDT({
-    req(results$comparison)
-
     display_dt(
-      connectivity_display(results$comparison, wide = FALSE),
+      connectivity_display(comparison(), wide = FALSE),
       pageLength = 8
     )
   })
 
   # What went into the comparison, one layer at a time: the two baseline
   # inputs and the scenario standing in for one of them.
-  output$layer_habitat <- renderPlot({
-    req(results$habitat_raster)
-    gg_layer(results$habitat_raster, "habitat")
-  })
+  output$layer_habitat <- renderPlot(gg_layer(analysis()$habitat, "habitat"))
 
-  output$layer_barrier <- renderPlot({
-    req(results$barrier_raster)
-    gg_layer(results$barrier_raster, "barrier")
-  })
+  output$layer_barrier <- renderPlot(gg_layer(analysis()$barrier, "barrier"))
 
   output$layer_scenario <- renderPlot({
-    req(results$scenario_layer, results$scenario_kind)
+    data <- analysis()
+    kind <- req(data$scenario_kind)
 
-    gg_layer(
-      results$scenario_layer,
-      results$scenario_kind,
-      title = paste0("Scenario: ", results$scenario_kind)
-    )
+    gg_layer(scenario_layer(data), kind, title = paste0("Scenario: ", kind))
   })
-
-  # One landscape, drawn the way both sides of a comparison are drawn, so the
-  # only difference you see is the one the scenario made.
-  landscape_plot <- function(habitat, barrier, buffered, distance) {
-    gg_barrier_habitat_interpatch_dist(
-      barrier = barrier,
-      buffered = buffered,
-      habitat = habitat,
-      interpatch_distance = distance,
-      species = input$species,
-      col_paper = "grey96"
-    )
-  }
 
   # diffviewer compares two files rather than two plots, so each side is
   # written out. Square and named for what it is: the widget puts the old
@@ -859,22 +771,25 @@ server <- function(input, output, session) {
   }
 
   observe({
-    req(results$comparison)
+    data <- analysis()
+    req(data$comparison)
 
-    walk(results$interpatch_distances, function(distance) {
+    walk(data$interpatch_distance, function(distance) {
       key <- as.character(distance)
 
       baseline <- landscape_plot(
-        results$habitat_raster,
-        results$barrier_raster,
-        results$buffered_habitat[[key]],
-        distance
+        data$habitat,
+        data$barrier,
+        data$buffered_habitat[[key]],
+        distance,
+        data$species
       )
       scenario <- landscape_plot(
-        results$scenario_habitat,
-        results$scenario_barrier,
-        results$scenario_buffered[[key]],
-        distance
+        data$scenario_habitat,
+        data$scenario_barrier,
+        data$scenario_buffered_habitat[[key]],
+        distance,
+        data$species
       )
 
       output[[paste0("baseline_landscape_", distance)]] <- renderPlot(baseline)
@@ -890,24 +805,22 @@ server <- function(input, output, session) {
   })
 
   # One tab per distance, for each way of looking at the pair.
-  compared <- \() !is.null(results$comparison)
-
   output$baseline_landscape_tabs <- distance_tabs(
     distance_plot("baseline_landscape"),
-    ready = compared,
-    id = "baseline_distance"
+    id = "baseline_distance",
+    ready = comparison
   )
   output$scenario_landscape_tabs <- distance_tabs(
     distance_plot("scenario_landscape"),
-    ready = compared,
-    id = "scenario_distance"
+    id = "scenario_distance",
+    ready = comparison
   )
   output$landscape_compare_tabs <- distance_tabs(
     function(distance) {
       visual_diff_output(paste0("compare_", distance), height = "720px")
     },
-    ready = compared,
-    id = "compare_distance"
+    id = "compare_distance",
+    ready = comparison
   )
 
   # Everything: maps, tables, GIS layers and the reports
@@ -916,10 +829,8 @@ server <- function(input, output, session) {
       paste0("connectivity-", Sys.Date(), ".zip")
     },
     content = function(file) {
-      req(results$report_data)
-
       withProgress(message = "Preparing your download...", value = 0.3, {
-        zip_connectivity_assets(results$report_data, file)
+        zip_connectivity_assets(analysis(), file)
       })
     }
   )
@@ -935,14 +846,8 @@ server <- function(input, output, session) {
     downloadHandler(
       filename = stem_filename(paste0(".", extension)),
       content = function(file) {
-        req(results$report_data)
-
         withProgress(message = "Rendering your report...", value = 0.3, {
-          generate_connectivity_report(
-            results$report_data,
-            file,
-            format = extension
-          )
+          generate_connectivity_report(analysis(), file, format = extension)
         })
       }
     )
@@ -954,10 +859,8 @@ server <- function(input, output, session) {
   output$download_reports_zip <- downloadHandler(
     filename = stem_filename("-reports.zip"),
     content = function(file) {
-      req(results$report_data)
-
       withProgress(message = "Rendering both reports...", value = 0.3, {
-        zip_connectivity_reports(results$report_data, file)
+        zip_connectivity_reports(analysis(), file)
       })
     }
   )

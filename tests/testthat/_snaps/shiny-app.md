@@ -22,7 +22,7 @@
 # uploaded layers and an uploaded scenario reach the analysis
 
     Code
-      names(connectivity_display(results$comparison)$data)
+      names(connectivity_display(analysis()$comparison)$data)
     Output
       [1] "Scenario"       "Distance (m)"   "Metric"         "Baseline"      
       [5] "Scenario value" "Change"         "% change"      
