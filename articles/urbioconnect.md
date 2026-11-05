@@ -267,7 +267,7 @@ patch_id_raster
 #>               lizard_habitat_raster
 #> names       : patch_id,     area
 #> min values  :        1, 4.000221
-#> max values  :     1355, 4.000273
+#> max values  :      703, 4.000273
 ```
 
 [`add_patch_area()`](https://urbio-ecology.github.io/urbioconnect/reference/add_patch_area.md)
@@ -305,14 +305,14 @@ areas_connected
 #>       <dbl>   <dbl>
 #>  1        1    60.0
 #>  2        2  1648. 
-#>  3        7    12.0
-#>  4        8  1200. 
-#>  5       10 92034. 
-#>  6       11    40.0
-#>  7       12   288. 
-#>  8       28  1156. 
-#>  9       30    64.0
-#> 10       31   940. 
+#>  3        3    12.0
+#>  4        4  1200. 
+#>  5        5 92034. 
+#>  6        6    40.0
+#>  7        7   288. 
+#>  8        8  1156. 
+#>  9        9    64.0
+#> 10       10   940. 
 #> # ℹ 693 more rows
 ```
 
@@ -386,10 +386,10 @@ areas <- habitat_connectivity(
   verbose = TRUE
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [32ms]
+#> ✔ Creating barrier mask [26ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [50ms]
+#> ✔ Removing habitat underneath barrier [46ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 10m
 #> Warning: `interpatch_distance` doesn't align with the raster resolution.
@@ -397,16 +397,16 @@ areas <- habitat_connectivity(
 #> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Buffering habitat for an interpatch distance of 10m [214ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [229ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [19ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [23ms]
 #> 
 #> ℹ Assigning patches ID to fragments
 #> ✔ Assigning patches ID to fragments [1.8s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [39ms]
+#> ✔ Summarising area in each patch [33ms]
 #> 
 
 areas
@@ -437,9 +437,9 @@ patch_sizes(areas)[[1]]
 #>      <dbl>   <dbl>
 #> 1        1    60.0
 #> 2        2  1648. 
-#> 3        7    12.0
-#> 4        8  1200. 
-#> 5       10 92034. 
+#> 3        3    12.0
+#> 4        4  1200. 
+#> 5        5 92034. 
 #> # ℹ 698 more rows
 ```
 
@@ -459,9 +459,9 @@ lizard_areas_connected
 #>      <dbl>  <dbl>
 #> 1        1   172.
 #> 2        2  1592.
-#> 3        7 98006.
-#> 4        9  2416.
-#> 5       10  1304.
+#> 3        3 98006.
+#> 4        4  2416.
+#> 5        5  1304.
 #> # ℹ 68 more rows
 ```
 

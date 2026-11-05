@@ -179,6 +179,78 @@ though the interpatch distance hasn’t changed.</p>
 <p><img src="interpatch-distance-and-resolution_files/figure-html/two-patch-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
+<h2 id="by-default-patches-join-through-a-shared-edge">By default, patches join through a shared edge<a class="anchor" aria-label="anchor" href="#by-default-patches-join-through-a-shared-edge"></a>
+</h2>
+<p>Once the habitat is buffered, cells that touch are grouped into
+patches. Two cells are in the same patch only if they share an edge,
+like two rooks side by side on a chessboard. Cells that meet only at a
+corner stay in separate patches. This is the rook’s case (the default,
+<code>directions = 4</code>), named for the chess piece that moves along
+rows and columns but never diagonally. It is the more conservative
+choice: counting corners too (the queen’s case) would join more cells
+into fewer patches.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">side_by_side</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">corner_to_corner</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">patch_ids_of</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cells</span>, <span class="va">directions</span> <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">cells</span>, crs <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span>
+<span>  <span class="va">barrier</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">habitat</span>, vals <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
+<span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/habitat_connectivity_full.html">habitat_connectivity_full</a></span><span class="op">(</span></span>
+<span>    habitat <span class="op">=</span> <span class="va">habitat</span>,</span>
+<span>    barrier <span class="op">=</span> <span class="va">barrier</span>,</span>
+<span>    interpatch_distance <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    directions <span class="op">=</span> <span class="va">directions</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">result</span><span class="op">$</span><span class="va">patch_id_raster</span><span class="op">[[</span><span class="st">"patch_id"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">side_by_side_ids</span> <span class="op">&lt;-</span> <span class="fu">patch_ids_of</span><span class="op">(</span><span class="va">side_by_side</span><span class="op">)</span></span>
+<span><span class="va">corner_to_corner_ids</span> <span class="op">&lt;-</span> <span class="fu">patch_ids_of</span><span class="op">(</span><span class="va">corner_to_corner</span><span class="op">)</span></span></code></pre></div>
+<p><img src="interpatch-distance-and-resolution_files/figure-html/fig-rooks-1.png" class="r-plt" alt="Two 2 by 2 grids. On the left, two habitat cells side by side form one green patch. On the right, two habitat cells touching only at a corner form two patches, one green and one orange." width="432" style="display: block; margin: auto;"></p>
+<p>To join cells that touch at a corner as well, the queen’s case, give
+<code><a href="../reference/habitat_connectivity.html">habitat_connectivity()</a></code> and the other analysis functions
+<code>directions = 8</code>. The two corner cells are then one
+patch:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/coerce.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">patch_ids_of</span><span class="op">(</span><span class="va">corner_to_corner</span>, directions <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>, wide <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      [,1] [,2]</span></span>
+<span><span class="co">#&gt; [1,]    1   NA</span></span>
+<span><span class="co">#&gt; [2,]   NA    1</span></span></code></pre></div>
+<p>The buffer is drawn in whole cells, so whether two buffers share an
+edge or only a corner depends on the cell size. Take two habitat cells
+at opposite corners of a 30 m square, a 20 m interpatch distance and no
+barrier, at three cell sizes:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">two_corners</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/as.polygons.html" class="external-link">as.polygons</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span><span class="op">)</span>, crs <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/as.polygons.html" class="external-link">as.polygons</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>, crs <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">n_patches_at</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span>, <span class="fl">0</span>, <span class="fl">30</span><span class="op">)</span>, resolution <span class="op">=</span> <span class="va">res</span>, crs <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span>
+<span>  <span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rasterize.html" class="external-link">rasterize</a></span><span class="op">(</span><span class="va">two_corners</span>, <span class="va">grid</span><span class="op">)</span></span>
+<span>  <span class="va">connectivity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/habitat_connectivity.html">habitat_connectivity</a></span><span class="op">(</span></span>
+<span>    <span class="va">habitat</span>,</span>
+<span>    <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">habitat</span>, vals <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>    species <span class="op">=</span> <span class="st">"demo"</span>,</span>
+<span>    interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">connectivity</span><span class="op">$</span><span class="va">n_patches</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cells_10m <span class="op">=</span> <span class="fl">10</span>, cells_5m <span class="op">=</span> <span class="fl">5</span>, cells_2m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">n_patches_at</span><span class="op">)</span></span>
+<span><span class="co">#&gt; cells_10m  cells_5m  cells_2m </span></span>
+<span><span class="co">#&gt;         2         2         1</span></span></code></pre></div>
+<p>The nearest corners of the two cells are 14.1 m apart, within the 20
+m interpatch distance. At 10 m and 5 m the two buffers meet only at a
+corner, so the cells stay in separate patches. At 2 m they share edges
+and join. 10 m and 5 m cells both meet the rule of thumb below, so for a
+diagonal gap the rule is not always enough.</p>
+</div>
+<div class="section level2">
 <h2 id="choosing-a-resolution">Choosing a resolution<a class="anchor" aria-label="anchor" href="#choosing-a-resolution"></a>
 </h2>
 <p>The practical rule of thumb: <strong>your buffer radius must be at

@@ -59,6 +59,7 @@ connectivity pipeline on each and compares them all against that baseline.</p>
 <span>  habitat_scenarios <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  barrier_scenarios <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">interpatch_distance</span>,</span>
+<span>  directions <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,6 +96,14 @@ across the two.</p></dd>
 <dd><p>Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
 vector runs every scenario once per distance.</p></dd>
+
+
+<dt id="arg-directions">directions<a class="anchor" aria-label="anchor" href="#arg-directions"></a></dt>
+<dd><p>Which neighbouring raster cells join into one patch,
+passed to <code><a href="https://rspatial.github.io/terra/reference/patches.html" class="external-link">terra::patches()</a></code>. <code>4</code>, the default, is the rook's case: cells
+join only through a shared edge. <code>8</code> is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+<code><a href="sf_habitat_connectivity.html">sf_habitat_connectivity()</a></code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

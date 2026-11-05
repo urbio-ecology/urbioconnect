@@ -75,6 +75,7 @@ The steps are:</p><ul><li><p><code><a href="create_barrier_mask.html">create_bar
 <span>  <span class="va">barrier</span>,</span>
 <span>  <span class="va">species</span>,</span>
 <span>  <span class="va">interpatch_distance</span>,</span>
+<span>  directions <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -109,6 +110,14 @@ below that the buffer is a no-op and a warning is raised. See
 <code><a href="../articles/interpatch-distance-and-resolution.html">vignette("interpatch-distance-and-resolution")</a></code>.</p></dd>
 
 
+<dt id="arg-directions">directions<a class="anchor" aria-label="anchor" href="#arg-directions"></a></dt>
+<dd><p>Which neighbouring raster cells join into one patch,
+passed to <code><a href="https://rspatial.github.io/terra/reference/patches.html" class="external-link">terra::patches()</a></code>. <code>4</code>, the default, is the rook's case: cells
+join only through a shared edge. <code>8</code> is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+<code><a href="sf_habitat_connectivity.html">sf_habitat_connectivity()</a></code>.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Display progress messages (default: TRUE).</p></dd>
 
@@ -121,6 +130,16 @@ connectedness, mean and total patch area) for the species and
 interpatch distance supplied. The per-patch areas the summary is built
 from are stored in a list column, "patch_size" – retrieve them with
 <code><a href="patch_sizes.html">patch_sizes()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>By default, patches join through shared edges only (rook's case,
+<code>directions = 4</code>): two buffered cells that touch only at a corner stay in
+separate patches. This is the more conservative choice. <code>directions = 8</code>
+(queen's case) joins them. The buffer is drawn in whole cells, so whether
+two buffers share an edge or only a corner can depend on the cell size, and
+the same landscape can count more patches on a coarser grid. See
+<code><a href="../articles/interpatch-distance-and-resolution.html">vignette("interpatch-distance-and-resolution")</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -139,22 +158,22 @@ relationship between interpatch distance, buffer radius, and resolution.</p></di
 <span class="r-in"><span>    interpatch_distance <span class="op">=</span> <span class="fl">12</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[33ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[24ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[57ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[46ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 12m</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 12m <span style="color: #B2B2B2;">[158ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 12m <span style="color: #B2B2B2;">[168ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[21ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[18ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[43ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[31ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">connectivity</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
@@ -174,12 +193,36 @@ relationship between interpatch distance, buffer radius, and resolution.</p></di
 <span class="r-out co"><span class="r-pr">#&gt;</span>   patch_id   area</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>        1 <span style="text-decoration: underline;">95</span>326.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>        3   364.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        6  <span style="text-decoration: underline;">2</span>344.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>       13  <span style="text-decoration: underline;">1</span>220.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>       48  <span style="text-decoration: underline;">1</span>112.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>        2   364.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        3  <span style="text-decoration: underline;">2</span>344.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">1</span>220.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>        5  <span style="text-decoration: underline;">1</span>112.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 394 more rows</span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># patches join only through a shared edge, like two rooks side by side.</span></span></span>
+<span class="r-in"><span><span class="co"># An interpatch distance of 0 buffers nothing, so only touching cells join</span></span></span>
+<span class="r-in"><span><span class="va">side_by_side</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corner_to_corner</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_patches_of</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cells</span>, <span class="va">directions</span> <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">habitat</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">cells</span>, crs <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">connectivity</span> <span class="op">&lt;-</span> <span class="fu">habitat_connectivity</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    habitat <span class="op">=</span> <span class="va">habitat</span>,</span></span>
+<span class="r-in"><span>    barrier <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">habitat</span>, vals <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    species <span class="op">=</span> <span class="st">"demo"</span>,</span></span>
+<span class="r-in"><span>    interpatch_distance <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>    directions <span class="op">=</span> <span class="va">directions</span>,</span></span>
+<span class="r-in"><span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">connectivity</span><span class="op">$</span><span class="va">n_patches</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="fu">n_patches_of</span><span class="op">(</span><span class="va">side_by_side</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span><span class="fu">n_patches_of</span><span class="op">(</span><span class="va">corner_to_corner</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the queen's case joins cells that touch only at a corner</span></span></span>
+<span class="r-in"><span><span class="fu">n_patches_of</span><span class="op">(</span><span class="va">corner_to_corner</span>, directions <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

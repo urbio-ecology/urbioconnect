@@ -127,6 +127,93 @@ stay apart, even though the interpatch distance hasn’t changed.
 
 ![](interpatch-distance-and-resolution_files/figure-html/two-patch-1.png)
 
+## By default, patches join through a shared edge
+
+Once the habitat is buffered, cells that touch are grouped into patches.
+Two cells are in the same patch only if they share an edge, like two
+rooks side by side on a chessboard. Cells that meet only at a corner
+stay in separate patches. This is the rook’s case (the default,
+`directions = 4`), named for the chess piece that moves along rows and
+columns but never diagonally. It is the more conservative choice:
+counting corners too (the queen’s case) would join more cells into fewer
+patches.
+
+``` r
+
+side_by_side <- rbind(c(1, 1), c(NA, NA))
+corner_to_corner <- rbind(c(1, NA), c(NA, 1))
+
+patch_ids_of <- function(cells, directions = 4) {
+  habitat <- rast(cells, crs = "local")
+  barrier <- rast(habitat, vals = NA)
+  result <- habitat_connectivity_full(
+    habitat = habitat,
+    barrier = barrier,
+    interpatch_distance = 0,
+    directions = directions,
+    verbose = FALSE
+  )
+  result$patch_id_raster[["patch_id"]]
+}
+
+side_by_side_ids <- patch_ids_of(side_by_side)
+corner_to_corner_ids <- patch_ids_of(corner_to_corner)
+```
+
+![Two 2 by 2 grids. On the left, two habitat cells side by side form one
+green patch. On the right, two habitat cells touching only at a corner
+form two patches, one green and one
+orange.](interpatch-distance-and-resolution_files/figure-html/fig-rooks-1.png)
+
+To join cells that touch at a corner as well, the queen’s case, give
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+and the other analysis functions `directions = 8`. The two corner cells
+are then one patch:
+
+``` r
+
+as.matrix(patch_ids_of(corner_to_corner, directions = 8), wide = TRUE)
+#>      [,1] [,2]
+#> [1,]    1   NA
+#> [2,]   NA    1
+```
+
+The buffer is drawn in whole cells, so whether two buffers share an edge
+or only a corner depends on the cell size. Take two habitat cells at
+opposite corners of a 30 m square, a 20 m interpatch distance and no
+barrier, at three cell sizes:
+
+``` r
+
+two_corners <- rbind(
+  as.polygons(ext(0, 10, 20, 30), crs = "local"),
+  as.polygons(ext(20, 30, 0, 10), crs = "local")
+)
+
+n_patches_at <- function(res) {
+  grid <- rast(ext(0, 30, 0, 30), resolution = res, crs = "local")
+  habitat <- rasterize(two_corners, grid)
+  connectivity <- habitat_connectivity(
+    habitat,
+    rast(habitat, vals = NA),
+    species = "demo",
+    interpatch_distance = 20,
+    verbose = FALSE
+  )
+  connectivity$n_patches
+}
+
+sapply(c(cells_10m = 10, cells_5m = 5, cells_2m = 2), n_patches_at)
+#> cells_10m  cells_5m  cells_2m 
+#>         2         2         1
+```
+
+The nearest corners of the two cells are 14.1 m apart, within the 20 m
+interpatch distance. At 10 m and 5 m the two buffers meet only at a
+corner, so the cells stay in separate patches. At 2 m they share edges
+and join. 10 m and 5 m cells both meet the rule of thumb below, so for a
+diagonal gap the rule is not always enough.
+
 ## Choosing a resolution
 
 The practical rule of thumb: **your buffer radius must be at least one

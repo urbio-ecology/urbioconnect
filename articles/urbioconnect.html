@@ -294,7 +294,7 @@ cells that share a fragment blob get the same patch ID.</p>
 <span><span class="co">#&gt;               lizard_habitat_raster</span></span>
 <span><span class="co">#&gt; names       : patch_id,     area</span></span>
 <span><span class="co">#&gt; min values  :        1, 4.000221</span></span>
-<span><span class="co">#&gt; max values  :     1355, 4.000273</span></span></code></pre></div>
+<span><span class="co">#&gt; max values  :      703, 4.000273</span></span></code></pre></div>
 <p><code><a href="../reference/add_patch_area.html">add_patch_area()</a></code> appends a cell-area layer to the
 raster, which is needed for the area calculations in the next step.</p>
 <p>We can plot the patches, with each connected patch shown in a
@@ -322,14 +322,14 @@ patch.</p>
 <span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>        1    60.0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>        2  <span style="text-decoration: underline;">1</span>648. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        7    12.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        8  <span style="text-decoration: underline;">1</span>200. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       10 <span style="text-decoration: underline;">92</span>034. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       11    40.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       12   288. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       28  <span style="text-decoration: underline;">1</span>156. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       30    64.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       31   940. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        3    12.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        4  <span style="text-decoration: underline;">1</span>200. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>        5 <span style="text-decoration: underline;">92</span>034. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>        6    40.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>        7   288. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>        8  <span style="text-decoration: underline;">1</span>156. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>        9    64.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       10   940. </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 693 more rows</span></span></span></code></pre></div>
 <p>The result has two columns:</p>
 <ul>
@@ -395,10 +395,10 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[32ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[26ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[50ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[46ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Buffering habitat for an interpatch distance of 10m</span></span>
 <span><span class="co">#&gt; Warning: `interpatch_distance` doesn't align with the raster resolution.</span></span>
@@ -406,16 +406,16 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[214ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[229ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[19ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[23ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[1.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[39ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[33ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>
@@ -442,9 +442,9 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        1    60.0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        2  <span style="text-decoration: underline;">1</span>648. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        7    12.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        8  <span style="text-decoration: underline;">1</span>200. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>       10 <span style="text-decoration: underline;">92</span>034. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        3    12.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">1</span>200. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>        5 <span style="text-decoration: underline;">92</span>034. </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 698 more rows</span></span></span></code></pre></div>
 <p>The package also includes a pre-computed per-patch table (at 50 m
 interpatch distance) as <code>lizard_areas_connected</code>, equivalent
@@ -460,9 +460,9 @@ to <code>patch_sizes(habitat_connectivity(...))[[1]]</code>:</p>
 <span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        1   172.</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        2  <span style="text-decoration: underline;">1</span>592.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        7 <span style="text-decoration: underline;">98</span>006.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        9  <span style="text-decoration: underline;">2</span>416.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>       10  <span style="text-decoration: underline;">1</span>304.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        3 <span style="text-decoration: underline;">98</span>006.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">2</span>416.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>        5  <span style="text-decoration: underline;">1</span>304.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 68 more rows</span></span></span></code></pre></div>
 <p>If you need the intermediate rasters for mapping or reporting, use
 <code><a href="../reference/habitat_connectivity_full.html">habitat_connectivity_full()</a></code> instead. It returns a named

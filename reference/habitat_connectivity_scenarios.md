@@ -16,6 +16,7 @@ habitat_connectivity_scenarios(
   habitat_scenarios = NULL,
   barrier_scenarios = NULL,
   interpatch_distance,
+  directions = 4,
   verbose = TRUE
 )
 ```
@@ -50,6 +51,15 @@ habitat_connectivity_scenarios(
   Numeric. The distance (in metres) at which habitat patches are
   considered connected. May be a scalar or a vector; a vector runs every
   scenario once per distance.
+
+- directions:
+
+  Which neighbouring raster cells join into one patch, passed to
+  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
+  `4`, the default, is the rook's case: cells join only through a shared
+  edge. `8` is the queen's case: cells that touch only at a corner join
+  as well. It applies to rasters only, not to
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
 
 - verbose:
 

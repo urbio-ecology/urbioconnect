@@ -52,5 +52,5 @@ add_patch_area(fragment_patches)
 #>               lizard_habitat_raster
 #> names       : patch_id,     area
 #> min values  :        1, 4.000221
-#> max values  :     1481, 4.000273
+#> max values  :      638, 4.000273
 ```

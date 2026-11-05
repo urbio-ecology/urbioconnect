@@ -5,7 +5,7 @@ Assign patches to fragments
 ## Usage
 
 ``` r
-assign_patches_to_fragments(remaining_habitat, fragment)
+assign_patches_to_fragments(remaining_habitat, fragment, directions = 4)
 ```
 
 ## Arguments
@@ -18,9 +18,19 @@ assign_patches_to_fragments(remaining_habitat, fragment)
 
   Terra SpatRaster. Fragment geometry.
 
+- directions:
+
+  Which neighbouring raster cells join into one patch, passed to
+  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
+  `4`, the default, is the rook's case: cells join only through a shared
+  edge. `8` is the queen's case: cells that touch only at a corner join
+  as well. It applies to rasters only, not to
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
+
 ## Value
 
-Terra SpatRaster with patch IDs.
+Terra SpatRaster with patch IDs, numbered from 1 to the number of
+patches with no gaps.
 
 ## Examples
 

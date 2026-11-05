@@ -158,7 +158,7 @@ the <code>tictoc</code> package</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rast_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2.551 sec elapsed</span></span>
+<span><span class="co">#&gt; 2.441 sec elapsed</span></span>
 <span></span>
 <span><span class="va">raster_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
@@ -185,9 +185,9 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        1    60.0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        2  <span style="text-decoration: underline;">1</span>648. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        7    12.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        8  <span style="text-decoration: underline;">1</span>200. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>       10 <span style="text-decoration: underline;">92</span>034. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        3    12.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">1</span>200. </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>        5 <span style="text-decoration: underline;">92</span>034. </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 698 more rows</span></span></span></code></pre></div>
 <p><code>raster_patches</code> has columns <code>patch_id</code> and
 <code>area</code> (square metres).</p>
@@ -204,7 +204,7 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_dist</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vect_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 8.662 sec elapsed</span></span>
+<span><span class="co">#&gt; 9.768 sec elapsed</span></span>
 <span></span>
 <span><span class="va">vector_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span></span>
@@ -245,9 +245,9 @@ approximated at the chosen resolution. The vector approach preserves
 exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.</p>
-<pre><code><span><span class="co">#&gt; [1] 2.551</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 2.441</span></span></code></pre>
 <p>Timings for the methods are also important to consider. The raster
-approach took 2.551 seconds, and the vector approach took 8.662
+approach took 2.441 seconds, and the vector approach took 9.768
 seconds.</p>
 </div>
 <div class="section level2">

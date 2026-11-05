@@ -15,6 +15,7 @@ connectivity_report_data(
   barrier,
   species,
   interpatch_distance,
+  directions = 4,
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
@@ -42,6 +43,15 @@ connectivity_report_data(
   Numeric. The distance (in metres) at which habitat patches are
   considered connected. May be a scalar or a vector; a vector runs the
   pipeline once per distance.
+
+- directions:
+
+  Which neighbouring raster cells join into one patch, passed to
+  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
+  `4`, the default, is the rook's case: cells join only through a shared
+  edge. `8` is the queen's case: cells that touch only at a corner join
+  as well. It applies to rasters only, not to
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
 
 - scenario:
 
@@ -91,7 +101,7 @@ A `connectivity_report_data` object: a list of
 - `buffered_habitat` and `patch_id_raster`, lists of `SpatRaster`, one
   per distance and named by it
 
-- `species` and `interpatch_distance`
+- `species`, `interpatch_distance` and `directions`
 
 - `settings`, the named character vector the caller recorded, and
   `run_time`, when the analysis ran.

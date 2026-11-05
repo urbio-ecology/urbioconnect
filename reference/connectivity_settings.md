@@ -62,23 +62,24 @@ report_data <- connectivity_report_data(
 )
 
 connectivity_settings(report_data)
-#> # A tibble: 15 × 2
+#> # A tibble: 16 × 2
 #>    setting               value                   
 #>    <chr>                 <chr>                   
 #>  1 species               Blue Tongue Lizard      
 #>  2 interpatch_distance_m 100, 250, 400           
-#>  3 habitat_source        example data: lizard    
-#>  4 data_resolution_m     10                      
-#>  5 grid_resolution_m     2 x 2                   
-#>  6 grid_dimensions       763 x 766               
-#>  7 crs                   GDA94 / MGA zone 55     
-#>  8 crs_code              EPSG:28355              
-#>  9 scenario_kind         none                    
-#> 10 scenario_name         NA                      
-#> 11 run_time              2026-11-03T02:49:35+0000
-#> 12 urbioconnect_version  0.1.0.9000              
-#> 13 terra_version         1.9.50                  
-#> 14 r_version             4.6.2                   
-#> 15 platform              x86_64-pc-linux-gnu     
+#>  3 directions            4 (rook's case)         
+#>  4 habitat_source        example data: lizard    
+#>  5 data_resolution_m     10                      
+#>  6 grid_resolution_m     2 x 2                   
+#>  7 grid_dimensions       763 x 766               
+#>  8 crs                   GDA94 / MGA zone 55     
+#>  9 crs_code              EPSG:28355              
+#> 10 scenario_kind         none                    
+#> 11 scenario_name         NA                      
+#> 12 run_time              2026-11-05T03:45:11+0000
+#> 13 urbioconnect_version  0.1.0.9000              
+#> 14 terra_version         1.9.50                  
+#> 15 r_version             4.6.2                   
+#> 16 platform              x86_64-pc-linux-gnu     
 # }
 ```

@@ -56,6 +56,7 @@ for mapping and reporting.</p>
 <span>  <span class="va">habitat</span>,</span>
 <span>  <span class="va">barrier</span>,</span>
 <span>  <span class="va">interpatch_distance</span>,</span>
+<span>  directions <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -84,6 +85,14 @@ distance of 500 will be converted to 250. For the buffer to be
 representable on the raster, keep <code>resolution &lt;= interpatch_distance / 2</code>;
 below that the buffer is a no-op and a warning is raised. See
 <code><a href="../articles/interpatch-distance-and-resolution.html">vignette("interpatch-distance-and-resolution")</a></code>.</p></dd>
+
+
+<dt id="arg-directions">directions<a class="anchor" aria-label="anchor" href="#arg-directions"></a></dt>
+<dd><p>Which neighbouring raster cells join into one patch,
+passed to <code><a href="https://rspatial.github.io/terra/reference/patches.html" class="external-link">terra::patches()</a></code>. <code>4</code>, the default, is the rook's case: cells
+join only through a shared edge. <code>8</code> is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+<code><a href="sf_habitat_connectivity.html">sf_habitat_connectivity()</a></code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

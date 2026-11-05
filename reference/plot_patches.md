@@ -11,7 +11,8 @@ plot_patches(
   species = "Species",
   n_cols = 7,
   barrier = NULL,
-  buffered = NULL
+  buffered = NULL,
+  directions = 4
 )
 ```
 
@@ -49,6 +50,13 @@ plot_patches(
   Terra SpatRaster, optional. Needs `barrier`. The buffered habitat the
   patches were found with, from
   [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md).
+
+- directions:
+
+  Which neighbouring cells join, as in
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md):
+  `4`, the default, or `8`. Used with `buffered` to find the zones, so
+  give it the value the patches were found with.
 
 ## Value
 

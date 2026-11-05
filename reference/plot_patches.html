@@ -52,7 +52,8 @@
 <span>  species <span class="op">=</span> <span class="st">"Species"</span>,</span>
 <span>  n_cols <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  barrier <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  buffered <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  buffered <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  directions <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -90,6 +91,12 @@ were found with, 1 where there is a barrier.</p></dd>
 <dt id="arg-buffered">buffered<a class="anchor" aria-label="anchor" href="#arg-buffered"></a></dt>
 <dd><p>Terra SpatRaster, optional. Needs <code>barrier</code>. The buffered
 habitat the patches were found with, from <code><a href="habitat_connectivity_full.html">habitat_connectivity_full()</a></code>.</p></dd>
+
+
+<dt id="arg-directions">directions<a class="anchor" aria-label="anchor" href="#arg-directions"></a></dt>
+<dd><p>Which neighbouring cells join, as in
+<code><a href="habitat_connectivity.html">habitat_connectivity()</a></code>: <code>4</code>, the default, or <code>8</code>. Used with <code>buffered</code>
+to find the zones, so give it the value the patches were found with.</p></dd>
 
 </dl></div>
     <div class="section level2">

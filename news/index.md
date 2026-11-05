@@ -103,6 +103,20 @@
   warns about.
   ([\#51](https://github.com/urbio-ecology/urbioconnect/issues/51))
 
+- [`assign_patches_to_fragments()`](https://urbio-ecology.github.io/urbioconnect/reference/assign_patches_to_fragments.md)
+  now numbers patches from 1 to the number of patches, with no gaps, so
+  the patch-id GeoTIFF and the per-patch table no longer skip ids.
+
+- [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+  and the other raster analysis functions gain `directions`, which says
+  which neighbouring cells join into one patch: `4`, the default, joins
+  cells only through a shared edge (the rook’s case), and `8` through a
+  corner as well (the queen’s case).
+  [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
+  records which was used, and
+  [`plot_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_patches.md)
+  takes it too, so its zones match the analysis.
+
 - [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md),
   [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
   and the other analysis functions now give an error for a negative,

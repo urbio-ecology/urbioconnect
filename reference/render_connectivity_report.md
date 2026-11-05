@@ -66,6 +66,6 @@ if (quarto_available()) {
   render_connectivity_report(qmd)
 }
 #> Rendering html report...
-#> Wrote /tmp/Rtmpbrh49g/lizard-report.html
+#> Wrote /tmp/RtmpB5e53k/lizard-report.html
 # }
 ```
