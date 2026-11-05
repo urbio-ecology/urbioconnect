@@ -60,6 +60,15 @@ The steps are:
 \item \code{\link[=aggregate_connected_patches]{aggregate_connected_patches()}}: Summarise area in each patch.
 }
 }
+\details{
+By default, patches join through shared edges only (rook's case,
+\code{directions = 4}): two buffered cells that touch only at a corner stay in
+separate patches. This is the more conservative choice. \code{directions = 8}
+(queen's case) joins them. The buffer is drawn in whole cells, so whether
+two buffers share an edge or only a corner can depend on the cell size, and
+the same landscape can count more patches on a coarser grid. See
+\code{vignette("interpatch-distance-and-resolution")}.
+}
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
@@ -74,6 +83,27 @@ connectivity
 # get the patch size:
 patch_sizes(connectivity)[[1]]
 
+# patches join only through a shared edge, like two rooks side by side.
+# An interpatch distance of 0 buffers nothing, so only touching cells join
+side_by_side <- rbind(c(1, 1), c(NA, NA))
+corner_to_corner <- rbind(c(1, NA), c(NA, 1))
+n_patches_of <- function(cells, directions = 4) {
+  habitat <- terra::rast(cells, crs = "local")
+  connectivity <- habitat_connectivity(
+    habitat = habitat,
+    barrier = terra::rast(habitat, vals = NA),
+    species = "demo",
+    interpatch_distance = 0,
+    directions = directions,
+    verbose = FALSE
+  )
+  connectivity$n_patches
+}
+n_patches_of(side_by_side)
+n_patches_of(corner_to_corner)
+
+# the queen's case joins cells that touch only at a corner
+n_patches_of(corner_to_corner, directions = 8)
 }
 \seealso{
 \code{vignette("interpatch-distance-and-resolution")} for the

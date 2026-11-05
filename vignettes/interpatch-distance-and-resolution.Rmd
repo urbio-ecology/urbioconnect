@@ -39,12 +39,17 @@ to_tiles <- function(r, label) {
   d
 }
 
-plot_tiles <- function(df, title = NULL, subtitle = NULL) {
+plot_tiles <- function(
+  df,
+  title = NULL,
+  subtitle = NULL,
+  fills = c("1" = "#1B5E20")
+) {
   ggplot(df, aes(x, y, fill = factor(value))) +
     geom_tile(aes(width = w, height = h)) +
     facet_wrap(~ factor(facet, levels = unique(df$facet)), nrow = 1) +
     scale_fill_manual(
-      values = c("1" = "#1B5E20"),
+      values = fills,
       na.value = "grey95",
       guide = "none"
     ) +
@@ -213,6 +218,88 @@ plot_tiles(
   "the buffer bridges the gap only when the grid can represent it"
   )
 ```
+
+## By default, patches join through a shared edge
+
+Once the habitat is buffered, cells that touch are grouped into patches. Two cells are in the same patch only if they share an edge, like two rooks side by side on a chessboard. Cells that meet only at a corner stay in separate patches. This is the rook's case (the default, `directions = 4`), named for the chess piece that moves along rows and columns but never diagonally. It is the more conservative choice: counting corners too (the queen's case) would join more cells into fewer patches.
+
+```{r}
+#| label: rooks
+side_by_side <- rbind(c(1, 1), c(NA, NA))
+corner_to_corner <- rbind(c(1, NA), c(NA, 1))
+
+patch_ids_of <- function(cells, directions = 4) {
+  habitat <- rast(cells, crs = "local")
+  barrier <- rast(habitat, vals = NA)
+  result <- habitat_connectivity_full(
+    habitat = habitat,
+    barrier = barrier,
+    interpatch_distance = 0,
+    directions = directions,
+    verbose = FALSE
+  )
+  result$patch_id_raster[["patch_id"]]
+}
+
+side_by_side_ids <- patch_ids_of(side_by_side)
+corner_to_corner_ids <- patch_ids_of(corner_to_corner)
+```
+
+```{r}
+#| label: fig-rooks
+#| echo: false
+#| fig.width: 4.5
+#| fig.height: 2.2
+#| fig.alt: >
+#|   Two 2 by 2 grids. On the left, two habitat cells side by side form one
+#|   green patch. On the right, two habitat cells touching only at a corner
+#|   form two patches, one green and one orange.
+tiles_with_count <- function(ids, layout) {
+  n <- max(values(ids), na.rm = TRUE)
+  to_tiles(ids, paste0(layout, ": ", n, " ", ngettext(n, "patch", "patches")))
+}
+rooks <- rbind(
+  tiles_with_count(side_by_side_ids, "sharing an edge"),
+  tiles_with_count(corner_to_corner_ids, "corner only")
+)
+# outline each cell, so the two cells of one patch still read as two
+plot_tiles(rooks, fills = c("1" = "#1B5E20", "2" = "#E65100")) +
+  geom_tile(aes(width = w, height = h), fill = NA, colour = "white")
+```
+
+To join cells that touch at a corner as well, the queen's case, give `habitat_connectivity()` and the other analysis functions `directions = 8`. The two corner cells are then one patch:
+
+```{r}
+#| label: queens
+as.matrix(patch_ids_of(corner_to_corner, directions = 8), wide = TRUE)
+```
+
+The buffer is drawn in whole cells, so whether two buffers share an edge or only a corner depends on the cell size. Take two habitat cells at opposite corners of a 30 m square, a 20 m interpatch distance and no barrier, at three cell sizes:
+
+```{r}
+#| label: cell-size
+two_corners <- rbind(
+  as.polygons(ext(0, 10, 20, 30), crs = "local"),
+  as.polygons(ext(20, 30, 0, 10), crs = "local")
+)
+
+n_patches_at <- function(res) {
+  grid <- rast(ext(0, 30, 0, 30), resolution = res, crs = "local")
+  habitat <- rasterize(two_corners, grid)
+  connectivity <- habitat_connectivity(
+    habitat,
+    rast(habitat, vals = NA),
+    species = "demo",
+    interpatch_distance = 20,
+    verbose = FALSE
+  )
+  connectivity$n_patches
+}
+
+sapply(c(cells_10m = 10, cells_5m = 5, cells_2m = 2), n_patches_at)
+```
+
+The nearest corners of the two cells are `r round(sqrt(10^2 + 10^2), 1)` m apart, within the 20 m interpatch distance. At 10 m and 5 m the two buffers meet only at a corner, so the cells stay in separate patches. At 2 m they share edges and join. 10 m and 5 m cells both meet the rule of thumb below, so for a diagonal gap the rule is not always enough.
 
 ## Choosing a resolution
 
