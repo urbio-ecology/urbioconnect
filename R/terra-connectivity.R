@@ -125,8 +125,9 @@ prepare_rasters <- function(
 
 #' Buffer habitat raster
 #'
-#' Buffer around the habitat a given distance in metres using
-#'   `terra::focalMat(d = buffer_radius, type = "circle")`. This operation is
+#' Buffer around the habitat a given distance in metres. Every cell whose
+#'   centre lies within `buffer_radius` of a habitat cell's centre is kept,
+#'   measured with the cell's width and height. This operation is
 #'   used to identify connected patches of habitat. Two patches will connect
 #'   when their edge-to-edge gap is <= 2 * `buffer radius`. So, we recommend
 #'   you specify the `buffer_radius` value to be half the interpatch distance,
@@ -160,32 +161,40 @@ prepare_rasters <- function(
 habitat_buffer <- function(habitat, buffer_radius) {
   check_distance(buffer_radius)
 
-  resolution <- terra::res(habitat)[1]
   warn_buffer_resolution(
     buffer_radius = buffer_radius,
-    resolution = resolution
+    resolution = terra::res(habitat)
   )
-  # A sub-cell radius rounds to zero rings: terra::focalMat() returns a 1x1
-  # window and terra::focal() errors ("not a meaningful window"). The buffer is a
-  # no-op at this resolution, so return the habitat unchanged - the warning above
-  # has already explained the consequence (only touching patches are linked).
-  if (buffer_radius < resolution) {
+  # A radius shorter than both sides of the cell gives a 1x1 window, which
+  # terra::focal() errors on ("not a meaningful window"). The warning above has
+  # already explained that only touching patches are linked.
+  if (buffer_radius < min(terra::res(habitat))) {
     return(habitat)
   }
-  buffer_window <- terra::focalMat(
-    x = habitat,
-    d = buffer_radius,
-    type = "circle"
-  )
-  buffer_window <- buffer_window / max(buffer_window)
   buffered_habitat <- terra::focal(
     x = habitat,
-    w = buffer_window,
+    w = measured_weights(habitat, buffer_radius),
     fun = max,
     na.rm = TRUE
   )
   buffered_habitat[buffered_habitat != 1] <- NA
   buffered_habitat
+}
+
+#' A circular window measured with the cell's width and height
+#'
+#' 1 for each cell whose centre is within `radius` of the middle cell's, and 0
+#' elsewhere. Not `terra::focalMat(type = "circle")`, whose `terra::distance()`
+#' measures rows at the column width, so on non-square cells it drops cells
+#' just inside the radius or keeps some outside it.
+#'
+#' @noRd
+measured_weights <- function(habitat, radius) {
+  sides <- terra::res(habitat)
+  rows <- seq(-floor(radius / sides[2]), floor(radius / sides[2]))
+  cols <- seq(-floor(radius / sides[1]), floor(radius / sides[1]))
+  within <- outer((rows * sides[2])^2, (cols * sides[1])^2, "+") <= radius^2
+  1 * within
 }
 
 #' Create barrier mask

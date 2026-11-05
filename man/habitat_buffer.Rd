@@ -24,8 +24,9 @@ be represented if it is at least one raster cell, i.e. keep
 Terra SpatRaster with buffered habitat.
 }
 \description{
-Buffer around the habitat a given distance in metres using
-\code{terra::focalMat(d = buffer_radius, type = "circle")}. This operation is
+Buffer around the habitat a given distance in metres. Every cell whose
+centre lies within \code{buffer_radius} of a habitat cell's centre is kept,
+measured with the cell's width and height. This operation is
 used to identify connected patches of habitat. Two patches will connect
 when their edge-to-edge gap is <= 2 * \verb{buffer radius}. So, we recommend
 you specify the \code{buffer_radius} value to be half the interpatch distance,

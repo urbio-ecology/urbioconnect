@@ -179,6 +179,26 @@ test_that("habitat_buffer expands non-NA habitat area", {
   expect_gt(n_after, n_before)
 })
 
+test_that("habitat_buffer() measures rows by the cell height on non-square cells", {
+  # cells 10 m wide and 9.5 m tall: two rows up is 19 m away, within the
+  # radius, and two columns across is 20 m, outside it
+  habitat <- test_raster(5, 5, cell = c(10, 9.5))
+  habitat[3, 3] <- 1
+
+  expect_snapshot(buffered <- habitat_buffer(habitat, 19))
+  expect_snapshot(terra::as.matrix(!is.na(buffered), wide = TRUE))
+})
+
+test_that("habitat_buffer() judges 'below one cell' by the smaller cell side", {
+  habitat <- test_raster(5, 5, cell = c(10, 9.5))
+  habitat[3, 3] <- 1
+
+  # 9.7 m reaches the rows above and below, 9.5 m away, but not the columns
+  # either side, 10 m away
+  expect_snapshot(buffered <- habitat_buffer(habitat, 9.7))
+  expect_snapshot(terra::as.matrix(!is.na(buffered), wide = TRUE))
+})
+
 test_that("add_patch_area returns a two-layer raster named patch_id and area", {
   result <- add_patch_area(patches)
   expect_equal(terra::nlyr(result), 2)
