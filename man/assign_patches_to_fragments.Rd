@@ -12,7 +12,8 @@ assign_patches_to_fragments(remaining_habitat, fragment)
 \item{fragment}{Terra SpatRaster. Fragment geometry.}
 }
 \value{
-Terra SpatRaster with patch IDs.
+Terra SpatRaster with patch IDs, numbered from 1 to the number of
+patches with no gaps.
 }
 \description{
 Assign patches to fragments

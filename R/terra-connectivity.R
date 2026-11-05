@@ -273,7 +273,8 @@ fragment_habitat <- function(buffered_habitat, barrier_mask) {
 #'
 #' @param remaining_habitat Terra SpatRaster. Remaining habitat.
 #' @param fragment Terra SpatRaster. Fragment geometry.
-#' @returns Terra SpatRaster with patch IDs.
+#' @returns Terra SpatRaster with patch IDs, numbered from 1 to the number of
+#'   patches with no gaps.
 #' @export
 #' @examples
 #' lizard_habitat <- example_habitat()
@@ -295,7 +296,12 @@ assign_patches_to_fragments <- function(remaining_habitat, fragment) {
   patch_id_raster <- terra::patches(fragment)
   patch_id_raster <- align_to(patch_id_raster, remaining_habitat)
   patch_id_raster <- remaining_habitat * patch_id_raster
-  patch_id_raster
+  # terra::patches() and the mask above both leave gaps in the ids
+  ids <- patch_id_raster |>
+    terra::unique() |>
+    purrr::pluck(1) |>
+    sort()
+  terra::subst(patch_id_raster, from = ids, to = seq_along(ids))
 }
 
 #' Add patch area layer

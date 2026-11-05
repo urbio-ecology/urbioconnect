@@ -135,6 +135,23 @@ patch_areas <- hcf_quiet$patch_id_raster
 fragmented <- fragment_habitat(buffered, barrier_mask)
 patches <- assign_patches_to_fragments(remaining, fragmented)
 
+test_that("patch ids run from 1 to the number of patches", {
+  ids <- terra::values(patch_areas[["patch_id"]], na.rm = TRUE)
+  expect_equal(sort(unique(ids[, 1])), seq_len(nrow(hc_quiet)))
+})
+
+test_that("a landscape with no habitat has no patches", {
+  empty <- terra::rast(matrix(NA_real_, 5, 5), crs = "local")
+  res <- habitat_connectivity(
+    empty,
+    empty,
+    interpatch_distance = 2,
+    species = "none",
+    verbose = FALSE
+  )
+  expect_equal(res$n_patches, 0)
+})
+
 test_that("habitat_buffer expands non-NA habitat area", {
   n_before <- sum(!is.na(terra::values(lizard_habitat)))
   n_after <- sum(!is.na(terra::values(buffered)))

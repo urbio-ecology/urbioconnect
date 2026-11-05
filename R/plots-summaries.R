@@ -303,9 +303,24 @@ plot_patches <- function(
   # zone cell the id negated, and a barrier cell 0
   cells <- patch_id$patch_id
   if (shade_zones) {
-    # as assign_patches_to_fragments() labels it, so its ids are the patch ids
     mask <- create_barrier_mask(barrier)
-    zone <- buffered |> fragment_habitat(mask) |> terra::patches()
+    fragments <- buffered |>
+      fragment_habitat(mask) |>
+      terra::patches()
+    fragments <- align_to(fragments, cells)
+    # ids are renumbered, so find each fragment's patch from the habitat in it.
+    # Buffer that a barrier cuts off from all habitat is left unshaded.
+    fragment_ids <- terra::values(fragments)[, 1]
+    patch_ids <- terra::values(cells)[, 1]
+    shared <- data.frame(fragment = fragment_ids, patch = patch_ids) |>
+      stats::na.omit() |>
+      unique()
+    zone <- terra::subst(
+      fragments,
+      from = shared$fragment,
+      to = shared$patch,
+      others = NA
+    )
     cells <- terra::cover(cells, -zone)
     zone_colours <- colorspace::lighten(colour_map, 0.65)
     names(zone_colours) <- -unique_vals
