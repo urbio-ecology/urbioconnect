@@ -64,9 +64,25 @@ representable_distance <- function(interpatch_distance, resolution) {
     )
   }
 
-  # whole cells along a row or column whose centres are within the radius
-  cells <- floor(interpatch_distance / 2 / resolution)
+  buffer_radius <- interpatch_distance / 2
+  # whole cells along a row or column whose centres the buffer reaches
+  cells <- floor(allow_for_rounding(buffer_radius) / resolution)
   pmax(0, 2 * cells * resolution)
+}
+
+#' Allow for rounding at the edge of a buffer
+#'
+#' A cell exactly one radius away is within the buffer, but floating point can
+#' put it just past: 3 * 0.1 is past 0.3. `habitat_buffer()` and
+#' `representable_distance()` both measure against this, so the warning
+#' describes the cells the buffer keeps.
+#'
+#' @param radius Numeric, the buffer radius in metres.
+#' @param tolerance The room left past `radius`, as a fraction of it.
+#' @returns `radius`, stretched by `tolerance`.
+#' @noRd
+allow_for_rounding <- function(radius, tolerance = 1e-9) {
+  radius * (1 + tolerance)
 }
 
 # warn if the distance can't be represented at this res
@@ -79,11 +95,11 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
   # One per side of the cell, across and then up and down. The buffer reaches
   # a whole number of cells along each, so on cells that aren't square the two
   # differ.
-  treated_as <- purrr::map_dbl(resolution, \(side) {
+  snapped_distances <- purrr::map_dbl(resolution, function(side) {
     representable_distance(interpatch_distance, side)
   })
 
-  if (all(treated_as == 0)) {
+  if (all(snapped_distances == 0)) {
     smaller_side <- signif(min(resolution), 4)
     cli::cli_warn(c(
       "Can't represent an {.arg interpatch_distance} of \\
@@ -99,20 +115,20 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
     return(invisible())
   }
 
-  misaligned <- !purrr::map_lgl(treated_as, \(distance) {
+  snaps <- !purrr::map_lgl(snapped_distances, function(distance) {
     isTRUE(all.equal(distance, interpatch_distance))
   })
-  if (any(misaligned)) {
-    steps <- unique(signif(2 * resolution[misaligned], 4))
-    reach <- signif(treated_as, 4)
-    snaps_to <- if (length(unique(reach)) == 1) {
-      glue::glue("{reach[1]} m")
+  if (any(snaps)) {
+    multiples <- unique(signif(2 * resolution[snaps], 4))
+    snapped <- signif(snapped_distances, 4)
+    snaps_to <- if (length(unique(snapped)) == 1) {
+      glue::glue("{snapped[1]} m")
     } else {
-      glue::glue("{reach[1]} m across and {reach[2]} m up and down")
+      glue::glue("{snapped[1]} m across and {snapped[2]} m up and down")
     }
     cli::cli_warn(c(
       "{.arg interpatch_distance} doesn't align with the raster resolution.",
-      "x" = "{interpatch_distance} m isn't a multiple of {.or {steps}} m.",
+      "x" = "{interpatch_distance} m isn't a multiple of {.or {multiples}} m.",
       "i" = "It snaps to {snaps_to}.",
       "i" = "Connectivity may shift for patches near the cut-off.",
       "i" = "See {.vignette urbioconnect::interpatch-distance-and-resolution}."

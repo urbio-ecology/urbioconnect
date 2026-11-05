@@ -135,7 +135,8 @@ prepare_rasters <- function(
 #'   connected. For example, if your interpatch distance is 500m, set
 #'   `buffer_radius = 250`.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster.
+#' @param habitat Terra SpatRaster. Habitat raster, with one layer. Habitat is
+#'   any cell that is neither `NA` nor `0`.
 #' @param buffer_radius Numeric. The radius in metres around the habitat.
 #'   Since patches of habitat will be connected when their edge-to-edge gap is
 #'   <= 2 * `buffer radius`, we recommend you specify `buffer_radius` to be
@@ -144,9 +145,10 @@ prepare_rasters <- function(
 #'   interpatch distance is 500m, set `buffer_radius = 250`. The buffer can only
 #'   be represented if it is at least one raster cell, i.e. keep
 #'   `resolution <= interpatch_distance / 2`. Below that the buffer is a no-op:
-#'   `habitat_buffer()` warns and returns the habitat unchanged. See
+#'   `habitat_buffer()` warns and keeps only the habitat itself. See
 #'   `vignette("interpatch-distance-and-resolution")`.
-#' @returns Terra SpatRaster with buffered habitat.
+#' @returns Terra SpatRaster, 1 within `buffer_radius` of habitat and `NA`
+#'   elsewhere.
 #' @seealso `vignette("interpatch-distance-and-resolution")` for the
 #'   relationship between interpatch distance, buffer radius, and resolution.
 #' @export
@@ -159,42 +161,19 @@ prepare_rasters <- function(
 #' plot(lizard_buff, col = "lightgreen", legend = FALSE)
 #' plot(lizard_habitat, col = "darkgreen", legend = FALSE, add = TRUE)
 habitat_buffer <- function(habitat, buffer_radius) {
+  check_single_layer(habitat)
   check_distance(buffer_radius)
 
   warn_buffer_resolution(
     buffer_radius = buffer_radius,
     resolution = terra::res(habitat)
   )
-  # A radius shorter than both sides of the cell gives a 1x1 window, which
-  # terra::focal() errors on ("not a meaningful window"). The warning above has
-  # already explained that only touching patches are linked.
-  if (buffer_radius < min(terra::res(habitat))) {
-    return(habitat)
-  }
-  buffered_habitat <- terra::focal(
-    x = habitat,
-    w = measured_weights(habitat, buffer_radius),
-    fun = max,
-    na.rm = TRUE
+  distance <- distance_to_nearest_habitat(
+    habitat,
+    distance_within = buffer_radius
   )
-  buffered_habitat[buffered_habitat != 1] <- NA
-  buffered_habitat
-}
-
-#' A circular window measured with the cell's width and height
-#'
-#' 1 for each cell whose centre is within `radius` of the middle cell's, and 0
-#' elsewhere. Not `terra::focalMat(type = "circle")`, whose `terra::distance()`
-#' measures rows at the column width, so on non-square cells it drops cells
-#' just inside the radius or keeps some outside it.
-#'
-#' @noRd
-measured_weights <- function(habitat, radius) {
-  sides <- terra::res(habitat)
-  rows <- seq(-floor(radius / sides[2]), floor(radius / sides[2]))
-  cols <- seq(-floor(radius / sides[1]), floor(radius / sides[1]))
-  within <- outer((rows * sides[2])^2, (cols * sides[1])^2, "+") <= radius^2
-  1 * within
+  within_radius <- distance <= allow_for_rounding(buffer_radius)
+  terra::ifel(within_radius, 1, NA)
 }
 
 #' Create barrier mask

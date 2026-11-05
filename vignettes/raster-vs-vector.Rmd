@@ -48,7 +48,7 @@ plot(v)
 ```
 
 
-`urbioconnect` uses rasters that work on `SpatRaster` (Spatial Raster) objects. Buffering is performed using a focal window (`terra::focal()`), and connected patches are identified using `terra::patches()`.
+`urbioconnect` uses rasters that work on `SpatRaster` (Spatial Raster) objects. Buffering keeps every cell within the buffer radius of habitat (`habitat_buffer()`), and connected patches are identified using `terra::patches()`.
 
 The vector approach works on `sf` objects. Habitat and barriers are represented as polygons. Buffering uses `sf::st_buffer()`, and connectivity is determined by spatial intersection (`sf::st_intersects()`).
 

@@ -54,6 +54,26 @@
       [4,] FALSE FALSE  TRUE FALSE FALSE
       [5,] FALSE FALSE FALSE FALSE FALSE
 
+# habitat_buffer() takes a habitat with one layer only
+
+    Code
+      habitat_buffer(c(layer, layer), 20)
+    Condition
+      Error in `habitat_buffer()`:
+      ! `habitat` must have one layer, not 2.
+
+# habitat_buffer() warns below one cell and keeps only the habitat
+
+    Code
+      buffered <- habitat_buffer(layer, 5)
+    Condition
+      Warning:
+      Can't represent an `interpatch_distance` of 10m at a resolution of 10m.
+      x Half that distance (5m) is smaller than one raster cell.
+      i Gaps between patches aren't bridged; only touching patches are linked.
+      i Rule of thumb: keep resolution <= interpatch_distance / 2 (use finer cells, or a larger interpatch distance).
+      i See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
+
 # add_patch_area returns a two-layer raster named patch_id and area
 
     Code

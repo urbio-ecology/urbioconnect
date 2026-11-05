@@ -10,3 +10,20 @@ test_raster <- function(nrows, ncols, cell = c(10, 10), fill = NA) {
   terra::values(layer) <- fill
   layer
 }
+
+# Exact distance from every cell centre to the nearest habitat centre
+brute_force_distance <- function(habitat) {
+  centres <- terra::xyFromCell(habitat, seq_len(terra::ncell(habitat)))
+  habitat_centres <- centres[
+    is_habitat(terra::values(habitat)[, 1]),
+    ,
+    drop = FALSE
+  ]
+
+  purrr::map_dbl(seq_len(nrow(centres)), function(cell) {
+    min(sqrt(
+      (habitat_centres[, 1] - centres[cell, 1])^2 +
+        (habitat_centres[, 2] - centres[cell, 2])^2
+    ))
+  })
+}
