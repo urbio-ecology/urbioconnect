@@ -1,9 +1,8 @@
 # habitat_connectivity_scenarios() stacks habitat then barrier scenarios
 
     Code
-      results
+      print(results, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 8 x 10
         scenario_name   measure    species      interpatch_distance n_patches
         <chr>           <chr>      <chr>                      <dbl>     <dbl>
@@ -35,8 +34,6 @@
       6 10x10          
       7 10x10          
       8 10x10          
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # habitat_connectivity_scenarios() warns on a scenario matching baseline
 

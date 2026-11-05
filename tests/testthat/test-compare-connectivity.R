@@ -54,7 +54,7 @@ test_that("compare_connectivity() identifies changes in baseline/scenario", {
       results_compare$patch_area_total_ha[1]
   )
 
-  expect_snapshot(results_compare)
+  expect_snapshot(print(results_compare, width = Inf))
 })
 
 test_that("compare_connectivity() against itself gives a zero change row", {
@@ -62,7 +62,7 @@ test_that("compare_connectivity() against itself gives a zero change row", {
   results_self <- compare_connectivity(scenario = base, baseline = base)
 
   expect_s3_class(results_self, "compare_connectivity")
-  expect_snapshot(results_self)
+  expect_snapshot(print(results_self, width = Inf))
 })
 
 test_that("compare_connectivity() rejects multi-row input", {
@@ -145,5 +145,97 @@ test_that("compare_connectivity() works on default-method connectivity", {
     species = "Test Species"
   )
 
-  expect_snapshot(compare_connectivity(scenario = scen, baseline = base))
+  comparison <- compare_connectivity(scenario = scen, baseline = base)
+
+  expect_snapshot(print(comparison, width = Inf))
+})
+
+test_that("summary() prints a named scenario as one table", {
+  comparison <- compare_connectivity(
+    scenario = summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+    baseline = summarise_connectivity(lizard_areas_connected),
+    scenario_name = "Bentley Project"
+  )
+
+  expect_snapshot(summary(comparison))
+})
+
+test_that("summary() heads an unnamed scenario with its distance only", {
+  comparison <- compare_connectivity(
+    scenario = summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+    baseline = summarise_connectivity(lizard_areas_connected)
+  )
+
+  expect_snapshot(summary(comparison))
+})
+
+test_that("summary() prints a table per scenario", {
+  bentley <- summarise_connectivity(lizard_areas_connected[-1, ])
+  upgrade <- summarise_connectivity(lizard_areas_connected[-(1:5), ])
+
+  comparison <- compare_scenarios(
+    baseline = summarise_connectivity(lizard_areas_connected),
+    scenarios = list(
+      "Bentley Project" = bentley,
+      "Barrier upgrade" = upgrade
+    )
+  )
+
+  expect_snapshot(summary(comparison))
+})
+
+test_that("summary() prints a table per interpatch distance", {
+  layers <- prepare_rasters(
+    example_habitat(),
+    example_barrier(),
+    data_resolution = 10
+  )
+  new_road <- onto_grid(
+    example_barrier_scenario(),
+    grid = layers$barrier_raster,
+    background = 0
+  )
+
+  comparison <- habitat_connectivity_comparison(
+    habitat_baseline = layers$habitat_raster,
+    barrier_baseline = layers$barrier_raster,
+    species = "Blue Tongue Lizard",
+    interpatch_distance = c(40, 80),
+    barrier_scenario = new_road,
+    scenario_name = "A new road",
+    verbose = FALSE
+  )
+
+  expect_snapshot(summary(comparison))
+})
+
+test_that("summary() keeps the rounded numbers of the display", {
+  comparison <- compare_connectivity(
+    scenario = summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+    baseline = summarise_connectivity(lizard_areas_connected),
+    scenario_name = "Bentley Project"
+  )
+
+  summarised <- summary(comparison)
+
+  expect_s3_class(summarised, "summary_compare_connectivity")
+  expect_equal(
+    tibble::as_tibble(summarised),
+    round_by(connectivity_display(comparison))
+  )
+  expect_output(expect_invisible(print(summarised)))
+})
+
+test_that("a summary cut down past its tables prints as a tibble", {
+  comparison <- compare_connectivity(
+    scenario = summarise_connectivity(lizard_areas_connected[-(1:5), ]),
+    baseline = summarise_connectivity(lizard_areas_connected)
+  )
+
+  summarised <- summary(comparison)
+
+  expect_snapshot({
+    dplyr::select(summarised, "Metric", "Baseline")
+    summarised["Distance (m)"]
+  })
 })

@@ -15,7 +15,7 @@ test_that("habitat_connectivity_comparison() scalar distance gives one block of 
 
   expect_s3_class(results, "compare_connectivity")
   expect_equal(nrow(results), 4)
-  expect_snapshot(results)
+  expect_snapshot(print(results, width = Inf))
 })
 
 test_that("habitat_connectivity_comparison() vector distance stacks per distance", {
@@ -35,7 +35,7 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_s3_class(results, "compare_connectivity")
   expect_equal(nrow(results), 8)
   expect_setequal(results$interpatch_distance, c(40, 80))
-  expect_snapshot(results)
+  expect_snapshot(print(results, width = Inf))
 })
 
 test_that("habitat_connectivity_comparison() takes the layers not given from the baseline", {

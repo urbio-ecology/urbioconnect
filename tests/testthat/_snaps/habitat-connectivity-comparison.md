@@ -1,9 +1,8 @@
 # habitat_connectivity_comparison() scalar distance gives one block of 4 rows
 
     Code
-      results
+      print(results, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 4 x 10
         scenario_name measure    species            interpatch_distance n_patches
         <chr>         <chr>      <chr>                            <dbl>     <dbl>
@@ -23,15 +22,12 @@
       2 2x2            
       3 2x2            
       4 2x2            
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # habitat_connectivity_comparison() vector distance stacks per distance
 
     Code
-      results
+      print(results, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 8 x 10
         scenario_name measure    species           interpatch_distance n_patches
         <chr>         <chr>      <chr>                           <dbl>     <dbl>
@@ -63,8 +59,6 @@
       6 10x10          
       7 10x10          
       8 10x10          
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # habitat_connectivity_comparison() rejects a missing, empty or unusable distance
 

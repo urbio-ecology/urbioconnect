@@ -16,7 +16,7 @@ test_that("habitat_connectivity_scenarios() stacks habitat then barrier scenario
     results$scenario_name,
     rep(c("Bentley Project", "Barrier upgrade"), each = 4)
   )
-  expect_snapshot(results)
+  expect_snapshot(print(results, width = Inf))
 })
 
 test_that("habitat_connectivity_scenarios() takes either list on its own", {

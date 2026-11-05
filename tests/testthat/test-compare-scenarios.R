@@ -16,7 +16,7 @@ test_that("compare_scenarios() stacks four labelled rows per scenario", {
     results$scenario_name,
     rep(c("Bentley Project", "Barrier upgrade"), each = 4)
   )
-  expect_snapshot(results)
+  expect_snapshot(print(results, width = Inf))
 })
 
 test_that("compare_scenarios() matches compare_connectivity() per scenario", {
