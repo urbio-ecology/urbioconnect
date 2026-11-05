@@ -1,0 +1,562 @@
+---
+title: "Comparing scenarios"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Comparing scenarios}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 5
+)
+options(cli.unicode = FALSE)
+
+# a metric's value in one row of a comparison, for quoting in the text
+value <- function(comparison, metric, measure = "pct_change") {
+  x <- comparison[[metric]][comparison$measure == measure]
+  stopifnot(length(x) > 0)
+  x
+}
+pct <- function(comparison, metric) round(abs(value(comparison, metric)))
+ha <- function(x) signif(abs(x), 3)
+
+# every cell of a small grid, outlined, with the cells holding 1 filled
+draw_cells <- function(layer, fill, title) {
+  cells <- terra::as.data.frame(
+    layer,
+    xy = TRUE,
+    na.rm = FALSE
+  )
+  cells$filled <- cells[[3]] %in% 1
+  ggplot2::ggplot(
+    cells,
+    ggplot2::aes(
+      x,
+      y,
+      fill = filled
+    )
+  ) +
+    ggplot2::geom_tile(colour = "grey40") +
+    ggplot2::scale_fill_manual(
+      values = c(`FALSE` = "white", `TRUE` = fill),
+      guide = "none"
+    ) +
+    ggplot2::coord_equal() +
+    ggplot2::labs(
+      title = title,
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::theme_minimal()
+}
+```
+
+```{r}
+#| label: setup
+library(urbioconnect)
+```
+
+The `{urbioconnect}` R package implements [Kirk et al.'s (2023)](https://doi.org/10.1016/j.mex.2022.101989) method for estimating habitat connectivity in urban environments.
+
+You can measure the connectivity with `habitat_connectivity()`:
+
+```{r}
+lizard_connectivity <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  interpatch_distance = 100,
+  species = "Blue-tongued Lizard"
+)
+
+lizard_connectivity
+```
+
+This tells us what the baseline level of connectivity is.
+
+A key addition Kirk et al. brought is in comparing a baseline level of connectivity to a "scenario". This is where, say, you compare the baseline connectivity, to where the habitat is reduced, or grown, or more barriers are added, or removed. This is very useful when designing new urban spaces, as it allows planners to assess the ecological impact a new plan can have on an urban area.
+
+The goal of this vignette is to take a scenario that changes the habitat, the barriers, or both, and then compare its connectivity to the baseline.
+
+## The data
+
+We use the Blue Tongue Lizard example data:
+
+```{r}
+#| label: layers
+layers <- prepare_rasters(
+  example_habitat(),
+  example_barrier(),
+  data_resolution = 10
+)
+habitat <- layers$habitat_raster
+barrier <- layers$barrier_raster
+```
+
+`prepare_rasters()` puts both layers on a grid of `r round(terra::res(habitat)[1])` m cells, which keeps every comparison here quick - since by default they are `r terra::res(example_habitat())[1]` m.
+
+The scenario is a new road. `example_barrier_scenario()` is the lizard barrier layer with a road cut through it from north to south.
+
+```{r}
+library(terra)
+example_barrier() |> plot()
+example_barrier_scenario() |> plot()
+```
+
+
+It comes on the original `r terra::res(example_barrier_scenario())[1]` m grid, so `onto_grid()` puts it on the baseline's grid.
+
+[A misaligned grid](#a-misaligned-grid) shows what happens if you don't.
+
+```{r}
+#| label: new-road
+new_road <- onto_grid(
+  layer = example_barrier_scenario(),
+  grid = barrier,
+  background = 0
+)
+```
+
+In these maps, habitat is dark green and barriers are white:
+
+```{r}
+#| label: fig-landscape
+#| echo: false
+#| fig.show: hold
+#| out.width: 32%
+#| fig.alt: !expr c("The lizard habitat layer, patches of dark green scattered across the map.", "The lizard barrier layer, with roads and buildings in white on green.", "The same barrier layer with a new straight road running north to south across it.")
+gg_layer(
+  habitat,
+  "habitat",
+  title = "Habitat"
+)
+gg_layer(
+  barrier,
+  "barrier",
+  title = "Barriers today"
+)
+gg_layer(
+  new_road,
+  "barrier",
+  title = "With a new road"
+)
+```
+
+## habitat connectivity comparison and scenarios
+
+Two functions start from layers:
+
+- `habitat_connectivity_comparison()` compares one scenario with the baseline.
+- `habitat_connectivity_scenarios()` compares several scenarios with the baseline.
+
+Both run `habitat_connectivity()` on the baseline and on each scenario, then compare the results.
+
+If you've already run `habitat_connectivity()` on each landscape yourself, you can use `compare_connectivity()` and `compare_scenarios()`, to do just the comparing.
+
+You give the baseline as `habitat_baseline` and `barrier_baseline`, and the scenario as the layers the plan changes.
+
+The function takes the rest from the baseline:
+
+| You provide | Scenario's habitat | Scenario's barrier |
+|---|---|---|
+| `habitat_scenario` | `habitat_scenario` | `barrier_baseline` |
+| `barrier_scenario` | `habitat_baseline` | `barrier_scenario` |
+| both | `habitat_scenario` | `barrier_scenario` |
+
+Each layer you give is the whole layer after the change, not just the part that changes.
+[What gives a misleading answer](#what-gives-a-misleading-answer) shows what happens otherwise.
+
+## Worked scenarios
+
+### A new road
+
+A new road changes the barriers, so it goes in `barrier_scenario`, and we provide `barrier_scenario = new_road`. The habitat stays as-is:
+
+```{r}
+#| label: road
+road <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  barrier_scenario = new_road,
+  scenario_name = "A new road",
+  verbose = FALSE
+)
+
+road
+```
+
+There are four rows, one for baseline, scenario, change, and then percent change.
+
+`baseline` and `scenario` are the two landscapes, `change` is the scenario minus the baseline, and `pct_change` is that change as a percentage of the baseline.
+
+Printed like this, the comparison hides the columns that don't fit on the screen.
+`summary()` shows every metric, one per row, with the baseline, the scenario, the change and the per cent change side by side:
+
+```{r}
+#| label: road-summary
+summary(road)
+```
+
+The road splits the habitat into `r value(road, "n_patches", "change")` more patches, and the effective mesh falls by `r pct(road, "effective_mesh_ha")` per cent.
+
+### Habitat cleared
+
+Clearing habitat changes the habitat layer, so it goes in `habitat_scenario`.
+The barriers stay as they are today.
+
+Here, a development clears all the habitat in the west of the map:
+
+```{r}
+#| label: cleared
+cleared <- habitat
+cleared[, 1:60] <- NA
+
+cleared_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  habitat_scenario = cleared,
+  scenario_name = "cleared_habitat",
+  verbose = FALSE
+)
+
+summary(cleared_comparison)
+```
+
+```{r}
+#| label: fig-cleared
+#| echo: false
+#| out.width: 49%
+#| fig.alt: "The lizard habitat layer with every patch in the western part of the map removed."
+gg_layer(
+  cleared,
+  "habitat",
+  title = "Habitat cleared"
+)
+```
+
+Losing habitat costs `r pct(cleared_comparison, "effective_mesh_ha")` per cent of the effective mesh.
+
+But the patch count falls by `r pct(cleared_comparison, "n_patches")` per cent and the mean patch area rises by `r pct(cleared_comparison, "patch_area_mean")` per cent, and on their own both would read as good news.
+
+The clearing took many small patches and left the bigger ones.
+
+So read the metrics together.
+
+Kirk et al. make the same point: a lot of habitat can still have a small effective mesh, if it's broken into pieces.
+
+### Habitat added
+
+Adding habitat works the same way.
+
+Here, every cell in a large block in the north becomes habitat. Habitat under a barrier is dropped by the analysis, so the block needn't avoid the roads.
+
+```{r}
+#| label: planted
+planted <- habitat
+planted[1:80, 50:100] <- 1
+
+planted_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  habitat_scenario = planted,
+  scenario_name = "planted",
+  verbose = FALSE
+)
+
+summary(planted_comparison)
+```
+
+```{r}
+#| label: fig-planted
+#| echo: false
+#| out.width: 49%
+#| fig.alt: "The lizard habitat layer with a large solid block of habitat added in the north of the map."
+gg_layer(
+  planted,
+  "habitat",
+  title = "Habitat added"
+)
+```
+
+The effective mesh rises by `r pct(planted_comparison, "effective_mesh_ha")` per cent.
+But the probability of connectedness for this scenario is `r signif(value(planted_comparison, "prob_connectedness", "scenario"), 3)`, which exceeds one, and stretches the understanding of probability here - something to be explored.
+
+Following Kirk et al., both rows divide the effective mesh by the baseline's habitat area, `r ha(value(planted_comparison, "patch_area_total_ha", "baseline"))` ha.
+The scenario has `r ha(value(planted_comparison, "patch_area_total_ha", "scenario"))` ha of habitat, so once enough of it is connected, the value passes 1.
+
+That's also why the effective mesh and the probability of connectedness always change by the same percentage.
+
+How to report this is an open question, in [#183](https://github.com/urbio-ecology/urbioconnect/issues/183).
+
+Until that's settled, read the per cent change for a scenario that adds habitat.
+
+### A new road and new habitat together
+
+Some plans change both layers.
+
+For example, if a new road comes with new habitat plants. 
+
+If you provide both layers, the comparison shows their combined effect:
+
+```{r}
+#| label: road-and-planted
+road_and_planted <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  habitat_scenario = planted,
+  barrier_scenario = new_road,
+  scenario_name = "planted new road",
+  verbose = FALSE
+)
+
+summary(road_and_planted)
+```
+
+Together, the road and the planting add `r ha(value(road_and_planted, "effective_mesh_ha", "change"))` ha of effective mesh.
+
+In order to see how much they each individually add, or change, you can compare these with `habitat_connectivity_scenarios()`.
+
+## Several scenarios at once
+
+`habitat_connectivity_scenarios()` compares several scenarios with one baseline.
+Each layer in `habitat_scenarios` or `barrier_scenarios` is its own scenario that changes that one layer and the lists are never combined.
+
+So this now provides three scenarios:
+
+```{r}
+#| label: scenarios
+scenarios <- habitat_connectivity_scenarios(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  habitat_scenarios = list(
+    "Habitat cleared" = cleared,
+    "Habitat added" = planted
+  ),
+  barrier_scenarios = list(
+    "A new road" = new_road
+    ),
+  verbose = FALSE
+)
+
+scenarios
+
+summary(scenarios)
+```
+
+The list names become the `scenario_name` column.
+The baseline runs once per distance, and every scenario shares it.
+
+`plot_connectivity()` draws a comparison, with the baseline beside each scenario:
+
+```{r}
+#| label: fig-scenarios
+#| fig.width: 7
+#| fig.height: 5
+#| fig.alt: "Four panels, one per metric: number of patches, mean patch area, total patch area in hectares and probability of connectedness. Each has a bar for the baseline and for each of the three scenarios at 100 m. Clearing habitat gives fewer, larger patches, the new road gives more patches, and adding habitat lifts the probability of connectedness above 1."
+plot_connectivity(scenarios)
+```
+
+For a plan that changes both layers, like the road with the planting, use `habitat_connectivity_comparison()`.
+
+## A misaligned grid
+
+The layers you compare must share a grid: the same cell size, extent and coordinate reference system.
+
+Rather than quietly resample a scenario layer, both functions give an error, and leave you to put it on the baseline's grid with `onto_grid()`.
+
+Here's a landscape small enough to see every cell, with two blocks of habitat and no barriers today:
+
+```{r}
+#| label: small-landscape
+# a matrix of cells, laid out over a 40 m square
+square <- function(cells) {
+  terra::rast(
+    cells,
+    extent = terra::ext(
+      0,
+      40,
+      0,
+      40
+    ),
+    crs = "EPSG:28355"
+  )
+}
+
+small_habitat <- square(
+  rbind(
+    c(1, 1, NA, NA),
+    c(1, 1, NA, NA),
+    c(NA, NA, 1, 1),
+    c(NA, NA, 1, 1)
+  )
+)
+small_barrier <- square(
+  matrix(
+    0,
+    nrow = 4,
+    ncol = 4
+  )
+)
+```
+
+The scenario is a new road, drawn on a finer grid:
+
+```{r}
+#| label: small-road
+road_fine <- square(
+  matrix(
+    c(0, 0, 0, 0, 1, 1, 0, 0),
+    nrow = 8,
+    ncol = 8,
+    byrow = TRUE
+  )
+)
+```
+
+```{r}
+#| label: fig-small
+#| echo: false
+#| fig.show: hold
+#| fig.width: 3
+#| fig.height: 3
+#| out.width: 32%
+#| fig.alt: !expr c("A grid of four by four cells, with habitat in the top left four cells and the bottom right four cells.", "The same four by four grid, with no barriers.", "A grid of eight by eight smaller cells covering the same square, with a road two cells wide running from top to bottom just right of the middle.")
+draw_cells(
+  small_habitat,
+  urbio_colours()$habitat,
+  "Habitat"
+)
+draw_cells(
+  small_barrier,
+  "grey60",
+  "Barriers today"
+)
+draw_cells(
+  road_fine,
+  "grey60",
+  "A new road"
+)
+```
+
+The baseline has `r terra::res(small_barrier)[1]` m cells, and the road has `r terra::res(road_fine)[1]` m cells.
+Comparing them gives an error:
+
+```{r}
+#| label: small-error
+#| error: true
+habitat_connectivity_comparison(
+  habitat_baseline = small_habitat,
+  barrier_baseline = small_barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
+  barrier_scenario = road_fine,
+  verbose = FALSE
+)
+```
+
+`onto_grid()` puts the road on the baseline's grid.
+
+It takes a raster, as here, or a vector layer such as a shapefile.
+
+For a vector layer, `background` is the value of a cell the layer doesn't cover: `0` for a barrier, `NA` for habitat.
+
+```{r}
+#| label: small-onto-grid
+road_aligned <- onto_grid(
+  road_fine,
+  grid = small_barrier,
+  background = 0
+)
+```
+
+```{r}
+#| label: fig-small-aligned
+#| echo: false
+#| fig.width: 3
+#| fig.height: 3
+#| out.width: 32%
+#| fig.alt: "The four by four grid, with the road now one cell wide, in the third column from the left."
+draw_cells(
+  road_aligned,
+  "grey60",
+  "The road, on the baseline's grid"
+)
+```
+
+Now the comparison runs:
+
+```{r}
+#| label: small-comparison
+small_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = small_habitat,
+  barrier_baseline = small_barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 20,
+  barrier_scenario = road_aligned,
+  verbose = FALSE
+)
+
+summary(small_comparison)
+```
+
+The road splits `r value(small_comparison, "n_patches", "baseline")` patch into `r value(small_comparison, "n_patches", "scenario")`.
+
+## What gives a misleading answer
+
+Each scenario layer must be the whole layer after the change.
+Give just the new road, rather than the barrier layer with the road in it, and every other road is gone from the scenario:
+
+```{r}
+#| label: road-only
+road_only <- new_road - barrier
+```
+
+```{r}
+#| label: fig-road-only
+#| echo: false
+#| fig.show: hold
+#| out.width: 49%
+#| fig.alt: !expr c("The barrier layer with the new road, every existing road and building still in it.", "A barrier layer holding only the new road, with every other road and building gone.")
+gg_layer(
+  new_road,
+  "barrier",
+  title = "The whole layer"
+)
+gg_layer(
+  road_only,
+  "barrier",
+  title = "Only the change"
+)
+```
+
+Nothing gives an error, because the road on its own is a valid barrier layer:
+
+```{r}
+#| label: road-only-comparison
+road_only_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  barrier_scenario = road_only,
+  verbose = FALSE
+)
+
+summary(road_only_comparison)
+```
+
+That comparison says the effective mesh rises by `r pct(road_only_comparison, "effective_mesh_ha")` per cent, when the road really cuts it by `r pct(road, "effective_mesh_ha")` per cent.
