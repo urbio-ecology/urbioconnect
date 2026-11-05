@@ -417,6 +417,33 @@ check_distance <- function(
   check_distances(x, arg, call)
 }
 
+#' Check which neighbouring cells join a patch
+#'
+#' Numeric first: `"8" %in% c(4, 8)` is `TRUE`, as `%in%` compares as text.
+#'
+#' @noRd
+check_directions <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  is_rule <- is.numeric(x) && length(x) == 1 && x %in% c(4, 8)
+
+  if (!is_rule) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be 4 or 8.",
+        "x" = "You supplied {.obj_type_friendly {x}}: {.val {x}}.",
+        "i" = "4 joins cells that share an edge (the rook's case), and 8
+               also joins cells that touch at a corner (the queen's case)."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
 #' Does a layer reach the grid it is being put on?
 #'
 #' Putting a layer on a grid it does not overlap succeeds and gives back

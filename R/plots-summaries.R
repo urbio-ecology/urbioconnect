@@ -220,6 +220,9 @@ to_sentence <- function(x) {
 #'   were found with, 1 where there is a barrier.
 #' @param buffered Terra SpatRaster, optional. Needs `barrier`. The buffered
 #'   habitat the patches were found with, from [habitat_connectivity_full()].
+#' @param directions Which neighbouring cells join, as in
+#'   [habitat_connectivity()]: `4`, the default, or `8`. Used with `buffered`
+#'   to find the zones, so give it the value the patches were found with.
 #'
 #' @returns A ggplot2 object showing patches with distinct colors.
 #' @export
@@ -274,8 +277,11 @@ plot_patches <- function(
   species = "Species",
   n_cols = 7,
   barrier = NULL,
-  buffered = NULL
+  buffered = NULL,
+  directions = 4
 ) {
+  check_directions(directions)
+
   # the barrier is drawn whenever it is given; the zones also need the buffered
   # habitat, which the barrier cuts into one zone per patch
   draw_barrier <- !is.null(barrier)
@@ -306,7 +312,7 @@ plot_patches <- function(
     mask <- create_barrier_mask(barrier)
     fragments <- buffered |>
       fragment_habitat(mask) |>
-      terra::patches()
+      terra::patches(directions = directions)
     fragments <- align_to(fragments, cells)
     # ids are renumbered, so find each fragment's patch from the habitat in it.
     # Buffer that a barrier cuts off from all habitat is left unshaded.

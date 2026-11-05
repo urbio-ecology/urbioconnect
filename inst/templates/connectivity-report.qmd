@@ -105,7 +105,8 @@ distance_tabs(function(distance) {
     interpatch_distance = distance,
     species = report$species,
     barrier = report$barrier,
-    buffered = report$buffered_habitat[[as.character(distance)]]
+    buffered = report$buffered_habitat[[as.character(distance)]],
+    directions = report$directions
   )
 })
 ```

@@ -152,6 +152,26 @@ test_that("a landscape with no habitat has no patches", {
   expect_equal(res$n_patches, 0)
 })
 
+test_that("cells join through a shared edge, and a corner with directions = 8", {
+  n_patches_of <- function(cells, directions = 4) {
+    habitat <- terra::rast(cells, crs = "local")
+    connectivity <- habitat_connectivity(
+      habitat = habitat,
+      barrier = terra::rast(habitat, vals = NA),
+      species = "demo",
+      interpatch_distance = 0,
+      verbose = FALSE,
+      directions = directions
+    )
+    connectivity$n_patches
+  }
+  side_by_side <- rbind(c(1, 1), c(NA, NA))
+  corner_to_corner <- rbind(c(1, NA), c(NA, 1))
+  expect_equal(n_patches_of(side_by_side), 1)
+  expect_equal(n_patches_of(corner_to_corner), 2)
+  expect_equal(n_patches_of(corner_to_corner, directions = 8), 1)
+})
+
 test_that("habitat_buffer expands non-NA habitat area", {
   n_before <- sum(!is.na(terra::values(lizard_habitat)))
   n_after <- sum(!is.na(terra::values(buffered)))

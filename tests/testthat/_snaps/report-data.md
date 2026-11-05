@@ -6,10 +6,11 @@
        [1] "connectivity"              "habitat"                  
        [3] "barrier"                   "buffered_habitat"         
        [5] "patch_id_raster"           "species"                  
-       [7] "interpatch_distance"       "settings"                 
-       [9] "run_time"                  "scenario_kind"            
-      [11] "scenario_habitat"          "scenario_barrier"         
-      [13] "scenario_buffered_habitat" "comparison"               
+       [7] "interpatch_distance"       "directions"               
+       [9] "settings"                  "run_time"                 
+      [11] "scenario_kind"             "scenario_habitat"         
+      [13] "scenario_barrier"          "scenario_buffered_habitat"
+      [15] "comparison"               
 
 # a scenario and its kind have to arrive together
 
@@ -70,22 +71,23 @@
     Code
       settings$setting
     Output
-       [1] "species"               "interpatch_distance_m" "grid_resolution_m"    
-       [4] "grid_dimensions"       "crs"                   "crs_code"             
-       [7] "scenario_kind"         "scenario_name"         "run_time"             
-      [10] "urbioconnect_version"  "terra_version"         "r_version"            
-      [13] "platform"             
+       [1] "species"               "interpatch_distance_m" "directions"           
+       [4] "grid_resolution_m"     "grid_dimensions"       "crs"                  
+       [7] "crs_code"              "scenario_kind"         "scenario_name"        
+      [10] "run_time"              "urbioconnect_version"  "terra_version"        
+      [13] "r_version"             "platform"             
 
 # connectivity_settings() carries the caller's own settings
 
     Code
       settings$setting
     Output
-       [1] "species"               "interpatch_distance_m" "habitat_source"       
-       [4] "data_resolution_m"     "grid_resolution_m"     "grid_dimensions"      
-       [7] "crs"                   "crs_code"              "scenario_kind"        
-      [10] "scenario_name"         "run_time"              "urbioconnect_version" 
-      [13] "terra_version"         "r_version"             "platform"             
+       [1] "species"               "interpatch_distance_m" "directions"           
+       [4] "habitat_source"        "data_resolution_m"     "grid_resolution_m"    
+       [7] "grid_dimensions"       "crs"                   "crs_code"             
+      [10] "scenario_kind"         "scenario_name"         "run_time"             
+      [13] "urbioconnect_version"  "terra_version"         "r_version"            
+      [16] "platform"             
 
 # connectivity_settings() records real data's grid
 
@@ -96,12 +98,13 @@
                       setting               value
       1               species  Blue Tongue Lizard
       2 interpatch_distance_m                 100
-      3     grid_resolution_m 10.01307 x 9.973856
-      4       grid_dimensions           153 x 153
-      5                   crs GDA94 / MGA zone 55
-      6              crs_code          EPSG:28355
-      7         scenario_kind                none
-      8         scenario_name                <NA>
+      3            directions     4 (rook's case)
+      4     grid_resolution_m 10.01307 x 9.973856
+      5       grid_dimensions           153 x 153
+      6                   crs GDA94 / MGA zone 55
+      7              crs_code          EPSG:28355
+      8         scenario_kind                none
+      9         scenario_name                <NA>
 
 # connectivity_report_data() rejects settings it can't record
 
@@ -110,23 +113,23 @@
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` needs a name of its own.
-      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
+      i The analysis records these itself: species, interpatch_distance_m, directions, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = list(a = 1, 2))
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` needs a name of its own.
-      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
+      i The analysis records these itself: species, interpatch_distance_m, directions, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = list(species = "mine"))
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` needs a name of its own.
-      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
+      i The analysis records these itself: species, interpatch_distance_m, directions, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
     Code
       test_report_data(settings = rlang::set_names(list(1, 2), c("a", "a")))
     Condition
       Error in `connectivity_report_data()`:
       ! Every element of `settings` needs a name of its own.
-      i The analysis records these itself: species, interpatch_distance_m, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
+      i The analysis records these itself: species, interpatch_distance_m, directions, grid_resolution_m, grid_dimensions, crs, crs_code, scenario_kind, scenario_name, run_time, urbioconnect_version, terra_version, r_version, and platform.
 

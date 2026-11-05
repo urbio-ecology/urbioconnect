@@ -12,6 +12,7 @@
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
 #'   vector runs the pipeline once per distance.
+#' @inheritParams habitat_connectivity
 #' @param scenario Optional layer to compare against the baseline: an `sf`,
 #'   `SpatVector` or `SpatRaster` standing in for one of `habitat` and
 #'   `barrier`. It is put on the baseline's own grid with [onto_grid()], so it
@@ -36,7 +37,7 @@
 #'   * `habitat` and `barrier`, the layers as supplied
 #'   * `buffered_habitat` and `patch_id_raster`, lists of `SpatRaster`, one per
 #'     distance and named by it
-#'   * `species` and `interpatch_distance`
+#'   * `species`, `interpatch_distance` and `directions`
 #'   * `settings`, the named character vector the caller recorded, and
 #'     `run_time`, when the analysis ran. [connectivity_settings()] turns the
 #'     two into the settings record.
@@ -82,6 +83,7 @@ connectivity_report_data <- function(
   barrier,
   species,
   interpatch_distance,
+  directions = 4,
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
@@ -89,6 +91,7 @@ connectivity_report_data <- function(
   verbose = TRUE
 ) {
   check_distances(interpatch_distance)
+  check_directions(directions)
   check_scalar_character(species)
   check_scenario_name(scenario_name)
   settings <- check_settings(settings)
@@ -100,6 +103,7 @@ connectivity_report_data <- function(
     barrier,
     species,
     interpatch_distance,
+    directions,
     verbose
   )
 
@@ -112,6 +116,7 @@ connectivity_report_data <- function(
       patch_id_raster = baseline$patch_id_raster,
       species = species,
       interpatch_distance = interpatch_distance,
+      directions = directions,
       settings = settings
     ))
   }
@@ -141,6 +146,7 @@ connectivity_report_data <- function(
     scenario_barrier,
     species,
     interpatch_distance,
+    directions,
     verbose
   )
 
@@ -152,6 +158,7 @@ connectivity_report_data <- function(
     patch_id_raster = baseline$patch_id_raster,
     species = species,
     interpatch_distance = interpatch_distance,
+    directions = directions,
     settings = settings,
     scenario_kind = scenario_kind,
     scenario_habitat = scenario_habitat,
@@ -177,6 +184,7 @@ connectivity_runs <- function(
   barrier,
   species,
   interpatch_distance,
+  directions,
   verbose
 ) {
   runs <- purrr::map(interpatch_distance, function(distance) {
@@ -184,6 +192,7 @@ connectivity_runs <- function(
       habitat = habitat,
       barrier = barrier,
       interpatch_distance = distance,
+      directions = directions,
       verbose = verbose
     )
   }) |>
@@ -426,9 +435,12 @@ scenario_layer <- function(x) {
 connectivity_settings <- function(x) {
   check_report_data(x)
 
+  direction_label <- direction_labels[[as.character(x$directions)]]
+
   c(
     species = x$species,
     interpatch_distance_m = paste(x$interpatch_distance, collapse = ", "),
+    directions = direction_label,
     x$settings,
     grid_settings(x$habitat),
     scenario_settings(x),
@@ -498,6 +510,7 @@ build_settings <- function(run_time) {
 derived_setting_names <- c(
   "species",
   "interpatch_distance_m",
+  "directions",
   "grid_resolution_m",
   "grid_dimensions",
   "crs",
@@ -510,6 +523,9 @@ derived_setting_names <- c(
   "r_version",
   "platform"
 )
+
+# "4" alone doesn't tell a reader of the settings which cells join
+direction_labels <- c("4" = "4 (rook's case)", "8" = "8 (queen's case)")
 
 #' Does this analysis carry a scenario comparison?
 #'
@@ -544,6 +560,7 @@ new_connectivity_report_data <- function(
   patch_id_raster,
   species,
   interpatch_distance,
+  directions,
   settings = NULL,
   run_time = Sys.time(),
   scenario_kind = NULL,
@@ -561,6 +578,7 @@ new_connectivity_report_data <- function(
       patch_id_raster = patch_id_raster,
       species = species,
       interpatch_distance = interpatch_distance,
+      directions = directions,
       settings = settings,
       run_time = run_time,
       scenario_kind = scenario_kind,

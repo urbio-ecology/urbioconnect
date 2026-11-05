@@ -10,7 +10,8 @@ plot_patches(
   species = "Species",
   n_cols = 7,
   barrier = NULL,
-  buffered = NULL
+  buffered = NULL,
+  directions = 4
 )
 }
 \arguments{
@@ -33,6 +34,10 @@ were found with, 1 where there is a barrier.}
 
 \item{buffered}{Terra SpatRaster, optional. Needs \code{barrier}. The buffered
 habitat the patches were found with, from \code{\link[=habitat_connectivity_full]{habitat_connectivity_full()}}.}
+
+\item{directions}{Which neighbouring cells join, as in
+\code{\link[=habitat_connectivity]{habitat_connectivity()}}: \code{4}, the default, or \code{8}. Used with \code{buffered}
+to find the zones, so give it the value the patches were found with.}
 }
 \value{
 A ggplot2 object showing patches with distinct colors.

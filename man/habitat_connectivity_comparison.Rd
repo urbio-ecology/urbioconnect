@@ -11,6 +11,7 @@ habitat_connectivity_comparison(
   barrier_baseline,
   species,
   interpatch_distance,
+  directions = 4,
   scenario_name = NULL,
   verbose = TRUE
 )
@@ -29,6 +30,12 @@ habitat_connectivity_comparison(
 \item{interpatch_distance}{Numeric. The distance (in metres) at which habitat
 patches are considered connected. May be a scalar or a vector; a vector
 runs the comparison once per distance. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 
 \item{scenario_name}{Character. An optional label for the scenario, for
 example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears

@@ -23,6 +23,7 @@ connectivity_at_distance <- function(
   barrier,
   species,
   interpatch_distance,
+  directions,
   verbose
 ) {
   habitat_connectivity(
@@ -30,6 +31,7 @@ connectivity_at_distance <- function(
     barrier = barrier,
     species = species,
     interpatch_distance = interpatch_distance,
+    directions = directions,
     verbose = verbose
   )
 }

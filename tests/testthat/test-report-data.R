@@ -307,6 +307,22 @@ test_that("connectivity_settings() names the scenario it compared", {
   expect_equal(setting_value(unnamed, "scenario_name"), NA_character_)
 })
 
+test_that("connectivity_report_data() finds and records patches by directions", {
+  habitat <- terra::rast(rbind(c(1, NA), c(NA, 1)), crs = "local")
+  report_data <- connectivity_report_data(
+    habitat = habitat,
+    barrier = terra::rast(habitat, vals = NA),
+    species = "demo",
+    interpatch_distance = 0,
+    directions = 8,
+    verbose = FALSE
+  )
+  settings <- connectivity_settings(report_data)
+
+  expect_equal(report_data$connectivity$n_patches, 1)
+  expect_equal(setting_value(settings, "directions"), "8 (queen's case)")
+})
+
 test_that("derived_setting_names is what connectivity_settings() builds", {
   # the two are written out separately, so this stops them drifting
   expect_setequal(
