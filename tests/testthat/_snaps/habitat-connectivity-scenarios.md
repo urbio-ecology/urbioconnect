@@ -1,9 +1,8 @@
 # habitat_connectivity_scenarios() stacks habitat then barrier scenarios
 
     Code
-      results
+      print(results, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 8 x 10
         scenario_name   measure    species      interpatch_distance n_patches
         <chr>           <chr>      <chr>                      <dbl>     <dbl>
@@ -35,8 +34,6 @@
       6 10x10          
       7 10x10          
       8 10x10          
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # habitat_connectivity_scenarios() warns on a scenario matching baseline
 
@@ -98,4 +95,29 @@
       ! Every scenario in `habitat_scenarios` must be named.
       x No name at position 1.
       i Names become the scenario_name column.
+
+# habitat_connectivity_scenarios() rejects a scenario off the baseline's grid
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat_raster,
+      barrier_baseline = layers$barrier_raster, species = "Blue Tongue Lizard",
+      interpatch_distance = 100, barrier_scenarios = list(`A new road` = example_barrier_scenario()),
+      verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `barrier_scenarios[["A new road"]]` and `barrier_baseline` are not the same landscape.
+      x Their resolution differs.
+      i Put `barrier_scenarios[["A new road"]]` on the grid of `barrier_baseline` first, with `onto_grid()`.
+
+# habitat_connectivity_scenarios() rejects a scenario that isn't a raster
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = "Test Species",
+      interpatch_distance = 40, habitat_scenarios = list(`Habitat cleared` = cleared),
+      verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `habitat_scenarios[["Habitat cleared"]]` must be a <SpatRaster>, not a <sf> object.
+      i Put it on the grid of `habitat_baseline` first, with `onto_grid()`.
 

@@ -1,34 +1,49 @@
 #' Compare habitat connectivity of a scenario against a baseline
 #'
 #' Starts from habitat and barrier layers, rather than the `connectivity`
-#'   objects [compare_connectivity()] takes. Give it a scenario
-#'   habitat/barrier pair and a baseline habitat/barrier pair and it runs the
-#'   full connectivity pipeline on each (via [habitat_connectivity()]) and
-#'   compares them. `interpatch_distance` may be a vector, in which case the
-#'   comparison is run once per distance and the per-distance results are
-#'   stacked.
+#'   objects [compare_connectivity()] takes. Give it the baseline's habitat and
+#'   barrier, and the layers a planned change replaces, and it runs the full
+#'   connectivity pipeline (via [habitat_connectivity()]) on the baseline and
+#'   on the scenario and compares them. `interpatch_distance` may be a vector,
+#'   in which case the comparison is run once per distance and the
+#'   per-distance results are stacked.
 #'
 #' @details
-#' Change exactly one layer between baseline and scenario so the difference is
-#'   attributable to a single variable. To assess a barrier change, pass the
-#'   same habitat to both `habitat_baseline` and `habitat_scenario`; to assess a
-#'   habitat change, pass the same barrier to both `barrier_baseline` and
-#'   `barrier_scenario`. If both the habitat *and* the barrier differ the
-#'   function aborts; if neither differs it warns (the scenario equals the
-#'   baseline, so every `change` value is zero).
+#' A scenario is the landscape after a planned change. Give the layers the plan
+#' changes, and the function takes the rest from the baseline:
 #'
-#'   Note that this runs the full connectivity pipeline `2 *
-#'   length(interpatch_distance)` times (buffering is the slow step), so a long
-#'   vector of distances will take proportionally longer.
+#' | You give | The scenario's habitat | The scenario's barrier |
+#' |---|---|---|
+#' | `habitat_scenario` | `habitat_scenario` | `barrier_baseline` |
+#' | `barrier_scenario` | `habitat_baseline` | `barrier_scenario` |
+#' | both | `habitat_scenario` | `barrier_scenario` |
 #'
-#' @param habitat_scenario Terra SpatRaster. The scenario habitat layer.
-#' @param barrier_scenario Terra SpatRaster. The scenario barrier layer.
-#' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
+#' Each layer you give must be the whole layer after the change, not just the
+#' part that changes: a barrier scenario holding only a new road drops every
+#' existing road. If you give both, the comparison shows their combined effect,
+#' not how much came from each; to see each one's share, run it again with one
+#' layer at a time. The shares won't add up exactly, because changes interact: a
+#' new road beside new habitat matters more than either alone.
+#'
+#' A scenario layer must be on the same grid as the layer it replaces, or this
+#' gives an error: put it there with [onto_grid()]. A scenario identical to the
+#' baseline gives a warning, since every `change` value will be zero.
+#'
+#' This runs the full connectivity pipeline `2 * length(interpatch_distance)`
+#' times (buffering is the slow step), so a long vector of distances will take
+#' proportionally longer.
+#'
+#' @param habitat_baseline Terra SpatRaster. The baseline habitat layer: the
+#'   landscape as it is today.
 #' @param barrier_baseline Terra SpatRaster. The baseline barrier layer.
 #' @param species Species name. E.g., "Superb Fairy Wren".
 #' @param interpatch_distance Numeric. The distance (in metres) at which habitat
 #'   patches are considered connected. May be a scalar or a vector; a vector
 #'   runs the comparison once per distance. See [habitat_connectivity()].
+#' @param habitat_scenario Terra SpatRaster, or `NULL`. The whole habitat layer
+#'   after the planned change, on the same grid as `habitat_baseline`.
+#' @param barrier_scenario Terra SpatRaster, or `NULL`. The whole barrier layer
+#'   after the planned change, on the same grid as `barrier_baseline`.
 #' @inheritParams habitat_connectivity
 #' @param scenario_name Character. An optional label for the scenario, for
 #'   example "Bentley Project". Passed to [compare_connectivity()], and appears
@@ -41,59 +56,49 @@
 #'   scalar `interpatch_distance` gives four rows; a length-3 vector gives
 #'   twelve rows (four per distance). See [compare_connectivity()] for the
 #'   columns.
-#' @seealso [compare_connectivity()], [habitat_connectivity()]
+#' @seealso [habitat_connectivity_scenarios()] for several scenarios at once,
+#'   [compare_connectivity()], [habitat_connectivity()], and
+#'   `vignette("scenario-comparison")`.
 #' @export
 #'
 #' @examples
 #' \donttest{
+#' # a scenario that changes the barrier: the habitat stays as it is today
 #' habitat_connectivity_comparison(
-#'   habitat_scenario = example_wren_habitat(),
-#'   barrier_scenario = example_wren_barrier_scenario(),
 #'   habitat_baseline = example_wren_habitat(),
 #'   barrier_baseline = example_wren_barrier(),
 #'   species = "Superb Fairy Wren",
 #'   interpatch_distance = 200,
+#'   barrier_scenario = example_wren_barrier_scenario(),
 #'   verbose = FALSE
 #' )
 #' }
 habitat_connectivity_comparison <- function(
-  habitat_scenario,
-  barrier_scenario,
   habitat_baseline,
   barrier_baseline,
   species,
   interpatch_distance,
-  directions = 4,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
+  directions = 4,
   verbose = TRUE
 ) {
   check_scenario_name(scenario_name)
   check_distances(interpatch_distance)
   check_directions(directions)
+  check_scenario_given(habitat_scenario, barrier_scenario)
 
   # Before anything is computed: layers on different grids compare as a change
   # of place, and the result looks like an answer.
   check_layers_comparable(habitat_scenario, habitat_baseline)
   check_layers_comparable(barrier_scenario, barrier_baseline)
 
-  # One variable at a time: compute both layer differences once, then guard.
-  hab_diff <- layers_differ(habitat_scenario, habitat_baseline)
-  bar_diff <- layers_differ(barrier_scenario, barrier_baseline)
+  scenario_habitat <- habitat_scenario %||% habitat_baseline
+  scenario_barrier <- barrier_scenario %||% barrier_baseline
 
-  # Both-changed guard: only one variable may change at a time so the
-  # difference is attributable to a single layer.
-  if (hab_diff && bar_diff) {
-    cli::cli_abort(
-      c(
-        "Both habitat and barrier differ from baseline.",
-        "i" = "Change only one at a time so the difference is attributable."
-      )
-    )
-  }
-
-  # Identical-inputs warning: the scenario matches the baseline, so the
-  # comparison is valid but every `change` value will be zero.
-  scenario_is_baseline <- !hab_diff && !bar_diff
+  scenario_is_baseline <- !layers_differ(scenario_habitat, habitat_baseline) &&
+    !layers_differ(scenario_barrier, barrier_baseline)
 
   if (scenario_is_baseline) {
     cli::cli_warn(
@@ -122,8 +127,8 @@ habitat_connectivity_comparison <- function(
       base_conn
     } else {
       connectivity_at_distance(
-        habitat_scenario,
-        barrier_scenario,
+        scenario_habitat,
+        scenario_barrier,
         species,
         distance,
         directions,

@@ -1,9 +1,8 @@
 # compare_connectivity() identifies changes in baseline/scenario
 
     Code
-      results_compare
+      print(results_compare, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 4 x 10
         scenario_name measure    species            interpatch_distance n_patches
         <chr>         <chr>      <chr>                            <dbl>     <dbl>
@@ -23,15 +22,12 @@
       2 2x2            
       3 2x2            
       4 2x2            
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # compare_connectivity() against itself gives a zero change row
 
     Code
-      results_self
+      print(results_self, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 4 x 10
         scenario_name measure    species             interpatch_distance n_patches
         <chr>         <chr>      <chr>                             <dbl>     <dbl>
@@ -51,8 +47,6 @@
       2 2x2            
       3 2x2            
       4 2x2            
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # compare_connectivity() rejects multi-row input
 
@@ -99,9 +93,8 @@
 # compare_connectivity() works on default-method connectivity
 
     Code
-      compare_connectivity(scenario = scen, baseline = base)
+      print(comparison, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 4 x 10
         scenario_name measure    species      interpatch_distance n_patches
         <chr>         <chr>      <chr>                      <dbl>     <dbl>
@@ -121,6 +114,102 @@
       2               2
       3               2
       4               2
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
+
+# summary() prints a named scenario as one table
+
+    Code
+      summary(comparison)
+    Output
+      Scenario: Bentley Project
+      Interpatch distance: 50 m
+        Metric          Baseline Scenario Change % change
+        Patches               73       68     -5    -6.85
+        Mesh (ha)           4.47    0.815  -3.66    -81.8
+        P(connected)        0.17    0.031 -0.139    -81.8
+        Mean area (m2)      3600     2340  -1260    -34.9
+        Total area (ha)     26.3     15.9  -10.3    -39.4
+
+# summary() heads an unnamed scenario with its distance only
+
+    Code
+      summary(comparison)
+    Output
+      Interpatch distance: 50 m
+        Metric          Baseline Scenario Change % change
+        Patches               73       68     -5    -6.85
+        Mesh (ha)           4.47    0.815  -3.66    -81.8
+        P(connected)        0.17    0.031 -0.139    -81.8
+        Mean area (m2)      3600     2340  -1260    -34.9
+        Total area (ha)     26.3     15.9  -10.3    -39.4
+
+# summary() prints a table per scenario
+
+    Code
+      summary(comparison)
+    Output
+      Scenario: Bentley Project
+      Interpatch distance: 50 m
+        Metric          Baseline Scenario    Change  % change
+        Patches               73       72        -1     -1.37
+        Mesh (ha)           4.47     4.47 -1.13e-05 -0.000252
+        P(connected)        0.17     0.17 -4.28e-07 -0.000252
+        Mean area (m2)      3600     3650      47.6      1.32
+        Total area (ha)     26.3     26.3   -0.0172   -0.0654
+      
+      Scenario: Barrier upgrade
+      Interpatch distance: 50 m
+        Metric          Baseline Scenario Change % change
+        Patches               73       68     -5    -6.85
+        Mesh (ha)           4.47    0.815  -3.66    -81.8
+        P(connected)        0.17    0.031 -0.139    -81.8
+        Mean area (m2)      3600     2340  -1260    -34.9
+        Total area (ha)     26.3     15.9  -10.3    -39.4
+
+# summary() prints a table per interpatch distance
+
+    Code
+      summary(comparison)
+    Output
+      Scenario: A new road
+      Interpatch distance: 40 m
+        Metric          Baseline Scenario  Change % change
+        Patches              161      165       4     2.48
+        Mesh (ha)            4.2     1.93   -2.27    -54.1
+        P(connected)       0.155   0.0713 -0.0841    -54.1
+        Mean area (m2)      1680     1580     -97    -5.78
+        Total area (ha)       27     26.1  -0.929    -3.44
+      
+      Scenario: A new road
+      Interpatch distance: 80 m
+        Metric          Baseline Scenario  Change % change
+        Patches               77       81       4     5.19
+        Mesh (ha)            4.5     2.09   -2.41    -53.6
+        P(connected)       0.167   0.0773 -0.0893    -53.6
+        Mean area (m2)      3510     3220    -288     -8.2
+        Total area (ha)       27     26.1  -0.929    -3.44
+
+# a summary cut down past its tables prints as a tibble
+
+    Code
+      dplyr::select(summarised, "Metric", "Baseline")
+    Output
+      # A tibble: 5 x 2
+        Metric          Baseline
+        <chr>              <dbl>
+      1 Patches            73   
+      2 Mesh (ha)           4.47
+      3 P(connected)        0.17
+      4 Mean area (m2)   3600   
+      5 Total area (ha)    26.3 
+    Code
+      summarised["Distance (m)"]
+    Output
+      # A tibble: 5 x 1
+        `Distance (m)`
+                 <dbl>
+      1             50
+      2             50
+      3             50
+      4             50
+      5             50
 

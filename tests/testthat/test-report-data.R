@@ -33,12 +33,11 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
   # Building it from the two runs this function already does has to give the
   # same numbers.
   separately <- habitat_connectivity_comparison(
-    habitat_scenario = layers$habitat,
-    barrier_scenario = layers$barrier_scenario,
     habitat_baseline = layers$habitat,
     barrier_baseline = layers$barrier,
     species = "Test Species",
     interpatch_distance = c(40, 80),
+    barrier_scenario = layers$barrier_scenario,
     verbose = FALSE
   )
 
@@ -47,8 +46,7 @@ test_that("a scenario gives the same comparison, for half the pipeline runs", {
     barrier = layers$barrier,
     species = "Test Species",
     interpatch_distance = c(40, 80),
-    scenario = layers$barrier_scenario,
-    scenario_kind = "barrier",
+    barrier_scenario = layers$barrier_scenario,
     verbose = FALSE
   )
 
@@ -84,8 +82,7 @@ test_that("both landscapes are built by the same chain", {
       barrier = layers$barrier,
       species = "Test Species",
       interpatch_distance = 40,
-      scenario = layers$barrier,
-      scenario_kind = "barrier",
+      barrier_scenario = layers$barrier,
       verbose = FALSE
     )
   )
@@ -112,7 +109,7 @@ test_that("an analysis with no scenario has no scenario anything", {
   expect_null(scenario_layer(plain))
 })
 
-test_that("a scenario and its kind have to arrive together", {
+test_that("a report takes one scenario layer, not both", {
   layers <- scenario_test_layers()
 
   report_data <- function(...) {
@@ -127,15 +124,16 @@ test_that("a scenario and its kind have to arrive together", {
   }
 
   expect_snapshot(error = TRUE, {
-    report_data(scenario = layers$barrier_scenario)
-    report_data(scenario_kind = "barrier")
-    report_data(scenario = layers$barrier_scenario, scenario_kind = "both")
+    report_data(
+      habitat_scenario = layers$habitat_scenario,
+      barrier_scenario = layers$barrier_scenario
+    )
   })
 
   # an unchanged scenario is legal, and says so. invisible(), because the
   # object carries run_time, which differs on every run
   expect_snapshot(
-    invisible(report_data(scenario = layers$barrier, scenario_kind = "barrier"))
+    invisible(report_data(barrier_scenario = layers$barrier))
   )
 })
 

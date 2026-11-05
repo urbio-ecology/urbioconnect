@@ -9,7 +9,7 @@
 #' @param area_baseline Optional. Defaults to `area` if not specified.
 #'   Numeric vector of the baseline's connected patch areas, in square metres.
 #'   This is to allow for comparing the effective mesh size when comparing
-#'   different scenarios.
+#'   different scenarios. See `vignette("scenario-comparison")`.
 #'
 #' @returns Numeric. Effective mesh size, in hectares.
 #'
@@ -85,7 +85,7 @@ total_habitat_area <- function(area) {
 #' To compare a design scenario against a baseline, pass the scenario's
 #' effective mesh size, measured against the baseline areas, and the
 #' baseline's total habitat area. A scenario that adds habitat can then score
-#' above 1.
+#' above 1. See `vignette("scenario-comparison")`.
 #'
 #' @param effective_mesh_ha Number. Effective mesh size in hectares, as
 #'   returned by [effective_mesh_size()].

@@ -16,7 +16,7 @@ test_that("habitat_connectivity_scenarios() stacks habitat then barrier scenario
     results$scenario_name,
     rep(c("Bentley Project", "Barrier upgrade"), each = 4)
   )
-  expect_snapshot(results)
+  expect_snapshot(print(results, width = Inf))
 })
 
 test_that("habitat_connectivity_scenarios() takes either list on its own", {
@@ -161,6 +161,43 @@ test_that("habitat_connectivity_scenarios() rejects missing or clashing names", 
       species = "Test Species",
       habitat_scenarios = list(layers$habitat_scenario),
       interpatch_distance = 40,
+      verbose = FALSE
+    )
+  })
+})
+
+test_that("habitat_connectivity_scenarios() rejects a scenario off the baseline's grid", {
+  # the lizard's new road comes on a 2 m grid. Against a 10 m baseline it used
+  # to run without an error, leaving the pipeline to resample it
+  layers <- prepare_rasters(
+    example_habitat(),
+    example_barrier(),
+    data_resolution = 10
+  )
+
+  expect_snapshot(error = TRUE, {
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat_raster,
+      barrier_baseline = layers$barrier_raster,
+      species = "Blue Tongue Lizard",
+      interpatch_distance = 100,
+      barrier_scenarios = list("A new road" = example_barrier_scenario()),
+      verbose = FALSE
+    )
+  })
+})
+
+test_that("habitat_connectivity_scenarios() rejects a scenario that isn't a raster", {
+  layers <- scenario_test_layers()
+  cleared <- sf::st_as_sf(terra::as.polygons(layers$habitat_scenario))
+
+  expect_snapshot(error = TRUE, {
+    habitat_connectivity_scenarios(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      habitat_scenarios = list("Habitat cleared" = cleared),
       verbose = FALSE
     )
   })

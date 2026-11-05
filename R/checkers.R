@@ -497,9 +497,10 @@ check_layer_covers <- function(
 
 #' Are two layers the same landscape?
 #'
-#' A comparison of layers that don't line up doesn't fail. Each side is
-#' analysed on its own grid and subtracted, so the change of place is reported
-#' as a change in connectivity.
+#' Layers that don't line up would have to be resampled, and the pipeline would
+#' do it quietly, or analyse a habitat layer on a grid of its own. Either way
+#' the user hasn't chosen how, so ask them to, with `onto_grid()`. `NULL` is a
+#' layer that wasn't given.
 #'
 #' @noRd
 check_layers_comparable <- function(
@@ -509,44 +510,153 @@ check_layers_comparable <- function(
   arg_baseline = rlang::caller_arg(baseline),
   call = rlang::caller_env()
 ) {
-  if (!inherits(scenario, "SpatRaster") || !inherits(baseline, "SpatRaster")) {
-    return(invisible(scenario))
+  # a baseline that isn't a raster yet has no grid to compare against
+  scenario_given <- !is.null(scenario)
+  baseline_has_grid <- inherits(baseline, "SpatRaster")
+
+  if (scenario_given && baseline_has_grid) {
+    check_raster(
+      scenario,
+      arg_grid = arg_baseline,
+      arg = arg,
+      call = call
+    )
+    check_same_grid(
+      scenario,
+      baseline,
+      arg = arg,
+      arg_baseline = arg_baseline,
+      call = call
+    )
   }
 
+  invisible(scenario)
+}
+
+#' Is a scenario layer a raster?
+#'
+#' A vector layer has no grid to compare, so it has to be put on one first.
+#'
+#' @noRd
+check_raster <- function(
+  x,
+  arg_grid,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (!inherits(x, "SpatRaster")) {
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} must be a {.cls SpatRaster}, not
+         {.obj_type_friendly {x}}.",
+        "i" = "Put it on the grid of {.arg {arg_grid}} first, with
+               {.fn onto_grid}."
+      ),
+      call = call
+    )
+  }
+
+  invisible(x)
+}
+
+#' Are two rasters on the same grid?
+#'
+#' @noRd
+check_same_grid <- function(
+  scenario,
+  baseline,
+  arg = rlang::caller_arg(scenario),
+  arg_baseline = rlang::caller_arg(baseline),
+  call = rlang::caller_env()
+) {
   # compareGeom() decides, because it carries terra's own tolerance. The
   # component checks below only name what to tell the user about.
   aligned <- suppressWarnings(
     terra::compareGeom(scenario, baseline, stopOnError = FALSE)
   )
 
-  if (aligned) {
-    return(invisible(scenario))
+  if (!aligned) {
+    same_crs <- terra::same.crs(scenario, baseline)
+    same_resolution <- identical(
+      terra::res(scenario),
+      terra::res(baseline)
+    )
+    same_extent <- identical(
+      as.vector(terra::ext(scenario)),
+      as.vector(terra::ext(baseline))
+    )
+    components <- c(
+      "coordinate reference system",
+      "resolution",
+      "extent"
+    )
+    same <- c(
+      same_crs,
+      same_resolution,
+      same_extent
+    )
+    differences <- components[!same]
+    # compareGeom() can fail on something none of the three names
+    nothing_named <- length(differences) == 0
+    differs <- if (nothing_named) "geometry" else differences
+
+    cli::cli_abort(
+      c(
+        "{.arg {arg}} and {.arg {arg_baseline}} are not the same landscape.",
+        "x" = "Their {differs} differ{?s/}.",
+        "i" = "Put {.arg {arg}} on the grid of {.arg {arg_baseline}} first,
+               with {.fn onto_grid}."
+      ),
+      call = call
+    )
   }
 
-  differences <- c(
-    if (!terra::same.crs(scenario, baseline)) "coordinate reference system",
-    if (!identical(terra::res(scenario), terra::res(baseline))) "resolution",
-    if (
-      !identical(
-        as.vector(terra::ext(scenario)),
-        as.vector(terra::ext(baseline))
-      )
-    ) {
-      "extent"
-    }
-  )
+  invisible(scenario)
+}
 
-  differs <- differences %||% "geometry"
+#' Is every scenario in a list on the grid of the layer it replaces?
+#'
+#' @noRd
+check_scenario_grids <- function(
+  scenarios,
+  baseline,
+  arg = rlang::caller_arg(scenarios),
+  arg_baseline = rlang::caller_arg(baseline),
+  call = rlang::caller_env()
+) {
+  # a loop, not purrr::iwalk(), which would wrap the error in its own context
+  for (name in names(scenarios)) {
+    check_layers_comparable(
+      scenarios[[name]],
+      baseline,
+      arg = glue::glue('{arg}[["{name}"]]'),
+      arg_baseline = arg_baseline,
+      call = call
+    )
+  }
 
-  cli::cli_abort(
-    c(
-      "{.arg {arg}} and {.arg {arg_baseline}} are not the same landscape.",
-      "x" = "Their {differs} differ{?s/}.",
-      "i" = "Put both on one grid first: rasterise or resample the scenario
-             onto the baseline."
-    ),
-    call = call
-  )
+  invisible(scenarios)
+}
+
+#' A comparison needs a scenario to compare
+#'
+#' @noRd
+check_scenario_given <- function(
+  habitat_scenario,
+  barrier_scenario,
+  call = rlang::caller_env()
+) {
+  no_scenario <- is.null(habitat_scenario) && is.null(barrier_scenario)
+
+  if (no_scenario) {
+    cli::cli_abort(
+      "Give {.arg habitat_scenario}, {.arg barrier_scenario}, or both: the
+       layers your planned change replaces.",
+      call = call
+    )
+  }
+
+  invisible(NULL)
 }
 
 #' @noRd

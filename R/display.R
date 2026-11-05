@@ -130,18 +130,24 @@ round_by <- function(display) {
 #' @rdname round_by
 #' @export
 format_by <- function(display) {
-  formatted <- round_by(display)
-  columns <- display$digits$column
+  rounded <- round_by(display)
 
+  format_columns(rounded, display$digits$column)
+}
+
+#' Format the named columns to strings, one value at a time
+#'
+#' @noRd
+format_columns <- function(data, columns) {
   # pinned, so one display reads the same wherever it is rendered. The app and
   # the report agreeing is the whole point, and `format()` otherwise follows
   # whatever `scipen` and `OutDec` the caller happens to have set.
   pinned <- options(scipen = 0, digits = 7, OutDec = ".")
   on.exit(options(pinned), add = TRUE)
 
-  formatted[columns] <- purrr::map(formatted[columns], format_values)
+  data[columns] <- purrr::map(data[columns], format_values)
 
-  formatted
+  data
 }
 
 #' One value at a time, so each picks its own notation
@@ -209,7 +215,15 @@ comparison_wide <- function(x) {
   spec <- connectivity_columns()
   metrics <- spec$name[spec$role == "metric"]
 
-  wide <- tibble::as_tibble(x)
+  # scenarios stay in the order they were given, as plot_connectivity() keeps
+  # them, rather than sorting by name
+  wide <- tibble::as_tibble(x) |>
+    dplyr::mutate(
+      dplyr::across(
+        dplyr::any_of("scenario_name"),
+        \(name) factor(name, levels = unique(name))
+      )
+    )
 
   # what tells one row from another. Species and resolution are the same for
   # every row of a comparison and are shown around the table, and an unnamed
@@ -234,7 +248,10 @@ comparison_wide <- function(x) {
       metric = factor(.data$metric, levels = spec$name)
     ) |>
     dplyr::arrange(dplyr::pick(dplyr::any_of(ids)), .data$metric) |>
-    dplyr::mutate(metric = display_labels(as.character(.data$metric), spec))
+    dplyr::mutate(
+      metric = display_labels(as.character(.data$metric), spec),
+      dplyr::across(dplyr::any_of("scenario_name"), as.character)
+    )
 }
 
 #' Apply labels, and describe the rounding for what is left numeric

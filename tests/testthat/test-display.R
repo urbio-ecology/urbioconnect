@@ -90,6 +90,21 @@ test_that("a comparison with several scenarios stays numeric", {
   expect_equal(nrow(display$data), 10)
 })
 
+test_that("a comparison shows its scenarios in the order given", {
+  baseline <- summarise_connectivity(lizard_areas_connected)
+  comparison <- compare_scenarios(
+    baseline,
+    list(
+      road = summarise_connectivity(lizard_areas_connected[-1, ]),
+      clearing = summarise_connectivity(lizard_areas_connected[-(1:5), ])
+    )
+  )
+
+  shown <- connectivity_display(comparison)$data
+
+  expect_equal(unique(shown$Scenario), c("road", "clearing"))
+})
+
 test_that("the long comparison rounds metrics but not identifiers", {
   display <- connectivity_display(test_comparison(), wide = FALSE)
 

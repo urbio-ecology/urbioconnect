@@ -33,7 +33,6 @@ comparison_multiple_distances <- purrr::map(
     habitat_connectivity_comparison(
       habitat_baseline = lizard_habitat,
       barrier_baseline = lizard_barrier,
-      habitat_scenario = lizard_habitat,
       barrier_scenario = lizard_barrier_scenario,
       species = "Blue-tongued Lizard",
       interpatch_distance = distance,

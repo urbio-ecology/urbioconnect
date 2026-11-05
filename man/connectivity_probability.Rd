@@ -26,7 +26,7 @@ divided by the total habitat area, both in hectares.
 To compare a design scenario against a baseline, pass the scenario's
 effective mesh size, measured against the baseline areas, and the
 baseline's total habitat area. A scenario that adds habitat can then score
-above 1.
+above 1. See \code{vignette("scenario-comparison")}.
 }
 \examples{
 area <- lizard_areas_connected$area

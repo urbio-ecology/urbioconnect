@@ -1,9 +1,8 @@
 # compare_scenarios() stacks four labelled rows per scenario
 
     Code
-      results
+      print(results, width = Inf)
     Output
-      # Connectivity comparison: baseline / scenario / change / pct_change
       # A tibble: 8 x 10
         scenario_name   measure    species             interpatch_distance n_patches
         <chr>           <chr>      <chr>                             <dbl>     <dbl>
@@ -35,8 +34,6 @@
       6 2x2            
       7 2x2            
       8 2x2            
-      # change = scenario - baseline (positive = scenario is higher)
-      # pct_change = 100 * change / baseline
 
 # compare_scenarios() rejects badly named scenarios
 

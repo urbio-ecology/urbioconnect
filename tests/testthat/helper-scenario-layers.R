@@ -72,8 +72,7 @@ lizard_road_comparison <- function() {
     barrier = rasters$barrier_raster,
     species = "Blue Tongue Lizard",
     interpatch_distance = c(40, 80, 160),
-    scenario = example_barrier_scenario(),
-    scenario_kind = "barrier",
+    barrier_scenario = example_barrier_scenario(),
     scenario_name = "A new road through the habitat",
     verbose = FALSE
   )$comparison

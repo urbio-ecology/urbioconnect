@@ -84,31 +84,34 @@ compare_scenarios <- function(baseline, scenarios) {
 
 #' Compare several scenarios against one baseline, starting from layers
 #'
-#' The layer-level counterpart to [compare_scenarios()]. Give it one baseline
-#'   habitat/barrier pair and named lists of scenario layers, and it runs the
-#'   connectivity pipeline on each and compares them all against that baseline.
+#' Each layer in `habitat_scenarios` or `barrier_scenarios` is its own scenario
+#'   that changes that one layer; the lists are never combined. A habitat
+#'   scenario runs against `barrier_baseline`, and a barrier scenario against
+#'   `habitat_baseline`. For a scenario that changes both layers, use
+#'   [habitat_connectivity_comparison()].
 #'
-#'   A scenario changes exactly one layer: habitat scenarios are run against
-#'   the baseline barrier, and barrier scenarios against the baseline habitat.
-#'   There's no way to write a scenario that changes both, which is what
-#'   [habitat_connectivity_comparison()] has to check for.
+#'   The layer-level counterpart to [compare_scenarios()]: it runs the
+#'   connectivity pipeline on each scenario and compares them all against the
+#'   baseline. The baseline is run once per distance and reused by every
+#'   scenario, so comparing three scenarios at one distance runs the pipeline
+#'   four times, not six.
 #'
-#'   The baseline is run once per distance and reused by every scenario, so
-#'   comparing three scenarios at one distance runs the pipeline four times,
-#'   not six.
+#'   Each scenario layer must be the whole layer after the change, on the same
+#'   grid as the layer it replaces, or this gives an error: put it there with
+#'   [onto_grid()].
 #'
-#' @param habitat_baseline Terra SpatRaster. The baseline habitat layer.
+#' @param habitat_baseline Terra SpatRaster. The baseline habitat layer: the
+#'   landscape as it is today.
 #' @param barrier_baseline Terra SpatRaster. The baseline barrier layer.
 #' @param species Species name. E.g., "Superb Fairy Wren".
-#' @param habitat_scenarios A named list of habitat layers, one per scenario,
-#'   each compared against `habitat_baseline` with the barrier held at
-#'   `barrier_baseline`. Names become the `scenario_name` column.
-#' @param barrier_scenarios A named list of barrier layers, the mirror of
-#'   `habitat_scenarios`. Supply either list, or both; names must be unique
-#'   across the two.
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
 #'   vector runs every scenario once per distance.
+#' @param habitat_scenarios A named list of habitat layers, one per scenario.
+#'   Names become the `scenario_name` column.
+#' @param barrier_scenarios A named list of barrier layers, the mirror of
+#'   `habitat_scenarios`. Give either list, or both; names must be unique
+#'   across the two.
 #' @inheritParams habitat_connectivity
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #'
@@ -116,7 +119,8 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   distance, labelled in the `scenario_name` column. Habitat scenarios come
 #'   first, then barrier scenarios, in the order given.
 #' @seealso [compare_scenarios()] when you already have `connectivity` objects,
-#'   and [habitat_connectivity_comparison()] for a single scenario.
+#'   [habitat_connectivity_comparison()] for one scenario, including one that
+#'   changes both layers, and `vignette("scenario-comparison")`.
 #' @export
 #'
 #' @examples
@@ -128,13 +132,13 @@ compare_scenarios <- function(baseline, scenarios) {
 #'   habitat_baseline = wren_habitat,
 #'   barrier_baseline = wren_barrier,
 #'   species = "Superb Fairy Wren",
+#'   interpatch_distance = 200,
 #'   habitat_scenarios = list(
 #'     "Bentley Project" = example_wren_habitat_scenario()
 #'   ),
 #'   barrier_scenarios = list(
 #'     "Barrier upgrade" = example_wren_barrier_scenario()
 #'   ),
-#'   interpatch_distance = 200,
 #'   verbose = FALSE
 #' )
 #' }
@@ -142,27 +146,27 @@ habitat_connectivity_scenarios <- function(
   habitat_baseline,
   barrier_baseline,
   species,
+  interpatch_distance,
   habitat_scenarios = NULL,
   barrier_scenarios = NULL,
-  interpatch_distance,
   directions = 4,
   verbose = TRUE
 ) {
   check_distances(interpatch_distance)
   check_directions(directions)
   check_scenario_layers(habitat_scenarios, barrier_scenarios)
+  check_scenario_grids(habitat_scenarios, habitat_baseline)
+  check_scenario_grids(barrier_scenarios, barrier_baseline)
 
   # Each scenario swaps exactly one layer; the other comes from the baseline.
   # Pairing them up here means the sweep below doesn't care which kind it has.
   scenario_layers <- c(
-    purrr::map(
-      habitat_scenarios,
-      \(habitat) list(habitat = habitat, barrier = barrier_baseline)
-    ),
-    purrr::map(
-      barrier_scenarios,
-      \(barrier) list(habitat = habitat_baseline, barrier = barrier)
-    )
+    purrr::map(habitat_scenarios, function(habitat_scenario) {
+      list(habitat = habitat_scenario, barrier = barrier_baseline)
+    }),
+    purrr::map(barrier_scenarios, function(barrier_scenario) {
+      list(habitat = habitat_baseline, barrier = barrier_scenario)
+    })
   )
 
   warn_unchanged_scenarios(
@@ -215,18 +219,22 @@ warn_unchanged_scenarios <- function(
   barrier_baseline
 ) {
   unchanged <- c(
-    purrr::map_lgl(habitat_scenarios, \(x) !layers_differ(x, habitat_baseline)),
-    purrr::map_lgl(barrier_scenarios, \(x) !layers_differ(x, barrier_baseline))
-  )
-
-  if (!any(unchanged)) {
-    return(invisible(NULL))
-  }
-
-  cli::cli_warn(
-    c(
-      "Scenarios identical to the baseline: {.val {names(unchanged)[unchanged]}}.",
-      "i" = "Every {.field change} value will be zero for them."
+    purrr::map_lgl(
+      habitat_scenarios,
+      \(x) !layers_differ(x, habitat_baseline)
+    ),
+    purrr::map_lgl(
+      barrier_scenarios,
+      \(x) !layers_differ(x, barrier_baseline)
     )
   )
+
+  if (any(unchanged)) {
+    cli::cli_warn(
+      c(
+        "Scenarios identical to the baseline: {.val {names(unchanged)[unchanged]}}.",
+        "i" = "Every {.field change} value will be zero for them."
+      )
+    )
+  }
 }

@@ -84,8 +84,8 @@ compare_connectivity <- function(scenario, baseline, scenario_name = NULL) {
 
   # Each row's metrics use the baseline's total area as the shared reference
   # denominator, which makes `change` a valid apples-to-apples delta. The rows
-  # are kept at full precision so the subtraction below is exact; rounding is a
-  # display concern, handled in print.compare_connectivity().
+  # are kept at full precision so the subtraction below is exact, and rounding
+  # is left to `round_by()` when they are shown.
   baseline_row <- connectivity_metric_row(
     area = base_area,
     area_baseline = base_area
@@ -174,14 +174,141 @@ new_compare_connectivity <- function(x) {
   x
 }
 
+#' Summarise a comparison for reading
+#'
+#' A `compare_connectivity` object has a column per metric, so printed in the
+#'   console it hides the metrics that don't fit. `summary()` turns it round:
+#'   one row per metric, with the baseline, the scenario, the change and the
+#'   per cent change side by side, rounded as [connectivity_display()]
+#'   describes.
+#'
+#' @param object A `compare_connectivity` object, from [compare_connectivity()],
+#'   [compare_scenarios()], [habitat_connectivity_comparison()] or
+#'   [habitat_connectivity_scenarios()].
+#' @param ... Not used. Must be empty.
+#'
+#' @returns A `summary_compare_connectivity` object: a tibble with one row per
+#'   metric for each scenario and interpatch distance. Its columns are
+#'   `Scenario` (only when a scenario is named), `Distance (m)`, `Metric`,
+#'   `Baseline`, `Scenario value`, `Change` and `% change`. The values are
+#'   rounded but stay numeric, so they can be filtered, sorted or plotted.
+#'
+#'   It prints one table per scenario and interpatch distance, each under a
+#'   line naming the scenario and a line giving the distance, with the
+#'   scenarios in the order given and then by distance. An unnamed scenario
+#'   has the distance line only. Since the heading names the scenario, the
+#'   printed table heads its values "Scenario" rather than "Scenario value".
+#' @seealso [compare_connectivity()], and `round_by(connectivity_display(x))`,
+#'   which gives the same table as a plain tibble.
 #' @export
-print.compare_connectivity <- function(x, ..., width = Inf) {
-  cat("# Connectivity comparison: baseline / scenario / change / pct_change\n")
-  # print as a plain tibble with every column visible (as_tibble drops the
-  # compare_connectivity class, avoiding infinite recursion). `width` is named
-  # rather than left to `...`, so passing one isn't matched twice.
-  print(tibble::as_tibble(x), width = width, ...)
-  cat("# change = scenario - baseline (positive = scenario is higher)\n")
-  cat("# pct_change = 100 * change / baseline\n")
+#'
+#' @examples
+#' baseline <- summarise_connectivity(lizard_areas_connected)
+#' # a scenario in which five connected patches (the first five rows) are lost
+#' scenario <- summarise_connectivity(lizard_areas_connected[-(1:5), ])
+#'
+#' comparison <- compare_connectivity(
+#'   scenario = scenario,
+#'   baseline = baseline,
+#'   scenario_name = "Bentley Project"
+#' )
+#'
+#' comparison_summary <- summary(comparison)
+#' comparison_summary
+#'
+#' # the values are still numbers
+#' comparison_summary[["% change"]]
+summary.compare_connectivity <- function(object, ...) {
+  rlang::check_dots_empty()
+
+  rounded <- round_by(connectivity_display(object))
+
+  tibble::new_tibble(rounded, class = "summary_compare_connectivity")
+}
+
+#' @export
+print.summary_compare_connectivity <- function(x, ...) {
+  spec <- connectivity_columns()
+  scenario_column <- display_labels("scenario_name", spec)
+  distance_column <- display_labels("interpatch_distance", spec)
+
+  ids <- intersect(c(scenario_column, distance_column), names(x))
+  values <- setdiff(names(x), ids)
+
+  # `[` and dplyr verbs keep the class, so a summary cut down past what a
+  # table needs prints as the tibble it has become
+  tabulable <- nrow(x) > 0 &&
+    distance_column %in% ids &&
+    length(values) > 0
+
+  if (!tabulable) {
+    return(NextMethod())
+  }
+
+  plain <- tibble::as_tibble(x)
+
+  # each heading names its scenario, so in the table its values are just
+  # "Scenario" rather than "Scenario value"
+  short_label <- rlang::set_names(
+    display_labels("scenario", spec),
+    scenario_column
+  )
+  shown <- dplyr::rename(plain[values], dplyr::any_of(short_label))
+
+  tables <- vctrs::vec_split(
+    x = shown,
+    by = plain[ids]
+  )
+
+  # connectivity_display() drops the column when no scenario is named
+  scenario_names <- tables$key[[scenario_column]] %||% NA_character_
+  distance <- tables$key[[distance_column]]
+  # an unnamed scenario's line is NA, and is dropped: there is nothing to name
+  scenario_lines <- glue::glue(
+    "{cli::style_bold('Scenario:')} {scenario_names}",
+    .na = NULL
+  )
+  distance_lines <- glue::glue(
+    "{cli::style_bold('Interpatch distance:')} {distance} m"
+  )
+  headings <- purrr::map2(
+    scenario_lines,
+    distance_lines,
+    \(scenario, distance) purrr::discard(c(scenario, distance), is.na)
+  )
+
+  sections <- purrr::map2(
+    headings,
+    tables$val,
+    \(heading, table) c(heading, summary_table_lines(table))
+  )
+
+  lines <- purrr::reduce(sections, \(above, below) c(above, "", below))
+  cli::cat_line(lines)
+
   invisible(x)
+}
+
+#' One summary table as lines of text, numbers right-aligned
+#'
+#' Each value is formatted on its own, as [format_by()] does, so a tiny change
+#' in one row doesn't put the whole column into scientific notation. The
+#' header row is bold, as a tibble's is.
+#'
+#' @noRd
+summary_table_lines <- function(table) {
+  numeric <- names(table)[purrr::map_lgl(table, is.numeric)]
+  formatted <- format_columns(table, numeric)
+
+  columns <- purrr::imap(
+    formatted,
+    function(values, heading) {
+      justify <- if (heading %in% numeric) "right" else "left"
+      format(c(heading, values), justify = justify)
+    }
+  )
+
+  rows <- purrr::reduce(columns, paste)
+  header <- cli::style_bold(rows[1])
+  glue::glue("  {c(header, rows[-1])}")
 }

@@ -13,8 +13,7 @@ test_report_data <- function(
     barrier = layers$barrier,
     species = "Superb Fairy Wren",
     interpatch_distance = interpatch_distance,
-    scenario = if (with_scenario) layers$habitat_scenario,
-    scenario_kind = if (with_scenario) "habitat",
+    habitat_scenario = if (with_scenario) layers$habitat_scenario,
     verbose = FALSE,
     ...
   )
