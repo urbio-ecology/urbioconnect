@@ -237,6 +237,32 @@ test_that("plot_patches draws the barrier, and shades each patch's zone", {
   )
 })
 
+test_that("plot_patches finds zones with the analysis's directions", {
+  # the buffer's second cell touches the habitat only at a corner
+  habitat <- terra::rast(
+    nrows = 2,
+    ncols = 2,
+    extent = terra::ext(0, 20, 0, 20),
+    crs = "EPSG:28355",
+    vals = c(1, NA, NA, NA)
+  )
+  buffered <- terra::rast(habitat, vals = c(1, NA, NA, 1))
+  barrier <- terra::rast(habitat, vals = 0)
+  patch_id <- assign_patches_to_fragments(habitat, buffered, directions = 8) |>
+    add_patch_area()
+  queen <- plot_patches(
+    patch_id,
+    0,
+    barrier = barrier,
+    buffered = buffered,
+    directions = 8
+  )
+  rook <- plot_patches(patch_id, 0, barrier = barrier, buffered = buffered)
+
+  expect_equal(sum(!is.na(ggplot2::layer_data(queen)$fill)), 2)
+  expect_equal(sum(!is.na(ggplot2::layer_data(rook)$fill)), 1)
+})
+
 test_that("plot_patches needs the barrier to draw the zone", {
   expect_snapshot(
     plot_patches(patch_id_raster, interpatch_dist, buffered = buffered),

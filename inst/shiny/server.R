@@ -515,7 +515,8 @@ server <- function(input, output, session) {
               barrier = results$barrier_raster,
               buffered = results$buffered_habitat[[as.character(
                 my_interpatch_distance
-              )]]
+              )]],
+              directions = results$report_data$directions
             )
           })
         })

@@ -29,6 +29,7 @@
 #' @param interpatch_distance Numeric. The distance (in metres) at which habitat
 #'   patches are considered connected. May be a scalar or a vector; a vector
 #'   runs the comparison once per distance. See [habitat_connectivity()].
+#' @inheritParams habitat_connectivity
 #' @param scenario_name Character. An optional label for the scenario, for
 #'   example "Bentley Project". Passed to [compare_connectivity()], and appears
 #'   in the `scenario_name` column on every row. Defaults to `NULL`, which
@@ -62,11 +63,13 @@ habitat_connectivity_comparison <- function(
   barrier_baseline,
   species,
   interpatch_distance,
+  directions = 4,
   scenario_name = NULL,
   verbose = TRUE
 ) {
   check_scenario_name(scenario_name)
   check_distances(interpatch_distance)
+  check_directions(directions)
 
   # Before anything is computed: layers on different grids compare as a change
   # of place, and the result looks like an answer.
@@ -110,6 +113,7 @@ habitat_connectivity_comparison <- function(
       barrier_baseline,
       species,
       distance,
+      directions,
       verbose
     )
     # identical layers give an identical result, so don't run the pipeline
@@ -122,6 +126,7 @@ habitat_connectivity_comparison <- function(
         barrier_scenario,
         species,
         distance,
+        directions,
         verbose
       )
     }

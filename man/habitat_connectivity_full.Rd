@@ -8,6 +8,7 @@ habitat_connectivity_full(
   habitat,
   barrier,
   interpatch_distance,
+  directions = 4,
   verbose = TRUE
 )
 }
@@ -27,6 +28,12 @@ distance of 500 will be converted to 250. For the buffer to be
 representable on the raster, keep \code{resolution <= interpatch_distance / 2};
 below that the buffer is a no-op and a warning is raised. See
 \code{vignette("interpatch-distance-and-resolution")}.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }

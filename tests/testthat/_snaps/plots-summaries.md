@@ -45,10 +45,10 @@
       3      NA       1        1       grey55    grey55
       4      NA       0        1         <NA>      <NA>
       5      NA       1       NA       grey55    grey55
-      6      NA       0        1         <NA>   #BFE476
-      7       1       0        1      #799D00   #799D00
-      8      NA       0        1         <NA>   #BFE476
-      9      NA       0        1         <NA>   #BFE476
+      6      NA       0        1         <NA>   #FFCE9A
+      7       1       0        1      #C18500   #C18500
+      8      NA       0        1         <NA>   #FFCE9A
+      9      NA       0        1         <NA>   #FFCE9A
 
 # plot_patches needs the barrier to draw the zone
 

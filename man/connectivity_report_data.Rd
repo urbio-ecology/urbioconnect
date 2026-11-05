@@ -9,6 +9,7 @@ connectivity_report_data(
   barrier,
   species,
   interpatch_distance,
+  directions = 4,
   scenario = NULL,
   scenario_kind = NULL,
   scenario_name = NULL,
@@ -26,6 +27,12 @@ connectivity_report_data(
 \item{interpatch_distance}{Numeric. The distance (in metres) at which
 habitat patches are considered connected. May be a scalar or a vector; a
 vector runs the pipeline once per distance.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 
 \item{scenario}{Optional layer to compare against the baseline: an \code{sf},
 \code{SpatVector} or \code{SpatRaster} standing in for one of \code{habitat} and
@@ -57,7 +64,7 @@ A \code{connectivity_report_data} object: a list of
 \item \code{habitat} and \code{barrier}, the layers as supplied
 \item \code{buffered_habitat} and \code{patch_id_raster}, lists of \code{SpatRaster}, one per
 distance and named by it
-\item \code{species} and \code{interpatch_distance}
+\item \code{species}, \code{interpatch_distance} and \code{directions}
 \item \code{settings}, the named character vector the caller recorded, and
 \code{run_time}, when the analysis ran. \code{\link[=connectivity_settings]{connectivity_settings()}} turns the
 two into the settings record.

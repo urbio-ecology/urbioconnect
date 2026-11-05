@@ -273,7 +273,9 @@ fragment_habitat <- function(buffered_habitat, barrier_mask) {
 #'
 #' @param remaining_habitat Terra SpatRaster. Remaining habitat.
 #' @param fragment Terra SpatRaster. Fragment geometry.
-#' @returns Terra SpatRaster with patch IDs.
+#' @inheritParams habitat_connectivity
+#' @returns Terra SpatRaster with patch IDs, numbered from 1 to the number of
+#'   patches with no gaps.
 #' @export
 #' @examples
 #' lizard_habitat <- example_habitat()
@@ -291,11 +293,22 @@ fragment_habitat <- function(buffered_habitat, barrier_mask) {
 #'   )
 #' library(terra)
 #' plot(fragment_patches)
-assign_patches_to_fragments <- function(remaining_habitat, fragment) {
-  patch_id_raster <- terra::patches(fragment)
+assign_patches_to_fragments <- function(
+  remaining_habitat,
+  fragment,
+  directions = 4
+) {
+  check_directions(directions)
+
+  patch_id_raster <- terra::patches(fragment, directions = directions)
   patch_id_raster <- align_to(patch_id_raster, remaining_habitat)
   patch_id_raster <- remaining_habitat * patch_id_raster
-  patch_id_raster
+  # terra::patches() and the mask above both leave gaps in the ids
+  ids <- patch_id_raster |>
+    terra::unique() |>
+    purrr::pluck(1) |>
+    sort()
+  terra::subst(patch_id_raster, from = ids, to = seq_along(ids))
 }
 
 #' Add patch area layer
@@ -384,6 +397,15 @@ aggregate_connected_patches <- function(raster) {
 #'   * [assign_patches_to_fragments()]: Assign patch ID to fragments.
 #'   * [aggregate_connected_patches()]: Summarise area in each patch.
 #'
+#' @details
+#' By default, patches join through shared edges only (rook's case,
+#' `directions = 4`): two buffered cells that touch only at a corner stay in
+#' separate patches. This is the more conservative choice. `directions = 8`
+#' (queen's case) joins them. The buffer is drawn in whole cells, so whether
+#' two buffers share an edge or only a corner can depend on the cell size, and
+#' the same landscape can count more patches on a coarser grid. See
+#' `vignette("interpatch-distance-and-resolution")`.
+#'
 #' @param habitat Terra SpatRaster. Habitat raster. Habitat is any cell that is
 #'   neither `NA` nor `0`.
 #' @param barrier Terra SpatRaster. Barrier raster.
@@ -398,6 +420,11 @@ aggregate_connected_patches <- function(raster) {
 #'   representable on the raster, keep `resolution <= interpatch_distance / 2`;
 #'   below that the buffer is a no-op and a warning is raised. See
 #'   `vignette("interpatch-distance-and-resolution")`.
+#' @param directions Which neighbouring raster cells join into one patch,
+#'   passed to [terra::patches()]. `4`, the default, is the rook's case: cells
+#'   join only through a shared edge. `8` is the queen's case: cells that
+#'   touch only at a corner join as well. It applies to rasters only, not to
+#'   [sf_habitat_connectivity()].
 #' @param verbose Logical. Display progress messages (default: TRUE).
 #' @returns A `connectivity` object (one row): a tibble of landscape-level
 #'  connectivity metrics (patch count, effective mesh size, probability of
@@ -422,19 +449,44 @@ aggregate_connected_patches <- function(raster) {
 #' # get the patch size:
 #' patch_sizes(connectivity)[[1]]
 #'
+#' # patches join only through a shared edge, like two rooks side by side.
+#' # An interpatch distance of 0 buffers nothing, so only touching cells join
+#' side_by_side <- rbind(c(1, 1), c(NA, NA))
+#' corner_to_corner <- rbind(c(1, NA), c(NA, 1))
+#' n_patches_of <- function(cells, directions = 4) {
+#'   habitat <- terra::rast(cells, crs = "local")
+#'   connectivity <- habitat_connectivity(
+#'     habitat = habitat,
+#'     barrier = terra::rast(habitat, vals = NA),
+#'     species = "demo",
+#'     interpatch_distance = 0,
+#'     directions = directions,
+#'     verbose = FALSE
+#'   )
+#'   connectivity$n_patches
+#' }
+#' n_patches_of(side_by_side)
+#' n_patches_of(corner_to_corner)
+#'
+#' # the queen's case joins cells that touch only at a corner
+#' n_patches_of(corner_to_corner, directions = 8)
 habitat_connectivity <- function(
   habitat,
   barrier,
   species,
   interpatch_distance,
+  directions = 4,
   verbose = TRUE
 ) {
+  check_directions(directions)
   buffer_radius <- buffer_radius_from(interpatch_distance)
+
   if (verbose) {
     habitat_connectivity <- .habitat_connectivity(
       habitat,
       barrier,
-      buffer_radius = buffer_radius
+      buffer_radius = buffer_radius,
+      directions = directions
     )
   } else {
     quiet_habitat_connectivity <- purrr::quietly(
@@ -443,7 +495,8 @@ habitat_connectivity <- function(
     habitat_connectivity <- quiet_habitat_connectivity(
       habitat,
       barrier,
-      buffer_radius
+      buffer_radius,
+      directions
     )$result
   }
 
@@ -461,7 +514,7 @@ habitat_connectivity <- function(
 
 #' @noRd
 #' @note internal
-.habitat_connectivity <- function(habitat, barrier, buffer_radius) {
+.habitat_connectivity <- function(habitat, barrier, buffer_radius, directions) {
   cli::cli_progress_step("Creating barrier mask")
   barrier_mask <- create_barrier_mask(barrier = barrier)
 
@@ -488,7 +541,8 @@ habitat_connectivity <- function(
   cli::cli_progress_step("Assigning patches ID to fragments")
   patch_id_raster <- assign_patches_to_fragments(
     remaining_habitat = remaining_habitat,
-    fragment = fragmentation_raster
+    fragment = fragmentation_raster,
+    directions = directions
   ) |>
     add_patch_area()
 
@@ -522,21 +576,29 @@ habitat_connectivity_full <- function(
   habitat,
   barrier,
   interpatch_distance,
+  directions = 4,
   verbose = TRUE
 ) {
+  check_directions(directions)
   buffer_radius <- buffer_radius_from(interpatch_distance)
+
   if (!verbose) {
     quiet_fun <- purrr::quietly(.habitat_connectivity_full)
-    res <- quiet_fun(habitat, barrier, buffer_radius)
+    res <- quiet_fun(habitat, barrier, buffer_radius, directions)
     return(res$result)
   }
 
-  .habitat_connectivity_full(habitat, barrier, buffer_radius)
+  .habitat_connectivity_full(habitat, barrier, buffer_radius, directions)
 }
 
 #' @noRd
 #' @note internal
-.habitat_connectivity_full <- function(habitat, barrier, buffer_radius) {
+.habitat_connectivity_full <- function(
+  habitat,
+  barrier,
+  buffer_radius,
+  directions
+) {
   cli::cli_progress_step("Creating barrier mask")
   barrier_mask <- create_barrier_mask(barrier = barrier)
 
@@ -563,7 +625,8 @@ habitat_connectivity_full <- function(
   cli::cli_progress_step("Assigning patches ID to fragments")
   patch_id_raster <- assign_patches_to_fragments(
     remaining_habitat = remaining_habitat,
-    fragment = fragmentation_raster
+    fragment = fragmentation_raster,
+    directions = directions
   ) |>
     add_patch_area()
 

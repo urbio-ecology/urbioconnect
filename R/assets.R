@@ -453,7 +453,8 @@ write_asset_plots <- function(x, dir) {
         interpatch_distance = distance,
         species = x$species,
         barrier = x$barrier,
-        buffered = x$buffered_habitat[[as.character(distance)]]
+        buffered = x$buffered_habitat[[as.character(distance)]],
+        directions = x$directions
       ) |>
         save_asset_plot(distance_file(dir, distance, "maps", "patches.png"))
     }

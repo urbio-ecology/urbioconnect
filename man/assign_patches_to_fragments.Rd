@@ -4,15 +4,22 @@
 \alias{assign_patches_to_fragments}
 \title{Assign patches to fragments}
 \usage{
-assign_patches_to_fragments(remaining_habitat, fragment)
+assign_patches_to_fragments(remaining_habitat, fragment, directions = 4)
 }
 \arguments{
 \item{remaining_habitat}{Terra SpatRaster. Remaining habitat.}
 
 \item{fragment}{Terra SpatRaster. Fragment geometry.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 }
 \value{
-Terra SpatRaster with patch IDs.
+Terra SpatRaster with patch IDs, numbered from 1 to the number of
+patches with no gaps.
 }
 \description{
 Assign patches to fragments
