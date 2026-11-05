@@ -79,6 +79,14 @@ test_that("the app starts, takes an analysis, and compares the result", {
   expect_true(visible("#scenario_file"))
   expect_true(visible("#scenario_kind"))
 
+  # the pictures beside the three layer uploads, the scenario's on show now
+  # that an upload is chosen. Each one loaded, is on show and has alt text: a
+  # broken one has no natural width, and a hidden one no width on the page.
+  pictures <- '$("img[src^=input-]").toArray()'
+  app$wait_for_js(paste0(pictures, ".every(img => img.complete)"))
+  shown <- ".filter(img => img.naturalWidth && img.offsetWidth && img.alt)"
+  expect_equal(app$get_js(paste0(pictures, shown, ".length")), 3)
+
   # every "i" is drawn, and one opens its text. The app's own files say how
   # many there should be.
   local_app_server()
