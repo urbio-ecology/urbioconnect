@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/interpatch-distance-and-resolution.html">Interpatch distance and raster resolution</a></li>
     <li><a class="dropdown-item" href="articles/raster-vs-vector.html">Using raster vs vector</a></li>
+    <li><a class="dropdown-item" href="articles/scenario-comparison.html">Comparing scenarios</a></li>
     <li><a class="dropdown-item" href="articles/targets-pipeline.html">Using urbioconnect in a targets pipeline</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -51,7 +52,7 @@
 <li>
 <code>inst/shiny/</code>: the Shiny app, started with <code><a href="reference/run_connectivity_app.html">run_connectivity_app()</a></code>. It is a legacy-layout shiny app: <code>global.R</code>, then <code>ui.R</code> and <code>server.R</code>, all sourced by shiny itself. <code>global.R</code> is the one place packages are attached, and it sources <code>colours.R</code> and <code>help.R</code>. <code>help.R</code> holds the plain-language explanation of every input, so write that text there and nowhere else. Don’t add an <code>app.R</code>: shiny checks for <code>server.R</code> first, so an <code>app.R</code> here is never read. Only change UI and server code in <code>inst/shiny/ui.R</code> and <code>inst/shiny/server.R</code>.</li>
 <li>
-<code>inst/non-targets-workflow.R</code> and <code>inst/scenario-workflow.R</code>: example workflows.</li>
+<code>inst/non-targets-workflow.R</code>: an example workflow. Scenario comparison is in <code><a href="articles/scenario-comparison.html">vignette("scenario-comparison")</a></code>.</li>
 <li>
 <code>_dev/</code>: working notes, never committed (excluded in <code>.git/info/exclude</code>, build-ignored). <code>todos/pending</code> and <code>todos/done</code> hold tracking docs; <code>drafts/</code> holds issue, PR and comment drafts; <code>specs/</code> holds specs, plans and reviews; <code>explore/</code> holds reprexes, research write-ups, figures and benchmarks; <code>scripts/</code> holds deploy scripts.</li>
 </ul></div>

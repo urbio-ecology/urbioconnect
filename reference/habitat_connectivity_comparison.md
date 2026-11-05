@@ -3,43 +3,35 @@
 Starts from habitat and barrier layers, rather than the `connectivity`
 objects
 [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
-takes. Give it a scenario habitat/barrier pair and a baseline
-habitat/barrier pair and it runs the full connectivity pipeline on each
-(via
+takes. Give it the baseline's habitat and barrier, and the layers a
+planned change replaces, and it runs the full connectivity pipeline (via
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md))
-and compares them. `interpatch_distance` may be a vector, in which case
-the comparison is run once per distance and the per-distance results are
-stacked.
+on the baseline and on the scenario and compares them.
+`interpatch_distance` may be a vector, in which case the comparison is
+run once per distance and the per-distance results are stacked.
 
 ## Usage
 
 ``` r
 habitat_connectivity_comparison(
-  habitat_scenario,
-  barrier_scenario,
   habitat_baseline,
   barrier_baseline,
   species,
   interpatch_distance,
-  directions = 4,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
+  directions = 4,
   verbose = TRUE
 )
 ```
 
 ## Arguments
 
-- habitat_scenario:
-
-  Terra SpatRaster. The scenario habitat layer.
-
-- barrier_scenario:
-
-  Terra SpatRaster. The scenario barrier layer.
-
 - habitat_baseline:
 
-  Terra SpatRaster. The baseline habitat layer.
+  Terra SpatRaster. The baseline habitat layer: the landscape as it is
+  today.
 
 - barrier_baseline:
 
@@ -56,14 +48,15 @@ habitat_connectivity_comparison(
   comparison once per distance. See
   [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
 
-- directions:
+- habitat_scenario:
 
-  Which neighbouring raster cells join into one patch, passed to
-  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
-  `4`, the default, is the rook's case: cells join only through a shared
-  edge. `8` is the queen's case: cells that touch only at a corner join
-  as well. It applies to rasters only, not to
-  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
+  Terra SpatRaster, or `NULL`. The whole habitat layer after the planned
+  change, on the same grid as `habitat_baseline`.
+
+- barrier_scenario:
+
+  Terra SpatRaster, or `NULL`. The whole barrier layer after the planned
+  change, on the same grid as `barrier_baseline`.
 
 - scenario_name:
 
@@ -72,6 +65,15 @@ habitat_connectivity_comparison(
   [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md),
   and appears in the `scenario_name` column on every row. Defaults to
   `NULL`, which gives `NA`.
+
+- directions:
+
+  Which neighbouring raster cells join into one patch, passed to
+  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
+  `4`, the default, is the rook's case: cells join only through a shared
+  edge. `8` is the queen's case: cells that touch only at a corner join
+  as well. It applies to rasters only, not to
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
 
 - verbose:
 
@@ -88,57 +90,64 @@ for the columns.
 
 ## Details
 
-Change exactly one layer between baseline and scenario so the difference
-is attributable to a single variable. To assess a barrier change, pass
-the same habitat to both `habitat_baseline` and `habitat_scenario`; to
-assess a habitat change, pass the same barrier to both
-`barrier_baseline` and `barrier_scenario`. If both the habitat *and* the
-barrier differ the function aborts; if neither differs it warns (the
-scenario equals the baseline, so every `change` value is zero).
+A scenario is the landscape after a planned change. Give the layers the
+plan changes, and the function takes the rest from the baseline:
 
-Note that this runs the full connectivity pipeline
+|                    |                        |                        |
+|--------------------|------------------------|------------------------|
+| You give           | The scenario's habitat | The scenario's barrier |
+| `habitat_scenario` | `habitat_scenario`     | `barrier_baseline`     |
+| `barrier_scenario` | `habitat_baseline`     | `barrier_scenario`     |
+| both               | `habitat_scenario`     | `barrier_scenario`     |
+
+Each layer you give must be the whole layer after the change, not just
+the part that changes: a barrier scenario holding only a new road drops
+every existing road. If you give both, the comparison shows their
+combined effect, not how much came from each; to see each one's share,
+run it again with one layer at a time. The shares won't add up exactly,
+because changes interact: a new road beside new habitat matters more
+than either alone.
+
+A scenario layer must be on the same grid as the layer it replaces, or
+this gives an error: put it there with
+[`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md).
+A scenario identical to the baseline gives a warning, since every
+`change` value will be zero.
+
+This runs the full connectivity pipeline
 `2 * length(interpatch_distance)` times (buffering is the slow step), so
 a long vector of distances will take proportionally longer.
 
 ## See also
 
+[`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+for several scenarios at once,
 [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md),
-[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
+and
+[`vignette("scenario-comparison")`](https://urbio-ecology.github.io/urbioconnect/articles/scenario-comparison.md).
 
 ## Examples
 
 ``` r
 # \donttest{
+# a scenario that changes the barrier: the habitat stays as it is today
 habitat_connectivity_comparison(
-  habitat_scenario = example_wren_habitat(),
-  barrier_scenario = example_wren_barrier_scenario(),
   habitat_baseline = example_wren_habitat(),
   barrier_baseline = example_wren_barrier(),
   species = "Superb Fairy Wren",
   interpatch_distance = 200,
+  barrier_scenario = example_wren_barrier_scenario(),
   verbose = FALSE
 )
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 4 × 10
-#>   scenario_name measure    species           interpatch_distance n_patches
-#>   <chr>         <chr>      <chr>                           <dbl>     <dbl>
-#> 1 NA            baseline   Superb Fairy Wren                 200   282    
-#> 2 NA            scenario   Superb Fairy Wren                 200   283    
-#> 3 NA            change     Superb Fairy Wren                 200     1    
-#> 4 NA            pct_change Superb Fairy Wren                 200     0.355
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1           334.              0.225           52556.               1482.  
-#> 2           333.              0.224           51828.               1467.  
-#> 3            -0.965          -0.000651         -728.                -15.3 
-#> 4            -0.289          -0.289              -1.38               -1.04
-#>   data_resolution 
-#>   <chr>           
-#> 1 9.99673x10.00151
-#> 2 9.99673x10.00151
-#> 3 9.99673x10.00151
-#> 4 9.99673x10.00151
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 NA            baseline Superb…                 200   282               334.   
+#> 2 NA            scenario Superb…                 200   283               333.   
+#> 3 NA            change   Superb…                 200     1                -0.965
+#> 4 NA            pct_cha… Superb…                 200     0.355            -0.289
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 # }
 ```

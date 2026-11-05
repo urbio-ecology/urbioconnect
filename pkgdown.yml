@@ -4,9 +4,10 @@ pkgdown_sha: ~
 articles:
   interpatch-distance-and-resolution: interpatch-distance-and-resolution.html
   raster-vs-vector: raster-vs-vector.html
+  scenario-comparison: scenario-comparison.html
   targets-pipeline: targets-pipeline.html
   urbioconnect: urbioconnect.html
-last_built: 2026-11-05T03:41Z
+last_built: 2026-11-05T05:43Z
 urls:
   reference: https://urbio-ecology.github.io/urbioconnect/reference
   article: https://urbio-ecology.github.io/urbioconnect/articles

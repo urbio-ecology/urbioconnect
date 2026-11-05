@@ -24,7 +24,8 @@ effective_mesh_size(area, area_baseline = area)
   Optional. Defaults to `area` if not specified. Numeric vector of the
   baseline's connected patch areas, in square metres. This is to allow
   for comparing the effective mesh size when comparing different
-  scenarios.
+  scenarios. See
+  [`vignette("scenario-comparison")`](https://urbio-ecology.github.io/urbioconnect/articles/scenario-comparison.md).
 
 ## Value
 

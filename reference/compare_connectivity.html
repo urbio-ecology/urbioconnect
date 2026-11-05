@@ -35,6 +35,7 @@ summarise_connectivity()).'></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/interpatch-distance-and-resolution.html">Interpatch distance and raster resolution</a></li>
     <li><a class="dropdown-item" href="../articles/raster-vs-vector.html">Using raster vs vector</a></li>
+    <li><a class="dropdown-item" href="../articles/scenario-comparison.html">Comparing scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/targets-pipeline.html">Using urbioconnect in a targets pipeline</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -127,28 +128,15 @@ barrier layers instead of <code>connectivity</code> objects,
 <span class="r-in"><span><span class="co"># a scenario in which one connected patch (the first row) is lost</span></span></span>
 <span class="r-in"><span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="summarise-connectivity.html">summarise_connectivity</a></span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">compare_connectivity</span><span class="op">(</span>scenario <span class="op">=</span> <span class="va">scenario</span>, baseline <span class="op">=</span> <span class="va">baseline</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # Connectivity comparison: baseline / scenario / change / pct_change</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name measure    species             interpatch_distance n_patches</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>            baseline   Blue-tongued Lizard                  50     73   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>            scenario   Blue-tongued Lizard                  50     72   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #BB0000;">NA</span>            change     Blue-tongued Lizard                  50     -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>            pct_change Blue-tongued Lizard                  50     -<span style="color: #BB0000;">1.37</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>         4.47             0.170               <span style="text-decoration: underline;">3</span>600.               26.3   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>         4.47             0.170               <span style="text-decoration: underline;">3</span>648.               26.3   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span>       -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">000</span><span style="color: #BB0000;">428</span>           47.6              -<span style="color: #BB0000;">0.017</span><span style="color: #BB0000; text-decoration: underline;">2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span>               1.32             -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   data_resolution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # change = scenario - baseline (positive = scenario is higher)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # pct_change = 100 * change / baseline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>            baseline Blue-t…                  50     73            4.47     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>            scenario Blue-t…                  50     72            4.47     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #BB0000;">NA</span>            change   Blue-t…                  50     -<span style="color: #BB0000;">1</span>           -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>            pct_cha… Blue-t…                  50     -<span style="color: #BB0000;">1.37</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># label the scenario so it can be told apart from others</span></span></span>
 <span class="r-in"><span><span class="fu">compare_connectivity</span><span class="op">(</span></span></span>
@@ -156,28 +144,15 @@ barrier layers instead of <code>connectivity</code> objects,
 <span class="r-in"><span>  baseline <span class="op">=</span> <span class="va">baseline</span>,</span></span>
 <span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"Bentley Project"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # Connectivity comparison: baseline / scenario / change / pct_change</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name   measure    species             interpatch_distance n_patches</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Bentley Project baseline   Blue-tongued Lizard                  50     73   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Bentley Project scenario   Blue-tongued Lizard                  50     72   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Bentley Project change     Blue-tongued Lizard                  50     -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Bentley Project pct_change Blue-tongued Lizard                  50     -<span style="color: #BB0000;">1.37</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>         4.47             0.170               <span style="text-decoration: underline;">3</span>600.               26.3   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>         4.47             0.170               <span style="text-decoration: underline;">3</span>648.               26.3   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span>       -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">000</span><span style="color: #BB0000;">428</span>           47.6              -<span style="color: #BB0000;">0.017</span><span style="color: #BB0000; text-decoration: underline;">2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span>               1.32             -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   data_resolution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2x2            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # change = scenario - baseline (positive = scenario is higher)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # pct_change = 100 * change / baseline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Bentley Proje… baseli… Blue-t…                  50     73            4.47     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Bentley Proje… scenar… Blue-t…                  50     72            4.47     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Bentley Proje… change  Blue-t…                  50     -<span style="color: #BB0000;">1</span>           -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Bentley Proje… pct_ch… Blue-t…                  50     -<span style="color: #BB0000;">1.37</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

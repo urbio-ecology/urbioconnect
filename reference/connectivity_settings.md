@@ -76,7 +76,7 @@ connectivity_settings(report_data)
 #>  9 crs_code              EPSG:28355              
 #> 10 scenario_kind         none                    
 #> 11 scenario_name         NA                      
-#> 12 run_time              2026-11-05T03:45:11+0000
+#> 12 run_time              2026-11-05T05:48:19+0000
 #> 13 urbioconnect_version  0.1.0.9000              
 #> 14 terra_version         1.9.50                  
 #> 15 r_version             4.6.2                   

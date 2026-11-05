@@ -66,40 +66,19 @@ compare_scenarios(
     )
   )
 )
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 8 × 10
-#>   scenario_name   measure    species             interpatch_distance n_patches
-#>   <chr>           <chr>      <chr>                             <dbl>     <dbl>
-#> 1 Bentley Project baseline   Blue-tongued Lizard                  50     73   
-#> 2 Bentley Project scenario   Blue-tongued Lizard                  50     72   
-#> 3 Bentley Project change     Blue-tongued Lizard                  50     -1   
-#> 4 Bentley Project pct_change Blue-tongued Lizard                  50     -1.37
-#> 5 Barrier upgrade baseline   Blue-tongued Lizard                  50     73   
-#> 6 Barrier upgrade scenario   Blue-tongued Lizard                  50     68   
-#> 7 Barrier upgrade change     Blue-tongued Lizard                  50     -5   
-#> 8 Barrier upgrade pct_change Blue-tongued Lizard                  50     -6.85
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1         4.47             0.170               3600.               26.3   
-#> 2         4.47             0.170               3648.               26.3   
-#> 3        -0.0000113       -0.000000428           47.6              -0.0172
-#> 4        -0.000252        -0.000252               1.32             -0.0654
-#> 5         4.47             0.170               3600.               26.3   
-#> 6         0.815            0.0310              2343.               15.9   
-#> 7        -3.66            -0.139              -1257.              -10.3   
-#> 8       -81.8            -81.8                  -34.9             -39.4   
-#>   data_resolution
-#>   <chr>          
-#> 1 2x2            
-#> 2 2x2            
-#> 3 2x2            
-#> 4 2x2            
-#> 5 2x2            
-#> 6 2x2            
-#> 7 2x2            
-#> 8 2x2            
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>          <chr>   <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 Bentley Proje… baseli… Blue-t…                  50     73            4.47     
+#> 2 Bentley Proje… scenar… Blue-t…                  50     72            4.47     
+#> 3 Bentley Proje… change  Blue-t…                  50     -1           -0.0000113
+#> 4 Bentley Proje… pct_ch… Blue-t…                  50     -1.37        -0.000252 
+#> 5 Barrier upgra… baseli… Blue-t…                  50     73            4.47     
+#> 6 Barrier upgra… scenar… Blue-t…                  50     68            0.815    
+#> 7 Barrier upgra… change  Blue-t…                  50     -5           -3.66     
+#> 8 Barrier upgra… pct_ch… Blue-t…                  50     -6.85       -81.8      
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 
 # \donttest{
 # starting from layers: build a `connectivity` object for each first
@@ -126,27 +105,14 @@ compare_scenarios(
   baseline = wren_baseline,
   scenarios = list("Bentley Project" = bentley_project)
 )
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 4 × 10
-#>   scenario_name   measure    species           interpatch_distance n_patches
-#>   <chr>           <chr>      <chr>                           <dbl>     <dbl>
-#> 1 Bentley Project baseline   Superb Fairy Wren                 200    282   
-#> 2 Bentley Project scenario   Superb Fairy Wren                 200    267   
-#> 3 Bentley Project change     Superb Fairy Wren                 200    -15   
-#> 4 Bentley Project pct_change Superb Fairy Wren                 200     -5.32
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1             334.              0.225          52556.               1482. 
-#> 2             280.              0.189          45903.               1226. 
-#> 3             -53.6            -0.0362         -6653.               -256. 
-#> 4             -16.1           -16.1              -12.7               -17.3
-#>   data_resolution 
-#>   <chr>           
-#> 1 9.99673x10.00151
-#> 2 9.99673x10.00151
-#> 3 9.99673x10.00151
-#> 4 9.99673x10.00151
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>          <chr>   <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 Bentley Proje… baseli… Superb…                 200    282                334. 
+#> 2 Bentley Proje… scenar… Superb…                 200    267                280. 
+#> 3 Bentley Proje… change  Superb…                 200    -15                -53.6
+#> 4 Bentley Proje… pct_ch… Superb…                 200     -5.32             -16.1
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 # }
 ```

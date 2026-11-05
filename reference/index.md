@@ -8,6 +8,8 @@
   : Summarise connectivity metrics
 - [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
   : Compare the connectivity of two scenarios
+- [`summary(`*`<compare_connectivity>`*`)`](https://urbio-ecology.github.io/urbioconnect/reference/summary.compare_connectivity.md)
+  : Summarise a comparison for reading
 - [`compare_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_scenarios.md)
   : Compare several scenarios against one baseline
 - [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)

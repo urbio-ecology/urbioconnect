@@ -15,11 +15,11 @@ connectivity_report_data(
   barrier,
   species,
   interpatch_distance,
-  directions = 4,
-  scenario = NULL,
-  scenario_kind = NULL,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
   settings = NULL,
+  directions = 4,
   verbose = TRUE
 )
 ```
@@ -44,30 +44,17 @@ connectivity_report_data(
   considered connected. May be a scalar or a vector; a vector runs the
   pipeline once per distance.
 
-- directions:
+- habitat_scenario, barrier_scenario:
 
-  Which neighbouring raster cells join into one patch, passed to
-  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
-  `4`, the default, is the rook's case: cells join only through a shared
-  edge. `8` is the queen's case: cells that touch only at a corner join
-  as well. It applies to rasters only, not to
-  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
-
-- scenario:
-
-  Optional layer to compare against the baseline: an `sf`, `SpatVector`
-  or `SpatRaster` standing in for one of `habitat` and `barrier`. It is
-  put on the baseline's own grid with
+  Optional. The whole habitat or barrier layer after a planned change,
+  as an `sf`, `SpatVector` or `SpatRaster`: give one, not both. It is
+  put on the grid of the layer it replaces with
   [`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md),
   so it does not have to arrive on one. Supplying it runs the pipeline a
   second time, on the scenario landscape, and fills the `scenario_*`
-  fields and `comparison` below.
-
-- scenario_kind:
-
-  Which layer `scenario` replaces, `"habitat"` or `"barrier"`. Required
-  with `scenario`. Only one layer may change at a time, so that the
-  difference in connectivity is attributable to it.
+  fields and `comparison` below. To compare a plan that changes both
+  layers, use
+  [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md).
 
 - scenario_name:
 
@@ -85,6 +72,15 @@ connectivity_report_data(
   and of the download bundle's `summary/settings.csv`, with a vector
   written as one comma-separated value. Each needs a name of its own,
   not one the analysis records itself.
+
+- directions:
+
+  Which neighbouring raster cells join into one patch, passed to
+  [`terra::patches()`](https://rspatial.github.io/terra/reference/patches.html).
+  `4`, the default, is the rook's case: cells join only through a shared
+  edge. `8` is the queen's case: cells that touch only at a corner join
+  as well. It applies to rasters only, not to
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md).
 
 - verbose:
 
@@ -108,8 +104,8 @@ A `connectivity_report_data` object: a list of
   [`connectivity_settings()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_settings.md)
   turns the two into the settings record.
 
-and, when a `scenario` was given, the same view of the scenario
-landscape: `scenario_kind`, `scenario_habitat`, `scenario_barrier`,
+and, when a scenario was given, the same view of the scenario landscape:
+`scenario_kind`, `scenario_habitat`, `scenario_barrier`,
 `scenario_buffered_habitat`, and `comparison`. Without one these are all
 `NULL`.
 [`scenario_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.md)
@@ -120,7 +116,7 @@ returns whichever layer the scenario changed.
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
 when only the summary is wanted, and
 [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
-to compare two landscapes you have already assembled yourself.
+for a scenario that changes both layers.
 
 ## Examples
 
@@ -151,33 +147,19 @@ with_scenario <- connectivity_report_data(
   barrier = example_wren_barrier(),
   species = "Superb Fairy Wren",
   interpatch_distance = 200,
-  scenario = example_wren_barrier_scenario(),
-  scenario_kind = "barrier",
+  barrier_scenario = example_wren_barrier_scenario(),
   verbose = FALSE
 )
 
 with_scenario$comparison
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 4 × 10
-#>   scenario_name measure    species           interpatch_distance n_patches
-#>   <chr>         <chr>      <chr>                           <dbl>     <dbl>
-#> 1 NA            baseline   Superb Fairy Wren                 200   282    
-#> 2 NA            scenario   Superb Fairy Wren                 200   283    
-#> 3 NA            change     Superb Fairy Wren                 200     1    
-#> 4 NA            pct_change Superb Fairy Wren                 200     0.355
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1           334.              0.225           52556.               1482.  
-#> 2           333.              0.224           51828.               1467.  
-#> 3            -0.965          -0.000651         -728.                -15.3 
-#> 4            -0.289          -0.289              -1.38               -1.04
-#>   data_resolution 
-#>   <chr>           
-#> 1 9.99673x10.00151
-#> 2 9.99673x10.00151
-#> 3 9.99673x10.00151
-#> 4 9.99673x10.00151
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 NA            baseline Superb…                 200   282               334.   
+#> 2 NA            scenario Superb…                 200   283               333.   
+#> 3 NA            change   Superb…                 200     1                -0.965
+#> 4 NA            pct_cha… Superb…                 200     0.355            -0.289
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 # }
 ```

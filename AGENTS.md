@@ -18,8 +18,9 @@ ships a Shiny app, “Urban Connectedness”, to assist urban planning
   that text there and nowhere else. Don’t add an `app.R`: shiny checks
   for `server.R` first, so an `app.R` here is never read. Only change UI
   and server code in `inst/shiny/ui.R` and `inst/shiny/server.R`.
-- `inst/non-targets-workflow.R` and `inst/scenario-workflow.R`: example
-  workflows.
+- `inst/non-targets-workflow.R`: an example workflow. Scenario
+  comparison is in
+  [`vignette("scenario-comparison")`](https://urbio-ecology.github.io/urbioconnect/articles/scenario-comparison.md).
 - `_dev/`: working notes, never committed (excluded in
   `.git/info/exclude`, build-ignored). `todos/pending` and `todos/done`
   hold tracking docs; `drafts/` holds issue, PR and comment drafts;

@@ -85,28 +85,15 @@ baseline <- summarise_connectivity(lizard_areas_connected)
 # a scenario in which one connected patch (the first row) is lost
 scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
 compare_connectivity(scenario = scenario, baseline = baseline)
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 4 × 10
-#>   scenario_name measure    species             interpatch_distance n_patches
-#>   <chr>         <chr>      <chr>                             <dbl>     <dbl>
-#> 1 NA            baseline   Blue-tongued Lizard                  50     73   
-#> 2 NA            scenario   Blue-tongued Lizard                  50     72   
-#> 3 NA            change     Blue-tongued Lizard                  50     -1   
-#> 4 NA            pct_change Blue-tongued Lizard                  50     -1.37
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1         4.47             0.170               3600.               26.3   
-#> 2         4.47             0.170               3648.               26.3   
-#> 3        -0.0000113       -0.000000428           47.6              -0.0172
-#> 4        -0.000252        -0.000252               1.32             -0.0654
-#>   data_resolution
-#>   <chr>          
-#> 1 2x2            
-#> 2 2x2            
-#> 3 2x2            
-#> 4 2x2            
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 NA            baseline Blue-t…                  50     73            4.47     
+#> 2 NA            scenario Blue-t…                  50     72            4.47     
+#> 3 NA            change   Blue-t…                  50     -1           -0.0000113
+#> 4 NA            pct_cha… Blue-t…                  50     -1.37        -0.000252 
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 
 # label the scenario so it can be told apart from others
 compare_connectivity(
@@ -114,26 +101,13 @@ compare_connectivity(
   baseline = baseline,
   scenario_name = "Bentley Project"
 )
-#> # Connectivity comparison: baseline / scenario / change / pct_change
 #> # A tibble: 4 × 10
-#>   scenario_name   measure    species             interpatch_distance n_patches
-#>   <chr>           <chr>      <chr>                             <dbl>     <dbl>
-#> 1 Bentley Project baseline   Blue-tongued Lizard                  50     73   
-#> 2 Bentley Project scenario   Blue-tongued Lizard                  50     72   
-#> 3 Bentley Project change     Blue-tongued Lizard                  50     -1   
-#> 4 Bentley Project pct_change Blue-tongued Lizard                  50     -1.37
-#>   effective_mesh_ha prob_connectedness patch_area_mean patch_area_total_ha
-#>               <dbl>              <dbl>           <dbl>               <dbl>
-#> 1         4.47             0.170               3600.               26.3   
-#> 2         4.47             0.170               3648.               26.3   
-#> 3        -0.0000113       -0.000000428           47.6              -0.0172
-#> 4        -0.000252        -0.000252               1.32             -0.0654
-#>   data_resolution
-#>   <chr>          
-#> 1 2x2            
-#> 2 2x2            
-#> 3 2x2            
-#> 4 2x2            
-#> # change = scenario - baseline (positive = scenario is higher)
-#> # pct_change = 100 * change / baseline
+#>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>          <chr>   <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 Bentley Proje… baseli… Blue-t…                  50     73            4.47     
+#> 2 Bentley Proje… scenar… Blue-t…                  50     72            4.47     
+#> 3 Bentley Proje… change  Blue-t…                  50     -1           -0.0000113
+#> 4 Bentley Proje… pct_ch… Blue-t…                  50     -1.37        -0.000252 
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
 ```

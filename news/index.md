@@ -76,6 +76,20 @@
   travels into the report and the download.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
 
+- New
+  [`vignette("scenario-comparison")`](https://urbio-ecology.github.io/urbioconnect/articles/scenario-comparison.md)
+  shows how to compare a baseline habitat and barrier against a scenario
+  that changes the habitat, the barrier or both
+  ([\#168](https://github.com/urbio-ecology/urbioconnect/issues/168)).
+
+- New
+  [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
+  method for a comparison prints one table per scenario and interpatch
+  distance, with a row per metric and the baseline, scenario, change and
+  per cent change side by side, so no metric is cut off at the console’s
+  width. It returns that table with its values rounded but still
+  numeric.
+
 - The shiny app’s Scenario tab, the report and the download bundle now
   show the scenario comparison as a plot, and the app offers it as a
   PNG; the bundle’s copy is `summary/scenario-comparison.png`. The app
@@ -181,17 +195,17 @@
   [`terra::rasterize()`](https://rspatial.github.io/terra/reference/rasterize.html).
 
 - [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
-  gains `scenario` and `scenario_kind`, so one call runs a baseline and
-  a scenario and returns both landscapes with the comparison between
-  them. It replaces the `comparison` argument, which took a
+  gains `habitat_scenario` and `barrier_scenario`, so one call runs a
+  baseline and a scenario and returns both landscapes with the
+  comparison between them. It replaces the `comparison` argument, which
+  took a
   [`compare_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/compare_connectivity.md)
   built elsewhere and so ran the baseline pipeline a second time: on the
   example wren data at three distances this is 43 seconds rather than
   77, for the same numbers. The scenario is put on the baseline’s grid
   on the way in, so it need not arrive on one, and only one layer may
-  change at a time, which `scenario_kind` now makes structural rather
-  than an error. The report gains a scenario section and the download a
-  `scenario-comparison.csv`; without a scenario, neither appears.
+  change at a time. The report gains a scenario section and the download
+  a `scenario-comparison.csv`; without a scenario, neither appears.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
 
 - [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
@@ -492,9 +506,8 @@
 - New
   [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
   compares a scenario against a baseline, for one or more interpatch
-  distances (or buffer radii). Only one of habitat or barrier may differ
-  from the baseline, so any change can be attributed to that layer. It
-  errors if both differ, and warns if neither does.
+  distances (or buffer radii). It warns if the scenario is identical to
+  the baseline.
   ([\#140](https://github.com/urbio-ecology/urbioconnect/issues/140))
 
 - New example data
@@ -539,6 +552,18 @@
   changes exactly one layer, and the baseline is computed once per
   distance and shared by every scenario.
   ([\#35](https://github.com/urbio-ecology/urbioconnect/issues/35))
+
+- [`habitat_connectivity_comparison()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_comparison.md)
+  and
+  [`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+  take the baseline as `habitat_baseline` and `barrier_baseline`, and
+  the scenario as the layers it changes: `habitat_scenario`,
+  `barrier_scenario` or both for the comparison, and named lists in
+  `habitat_scenarios` and `barrier_scenarios` for several scenarios.
+  [`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md)
+  now also gives an error, as the comparison does, for a scenario layer
+  that isn’t a raster on the baseline’s grid
+  ([\#168](https://github.com/urbio-ecology/urbioconnect/issues/168)).
 
 - [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md)’s
   default method now stores a `patch_size_tbl` in `patch_size`, the same
