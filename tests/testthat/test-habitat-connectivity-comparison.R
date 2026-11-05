@@ -5,12 +5,11 @@ test_that("habitat_connectivity_comparison() scalar distance gives one block of 
   layers <- lizard_scenario_layers()
 
   results <- habitat_connectivity_comparison(
-    habitat_scenario = layers$habitat,
-    barrier_scenario = layers$barrier_scenario,
     habitat_baseline = layers$habitat,
     barrier_baseline = layers$barrier,
     species = "Blue Tongue Lizard",
     interpatch_distance = 40,
+    barrier_scenario = layers$barrier_scenario,
     verbose = FALSE
   )
 
@@ -25,12 +24,11 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   layers <- scenario_test_layers()
 
   results <- habitat_connectivity_comparison(
-    habitat_scenario = layers$habitat,
-    barrier_scenario = layers$barrier_scenario,
     habitat_baseline = layers$habitat,
     barrier_baseline = layers$barrier,
     species = "Superb Fairy Wren",
     interpatch_distance = c(40, 80),
+    barrier_scenario = layers$barrier_scenario,
     verbose = FALSE
   )
 
@@ -40,16 +38,66 @@ test_that("habitat_connectivity_comparison() vector distance stacks per distance
   expect_snapshot(results)
 })
 
+test_that("habitat_connectivity_comparison() takes the layers not given from the baseline", {
+  layers <- scenario_test_layers()
+
+  comparison_with <- function(...) {
+    habitat_connectivity_comparison(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      verbose = FALSE,
+      ...
+    )
+  }
+
+  connectivity_of <- function(habitat, barrier) {
+    habitat_connectivity(
+      habitat = habitat,
+      barrier = barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      verbose = FALSE
+    )
+  }
+
+  baseline <- connectivity_of(layers$habitat, layers$barrier)
+
+  expected <- function(habitat, barrier) {
+    compare_connectivity(
+      scenario = connectivity_of(habitat, barrier),
+      baseline = baseline
+    )
+  }
+
+  # one expectation per row of the table in @details
+  expect_equal(
+    comparison_with(habitat_scenario = layers$habitat_scenario),
+    expected(layers$habitat_scenario, layers$barrier)
+  )
+  expect_equal(
+    comparison_with(barrier_scenario = layers$barrier_scenario),
+    expected(layers$habitat, layers$barrier_scenario)
+  )
+  expect_equal(
+    comparison_with(
+      habitat_scenario = layers$habitat_scenario,
+      barrier_scenario = layers$barrier_scenario
+    ),
+    expected(layers$habitat_scenario, layers$barrier_scenario)
+  )
+})
+
 test_that("habitat_connectivity_comparison() passes scenario_name through", {
   layers <- scenario_test_layers()
 
   results <- habitat_connectivity_comparison(
-    habitat_scenario = layers$habitat,
-    barrier_scenario = layers$barrier_scenario,
     habitat_baseline = layers$habitat,
     barrier_baseline = layers$barrier,
     species = "Test Species",
     interpatch_distance = 40,
+    barrier_scenario = layers$barrier_scenario,
     scenario_name = "Bentley Project",
     verbose = FALSE
   )
@@ -62,11 +110,10 @@ test_that("habitat_connectivity_comparison() rejects a missing, empty or unusabl
 
   comparison_at <- function(...) {
     habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat,
-      barrier_scenario = layers$barrier_scenario,
       habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier,
       species = "Test Species",
+      barrier_scenario = layers$barrier_scenario,
       verbose = FALSE,
       ...
     )
@@ -79,17 +126,31 @@ test_that("habitat_connectivity_comparison() rejects a missing, empty or unusabl
   })
 })
 
+test_that("habitat_connectivity_comparison() needs a scenario layer", {
+  layers <- scenario_test_layers()
+
+  expect_snapshot(
+    habitat_connectivity_comparison(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      verbose = FALSE
+    ),
+    error = TRUE
+  )
+})
+
 test_that("habitat_connectivity_comparison() warns and returns zero change when scenario equals baseline", {
   layers <- scenario_test_layers()
 
   expect_warning(
     results <- habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat,
-      barrier_scenario = layers$barrier,
       habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier,
       species = "Superb Fairy Wren",
       interpatch_distance = 40,
+      barrier_scenario = layers$barrier,
       verbose = FALSE
     ),
     "identical to the baseline"
@@ -110,24 +171,6 @@ test_that("habitat_connectivity_comparison() warns and returns zero change when 
   )
 })
 
-test_that("habitat_connectivity_comparison() aborts when both layers differ", {
-  # these guards fire before any pipeline runs, so the landscape is irrelevant
-  layers <- scenario_test_layers()
-
-  expect_snapshot(
-    habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat_scenario,
-      barrier_scenario = layers$barrier_scenario,
-      habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier,
-      species = "Superb Fairy Wren",
-      interpatch_distance = 40,
-      verbose = FALSE
-    ),
-    error = TRUE
-  )
-})
-
 test_that("habitat_connectivity_comparison() aborts on a scenario elsewhere", {
   # a scenario on its own grid used to compare fine, and report the change of
   # place as a change in connectivity
@@ -136,29 +179,50 @@ test_that("habitat_connectivity_comparison() aborts on a scenario elsewhere", {
 
   expect_snapshot(
     habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat,
-      barrier_scenario = elsewhere,
       habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier,
       species = "Superb Fairy Wren",
       interpatch_distance = 40,
+      barrier_scenario = elsewhere,
       verbose = FALSE
     ),
     error = TRUE
   )
 
-  coarser <- terra::aggregate(terra::deepcopy(layers$barrier), fact = 2)
+  coarser <- terra::aggregate(terra::deepcopy(layers$habitat), fact = 2)
 
   expect_snapshot(
     habitat_connectivity_comparison(
-      habitat_scenario = layers$habitat,
-      barrier_scenario = coarser,
       habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier,
       species = "Superb Fairy Wren",
       interpatch_distance = 40,
+      habitat_scenario = coarser,
       verbose = FALSE
     ),
     error = TRUE
   )
+})
+
+test_that("habitat_connectivity_comparison() rejects a scenario that isn't a raster", {
+  # a vector layer used to run the whole baseline, then fail inside the
+  # barrier mask with an error about matrix indices
+  layers <- scenario_test_layers()
+  road <- terra::as.polygons(layers$barrier_scenario)
+
+  comparison_with <- function(barrier_scenario) {
+    habitat_connectivity_comparison(
+      habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier,
+      species = "Test Species",
+      interpatch_distance = 40,
+      barrier_scenario = barrier_scenario,
+      verbose = FALSE
+    )
+  }
+
+  expect_snapshot(error = TRUE, {
+    comparison_with(road)
+    comparison_with(sf::st_as_sf(road))
+  })
 })

@@ -86,41 +86,52 @@
       ! `interpatch_distance` must be finite and not negative.
       x Not usable: -50 and NA.
 
-# habitat_connectivity_comparison() aborts when both layers differ
+# habitat_connectivity_comparison() needs a scenario layer
 
     Code
-      habitat_connectivity_comparison(habitat_scenario = layers$habitat_scenario,
-      barrier_scenario = layers$barrier_scenario, habitat_baseline = layers$habitat,
-      barrier_baseline = layers$barrier, species = "Superb Fairy Wren",
+      habitat_connectivity_comparison(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = "Test Species",
       interpatch_distance = 40, verbose = FALSE)
     Condition
       Error in `habitat_connectivity_comparison()`:
-      ! Both habitat and barrier differ from baseline.
-      i Change only one at a time so the difference is attributable.
+      ! Give `habitat_scenario`, `barrier_scenario`, or both: the layers your planned change replaces.
 
 # habitat_connectivity_comparison() aborts on a scenario elsewhere
 
     Code
-      habitat_connectivity_comparison(habitat_scenario = layers$habitat,
-      barrier_scenario = elsewhere, habitat_baseline = layers$habitat,
+      habitat_connectivity_comparison(habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier, species = "Superb Fairy Wren",
-      interpatch_distance = 40, verbose = FALSE)
+      interpatch_distance = 40, barrier_scenario = elsewhere, verbose = FALSE)
     Condition
       Error in `habitat_connectivity_comparison()`:
       ! `barrier_scenario` and `barrier_baseline` are not the same landscape.
       x Their extent differs.
-      i Put both on one grid first: rasterise or resample the scenario onto the baseline.
+      i Put `barrier_scenario` on the grid of `barrier_baseline` first, with `onto_grid()`.
 
 ---
 
     Code
-      habitat_connectivity_comparison(habitat_scenario = layers$habitat,
-      barrier_scenario = coarser, habitat_baseline = layers$habitat,
+      habitat_connectivity_comparison(habitat_baseline = layers$habitat,
       barrier_baseline = layers$barrier, species = "Superb Fairy Wren",
-      interpatch_distance = 40, verbose = FALSE)
+      interpatch_distance = 40, habitat_scenario = coarser, verbose = FALSE)
     Condition
       Error in `habitat_connectivity_comparison()`:
-      ! `barrier_scenario` and `barrier_baseline` are not the same landscape.
+      ! `habitat_scenario` and `habitat_baseline` are not the same landscape.
       x Their resolution differs.
-      i Put both on one grid first: rasterise or resample the scenario onto the baseline.
+      i Put `habitat_scenario` on the grid of `habitat_baseline` first, with `onto_grid()`.
+
+# habitat_connectivity_comparison() rejects a scenario that isn't a raster
+
+    Code
+      comparison_with(road)
+    Condition
+      Error in `habitat_connectivity_comparison()`:
+      ! `barrier_scenario` must be a <SpatRaster>, not a <SpatVector> object.
+      i Put it on the grid of `barrier_baseline` first, with `onto_grid()`.
+    Code
+      comparison_with(sf::st_as_sf(road))
+    Condition
+      Error in `habitat_connectivity_comparison()`:
+      ! `barrier_scenario` must be a <SpatRaster>, not a <sf> object.
+      i Put it on the grid of `barrier_baseline` first, with `onto_grid()`.
 

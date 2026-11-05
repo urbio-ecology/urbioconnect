@@ -5,23 +5,20 @@
 \title{Compare habitat connectivity of a scenario against a baseline}
 \usage{
 habitat_connectivity_comparison(
-  habitat_scenario,
-  barrier_scenario,
   habitat_baseline,
   barrier_baseline,
   species,
   interpatch_distance,
-  directions = 4,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
+  directions = 4,
   verbose = TRUE
 )
 }
 \arguments{
-\item{habitat_scenario}{Terra SpatRaster. The scenario habitat layer.}
-
-\item{barrier_scenario}{Terra SpatRaster. The scenario barrier layer.}
-
-\item{habitat_baseline}{Terra SpatRaster. The baseline habitat layer.}
+\item{habitat_baseline}{Terra SpatRaster. The baseline habitat layer: the
+landscape as it is today.}
 
 \item{barrier_baseline}{Terra SpatRaster. The baseline barrier layer.}
 
@@ -31,16 +28,22 @@ habitat_connectivity_comparison(
 patches are considered connected. May be a scalar or a vector; a vector
 runs the comparison once per distance. See \code{\link[=habitat_connectivity]{habitat_connectivity()}}.}
 
-\item{directions}{Which neighbouring raster cells join into one patch,
-passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
-join only through a shared edge. \code{8} is the queen's case: cells that
-touch only at a corner join as well. It applies to rasters only, not to
-\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
+\item{habitat_scenario}{Terra SpatRaster, or \code{NULL}. The whole habitat layer
+after the planned change, on the same grid as \code{habitat_baseline}.}
+
+\item{barrier_scenario}{Terra SpatRaster, or \code{NULL}. The whole barrier layer
+after the planned change, on the same grid as \code{barrier_baseline}.}
 
 \item{scenario_name}{Character. An optional label for the scenario, for
 example "Bentley Project". Passed to \code{\link[=compare_connectivity]{compare_connectivity()}}, and appears
 in the \code{scenario_name} column on every row. Defaults to \code{NULL}, which
 gives \code{NA}.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
@@ -53,38 +56,53 @@ columns.
 }
 \description{
 Starts from habitat and barrier layers, rather than the \code{connectivity}
-objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give it a scenario
-habitat/barrier pair and a baseline habitat/barrier pair and it runs the
-full connectivity pipeline on each (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) and
-compares them. \code{interpatch_distance} may be a vector, in which case the
-comparison is run once per distance and the per-distance results are
-stacked.
+objects \code{\link[=compare_connectivity]{compare_connectivity()}} takes. Give it the baseline's habitat and
+barrier, and the layers a planned change replaces, and it runs the full
+connectivity pipeline (via \code{\link[=habitat_connectivity]{habitat_connectivity()}}) on the baseline and
+on the scenario and compares them. \code{interpatch_distance} may be a vector,
+in which case the comparison is run once per distance and the
+per-distance results are stacked.
 }
 \details{
-Change exactly one layer between baseline and scenario so the difference is
-attributable to a single variable. To assess a barrier change, pass the
-same habitat to both \code{habitat_baseline} and \code{habitat_scenario}; to assess a
-habitat change, pass the same barrier to both \code{barrier_baseline} and
-\code{barrier_scenario}. If both the habitat \emph{and} the barrier differ the
-function aborts; if neither differs it warns (the scenario equals the
-baseline, so every \code{change} value is zero).
+A scenario is the landscape after a planned change. Give the layers the plan
+changes, and the function takes the rest from the baseline:\tabular{lll}{
+   You give \tab The scenario's habitat \tab The scenario's barrier \cr
+   \code{habitat_scenario} \tab \code{habitat_scenario} \tab \code{barrier_baseline} \cr
+   \code{barrier_scenario} \tab \code{habitat_baseline} \tab \code{barrier_scenario} \cr
+   both \tab \code{habitat_scenario} \tab \code{barrier_scenario} \cr
+}
 
-Note that this runs the full connectivity pipeline \code{2 * length(interpatch_distance)} times (buffering is the slow step), so a long
-vector of distances will take proportionally longer.
+
+Each layer you give must be the whole layer after the change, not just the
+part that changes: a barrier scenario holding only a new road drops every
+existing road. If you give both, the comparison shows their combined effect,
+not how much came from each; to see each one's share, run it again with one
+layer at a time. The shares won't add up exactly, because changes interact: a
+new road beside new habitat matters more than either alone.
+
+A scenario layer must be on the same grid as the layer it replaces, or this
+gives an error: put it there with \code{\link[=onto_grid]{onto_grid()}}. A scenario identical to the
+baseline gives a warning, since every \code{change} value will be zero.
+
+This runs the full connectivity pipeline \code{2 * length(interpatch_distance)}
+times (buffering is the slow step), so a long vector of distances will take
+proportionally longer.
 }
 \examples{
 \donttest{
+# a scenario that changes the barrier: the habitat stays as it is today
 habitat_connectivity_comparison(
-  habitat_scenario = example_wren_habitat(),
-  barrier_scenario = example_wren_barrier_scenario(),
   habitat_baseline = example_wren_habitat(),
   barrier_baseline = example_wren_barrier(),
   species = "Superb Fairy Wren",
   interpatch_distance = 200,
+  barrier_scenario = example_wren_barrier_scenario(),
   verbose = FALSE
 )
 }
 }
 \seealso{
-\code{\link[=compare_connectivity]{compare_connectivity()}}, \code{\link[=habitat_connectivity]{habitat_connectivity()}}
+\code{\link[=habitat_connectivity_scenarios]{habitat_connectivity_scenarios()}} for several scenarios at once,
+\code{\link[=compare_connectivity]{compare_connectivity()}}, \code{\link[=habitat_connectivity]{habitat_connectivity()}}, and
+\code{vignette("scenario-comparison")}.
 }

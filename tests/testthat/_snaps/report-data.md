@@ -12,29 +12,20 @@
       [13] "scenario_barrier"          "scenario_buffered_habitat"
       [15] "comparison"               
 
-# a scenario and its kind have to arrive together
+# a report takes one scenario layer, not both
 
     Code
-      report_data(scenario = layers$barrier_scenario)
+      report_data(habitat_scenario = layers$habitat_scenario, barrier_scenario = layers$
+        barrier_scenario)
     Condition
       Error in `connectivity_report_data()`:
-      ! `scenario_kind` must say which layer `scenario` replaces.
-      i Either "habitat" or "barrier".
-    Code
-      report_data(scenario_kind = "barrier")
-    Condition
-      Error in `connectivity_report_data()`:
-      ! `scenario_kind` needs a `scenario` to describe.
-    Code
-      report_data(scenario = layers$barrier_scenario, scenario_kind = "both")
-    Condition
-      Error in `connectivity_report_data()`:
-      ! `scenario_kind` must be one of "habitat" or "barrier", not "both".
+      ! Give `habitat_scenario` or `barrier_scenario`, not both.
+      i To compare a plan that changes both layers, use `habitat_connectivity_comparison()`.
 
 ---
 
     Code
-      invisible(report_data(scenario = layers$barrier, scenario_kind = "barrier"))
+      invisible(report_data(barrier_scenario = layers$barrier))
     Condition
       Warning:
       The scenario is identical to the baseline barrier.

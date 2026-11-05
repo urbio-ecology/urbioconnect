@@ -99,3 +99,28 @@
       x No name at position 1.
       i Names become the scenario_name column.
 
+# habitat_connectivity_scenarios() rejects a scenario off the baseline's grid
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat_raster,
+      barrier_baseline = layers$barrier_raster, species = "Blue Tongue Lizard",
+      interpatch_distance = 100, barrier_scenarios = list(`A new road` = example_barrier_scenario()),
+      verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `barrier_scenarios[["A new road"]]` and `barrier_baseline` are not the same landscape.
+      x Their resolution differs.
+      i Put `barrier_scenarios[["A new road"]]` on the grid of `barrier_baseline` first, with `onto_grid()`.
+
+# habitat_connectivity_scenarios() rejects a scenario that isn't a raster
+
+    Code
+      habitat_connectivity_scenarios(habitat_baseline = layers$habitat,
+      barrier_baseline = layers$barrier, species = "Test Species",
+      interpatch_distance = 40, habitat_scenarios = list(`Habitat cleared` = cleared),
+      verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_scenarios()`:
+      ! `habitat_scenarios[["Habitat cleared"]]` must be a <SpatRaster>, not a <sf> object.
+      i Put it on the grid of `habitat_baseline` first, with `onto_grid()`.
+

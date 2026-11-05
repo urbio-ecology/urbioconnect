@@ -12,16 +12,14 @@
 #' @param interpatch_distance Numeric. The distance (in metres) at which
 #'   habitat patches are considered connected. May be a scalar or a vector; a
 #'   vector runs the pipeline once per distance.
+#' @param habitat_scenario,barrier_scenario Optional. The whole habitat or
+#'   barrier layer after a planned change, as an `sf`, `SpatVector` or
+#'   `SpatRaster`: give one, not both. It is put on the grid of the layer it
+#'   replaces with [onto_grid()], so it does not have to arrive on one.
+#'   Supplying it runs the pipeline a second time, on the scenario landscape,
+#'   and fills the `scenario_*` fields and `comparison` below. To compare a
+#'   plan that changes both layers, use [habitat_connectivity_comparison()].
 #' @inheritParams habitat_connectivity
-#' @param scenario Optional layer to compare against the baseline: an `sf`,
-#'   `SpatVector` or `SpatRaster` standing in for one of `habitat` and
-#'   `barrier`. It is put on the baseline's own grid with [onto_grid()], so it
-#'   does not have to arrive on one. Supplying it runs the pipeline a second
-#'   time, on the scenario landscape, and fills the `scenario_*` fields and
-#'   `comparison` below.
-#' @param scenario_kind Which layer `scenario` replaces, `"habitat"` or
-#'   `"barrier"`. Required with `scenario`. Only one layer may change at a
-#'   time, so that the difference in connectivity is attributable to it.
 #' @param scenario_name Optional name for the scenario, carried in the
 #'   comparison so several can be stacked.
 #' @param settings Optional named list of whatever produced this analysis that
@@ -42,13 +40,13 @@
 #'     `run_time`, when the analysis ran. [connectivity_settings()] turns the
 #'     two into the settings record.
 #'
-#'   and, when a `scenario` was given, the same view of the scenario
+#'   and, when a scenario was given, the same view of the scenario
 #'   landscape: `scenario_kind`, `scenario_habitat`, `scenario_barrier`,
 #'   `scenario_buffered_habitat`, and `comparison`. Without one these are all
 #'   `NULL`. [scenario_layer()] returns whichever layer the scenario changed.
 #' @seealso [habitat_connectivity()] when only the summary is wanted, and
-#'   [habitat_connectivity_comparison()] to compare two landscapes you have
-#'   already assembled yourself.
+#'   [habitat_connectivity_comparison()] for a scenario that changes both
+#'   layers.
 #' @export
 #'
 #' @examples
@@ -71,8 +69,7 @@
 #'   barrier = example_wren_barrier(),
 #'   species = "Superb Fairy Wren",
 #'   interpatch_distance = 200,
-#'   scenario = example_wren_barrier_scenario(),
-#'   scenario_kind = "barrier",
+#'   barrier_scenario = example_wren_barrier_scenario(),
 #'   verbose = FALSE
 #' )
 #'
@@ -83,11 +80,11 @@ connectivity_report_data <- function(
   barrier,
   species,
   interpatch_distance,
-  directions = 4,
-  scenario = NULL,
-  scenario_kind = NULL,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
   settings = NULL,
+  directions = 4,
   verbose = TRUE
 ) {
   check_distances(interpatch_distance)
@@ -96,7 +93,7 @@ connectivity_report_data <- function(
   check_scenario_name(scenario_name)
   settings <- check_settings(settings)
 
-  scenario_kind <- check_scenario_pair(scenario, scenario_kind)
+  scenario_kind <- which_scenario_layer(habitat_scenario, barrier_scenario)
 
   baseline <- connectivity_runs(
     habitat,
@@ -107,7 +104,7 @@ connectivity_report_data <- function(
     verbose
   )
 
-  if (is.null(scenario)) {
+  if (is.null(scenario_kind)) {
     return(new_connectivity_report_data(
       connectivity = baseline$connectivity,
       habitat = habitat,
@@ -126,7 +123,7 @@ connectivity_report_data <- function(
   # somewhere else
   replaced <- if (scenario_kind == "habitat") habitat else barrier
   changed <- onto_grid(
-    scenario,
+    habitat_scenario %||% barrier_scenario,
     grid = replaced,
     background = if (scenario_kind == "habitat") NA else 0
   )
@@ -238,40 +235,36 @@ rows_to_comparison <- function(scenario, baseline, scenario_name) {
     new_compare_connectivity()
 }
 
-#' A scenario needs to say which layer it replaces, and nothing else may
+#' Which layer a scenario replaces: `"habitat"`, `"barrier"`, or `NULL`
+#'
+#' The report shows the one layer a scenario changed, so it takes one.
 #'
 #' @noRd
-check_scenario_pair <- function(
-  scenario,
-  scenario_kind,
+which_scenario_layer <- function(
+  habitat_scenario,
+  barrier_scenario,
   call = rlang::caller_env()
 ) {
-  if (is.null(scenario)) {
-    if (!is.null(scenario_kind)) {
-      cli::cli_abort(
-        "{.arg scenario_kind} needs a {.arg scenario} to describe.",
-        call = call
-      )
-    }
-    return(NULL)
-  }
-
-  if (is.null(scenario_kind)) {
+  if (!is.null(habitat_scenario) && !is.null(barrier_scenario)) {
     cli::cli_abort(
       c(
-        "{.arg scenario_kind} must say which layer {.arg scenario} replaces.",
-        "i" = "Either {.val habitat} or {.val barrier}."
+        "Give {.arg habitat_scenario} or {.arg barrier_scenario}, not both.",
+        "i" = "To compare a plan that changes both layers, use
+               {.fn habitat_connectivity_comparison}."
       ),
       call = call
     )
   }
 
-  rlang::arg_match0(
-    scenario_kind,
-    c("habitat", "barrier"),
-    arg_nm = "scenario_kind",
-    error_call = call
-  )
+  if (!is.null(habitat_scenario)) {
+    return("habitat")
+  }
+
+  if (!is.null(barrier_scenario)) {
+    return("barrier")
+  }
+
+  NULL
 }
 
 #' Save and reload a connectivity analysis
@@ -372,8 +365,7 @@ has_over_distance_plot <- function(x) {
 #'   barrier = example_wren_barrier(),
 #'   species = "Superb Fairy Wren",
 #'   interpatch_distance = 200,
-#'   scenario = example_wren_barrier_scenario(),
-#'   scenario_kind = "barrier",
+#'   barrier_scenario = example_wren_barrier_scenario(),
 #'   verbose = FALSE
 #' )
 #'

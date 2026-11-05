@@ -9,11 +9,11 @@ connectivity_report_data(
   barrier,
   species,
   interpatch_distance,
-  directions = 4,
-  scenario = NULL,
-  scenario_kind = NULL,
+  habitat_scenario = NULL,
+  barrier_scenario = NULL,
   scenario_name = NULL,
   settings = NULL,
+  directions = 4,
   verbose = TRUE
 )
 }
@@ -28,22 +28,13 @@ connectivity_report_data(
 habitat patches are considered connected. May be a scalar or a vector; a
 vector runs the pipeline once per distance.}
 
-\item{directions}{Which neighbouring raster cells join into one patch,
-passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
-join only through a shared edge. \code{8} is the queen's case: cells that
-touch only at a corner join as well. It applies to rasters only, not to
-\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
-
-\item{scenario}{Optional layer to compare against the baseline: an \code{sf},
-\code{SpatVector} or \code{SpatRaster} standing in for one of \code{habitat} and
-\code{barrier}. It is put on the baseline's own grid with \code{\link[=onto_grid]{onto_grid()}}, so it
-does not have to arrive on one. Supplying it runs the pipeline a second
-time, on the scenario landscape, and fills the \verb{scenario_*} fields and
-\code{comparison} below.}
-
-\item{scenario_kind}{Which layer \code{scenario} replaces, \code{"habitat"} or
-\code{"barrier"}. Required with \code{scenario}. Only one layer may change at a
-time, so that the difference in connectivity is attributable to it.}
+\item{habitat_scenario, barrier_scenario}{Optional. The whole habitat or
+barrier layer after a planned change, as an \code{sf}, \code{SpatVector} or
+\code{SpatRaster}: give one, not both. It is put on the grid of the layer it
+replaces with \code{\link[=onto_grid]{onto_grid()}}, so it does not have to arrive on one.
+Supplying it runs the pipeline a second time, on the scenario landscape,
+and fills the \verb{scenario_*} fields and \code{comparison} below. To compare a
+plan that changes both layers, use \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}.}
 
 \item{scenario_name}{Optional name for the scenario, carried in the
 comparison so several can be stacked.}
@@ -54,6 +45,12 @@ called with, where the layers came from, a run id. Each element becomes
 one row of \code{\link[=connectivity_settings]{connectivity_settings()}} and of the download bundle's
 \code{summary/settings.csv}, with a vector written as one comma-separated
 value. Each needs a name of its own, not one the analysis records itself.}
+
+\item{directions}{Which neighbouring raster cells join into one patch,
+passed to \code{\link[terra:patches]{terra::patches()}}. \code{4}, the default, is the rook's case: cells
+join only through a shared edge. \code{8} is the queen's case: cells that
+touch only at a corner join as well. It applies to rasters only, not to
+\code{\link[=sf_habitat_connectivity]{sf_habitat_connectivity()}}.}
 
 \item{verbose}{Logical. Display progress messages (default: TRUE).}
 }
@@ -70,7 +67,7 @@ distance and named by it
 two into the settings record.
 }
 
-and, when a \code{scenario} was given, the same view of the scenario
+and, when a scenario was given, the same view of the scenario
 landscape: \code{scenario_kind}, \code{scenario_habitat}, \code{scenario_barrier},
 \code{scenario_buffered_habitat}, and \code{comparison}. Without one these are all
 \code{NULL}. \code{\link[=scenario_layer]{scenario_layer()}} returns whichever layer the scenario changed.
@@ -102,8 +99,7 @@ with_scenario <- connectivity_report_data(
   barrier = example_wren_barrier(),
   species = "Superb Fairy Wren",
   interpatch_distance = 200,
-  scenario = example_wren_barrier_scenario(),
-  scenario_kind = "barrier",
+  barrier_scenario = example_wren_barrier_scenario(),
   verbose = FALSE
 )
 
@@ -112,6 +108,6 @@ with_scenario$comparison
 }
 \seealso{
 \code{\link[=habitat_connectivity]{habitat_connectivity()}} when only the summary is wanted, and
-\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} to compare two landscapes you have
-already assembled yourself.
+\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}} for a scenario that changes both
+layers.
 }

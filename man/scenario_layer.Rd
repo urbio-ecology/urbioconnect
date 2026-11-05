@@ -24,8 +24,7 @@ analysis <- connectivity_report_data(
   barrier = example_wren_barrier(),
   species = "Superb Fairy Wren",
   interpatch_distance = 200,
-  scenario = example_wren_barrier_scenario(),
-  scenario_kind = "barrier",
+  barrier_scenario = example_wren_barrier_scenario(),
   verbose = FALSE
 )
 

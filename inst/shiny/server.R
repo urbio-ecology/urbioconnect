@@ -326,6 +326,13 @@ server <- function(input, output, session) {
             incProgress(0, message = "Comparing scenario to baseline...")
           }
 
+          # the "Which layer does it change?" choice picks the argument; with
+          # no scenario both stay NULL
+          scenario_changes_habitat <- identical(scenario$kind, "habitat")
+          scenario_changes_barrier <- identical(scenario$kind, "barrier")
+          habitat_scenario <- if (scenario_changes_habitat) scenario$layer
+          barrier_scenario <- if (scenario_changes_barrier) scenario$layer
+
           # One object holding the whole analysis: the summary, the layers
           # each distance produced, and the scenario landscape beside them.
           # The tables, plots and downloads below all read from it, and it is
@@ -338,8 +345,8 @@ server <- function(input, output, session) {
             barrier = results$barrier_raster,
             species = input$species,
             interpatch_distance = interpatch_dists,
-            scenario = scenario$layer,
-            scenario_kind = scenario$kind,
+            habitat_scenario = habitat_scenario,
+            barrier_scenario = barrier_scenario,
             scenario_name = scenario$name,
             settings = list(
               habitat_source = layer_source(input$habitat_file),
