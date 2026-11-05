@@ -45,6 +45,5 @@ dependencies:
     - diffviewer
     - DT
     - fasterize
-    - gridExtra
     - rmarkdown
     - shinyjs

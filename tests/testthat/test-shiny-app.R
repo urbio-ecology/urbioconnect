@@ -63,8 +63,8 @@ test_that("the app's downloads produce files with content", {
       output$download_summary_csv,
       show_col_types = FALSE
     )
-    patches_csv <- readr::read_csv(
-      output$download_patches_csv,
+    areas_csv <- readr::read_csv(
+      output$download_areas_csv,
       show_col_types = FALSE
     )
 
@@ -74,8 +74,8 @@ test_that("the app's downloads produce files with content", {
     expect_equal(nrow(summary_csv), 1)
     expect_snapshot(names(summary_csv))
 
-    expect_true(all(c("area", "interpatch_distance") %in% names(patches_csv)))
-    expect_gt(nrow(patches_csv), 1)
+    expect_in(c("interpatch", "area"), names(areas_csv))
+    expect_gt(nrow(areas_csv), 1)
 
     settings_csv <- readr::read_csv(
       output$download_settings_csv,
