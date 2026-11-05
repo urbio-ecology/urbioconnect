@@ -17,17 +17,12 @@ plot_patches(
 \arguments{
 \item{patch_id}{Terra SpatRaster. Raster with patch IDs.}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250.}
+\item{interpatch_distance}{Numeric. The interpatch distance, in metres, the
+patches were found with. Used only to label the plot.}
 
 \item{species}{Character. Species name (default: "Species").}
 
-\item{n_cols}{Integer. Number of colors to cycle through (default: 7).}
+\item{n_cols}{Integer. Number of colours to cycle through (default: 7).}
 
 \item{barrier}{Terra SpatRaster, optional. The barrier layer the patches
 were found with, 1 where there is a barrier.}
@@ -40,10 +35,10 @@ habitat the patches were found with, from \code{\link[=habitat_connectivity_full
 to find the zones, so give it the value the patches were found with.}
 }
 \value{
-A ggplot2 object showing patches with distinct colors.
+A ggplot2 object showing patches with distinct colours.
 }
 \description{
-Visualizes habitat patches colored by their connected fragment ID.
+Visualises habitat patches coloured by their connected fragment ID.
 }
 \details{
 With \code{barrier}, the barrier is drawn in grey. With \code{buffered} as well, each

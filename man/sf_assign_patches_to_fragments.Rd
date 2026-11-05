@@ -12,7 +12,7 @@ sf_assign_patches_to_fragments(remaining, fragment_id)
 \item{fragment_id}{SF object. Fragment geometries with IDs.}
 }
 \value{
-SF object with habitat patches labeled by their fragment ID.
+SF object with habitat patches labelled by their fragment ID.
 }
 \description{
 Determines which connected fragment each remaining habitat patch belongs to

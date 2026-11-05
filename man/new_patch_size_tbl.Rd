@@ -18,8 +18,9 @@ patch_size_tbl(data, species, interpatch_distance, res = NA_real_)
 \item{interpatch_distance}{Numeric of length 1. The interpatch distance (m)
 the analysis used.}
 
-\item{res}{resolution in pixels - defaults to NA (numeric), not required for
-vector based approaches.}
+\item{res}{Numeric. The cell size in metres, as \code{\link[terra:res]{terra::res()}} gives it:
+the width and height of a cell. Defaults to \code{NA}, for a vector analysis,
+which has no cells.}
 }
 \value{
 A \code{patch_size_tbl} object: a tibble with \code{species} and

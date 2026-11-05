@@ -9,7 +9,7 @@ empty_grid(habitat, resolution = 10)
 \arguments{
 \item{habitat}{SF object or terra SpatRaster.}
 
-\item{resolution}{Numeric. Cell size in meters (default: 10).}
+\item{resolution}{Numeric. Cell size in metres (default: 10).}
 }
 \value{
 Terra SpatRaster. Empty raster grid.

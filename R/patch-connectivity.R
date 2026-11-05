@@ -14,8 +14,9 @@
 #' @param data Data frame of connected patches. Must contain `patch_id` and
 #'   `area` columns.
 #' @param species Character of length 1. Species the analysis was run for.
-#' @param res resolution in pixels - defaults to NA (numeric), not required for
-#'   vector based approaches.
+#' @param res Numeric. The cell size in metres, as [terra::res()] gives it:
+#'   the width and height of a cell. Defaults to `NA`, for a vector analysis,
+#'   which has no cells.
 #' @param interpatch_distance Numeric of length 1. The interpatch distance (m)
 #'   the analysis used.
 #' @returns A `patch_size_tbl` object: a tibble with `species` and
@@ -146,7 +147,7 @@ tbl_sum.patch_size_tbl <- function(x) {
 #'
 #' @param x A [patch_size_tbl()] object.
 #' @returns
-#'  * `pc_species()` Returns the species (character, length 1).
+#'  * `pc_species()` returns the species (character, length 1).
 #'  * `pc_interpatch_distance()` returns the interpatch distance (numeric,
 #'   length 1).
 #'  * `pc_res()` returns the resolution (character, length 1 - e.g., "2x2").

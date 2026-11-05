@@ -14,13 +14,9 @@
 #' @param col_interpatch_dist colour of interpatch distance layer
 #' @param col_habitat colour of habitat layer
 #' @param col_paper colour of paper layer of ggplot. Default "grey96".
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
-#'   patches are considered connected. E.g., if set to 500, patches 498m apart
-#'   are connected, those 501m apart are not connected. This is passed
-#'   internally to a spatial operation known as "buffering", where this
-#'   distance is used as a radius from the edge of the habitat zone. This means
-#'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250.
+#' @param interpatch_distance Numeric. The interpatch distance, in metres,
+#'   that `buffered` was made for. Used only to label the plot and name the
+#'   file.
 #'
 #' @returns Named character vector. The file path, named by the interpatch
 #'   distance.

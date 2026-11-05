@@ -1,19 +1,20 @@
 #' Summarise connectivity metrics
 #'
-#' Calculates a comprehensive set of habitat connectivity metrics including
-#' effective mesh size, probability of connectedness, and patch statistics.
-#' There are two methods, the default, and one that dispatches on objects of
-#' class, `patch_size_tbl`, created by [patch_size_tbl()], which is used mostly
-#' internally inside of [habitat_connectivity()]. The default method requires
-#' "connectivity" to be a vector of areas, and also requires scalar values
-#' (values of length 1) of interpatch distance, resolution, and species. See
-#' examples below.
+#' Calculates habitat connectivity metrics including effective mesh size,
+#' probability of connectedness, and patch statistics. [habitat_connectivity()]
+#' runs the analysis and calls this for you, so you only need it to summarise
+#' patch areas you already have.
+#'
+#' A `patch_size_tbl` carries its own species, interpatch distance and
+#' resolution. For a vector of patch areas, give those three yourself, each a
+#' single value.
 #'
 #' @name summarise-connectivity
 #'
-#' @param connectivity data.frame of class "patch_size_tbl", obtained via
-#'   [patch_sizes()] from a `connectivity` object returned by
-#'   [habitat_connectivity()]. Contains area measurements of connected patches.
+#' @param connectivity A `patch_size_tbl`, such as an element of
+#'   [patch_sizes()] (`patch_sizes(x)[[1]]`) or the result of
+#'   [sf_habitat_connectivity()], whose resolution is `"NA"` as it has no
+#'   cells. Or a numeric vector of connected patch areas, in square metres.
 #' @param ... extra arguments to pass through for default method.
 #'
 #' @returns A tibble with connectivity metrics including number of patches,
@@ -116,14 +117,11 @@ summarise_connectivity.patch_size_tbl <- function(
 }
 
 #' @rdname summarise-connectivity
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
-#'   patches are considered connected. E.g., if set to 500, patches 498m apart
-#'   are connected, those 501m apart are not connected. This is passed
-#'   internally to a spatial operation known as "buffering", where this
-#'   distance is used as a radius from the edge of the habitat zone. This means
-#'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250.
-#' @param data_resolution Numeric. Data resolution in meters.
+#' @param interpatch_distance Numeric. The interpatch distance, in metres, the
+#'   areas were found with. It is recorded in the summary, not used to
+#'   calculate it.
+#' @param data_resolution Numeric. The cell size, in metres, the areas were
+#'   found at. Recorded in the summary, like `interpatch_distance`.
 #' @param species Character. Name of species analysed.
 #' @export
 summarise_connectivity.default <- function(

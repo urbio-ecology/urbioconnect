@@ -2,18 +2,18 @@
 % Please edit documentation in R/plots-summaries.R
 \name{col2hex}
 \alias{col2hex}
-\title{Convert color name to hexadecimal}
+\title{Convert colour name to hexadecimal}
 \usage{
 col2hex(color_name)
 }
 \arguments{
-\item{color_name}{Character. Color name recognized by R.}
+\item{color_name}{Character. Colour name recognised by R.}
 }
 \value{
-Character. Hexadecimal color code.
+Character. Hexadecimal colour code.
 }
 \description{
-Convert color name to hexadecimal
+Convert colour name to hexadecimal
 }
 \examples{
 col2hex("forestgreen")

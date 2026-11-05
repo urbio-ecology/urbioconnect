@@ -1,8 +1,8 @@
-#' Convert color name to hexadecimal
+#' Convert colour name to hexadecimal
 #'
-#' @param color_name Character. Color name recognized by R.
+#' @param color_name Character. Colour name recognised by R.
 #'
-#' @returns Character. Hexadecimal color code.
+#' @returns Character. Hexadecimal colour code.
 #'
 #' @examples
 #' col2hex("forestgreen")
@@ -21,20 +21,15 @@ col2hex <- function(color_name) {
 #' @param buffered Terra SpatRaster. Buffered habitat layer.
 #' @param habitat Terra SpatRaster. Original habitat layer. Habitat is any cell
 #'   that is neither `NA` nor `0`.
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
-#'   patches are considered connected. E.g., if set to 500, patches 498m apart
-#'   are connected, those 501m apart are not connected. This is passed
-#'   internally to a spatial operation known as "buffering", where this
-#'   distance is used as a radius from the edge of the habitat zone. This means
-#'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250.
+#' @param interpatch_distance Numeric. The interpatch distance, in metres,
+#'   that `buffered` was made for. Used only to label the plot.
 #' @param species Character. Species name for plot title.
 #' @param col_barrier Character. Colour for barrier layer. Defaults to the
 #'   package palette, so a map drawn here matches the app, the downloads and
 #'   the report. See [urbio_colours()].
 #' @param col_interpatch_dist Character. Colour for interpatch distance zone.
 #' @param col_habitat Character. Colour for habitat patches.
-#' @param col_paper Character. Background color (default: "white").
+#' @param col_paper Character. Background colour (default: "grey96").
 #'
 #' @returns A ggplot2 object.
 #' @export
@@ -73,7 +68,7 @@ gg_barrier_habitat_interpatch_dist <- function(
   col_habitat = urbio_colours()$habitat,
   col_paper = "grey96"
 ) {
-  # First, reclassify your rasters to assign actual color values
+  # First, reclassify your rasters to assign actual colour values
   barrier_coloured <- terra::subst(barrier, 1, col_barrier)
   interpatch_coloured <- terra::subst(buffered, 1, col_interpatch_dist)
   habitat_present <- terra::ifel(is_habitat(habitat), 1, NA)
@@ -199,7 +194,7 @@ to_sentence <- function(x) {
 
 #' Plot connected habitat patches
 #'
-#' Visualizes habitat patches colored by their connected fragment ID.
+#' Visualises habitat patches coloured by their connected fragment ID.
 #'
 #' With `barrier`, the barrier is drawn in grey. With `buffered` as well, each
 #' patch's connecting zone, the buffered habitat cut by the barrier that joins
@@ -207,15 +202,10 @@ to_sentence <- function(x) {
 #' from all habitat joins no patch, so it is left blank.
 #'
 #' @param patch_id Terra SpatRaster. Raster with patch IDs.
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
-#'   patches are considered connected. E.g., if set to 500, patches 498m apart
-#'   are connected, those 501m apart are not connected. This is passed
-#'   internally to a spatial operation known as "buffering", where this
-#'   distance is used as a radius from the edge of the habitat zone. This means
-#'   the specified `interpatch_distance` is halved exactly. So an interpatch
-#'   distance of 500 will be converted to 250.
+#' @param interpatch_distance Numeric. The interpatch distance, in metres, the
+#'   patches were found with. Used only to label the plot.
 #' @param species Character. Species name (default: "Species").
-#' @param n_cols Integer. Number of colors to cycle through (default: 7).
+#' @param n_cols Integer. Number of colours to cycle through (default: 7).
 #' @param barrier Terra SpatRaster, optional. The barrier layer the patches
 #'   were found with, 1 where there is a barrier.
 #' @param buffered Terra SpatRaster, optional. Needs `barrier`. The buffered
@@ -224,7 +214,7 @@ to_sentence <- function(x) {
 #'   [habitat_connectivity()]: `4`, the default, or `8`. Used with `buffered`
 #'   to find the zones, so give it the value the patches were found with.
 #'
-#' @returns A ggplot2 object showing patches with distinct colors.
+#' @returns A ggplot2 object showing patches with distinct colours.
 #' @export
 #' @examples
 #' lizard_habitat <- example_habitat()

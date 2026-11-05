@@ -23,13 +23,9 @@ plot_barrier_habitat_interpatch_dist(
 
 \item{habitat}{habitat layer}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified \code{interpatch_distance} is halved exactly. So an interpatch
-distance of 500 will be converted to 250.}
+\item{interpatch_distance}{Numeric. The interpatch distance, in metres,
+that \code{buffered} was made for. Used only to label the plot and name the
+file.}
 
 \item{species}{character, species name, e.g., "Superb Fairy Wren"}
 
