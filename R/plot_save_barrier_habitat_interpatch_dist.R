@@ -5,15 +5,7 @@
 #'   [urbio_figure_size()]. Returns the file path, which is what a
 #'   `targets::tar_file()` target wants.
 #'
-#' @param barrier barrier layer
-#' @param habitat habitat layer
-#' @param buffered buffered layer
-#' @param species character, species name, e.g., "Superb Fairy Wren"
-#' @param col_barrier colour of barrier layer. Defaults to package palette, see
-#' [urbio_colours()].
-#' @param col_interpatch_dist colour of interpatch distance layer
-#' @param col_habitat colour of habitat layer
-#' @param col_paper colour of paper layer of ggplot. Default "grey96".
+#' @inheritParams gg_barrier_habitat_interpatch_dist
 #' @param interpatch_distance Numeric. The interpatch distance, in metres,
 #'   that `buffered` was made for. Used only to label the plot and name the
 #'   file.
@@ -24,13 +16,20 @@
 #' \dontrun{
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
-#' buffered <- habitat_buffer(lizard_habitat, interpatch_distance = 10)
-#' # Creates plot-barrier-interpatch-dist-habitat-*.png in the working directory
+#' interpatch_distance <- 20
+#' lizard_full <- habitat_connectivity_full(
+#'   habitat = lizard_habitat,
+#'   barrier = lizard_barrier,
+#'   interpatch_distance = interpatch_distance,
+#'   verbose = FALSE
+#' )
+#' # Creates plot-barrier-interpatch-distance-habitat-*.png in the working
+#' # directory
 #' plot_barrier_habitat_interpatch_dist(
 #'   barrier = lizard_barrier,
-#'   buffered = buffered,
+#'   buffered = lizard_full$buffered_habitat,
 #'   habitat = lizard_habitat,
-#'   interpatch_distance = 10,
+#'   interpatch_distance = interpatch_distance,
 #'   species = "Blue-tongued Lizard",
 #'   col_barrier = "white",
 #'   col_interpatch_dist = "lightgreen",

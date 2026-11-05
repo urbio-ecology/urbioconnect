@@ -33,14 +33,23 @@ the one place that doesn't go through \code{\link[=format_resolution]{format_res
 }
 \examples{
 \donttest{
+resolution <- 10
+layers <- prepare_rasters(
+  example_habitat(),
+  example_barrier(),
+  data_resolution = resolution
+)
+
+# the analysis records the grid it ran on, but not the resolution asked for,
+# so record that
 report_data <- connectivity_report_data(
-  habitat = example_habitat(),
-  barrier = example_barrier(),
+  habitat = layers$habitat_raster,
+  barrier = layers$barrier_raster,
   species = "Blue Tongue Lizard",
   interpatch_distance = c(100, 250, 400),
   settings = list(
     habitat_source = "example data: lizard",
-    data_resolution_m = 10
+    data_resolution_m = resolution
   ),
   verbose = FALSE
 )

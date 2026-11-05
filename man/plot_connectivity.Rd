@@ -48,35 +48,65 @@ measured against the baseline's habitat area, so a scenario that adds
 habitat can score above 1, and the plot shows that rather than capping it.
 }
 \examples{
-lizard_habitat <- example_habitat()
-lizard_barrier <- example_barrier()
-results <- purrr::map(
-  c(10, 20),
-  function(d) {
-    full <- habitat_connectivity_full(lizard_habitat, lizard_barrier,
-      interpatch_distance = d, verbose = FALSE)
-    summarise_connectivity(
-      connectivity = full$areas_connected$area,
-      interpatch_distance = d,
-      data_resolution = 10,
-      species = "Blue-tongued Lizard"
+# 10 m cells, as the app uses, keep the example quick
+today <- prepare_rasters(
+  example_habitat(),
+  example_barrier(),
+  data_resolution = 10
+)
+
+lizard_connectivity <- habitat_connectivity(
+  habitat = today$habitat_raster,
+  barrier = today$barrier_raster,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 80,
+  verbose = FALSE
+)
+
+lizard_connectivity
+
+plot_connectivity(lizard_connectivity)
+
+# multiple distances
+distances <- c(40, 80, 160)
+
+# a row per interpatch distance
+lizard_connectivities <- purrr::map(
+  distances,
+  function(distance) {
+    habitat_connectivity(
+      habitat = today$habitat_raster,
+      barrier = today$barrier_raster,
+      species = "Blue-tongued Lizard",
+      interpatch_distance = distance,
+      verbose = FALSE
     )
   }
-) |> purrr::list_rbind()
-plot_connectivity(results)
-
-# a scenario against its baseline
-baseline <- summarise_connectivity(lizard_areas_connected)
-compare_scenarios(
-  baseline = baseline,
-  scenarios = list(
-    "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
-    "Barrier upgrade" = summarise_connectivity(
-      lizard_areas_connected[-(1:5), ]
-    )
-  )
 ) |>
-  plot_connectivity()
+  purrr::list_rbind()
+
+plot_connectivity(lizard_connectivities)
+
+# a new road through the habitat against the landscape today
+new_road <- onto_grid(
+  example_barrier_scenario(),
+  today$barrier_raster,
+  background = 0
+)
+
+lizard_road_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = today$habitat_raster,
+  barrier_baseline = today$barrier_raster,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = distances,
+  barrier_scenario = new_road,
+  scenario_name = "New road",
+  verbose = FALSE
+)
+
+lizard_road_comparison
+
+plot_connectivity(lizard_road_comparison)
 }
 \seealso{
 \code{\link[=connectivity_display]{connectivity_display()}} for a comparison as a table.

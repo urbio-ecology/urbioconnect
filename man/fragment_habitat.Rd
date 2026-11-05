@@ -21,7 +21,21 @@ up the habitat where they intersect.
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+interpatch_distance <- 20
+
+# the steps before, in the order habitat_connectivity() runs them
 barrier_mask <- create_barrier_mask(lizard_barrier)
+remaining_habitat <- drop_habitat_under_barrier(
+  habitat = lizard_habitat,
+  barrier_mask = barrier_mask
+)
+buffered_habitat <- habitat_buffer(
+  remaining_habitat,
+  buffer_radius = interpatch_distance / 2
+)
+
+# the barrier cuts the buffered habitat into fragments
 fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+
+fragmented
 }

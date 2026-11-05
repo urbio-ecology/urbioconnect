@@ -17,26 +17,28 @@ plot_barrier_habitat_interpatch_dist(
 )
 }
 \arguments{
-\item{barrier}{barrier layer}
+\item{barrier}{Terra SpatRaster. Barrier layer (e.g., roads).}
 
-\item{buffered}{buffered layer}
+\item{buffered}{Terra SpatRaster. Buffered habitat layer.}
 
-\item{habitat}{habitat layer}
+\item{habitat}{Terra SpatRaster. Original habitat layer. Habitat is any cell
+that is neither \code{NA} nor \code{0}.}
 
 \item{interpatch_distance}{Numeric. The interpatch distance, in metres,
 that \code{buffered} was made for. Used only to label the plot and name the
 file.}
 
-\item{species}{character, species name, e.g., "Superb Fairy Wren"}
+\item{species}{Character. Species name for plot title.}
 
-\item{col_barrier}{colour of barrier layer. Defaults to package palette, see
-\code{\link[=urbio_colours]{urbio_colours()}}.}
+\item{col_barrier}{Character. Colour for barrier layer. Defaults to the
+package palette, so a map drawn here matches the app, the downloads and
+the report. See \code{\link[=urbio_colours]{urbio_colours()}}.}
 
-\item{col_interpatch_dist}{colour of interpatch distance layer}
+\item{col_interpatch_dist}{Character. Colour for interpatch distance zone.}
 
-\item{col_habitat}{colour of habitat layer}
+\item{col_habitat}{Character. Colour for habitat patches.}
 
-\item{col_paper}{colour of paper layer of ggplot. Default "grey96".}
+\item{col_paper}{Character. Background colour (default: "grey96").}
 }
 \value{
 Named character vector. The file path, named by the interpatch
@@ -52,13 +54,20 @@ a PNG in the working directory, at the shared size from
 \dontrun{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered <- habitat_buffer(lizard_habitat, interpatch_distance = 10)
-# Creates plot-barrier-interpatch-dist-habitat-*.png in the working directory
+interpatch_distance <- 20
+lizard_full <- habitat_connectivity_full(
+  habitat = lizard_habitat,
+  barrier = lizard_barrier,
+  interpatch_distance = interpatch_distance,
+  verbose = FALSE
+)
+# Creates plot-barrier-interpatch-distance-habitat-*.png in the working
+# directory
 plot_barrier_habitat_interpatch_dist(
   barrier = lizard_barrier,
-  buffered = buffered,
+  buffered = lizard_full$buffered_habitat,
   habitat = lizard_habitat,
-  interpatch_distance = 10,
+  interpatch_distance = interpatch_distance,
   species = "Blue-tongued Lizard",
   col_barrier = "white",
   col_interpatch_dist = "lightgreen",

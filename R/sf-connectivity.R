@@ -51,7 +51,7 @@ sf_habitat_buffer <- function(habitat, buffer_radius) {
 #'   sf::st_as_sf()
 #' lizard_barrier_shp <- example_barrier_shp()
 #' \dontrun{
-#' buffered <- sf_habitat_buffer(lizard_habitat_sf, interpatch_distance = 10)
+#' buffered <- sf_habitat_buffer(lizard_habitat_sf, buffer_radius = 10)
 #' sf_fragment_habitat(buffered, lizard_barrier_shp)
 #' }
 #' @export

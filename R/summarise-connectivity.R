@@ -21,17 +21,15 @@
 #'   probability of connectedness, effective mesh size, mean and total patch
 #'   areas.
 #' @examples
-#' # dispatch on `patch_size_tbl` class - `lizard_areas_connected`
-#' summarise_connectivity(
-#'   connectivity = lizard_areas_connected
-#' )
+#' # a `patch_size_tbl` carries its species, interpatch distance and resolution
+#' summarise_connectivity(lizard_areas_connected)
 #'
-#' # default method
-#' # manually passing area, interpatch distance, resolution, and species
+#' # a vector of areas does not: these were found at an interpatch distance of
+#' # 50 m on the lizard's 2 m cells
 #' summarise_connectivity(
 #'   connectivity = lizard_areas_connected$area,
-#'   interpatch_distance = 10,
-#'   data_resolution = 10,
+#'   interpatch_distance = 50,
+#'   data_resolution = 2,
 #'   species = "Blue-tongued Lizard"
 #' )
 #' @export

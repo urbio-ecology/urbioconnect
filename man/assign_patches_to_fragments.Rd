@@ -27,17 +27,27 @@ Assign patches to fragments
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+interpatch_distance <- 20
+
+# the steps before, in the order habitat_connectivity() runs them
 barrier_mask <- create_barrier_mask(lizard_barrier)
-fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
+  barrier_mask = barrier_mask
+)
+buffered_habitat <- habitat_buffer(
+  remaining_habitat,
+  buffer_radius = interpatch_distance / 2
+)
+fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+
+# each habitat cell gets the id of the fragment it is in
 fragment_patches <- assign_patches_to_fragments(
   remaining_habitat = remaining_habitat,
   fragment = fragmented
-  )
-library(terra)
-plot(fragment_patches)
+)
+
+fragment_patches
+
+terra::plot(fragment_patches)
 }

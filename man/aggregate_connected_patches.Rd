@@ -19,18 +19,25 @@ each row is a unique patch, and its area.
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+interpatch_distance <- 20
+
+# the steps before, in the order habitat_connectivity() runs them
 barrier_mask <- create_barrier_mask(lizard_barrier)
-fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
-fragment_patches <- assign_patches_to_fragments(
+  barrier_mask = barrier_mask
+)
+buffered_habitat <- habitat_buffer(
+  remaining_habitat,
+  buffer_radius = interpatch_distance / 2
+)
+fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+patch_areas <- assign_patches_to_fragments(
   remaining_habitat = remaining_habitat,
   fragment = fragmented
-  )
-library(terra)
-patch_areas <- add_patch_area(fragment_patches)
+) |>
+  add_patch_area()
+
+# a row per patch, with its area in square metres
 aggregate_connected_patches(patch_areas)
 }

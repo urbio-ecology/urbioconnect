@@ -49,25 +49,35 @@ using terra rasters.
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-lizard_buffered <- habitat_buffer(lizard_habitat, buffer_radius =10)
-gg_bar_hab_buf <- gg_barrier_habitat_interpatch_dist(
-  barrier = lizard_barrier,
-  buffered = lizard_buffered,
+interpatch_distance <- 20
+
+# the buffer habitat_connectivity() makes
+lizard_full <- habitat_connectivity_full(
   habitat = lizard_habitat,
-  interpatch_distance = 10,
+  barrier = lizard_barrier,
+  interpatch_distance = interpatch_distance,
+  verbose = FALSE
+)
+
+lizard_map <- gg_barrier_habitat_interpatch_dist(
+  barrier = lizard_barrier,
+  buffered = lizard_full$buffered_habitat,
+  habitat = lizard_habitat,
+  interpatch_distance = interpatch_distance,
   species = "Blue Tongue Lizard",
   col_barrier = "black",
   col_interpatch_dist = "lightgreen",
   col_habitat = "seagreen"
 )
-gg_bar_hab_buf
 
-# add north arrow and scale bar with ggspatial
-library(ggspatial)
-library(tidyterra)
-gg_bar_hab_buf +
- annotation_north_arrow(
-   style = north_arrow_fancy_orienteering()
-  ) +
-  annotation_scale()
+# add a north arrow and scale bar with ggspatial, if it is installed
+if (requireNamespace("ggspatial", quietly = TRUE)) {
+  lizard_map <- lizard_map +
+    ggspatial::annotation_north_arrow(
+      style = ggspatial::north_arrow_fancy_orienteering()
+    ) +
+    ggspatial::annotation_scale()
+}
+
+lizard_map
 }

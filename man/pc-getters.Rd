@@ -32,3 +32,12 @@ number of rows (numeric, length 1).
 \description{
 Metadata from a \code{patch_size_tbl} object
 }
+\examples{
+# the patch areas behind a lizard analysis
+lizard_areas_connected
+
+pc_species(lizard_areas_connected)
+pc_interpatch_distance(lizard_areas_connected)
+pc_res(lizard_areas_connected)
+pc_patches(lizard_areas_connected)
+}
