@@ -13,6 +13,12 @@
   plain-language explanation of what it does.
   ([\#63](https://github.com/urbio-ecology/urbioconnect/issues/63))
 
+- The shiny app shows a small picture beside the habitat, barrier and
+  scenario uploads, marked up with what each layer should hold: habitat
+  is any value but 0 or empty, a barrier is 1, and a scenario layer is
+  the whole layer after the change.
+  ([\#166](https://github.com/urbio-ecology/urbioconnect/issues/166))
+
 - A “Your analysis” box above the shiny app’s Run button describes the
   analysis as you set it up, and warns before you run it when an
   interpatch distance is too short for the cell size or will be rounded
