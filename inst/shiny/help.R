@@ -306,3 +306,22 @@ analysis_preview <- function(description) {
     }
   )
 }
+
+cell_size_caption <- "Coarser cells are faster, but thin barriers break up and gaps close."
+
+# The example nearest the cell size entered, shown on Inputs and on Details,
+# its space kept so the page doesn't jump as it loads
+cell_size_figure <- function(id) {
+  tags$figure(
+    style = "max-width: 300px",
+    uiOutput(id, style = "aspect-ratio: 300 / 320"),
+    tags$figcaption(class = "small mt-1", cell_size_caption)
+  )
+}
+
+# figures is global.R's cell_size_figures
+nearest_cell_size_figure <- function(cell_size, figures) {
+  distance_from_entered <- abs(figures$cell_size - cell_size)
+  nearest <- which.min(distance_from_entered)
+  figures[nearest, ]
+}

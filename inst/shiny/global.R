@@ -40,6 +40,10 @@ library(urbioconnect)
 # takes them from here rather than the two drifting apart.
 input_defaults <- list(data_resolution = 10, interpatch_distances = "100")
 
+# The example of what the cell size changes, on Inputs and Details, drawn at a
+# few cell sizes by data-raw/cell-size-figures.R
+cell_size_figures <- read.csv("www/cell-size-figures.csv")
+
 # ui.R and server.R are sourced by shiny itself; colours.R and help.R are not,
 # so they come in here
 source("colours.R")
