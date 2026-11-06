@@ -432,6 +432,36 @@ test_that("the Your analysis card says what is wrong with the cell size", {
   })
 })
 
+test_that("the cell size figures follow the cell size, and go when it is emptied", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    session$setInputs(data_resolution = 10)
+    expect_match(
+      output$cell_size_figure_details$html,
+      "cell-size-10.png",
+      fixed = TRUE
+    )
+
+    session$setInputs(data_resolution = 47)
+    expect_match(
+      output$cell_size_figure_details$html,
+      "cell-size-50.png",
+      fixed = TRUE
+    )
+    expect_equal(
+      output$cell_size_figure_inputs,
+      output$cell_size_figure_details
+    )
+
+    # what an emptied numericInput sends
+    session$setInputs(data_resolution = NA)
+    expect_error(output$cell_size_figure_inputs, class = "shiny.silent.error")
+    expect_error(output$cell_size_figure_details, class = "shiny.silent.error")
+  })
+})
+
 test_that("an infinite interpatch distance is an error", {
   skip_if_no_app()
   local_app_server()

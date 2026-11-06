@@ -154,6 +154,7 @@ details_panel <- function() {
             ),
             accordion_panel(
               "Choose your settings",
+              cell_size_figure("cell_size_figure_details"),
               p(paste0(
                 "The defaults are a cell size of ",
                 input_defaults$data_resolution,
@@ -497,6 +498,7 @@ ui <- page_navbar(
             max = 100,
             step = 1
           ),
+          cell_size_figure("cell_size_figure_inputs"),
 
           help_input(
             textInput,

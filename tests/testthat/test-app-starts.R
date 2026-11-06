@@ -55,7 +55,20 @@ test_that("the app starts, takes an analysis, and compares the result", {
   app$click("go_to_details")
   app$wait_for_idle()
   expect_equal(app$get_value(input = "main_nav"), "Details")
+  # outputs suspend while hidden and the accordion has no setValue: click it open
+  panel <- "#details [data-value='Choose your settings'] .accordion-button"
+  app$click(selector = panel)
+  figure <- '$("#cell_size_figure_details img")[0]'
+  app$wait_for_js(paste0(figure, "?.complete"))
+  expect_gt(app$get_js(paste0(figure, ".naturalWidth")), 0)
+  expect_match(
+    app$get_value(output = "cell_size_figure_details")$html,
+    "at 10 m cells"
+  )
   app$set_inputs(main_nav = "Inputs")
+  figure <- '$("#cell_size_figure_inputs img")[0]'
+  app$wait_for_js(paste0(figure, "?.complete"))
+  expect_gt(app$get_js(paste0(figure, ".naturalWidth")), 0)
 
   visible <- function(selector) {
     app$get_js(paste0('$("', selector, '").is(":visible")'))

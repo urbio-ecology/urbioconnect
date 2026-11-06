@@ -146,6 +146,16 @@ server <- function(input, output, session) {
     nav_select("main_nav", "Inputs")
   })
 
+  # Cell size example ----
+
+  cell_size_img <- function() {
+    req(input$data_resolution)
+    figure <- nearest_cell_size_figure(input$data_resolution, cell_size_figures)
+    img(src = figure$file, alt = figure$alt, class = "img-fluid")
+  }
+  output$cell_size_figure_inputs <- renderUI(cell_size_img())
+  output$cell_size_figure_details <- renderUI(cell_size_img())
+
   # Your analysis ----
 
   # The layers, as the Your analysis card names them. NULL until there are
