@@ -113,22 +113,22 @@ connectivity <- habitat_connectivity(
     interpatch_distance = 12
   )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [36ms]
+#> ✔ Creating barrier mask [32ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [64ms]
+#> ✔ Removing habitat underneath barrier [58ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 12m
-#> ✔ Buffering habitat for an interpatch distance of 12m [210ms]
+#> ✔ Buffering habitat for an interpatch distance of 12m [216ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
 #> ✔ Fragmenting habitat layer along barrier intersection [24ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [2.6s]
+#> ✔ Assigning patches ID to fragments [2.4s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [47ms]
+#> ✔ Summarising area in each patch [40ms]
 #> 
 connectivity
 #> # A tibble: 1 × 9

@@ -21,6 +21,11 @@
   rather than squeezing its cards into the window.
   ([\#51](https://github.com/urbio-ecology/urbioconnect/issues/51))
 
+- The shiny app shows an example of what the cell size changes, under
+  “Data resolution” on Inputs and on the Details tab, at the example
+  cell size nearest the one you have entered.
+  ([\#165](https://github.com/urbio-ecology/urbioconnect/issues/165))
+
 - The shiny app can be shipped as a desktop installer for macOS and
   Windows, built by `shinyelectron` from a pushed version tag. The
   installer carries its own R and its own Quarto, so someone
