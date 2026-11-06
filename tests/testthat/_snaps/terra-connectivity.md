@@ -103,3 +103,51 @@
       [1] "buffered_habitat"  "patch_id_raster"   "areas_connected"  
       [4] "barrier_mask"      "remaining_habitat"
 
+# a layer not in metres gives an error saying what it is in
+
+    Code
+      habitat_buffer(lonlat, buffer_radius = 20)
+    Condition
+      Error in `habitat_buffer()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in longitude and latitude, so distances and cell sizes would be read as degrees.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+    Code
+      habitat_buffer(feet, buffer_radius = 20)
+    Condition
+      Error in `habitat_buffer()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in units of 0.3048 m, so distances and cell sizes would be read in those units.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+
+# a layer not in metres gives an error from the function called
+
+    Code
+      empty_grid(lonlat_sf)
+    Condition
+      Error in `empty_grid()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in longitude and latitude, so distances and cell sizes would be read as degrees.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+    Code
+      prepare_rasters(lonlat_sf, lonlat_sf)
+    Condition
+      Error in `prepare_rasters()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in longitude and latitude, so distances and cell sizes would be read as degrees.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+    Code
+      habitat_connectivity(lonlat, lonlat, "lizard", 40, verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in longitude and latitude, so distances and cell sizes would be read as degrees.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+    Code
+      habitat_connectivity_full(lonlat, lonlat, 40, verbose = FALSE)
+    Condition
+      Error in `habitat_connectivity_full()`:
+      ! `habitat` must be projected in metres.
+      x `habitat` is in longitude and latitude, so distances and cell sizes would be read as degrees.
+      i Reproject `habitat` first, with `terra::project()` or `sf::st_transform()`.
+

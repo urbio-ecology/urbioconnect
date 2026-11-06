@@ -7,7 +7,7 @@
 empty_grid(habitat, resolution = 10)
 }
 \arguments{
-\item{habitat}{SF object or terra SpatRaster.}
+\item{habitat}{SF object or terra SpatRaster, projected in metres.}
 
 \item{resolution}{Numeric. Cell size in metres (default: 10).}
 }

@@ -14,8 +14,8 @@ habitat_connectivity(
 )
 }
 \arguments{
-\item{habitat}{Terra SpatRaster. Habitat raster. Habitat is any cell that is
-neither \code{NA} nor \code{0}.}
+\item{habitat}{Terra SpatRaster. Habitat raster, projected in metres.
+Habitat is any cell that is neither \code{NA} nor \code{0}.}
 
 \item{barrier}{Terra SpatRaster. Barrier raster.}
 

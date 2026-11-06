@@ -1,6 +1,7 @@
-# Helper: create a small raster with uniform values
-small_rast <- function(nrows = 5, ncols = 5, val = NA) {
-  terra::rast(nrows = nrows, ncols = ncols, vals = val)
+# Helper: create a small raster with uniform values. "local" is in metres,
+# where terra::rast()'s default is longitude and latitude
+small_rast <- function(nrows = 5, ncols = 5, val = NA, crs = "local") {
+  terra::rast(nrows = nrows, ncols = ncols, vals = val, crs = crs)
 }
 
 # Determine the flattened index from row/col in a row-major raster
@@ -415,4 +416,33 @@ test_that("prepare_rasters takes a raster layer as well as a vector one", {
     as.vector(terra::ext(prepared$habitat_raster)),
     as.vector(terra::ext(prepared$barrier_raster))
   )
+})
+
+test_that("a layer not in metres gives an error saying what it is in", {
+  lonlat <- small_rast(val = 1, crs = "EPSG:4326")
+  feet <- small_rast(val = 1, crs = "EPSG:2227")
+
+  expect_snapshot(error = TRUE, {
+    habitat_buffer(lonlat, buffer_radius = 20)
+    habitat_buffer(feet, buffer_radius = 20)
+  })
+})
+
+test_that("a layer not in metres gives an error from the function called", {
+  lonlat_sf <- sf::st_transform(example_barrier_shp(), "EPSG:4326")
+  lonlat <- small_rast(val = 1, crs = "EPSG:4326")
+
+  expect_snapshot(error = TRUE, {
+    empty_grid(lonlat_sf)
+    prepare_rasters(lonlat_sf, lonlat_sf)
+    habitat_connectivity(lonlat, lonlat, "lizard", 40, verbose = FALSE)
+    habitat_connectivity_full(lonlat, lonlat, 40, verbose = FALSE)
+  })
+})
+
+test_that("a layer with no coordinate reference system is let through", {
+  no_crs <- terra::rast(matrix(1, 5, 5))
+
+  expect_no_warning(prepare_rasters(no_crs, no_crs, data_resolution = 1))
+  expect_no_warning(habitat_buffer(no_crs, buffer_radius = 1))
 })

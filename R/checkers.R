@@ -444,6 +444,52 @@ check_directions <- function(
   invisible(x)
 }
 
+#' Is a layer in metres?
+#'
+#' Every distance and cell size is in metres, so a layer in another unit has
+#' them read in its own: in longitude and latitude a 10 m cell size is read as
+#' 10 degrees, which puts a whole city in one cell. A layer with no coordinate
+#' reference system has no unit to check, so it passes. `x` is anything
+#' `terra::crs()` takes, an `sf` layer included.
+#'
+#' @noRd
+check_in_metres <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  # terra::linearUnits() has no sf method, so ask a raster in the layer's CRS
+  crs_only <- terra::rast(crs = terra::crs(x))
+  # the length of its unit in metres: 0 for longitude and latitude, and NaN
+  # for no coordinate reference system
+  unit_length <- terra::linearUnits(crs_only)
+  no_crs <- is.nan(unit_length)
+  in_metres <- isTRUE(all.equal(unit_length, 1))
+
+  if (no_crs || in_metres) {
+    return(invisible(x))
+  }
+
+  in_lonlat <- isTRUE(all.equal(unit_length, 0))
+  what_it_is_in <- if (in_lonlat) {
+    "{.arg {arg}} is in longitude and latitude, so distances and cell sizes
+     would be read as degrees."
+  } else {
+    "{.arg {arg}} is in units of {signif(unit_length, 4)} m, so distances and
+     cell sizes would be read in those units."
+  }
+
+  cli::cli_abort(
+    c(
+      "{.arg {arg}} must be projected in metres.",
+      "x" = what_it_is_in,
+      "i" = "Reproject {.arg {arg}} first, with {.fn terra::project} or
+             {.fn sf::st_transform}."
+    ),
+    call = call
+  )
+}
+
 #' Does a layer reach the grid it is being put on?
 #'
 #' Putting a layer on a grid it does not overlap succeeds and gives back

@@ -5,7 +5,7 @@
 
 #' Create Empty terra raster grid
 #'
-#' @param habitat SF object or terra SpatRaster.
+#' @param habitat SF object or terra SpatRaster, projected in metres.
 #' @param resolution Numeric. Cell size in metres (default: 10).
 #' @returns Terra SpatRaster. Empty raster grid.
 #' @examples
@@ -13,6 +13,8 @@
 #' empty_grid(lizard_barrier_shp, resolution = 10)
 #' @export
 empty_grid <- function(habitat, resolution = 10) {
+  check_in_metres(habitat)
+
   grid <- terra::rast(
     x = terra::ext(habitat),
     res = resolution,
@@ -92,8 +94,8 @@ onto_grid <- function(layer, grid, background) {
 #' so a barrier that carries on past the study area should be drawn past the
 #' edge of the habitat.
 #'
-#' @param habitat SF object or `SpatRaster`. Habitat spatial data. In a raster,
-#'   habitat is any cell that is neither `NA` nor `0`.
+#' @param habitat SF object or `SpatRaster`. Habitat spatial data, projected in
+#'   metres. In a raster, habitat is any cell that is neither `NA` nor `0`.
 #' @param barrier SF object or `SpatRaster`. Barrier spatial data.
 #' @param data_resolution Numeric. Cell size in metres. Default, 10.
 #' @returns List with `habitat_raster` and `barrier_raster` elements.
@@ -111,6 +113,8 @@ prepare_rasters <- function(
   barrier,
   data_resolution = 10
 ) {
+  check_in_metres(habitat)
+
   grid <- empty_grid(habitat, resolution = data_resolution)
 
   habitat_raster <- onto_grid(habitat, grid, background = NA)
@@ -162,6 +166,7 @@ prepare_rasters <- function(
 #' plot(lizard_habitat, col = "darkgreen", legend = FALSE, add = TRUE)
 habitat_buffer <- function(habitat, buffer_radius) {
   check_single_layer(habitat)
+  check_in_metres(habitat)
   check_distance(buffer_radius)
 
   warn_buffer_resolution(
@@ -445,8 +450,8 @@ aggregate_connected_patches <- function(raster) {
 #' the same landscape can count more patches on a coarser grid. See
 #' `vignette("interpatch-distance-and-resolution")`.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster. Habitat is any cell that is
-#'   neither `NA` nor `0`.
+#' @param habitat Terra SpatRaster. Habitat raster, projected in metres.
+#'   Habitat is any cell that is neither `NA` nor `0`.
 #' @param barrier Terra SpatRaster. Barrier raster.
 #' @param species Species name. E.g., "Blue-tongued Lizard".
 #' @param interpatch_distance Numeric. The distance (in metres) where habitat
@@ -517,6 +522,7 @@ habitat_connectivity <- function(
   directions = 4,
   verbose = TRUE
 ) {
+  check_in_metres(habitat)
   check_directions(directions)
   buffer_radius <- buffer_radius_from(interpatch_distance)
 
@@ -618,6 +624,7 @@ habitat_connectivity_full <- function(
   directions = 4,
   verbose = TRUE
 ) {
+  check_in_metres(habitat)
   check_directions(directions)
   buffer_radius <- buffer_radius_from(interpatch_distance)
 
