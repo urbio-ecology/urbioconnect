@@ -87,19 +87,19 @@ environments.</p>
 <span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Creating barrier mask <span style="color: #B2B2B2;">[2.3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">i</span> Removing habitat underneath barrier</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[102ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[94ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">i</span> Buffering habitat for an interpatch distance of 100m</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Buffering habitat for an interpatch distance of 100m <span style="color: #B2B2B2;">[5.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Buffering habitat for an interpatch distance of 100m <span style="color: #B2B2B2;">[635ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">i</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[32ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[26ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">i</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[624ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[501ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">i</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Summarising area in each patch <span style="color: #B2B2B2;">[171ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">v</span> Summarising area in each patch <span style="color: #B2B2B2;">[156ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">lizard_connectivity</span></span>
@@ -231,10 +231,10 @@ a misleading answer</a> shows what happens otherwise.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 x 10</span></span></span>
 <span><span class="co">#&gt;   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A new road    baseline Blue T~                 100     65                 4.52</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A new road    scenario Blue T~                 100     68                 2.10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A new road    baseline Blue T~                 100     64                 4.52</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A new road    scenario Blue T~                 100     67                 2.10</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> A new road    change   Blue T~                 100      3                -<span style="color: #BB0000;">2.41</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> A new road    pct_cha~ Blue T~                 100      4.62            -<span style="color: #BB0000;">53.4</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> A new road    pct_cha~ Blue T~                 100      4.69            -<span style="color: #BB0000;">53.4</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># i 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span></span></code></pre></div>
 <p>There are four rows, one for baseline, scenario, change, and then
@@ -252,10 +252,10 @@ side:</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> A new road</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       68       3     4.62</span></span>
+<span><span class="co">#&gt;   Patches               64       67       3     4.69</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52      2.1   -2.41    -53.4</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167   0.0778 -0.0893    -53.4</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     3840    -320     -7.7</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     3900    -328    -7.76</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     26.1  -0.929    -3.44</span></span></code></pre></div>
 <p>The road splits the habitat into 3 more patches, and the effective
 mesh falls by 53 per cent.</p>
@@ -285,15 +285,15 @@ map:</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> cleared_habitat</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       44     -21    -32.3</span></span>
+<span><span class="co">#&gt;   Patches               64       44     -20    -31.2</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52     3.51   -1.01    -22.4</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167     0.13 -0.0374    -22.4</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     5110     955       23</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     5110     890     21.1</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     22.5   -4.53    -16.8</span></span></code></pre></div>
 <p><img src="scenario-comparison_files/figure-html/fig-cleared-1.png" class="r-plt" alt="The lizard habitat layer with every patch in the western part of the map removed." width="49%"></p>
 <p>Losing habitat costs 22 per cent of the effective mesh.</p>
-<p>But the patch count falls by 32 per cent and the mean patch area
-rises by 23 per cent, and on their own both would read as good news.</p>
+<p>But the patch count falls by 31 per cent and the mean patch area
+rises by 21 per cent, and on their own both would read as good news.</p>
 <p>The clearing took many small patches and left the bigger ones.</p>
 <p>So read the metrics together.</p>
 <p>Kirk et al. make the same point: a lot of habitat can still have a
@@ -324,10 +324,10 @@ avoid the roads.</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> planted</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       66      1     1.54</span></span>
+<span><span class="co">#&gt;   Patches               64       65      1     1.56</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52     34.1   29.6      656</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167     1.26    1.1      656</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     7690   3530       85</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     7810   3590     84.9</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     50.8   23.7     87.8</span></span></code></pre></div>
 <p><img src="scenario-comparison_files/figure-html/fig-planted-1.png" class="r-plt" alt="The lizard habitat layer with a large solid block of habitat added in the north of the map." width="49%"></p>
 <p>The effective mesh rises by 656 per cent. But the probability of
@@ -366,10 +366,10 @@ effect:</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> planted new road</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       69      4     6.15</span></span>
+<span><span class="co">#&gt;   Patches               64       68      4     6.25</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52     15.9   11.4      252</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167    0.589  0.422      252</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     7110   2950       71</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     7220   2990     70.9</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     49.1     22     81.5</span></span></code></pre></div>
 <p>Together, the road and the planting add 11.4 ha of effective
 mesh.</p>
@@ -407,18 +407,18 @@ combined.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 x 10</span></span></span>
 <span><span class="co">#&gt;    scenario_name measure species interpatch_distance n_patches effective_mesh_ha</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Habitat clea~ baseli~ Blue T~                 100     65                 4.52</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Habitat clea~ baseli~ Blue T~                 100     64                 4.52</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Habitat clea~ scenar~ Blue T~                 100     44                 3.51</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Habitat clea~ change  Blue T~                 100    -<span style="color: #BB0000;">21</span>                -<span style="color: #BB0000;">1.01</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Habitat clea~ pct_ch~ Blue T~                 100    -<span style="color: #BB0000;">32.3</span>             -<span style="color: #BB0000;">22.4</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Habitat added baseli~ Blue T~                 100     65                 4.52</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Habitat added scenar~ Blue T~                 100     66                34.1 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Habitat clea~ change  Blue T~                 100    -<span style="color: #BB0000;">20</span>                -<span style="color: #BB0000;">1.01</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Habitat clea~ pct_ch~ Blue T~                 100    -<span style="color: #BB0000;">31.2</span>             -<span style="color: #BB0000;">22.4</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Habitat added baseli~ Blue T~                 100     64                 4.52</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Habitat added scenar~ Blue T~                 100     65                34.1 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Habitat added change  Blue T~                 100      1                29.6 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Habitat added pct_ch~ Blue T~                 100      1.54            656.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> A new road    baseli~ Blue T~                 100     65                 4.52</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> A new road    scenar~ Blue T~                 100     68                 2.10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Habitat added pct_ch~ Blue T~                 100      1.56            656.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> A new road    baseli~ Blue T~                 100     64                 4.52</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> A new road    scenar~ Blue T~                 100     67                 2.10</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> A new road    change  Blue T~                 100      3                -<span style="color: #BB0000;">2.41</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> A new road    pct_ch~ Blue T~                 100      4.62            -<span style="color: #BB0000;">53.4</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> A new road    pct_ch~ Blue T~                 100      4.69            -<span style="color: #BB0000;">53.4</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># i 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span></span>
 <span></span>
@@ -426,28 +426,28 @@ combined.</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> Habitat cleared</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       44     -21    -32.3</span></span>
+<span><span class="co">#&gt;   Patches               64       44     -20    -31.2</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52     3.51   -1.01    -22.4</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167     0.13 -0.0374    -22.4</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     5110     955       23</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     5110     890     21.1</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     22.5   -4.53    -16.8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> Habitat added</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       66      1     1.54</span></span>
+<span><span class="co">#&gt;   Patches               64       65      1     1.56</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52     34.1   29.6      656</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167     1.26    1.1      656</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     7690   3530       85</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     7810   3590     84.9</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     50.8   23.7     87.8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Scenario:</span> A new road</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65       68       3     4.62</span></span>
+<span><span class="co">#&gt;   Patches               64       67       3     4.69</span></span>
 <span><span class="co">#&gt;   Mesh (ha)           4.52      2.1   -2.41    -53.4</span></span>
 <span><span class="co">#&gt;   P(connected)       0.167   0.0778 -0.0893    -53.4</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160     3840    -320     -7.7</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220     3900    -328    -7.76</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     26.1  -0.929    -3.44</span></span></code></pre></div>
 <p>The list names become the <code>scenario_name</code> column. The
 baseline runs once per distance, and every scenario shares it.</p>
@@ -584,12 +584,12 @@ barrier layer:</p>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">road_only_comparison</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Interpatch distance:</span> 100 m</span></span>
 <span><span class="co">#&gt;   <span style="font-weight: bold;">Metric          Baseline Scenario Change % change</span></span></span>
-<span><span class="co">#&gt;   Patches               65        3    -62    -95.4</span></span>
-<span><span class="co">#&gt;   Mesh (ha)           4.52     31.6   27.1      601</span></span>
-<span><span class="co">#&gt;   P(connected)       0.167     1.17      1      601</span></span>
-<span><span class="co">#&gt;   Mean area (m2)      4160    99200  95000     2280</span></span>
+<span><span class="co">#&gt;   Patches               64        2    -62    -96.9</span></span>
+<span><span class="co">#&gt;   Mesh (ha)           4.52     32.7   28.2      623</span></span>
+<span><span class="co">#&gt;   P(connected)       0.167     1.21   1.04      623</span></span>
+<span><span class="co">#&gt;   Mean area (m2)      4220   149000 145000     3420</span></span>
 <span><span class="co">#&gt;   Total area (ha)       27     29.8   2.72       10</span></span></code></pre></div>
-<p>That comparison says the effective mesh rises by 601 per cent, when
+<p>That comparison says the effective mesh rises by 623 per cent, when
 the road really cuts it by 53 per cent.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

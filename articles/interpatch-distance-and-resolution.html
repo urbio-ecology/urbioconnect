@@ -111,12 +111,13 @@ operation and takes the <code>buffer_radius</code> directly.</p>
 <div class="section level2">
 <h2 id="buffering-happens-on-a-grid">Buffering happens on a grid<a class="anchor" aria-label="anchor" href="#buffering-happens-on-a-grid"></a>
 </h2>
-<p>When habitat is stored as a raster, a grid of square cells.
-<code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code> uses a circular focal window of the
-requested radius, but that circle has to be <strong>discretised</strong>
-onto the grid.</p>
+<p>When habitat is stored as a raster, a grid of cells,
+<code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code> keeps every cell whose centre is within
+the requested radius of habitat, so the circle has to be
+<strong>discretised</strong> onto the grid.</p>
 <p>The number of whole-cell “rings” it can add is
-<code>floor(buffer_radius / resolution)</code>:</p>
+<code>floor(buffer_radius / resolution)</code>, worked out separately
+for the width and the height of a cell when they differ:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 100 m cells</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span></span>
@@ -146,8 +147,7 @@ warns<a class="anchor" aria-label="anchor" href="#a-sub-cell-radius-does-nothing
 </h2>
 <p>Because the window collapses, buffering by less than one cell leaves
 the habitat exactly as it was. <code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code> detects
-this and warns you, then returns the habitat unchanged (rather than
-letting <code><a href="https://rspatial.github.io/terra/reference/focal.html" class="external-link">terra::focal()</a></code> error):</p>
+this and warns you, then keeps only the habitat itself:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hab</span> <span class="op">&lt;-</span> <span class="va">r</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">hab</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>

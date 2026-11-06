@@ -94,9 +94,10 @@ colour values correspond to elevation. On the right is a vector, showing
 the 12 different cantons.</p>
 <p><img src="raster-vs-vector_files/figure-html/show-raster-vector-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p><code>urbioconnect</code> uses rasters that work on
-<code>SpatRaster</code> (Spatial Raster) objects. Buffering is performed
-using a focal window (<code><a href="https://rspatial.github.io/terra/reference/focal.html" class="external-link">terra::focal()</a></code>), and connected
-patches are identified using <code><a href="https://rspatial.github.io/terra/reference/patches.html" class="external-link">terra::patches()</a></code>.</p>
+<code>SpatRaster</code> (Spatial Raster) objects. Buffering keeps every
+cell within the buffer radius of habitat
+(<code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code>), and connected patches are identified
+using <code><a href="https://rspatial.github.io/terra/reference/patches.html" class="external-link">terra::patches()</a></code>.</p>
 <p>The vector approach works on <code>sf</code> objects. Habitat and
 barriers are represented as polygons. Buffering uses
 <code><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">sf::st_buffer()</a></code>, and connectivity is determined by spatial
@@ -159,7 +160,7 @@ the <code>tictoc</code> package</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rast_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2.919 sec elapsed</span></span>
+<span><span class="co">#&gt; 2.77 sec elapsed</span></span>
 <span></span>
 <span><span class="va">raster_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
@@ -205,7 +206,7 @@ out with <code><a href="../reference/patch_sizes.html">patch_sizes()</a></code>:
 <span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_dist</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vect_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tictoc/man/tic.html" class="external-link">toc</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 7.197 sec elapsed</span></span>
+<span><span class="co">#&gt; 9.755 sec elapsed</span></span>
 <span></span>
 <span><span class="va">vector_result</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span></span>
@@ -246,9 +247,9 @@ approximated at the chosen resolution. The vector approach preserves
 exact polygon geometry, so it typically produces slightly different (and
 arguably more precise) patch boundaries, particularly along curved or
 irregular barrier edges.</p>
-<pre><code><span><span class="co">#&gt; [1] 2.919</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 2.77</span></span></code></pre>
 <p>Timings for the methods are also important to consider. The raster
-approach took 2.919 seconds, and the vector approach took 7.197
+approach took 2.77 seconds, and the vector approach took 9.755
 seconds.</p>
 </div>
 <div class="section level2">

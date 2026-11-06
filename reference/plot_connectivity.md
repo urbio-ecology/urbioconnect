@@ -89,7 +89,7 @@ lizard_connectivity
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  80        77              4.50              0.167
+#> 1 Blue-tongu…                  80        73              4.50              0.167
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 
@@ -138,14 +138,14 @@ lizard_road_comparison
 #> # A tibble: 12 × 10
 #>    scenario_name measure species interpatch_distance n_patches effective_mesh_ha
 #>    <chr>         <chr>   <chr>                 <dbl>     <dbl>             <dbl>
-#>  1 New road      baseli… Blue-t…                  40    161                 4.20
-#>  2 New road      scenar… Blue-t…                  40    165                 1.93
-#>  3 New road      change  Blue-t…                  40      4                -2.27
-#>  4 New road      pct_ch… Blue-t…                  40      2.48            -54.1 
-#>  5 New road      baseli… Blue-t…                  80     77                 4.50
-#>  6 New road      scenar… Blue-t…                  80     81                 2.09
+#>  1 New road      baseli… Blue-t…                  40    140                 4.26
+#>  2 New road      scenar… Blue-t…                  40    144                 1.96
+#>  3 New road      change  Blue-t…                  40      4                -2.30
+#>  4 New road      pct_ch… Blue-t…                  40      2.86            -54.0 
+#>  5 New road      baseli… Blue-t…                  80     73                 4.50
+#>  6 New road      scenar… Blue-t…                  80     77                 2.09
 #>  7 New road      change  Blue-t…                  80      4                -2.41
-#>  8 New road      pct_ch… Blue-t…                  80      5.19            -53.6 
+#>  8 New road      pct_ch… Blue-t…                  80      5.48            -53.6 
 #>  9 New road      baseli… Blue-t…                 160     58                 4.53
 #> 10 New road      scenar… Blue-t…                 160     61                 2.11
 #> 11 New road      change  Blue-t…                 160      3                -2.42

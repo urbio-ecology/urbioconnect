@@ -301,6 +301,33 @@
   habitat coded 1 and 0, as GeoTIFFs often are, gives the same patches
   as habitat coded 1 and `NA`.
 
+- [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md),
+  and so
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
+  now keeps every cell whose centre is within the buffer radius of
+  habitat when the cells aren’t square. Its window came from
+  [`terra::focalMat()`](https://rspatial.github.io/terra/reference/focalMat.html),
+  which measures rows at the column width, so it dropped cells just
+  inside the radius, or kept some outside it, and could count patches
+  within the interpatch distance of each other as separate.
+  [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+  seldom makes square cells: the lizard example’s are 10.013 m wide and
+  9.974 m tall. The warning about a distance the grid can’t represent
+  now says how far the buffer reaches across and up and down when the
+  two differ.
+
+- [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
+  is faster at larger radii. It measures how far every cell is from the
+  nearest habitat, along the rows and then one row offset at a time, so
+  its time grows with the radius rather than with the area of a
+  [`terra::focal()`](https://rspatial.github.io/terra/reference/focal.html)
+  window. It keeps the same cells, except a cell exactly one radius
+  away, which floating point could drop and is now kept, as
+  [`representable_distance()`](https://urbio-ecology.github.io/urbioconnect/reference/representable_distance.md)
+  now counts it. It gives an error for a habitat with more than one
+  layer, and no longer gives one for a raster less than half as wide or
+  tall as the buffer.
+
 - [`plot_barrier_habitat_interpatch_dist()`](https://urbio-ecology.github.io/urbioconnect/reference/plot_barrier_habitat_interpatch_dist.md)
   now saves at the shared figure size rather than whatever size the last
   graphics device happened to be, and slugifies the species in the file

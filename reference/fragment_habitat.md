@@ -53,7 +53,7 @@ fragmented
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> varname     : lizard_habitat_raster
-#> name        : focal_max
-#> min value   :         1
-#> max value   :         1
+#> name        : Pseudo Layer
+#> min value   :            1
+#> max value   :            1
 ```

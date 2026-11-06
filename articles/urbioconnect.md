@@ -159,16 +159,17 @@ plot(remaining_habitat, col = "#1b9e77", legend = FALSE, add = TRUE)
 ### Step 3: Buffer the habitat
 
 [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
-expands the habitat outward using a circular focal window. This is the
-spatial operation of buffering, which we use to represent the interpatch
-distance - here the **buffer_radius** should be *half* the species’
-connectivity threshold. For example, if two patches are considered
-connected when within 200 m of each other, use a 100 m buffer, as the
-buffers overlap when patches are within 200 m. For the blue-tongued
-lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk
-et al., 2023), so we would use a buffer of 500 m. However, we use 10 for
-a faster demonstration on the small example dataset, and will define
-both `interpatch_distance` and `buffer_radius` at the same time.
+expands the habitat outward, keeping every cell within a circle of the
+buffer radius. This is the spatial operation of buffering, which we use
+to represent the interpatch distance - here the **buffer_radius** should
+be *half* the species’ connectivity threshold. For example, if two
+patches are considered connected when within 200 m of each other, use a
+100 m buffer, as the buffers overlap when patches are within 200 m. For
+the blue-tongued lizard in urban Melbourne, the median dispersal
+distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500
+m. However, we use 10 for a faster demonstration on the small example
+dataset, and will define both `interpatch_distance` and `buffer_radius`
+at the same time.
 
 ``` r
 
@@ -236,9 +237,9 @@ fragmented
 #> coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)
 #> source(s)   : memory
 #> varname     : lizard_habitat_raster
-#> name        : focal_max
-#> min value   :         1
-#> max value   :         1
+#> name        : Pseudo Layer
+#> min value   :            1
+#> max value   :            1
 ```
 
 ### Step 5: Assign patch IDs
@@ -386,7 +387,7 @@ areas <- habitat_connectivity(
   verbose = TRUE
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [33ms]
+#> ✔ Creating barrier mask [26ms]
 #> 
 #> ℹ Removing habitat underneath barrier
 #> ✔ Removing habitat underneath barrier [53ms]
@@ -397,16 +398,16 @@ areas <- habitat_connectivity(
 #> ℹ It snaps to 8 m.
 #> ℹ Connectivity may shift for patches near the cut-off.
 #> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Buffering habitat for an interpatch distance of 10m [236ms]
+#> ✔ Buffering habitat for an interpatch distance of 10m [154ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [19ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [21ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [2.3s]
+#> ✔ Assigning patches ID to fragments [1.8s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [46ms]
+#> ✔ Summarising area in each patch [42ms]
 #> 
 
 areas

@@ -25,19 +25,19 @@ lizard_connectivity <- habitat_connectivity(
 #> v Creating barrier mask [2.3s]
 #> 
 #> i Removing habitat underneath barrier
-#> v Removing habitat underneath barrier [102ms]
+#> v Removing habitat underneath barrier [94ms]
 #> 
 #> i Buffering habitat for an interpatch distance of 100m
-#> v Buffering habitat for an interpatch distance of 100m [5.8s]
+#> v Buffering habitat for an interpatch distance of 100m [635ms]
 #> 
 #> i Fragmenting habitat layer along barrier intersection
-#> v Fragmenting habitat layer along barrier intersection [32ms]
+#> v Fragmenting habitat layer along barrier intersection [26ms]
 #> 
 #> i Assigning patches ID to fragments
-#> v Assigning patches ID to fragments [624ms]
+#> v Assigning patches ID to fragments [501ms]
 #> 
 #> i Summarising area in each patch
-#> v Summarising area in each patch [171ms]
+#> v Summarising area in each patch [156ms]
 #> 
 
 lizard_connectivity
@@ -185,10 +185,10 @@ road
 #> # A tibble: 4 x 10
 #>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
 #>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
-#> 1 A new road    baseline Blue T~                 100     65                 4.52
-#> 2 A new road    scenario Blue T~                 100     68                 2.10
+#> 1 A new road    baseline Blue T~                 100     64                 4.52
+#> 2 A new road    scenario Blue T~                 100     67                 2.10
 #> 3 A new road    change   Blue T~                 100      3                -2.41
-#> 4 A new road    pct_cha~ Blue T~                 100      4.62            -53.4 
+#> 4 A new road    pct_cha~ Blue T~                 100      4.69            -53.4 
 #> # i 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
 #> #   patch_area_total_ha <dbl>, data_resolution <chr>
 ```
@@ -212,10 +212,10 @@ summary(road)
 #> Scenario: A new road
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario  Change % change
-#>   Patches               65       68       3     4.62
+#>   Patches               64       67       3     4.69
 #>   Mesh (ha)           4.52      2.1   -2.41    -53.4
 #>   P(connected)       0.167   0.0778 -0.0893    -53.4
-#>   Mean area (m2)      4160     3840    -320     -7.7
+#>   Mean area (m2)      4220     3900    -328    -7.76
 #>   Total area (ha)       27     26.1  -0.929    -3.44
 ```
 
@@ -248,10 +248,10 @@ summary(cleared_comparison)
 #> Scenario: cleared_habitat
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario  Change % change
-#>   Patches               65       44     -21    -32.3
+#>   Patches               64       44     -20    -31.2
 #>   Mesh (ha)           4.52     3.51   -1.01    -22.4
 #>   P(connected)       0.167     0.13 -0.0374    -22.4
-#>   Mean area (m2)      4160     5110     955       23
+#>   Mean area (m2)      4220     5110     890     21.1
 #>   Total area (ha)       27     22.5   -4.53    -16.8
 ```
 
@@ -260,8 +260,8 @@ map removed.](scenario-comparison_files/figure-html/fig-cleared-1.png)
 
 Losing habitat costs 22 per cent of the effective mesh.
 
-But the patch count falls by 32 per cent and the mean patch area rises
-by 23 per cent, and on their own both would read as good news.
+But the patch count falls by 31 per cent and the mean patch area rises
+by 21 per cent, and on their own both would read as good news.
 
 The clearing took many small patches and left the bigger ones.
 
@@ -297,10 +297,10 @@ summary(planted_comparison)
 #> Scenario: planted
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario Change % change
-#>   Patches               65       66      1     1.54
+#>   Patches               64       65      1     1.56
 #>   Mesh (ha)           4.52     34.1   29.6      656
 #>   P(connected)       0.167     1.26    1.1      656
-#>   Mean area (m2)      4160     7690   3530       85
+#>   Mean area (m2)      4220     7810   3590     84.9
 #>   Total area (ha)       27     50.8   23.7     87.8
 ```
 
@@ -351,10 +351,10 @@ summary(road_and_planted)
 #> Scenario: planted new road
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario Change % change
-#>   Patches               65       69      4     6.15
+#>   Patches               64       68      4     6.25
 #>   Mesh (ha)           4.52     15.9   11.4      252
 #>   P(connected)       0.167    0.589  0.422      252
-#>   Mean area (m2)      4160     7110   2950       71
+#>   Mean area (m2)      4220     7220   2990     70.9
 #>   Total area (ha)       27     49.1     22     81.5
 ```
 
@@ -394,18 +394,18 @@ scenarios
 #> # A tibble: 12 x 10
 #>    scenario_name measure species interpatch_distance n_patches effective_mesh_ha
 #>    <chr>         <chr>   <chr>                 <dbl>     <dbl>             <dbl>
-#>  1 Habitat clea~ baseli~ Blue T~                 100     65                 4.52
+#>  1 Habitat clea~ baseli~ Blue T~                 100     64                 4.52
 #>  2 Habitat clea~ scenar~ Blue T~                 100     44                 3.51
-#>  3 Habitat clea~ change  Blue T~                 100    -21                -1.01
-#>  4 Habitat clea~ pct_ch~ Blue T~                 100    -32.3             -22.4 
-#>  5 Habitat added baseli~ Blue T~                 100     65                 4.52
-#>  6 Habitat added scenar~ Blue T~                 100     66                34.1 
+#>  3 Habitat clea~ change  Blue T~                 100    -20                -1.01
+#>  4 Habitat clea~ pct_ch~ Blue T~                 100    -31.2             -22.4 
+#>  5 Habitat added baseli~ Blue T~                 100     64                 4.52
+#>  6 Habitat added scenar~ Blue T~                 100     65                34.1 
 #>  7 Habitat added change  Blue T~                 100      1                29.6 
-#>  8 Habitat added pct_ch~ Blue T~                 100      1.54            656.  
-#>  9 A new road    baseli~ Blue T~                 100     65                 4.52
-#> 10 A new road    scenar~ Blue T~                 100     68                 2.10
+#>  8 Habitat added pct_ch~ Blue T~                 100      1.56            656.  
+#>  9 A new road    baseli~ Blue T~                 100     64                 4.52
+#> 10 A new road    scenar~ Blue T~                 100     67                 2.10
 #> 11 A new road    change  Blue T~                 100      3                -2.41
-#> 12 A new road    pct_ch~ Blue T~                 100      4.62            -53.4 
+#> 12 A new road    pct_ch~ Blue T~                 100      4.69            -53.4 
 #> # i 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
 #> #   patch_area_total_ha <dbl>, data_resolution <chr>
 
@@ -413,28 +413,28 @@ summary(scenarios)
 #> Scenario: Habitat cleared
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario  Change % change
-#>   Patches               65       44     -21    -32.3
+#>   Patches               64       44     -20    -31.2
 #>   Mesh (ha)           4.52     3.51   -1.01    -22.4
 #>   P(connected)       0.167     0.13 -0.0374    -22.4
-#>   Mean area (m2)      4160     5110     955       23
+#>   Mean area (m2)      4220     5110     890     21.1
 #>   Total area (ha)       27     22.5   -4.53    -16.8
 #> 
 #> Scenario: Habitat added
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario Change % change
-#>   Patches               65       66      1     1.54
+#>   Patches               64       65      1     1.56
 #>   Mesh (ha)           4.52     34.1   29.6      656
 #>   P(connected)       0.167     1.26    1.1      656
-#>   Mean area (m2)      4160     7690   3530       85
+#>   Mean area (m2)      4220     7810   3590     84.9
 #>   Total area (ha)       27     50.8   23.7     87.8
 #> 
 #> Scenario: A new road
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario  Change % change
-#>   Patches               65       68       3     4.62
+#>   Patches               64       67       3     4.69
 #>   Mesh (ha)           4.52      2.1   -2.41    -53.4
 #>   P(connected)       0.167   0.0778 -0.0893    -53.4
-#>   Mean area (m2)      4160     3840    -320     -7.7
+#>   Mean area (m2)      4220     3900    -328    -7.76
 #>   Total area (ha)       27     26.1  -0.929    -3.44
 ```
 
@@ -629,12 +629,12 @@ road_only_comparison <- habitat_connectivity_comparison(
 summary(road_only_comparison)
 #> Interpatch distance: 100 m
 #>   Metric          Baseline Scenario Change % change
-#>   Patches               65        3    -62    -95.4
-#>   Mesh (ha)           4.52     31.6   27.1      601
-#>   P(connected)       0.167     1.17      1      601
-#>   Mean area (m2)      4160    99200  95000     2280
+#>   Patches               64        2    -62    -96.9
+#>   Mesh (ha)           4.52     32.7   28.2      623
+#>   P(connected)       0.167     1.21   1.04      623
+#>   Mean area (m2)      4220   149000 145000     3420
 #>   Total area (ha)       27     29.8   2.72       10
 ```
 
-That comparison says the effective mesh rises by 601 per cent, when the
+That comparison says the effective mesh rises by 623 per cent, when the
 road really cuts it by 53 per cent.

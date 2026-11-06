@@ -198,18 +198,18 @@ habitat that intersected with barriers.</p>
 <div class="section level3">
 <h3 id="step-3-buffer-the-habitat">Step 3: Buffer the habitat<a class="anchor" aria-label="anchor" href="#step-3-buffer-the-habitat"></a>
 </h3>
-<p><code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code> expands the habitat outward using a
-circular focal window. This is the spatial operation of buffering, which
-we use to represent the interpatch distance - here the
-<strong>buffer_radius</strong> should be <em>half</em> the species’
-connectivity threshold. For example, if two patches are considered
-connected when within 200 m of each other, use a 100 m buffer, as the
-buffers overlap when patches are within 200 m. For the blue-tongued
-lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk
-et al., 2023), so we would use a buffer of 500 m. However, we use 10 for
-a faster demonstration on the small example dataset, and will define
-both <code>interpatch_distance</code> and <code>buffer_radius</code> at
-the same time.</p>
+<p><code><a href="../reference/habitat_buffer.html">habitat_buffer()</a></code> expands the habitat outward, keeping
+every cell within a circle of the buffer radius. This is the spatial
+operation of buffering, which we use to represent the interpatch
+distance - here the <strong>buffer_radius</strong> should be
+<em>half</em> the species’ connectivity threshold. For example, if two
+patches are considered connected when within 200 m of each other, use a
+100 m buffer, as the buffers overlap when patches are within 200 m. For
+the blue-tongued lizard in urban Melbourne, the median dispersal
+distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500
+m. However, we use 10 for a faster demonstration on the small example
+dataset, and will define both <code>interpatch_distance</code> and
+<code>buffer_radius</code> at the same time.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">interpatch_distance</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span><span class="va">buffer_radius</span> <span class="op">&lt;-</span> <span class="va">interpatch_distance</span> <span class="op">/</span> <span class="fl">2</span></span>
@@ -267,9 +267,9 @@ by roads.</p>
 <span><span class="co">#&gt; coord. ref. : GDA94 / MGA zone 55 (EPSG:28355)</span></span>
 <span><span class="co">#&gt; source(s)   : memory</span></span>
 <span><span class="co">#&gt; varname     : lizard_habitat_raster</span></span>
-<span><span class="co">#&gt; name        : focal_max</span></span>
-<span><span class="co">#&gt; min value   :         1</span></span>
-<span><span class="co">#&gt; max value   :         1</span></span></code></pre></div>
+<span><span class="co">#&gt; name        : Pseudo Layer</span></span>
+<span><span class="co">#&gt; min value   :            1</span></span>
+<span><span class="co">#&gt; max value   :            1</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-5-assign-patch-ids">Step 5: Assign patch IDs<a class="anchor" aria-label="anchor" href="#step-5-assign-patch-ids"></a>
@@ -396,7 +396,7 @@ messages.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Creating barrier mask</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[33ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Creating barrier mask <span style="color: #B2B2B2;">[26ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Removing habitat underneath barrier</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removing habitat underneath barrier <span style="color: #B2B2B2;">[53ms]</span></span></span>
@@ -407,16 +407,16 @@ messages.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[236ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Buffering habitat for an interpatch distance of 10m <span style="color: #B2B2B2;">[154ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fragmenting habitat layer along barrier intersection</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[19ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fragmenting habitat layer along barrier intersection <span style="color: #B2B2B2;">[21ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Assigning patches ID to fragments</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[2.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Assigning patches ID to fragments <span style="color: #B2B2B2;">[1.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summarising area in each patch</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[46ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Summarising area in each patch <span style="color: #B2B2B2;">[42ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">areas</span></span>

@@ -1,13 +1,14 @@
 # Buffer habitat raster
 
-Buffer around the habitat a given distance in metres using
-`terra::focalMat(d = buffer_radius, type = "circle")`. This operation is
-used to identify connected patches of habitat. Two patches will connect
-when their edge-to-edge gap is \<= 2 \* `buffer radius`. So, we
-recommend you specify the `buffer_radius` value to be half the
-interpatch distance, which is the distance past which habitat patches
-are no longer considered connected. For example, if your interpatch
-distance is 500m, set `buffer_radius = 250`.
+Buffer around the habitat a given distance in metres. Every cell whose
+centre lies within `buffer_radius` of a habitat cell's centre is kept,
+measured with the cell's width and height. This operation is used to
+identify connected patches of habitat. Two patches will connect when
+their edge-to-edge gap is \<= 2 \* `buffer radius`. So, we recommend you
+specify the `buffer_radius` value to be half the interpatch distance,
+which is the distance past which habitat patches are no longer
+considered connected. For example, if your interpatch distance is 500m,
+set `buffer_radius = 250`.
 
 ## Usage
 
@@ -19,7 +20,8 @@ habitat_buffer(habitat, buffer_radius)
 
 - habitat:
 
-  Terra SpatRaster. Habitat raster.
+  Terra SpatRaster. Habitat raster, with one layer. Habitat is any cell
+  that is neither `NA` nor `0`.
 
 - buffer_radius:
 
@@ -31,12 +33,13 @@ habitat_buffer(habitat, buffer_radius)
   interpatch distance is 500m, set `buffer_radius = 250`. The buffer can
   only be represented if it is at least one raster cell, i.e. keep
   `resolution <= interpatch_distance / 2`. Below that the buffer is a
-  no-op: `habitat_buffer()` warns and returns the habitat unchanged. See
+  no-op: `habitat_buffer()` warns and keeps only the habitat itself. See
   [`vignette("interpatch-distance-and-resolution")`](https://urbio-ecology.github.io/urbioconnect/articles/interpatch-distance-and-resolution.md).
 
 ## Value
 
-Terra SpatRaster with buffered habitat.
+Terra SpatRaster, 1 within `buffer_radius` of habitat and `NA`
+elsewhere.
 
 ## See also
 

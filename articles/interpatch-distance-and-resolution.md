@@ -50,13 +50,14 @@ is an operation and takes the `buffer_radius` directly.
 
 ## Buffering happens on a grid
 
-When habitat is stored as a raster, a grid of square cells.
+When habitat is stored as a raster, a grid of cells,
 [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
-uses a circular focal window of the requested radius, but that circle
-has to be **discretised** onto the grid.
+keeps every cell whose centre is within the requested radius of habitat,
+so the circle has to be **discretised** onto the grid.
 
 The number of whole-cell “rings” it can add is
-`floor(buffer_radius / resolution)`:
+`floor(buffer_radius / resolution)`, worked out separately for the width
+and the height of a cell when they differ:
 
 ``` r
 
@@ -89,10 +90,7 @@ A radius of 100 m (one cell) gives a 3×3 window - one ring. A radius of
 Because the window collapses, buffering by less than one cell leaves the
 habitat exactly as it was.
 [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md)
-detects this and warns you, then returns the habitat unchanged (rather
-than letting
-[`terra::focal()`](https://rspatial.github.io/terra/reference/focal.html)
-error):
+detects this and warns you, then keeps only the habitat itself:
 
 ``` r
 
