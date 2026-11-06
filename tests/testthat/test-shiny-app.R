@@ -106,9 +106,10 @@ test_that("the app's downloads produce files with content", {
       basename(output$download_connectivity_plot),
       paste0(stem, "-over-distance.png")
     )
-
-    patch_raster <- terra::rast(output$download_raster)
-    expect_s4_class(patch_raster, "SpatRaster")
+    expect_equal(
+      basename(output$download_raster),
+      paste0(stem, "-patches.tif")
+    )
 
     # download everything: the same analysis, archived. Asserted here rather
     # than in its own test, which would re-run the pipeline for the same state
@@ -130,6 +131,31 @@ test_that("the app's downloads produce files with content", {
         )
       ),
       contents
+    )
+  })
+})
+
+test_that("the GeoTIFF download holds each distance's patch ids", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    rlang::exec(
+      session$setInputs,
+      !!!app_lizard_inputs(interpatch_distances = "40, 80")
+    )
+
+    written <- terra::values(terra::rast(output$download_raster))
+    analysed <- analysis()$patch_id_raster
+
+    expect_snapshot(colnames(written))
+    expect_equal(
+      written[, 1],
+      terra::values(analysed[["40"]][["patch_id"]], mat = FALSE)
+    )
+    expect_equal(
+      written[, 2],
+      terra::values(analysed[["80"]][["patch_id"]], mat = FALSE)
     )
   })
 })

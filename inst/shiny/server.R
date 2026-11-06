@@ -564,14 +564,14 @@ server <- function(input, output, session) {
     }
   )
 
+  # the patch ids behind the patch map, one layer per distance
   output$download_raster <- downloadHandler(
-    filename = function() {
-      paste0("habitat_patches_", Sys.Date(), ".tif")
-    },
+    filename = stem_filename("-patches.tif"),
     content = function(file) {
-      # read first: inside a terra call the silent error becomes a real one
-      habitat <- analysis()$habitat
-      terra::writeRaster(habitat, file, overwrite = TRUE)
+      data <- analysis()
+      patches <- terra::rast(map(data$patch_id_raster, \(x) x[["patch_id"]]))
+      names(patches) <- glue("interpatch-{data$interpatch_distance}m")
+      terra::writeRaster(patches, file, overwrite = TRUE)
     }
   )
 
