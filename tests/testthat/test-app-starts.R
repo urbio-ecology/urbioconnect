@@ -113,6 +113,10 @@ test_that("the app starts, takes an analysis, and compares the result", {
   # the Your analysis card is rewritten in the browser too, where
   # data_resolution arrives as an integer rather than a double
   app$set_inputs(interpatch_distances = "15")
+  # set_inputs() can return before the card redraws on a slow runner
+  app$wait_for_js(
+    '$("#analysis_preview").text().includes("only patches that touch")'
+  )
   expect_match(app$get_text("#analysis_preview"), "only patches that touch")
 
   # the settings button sits in a conditionalPanel on results_ready, which only
