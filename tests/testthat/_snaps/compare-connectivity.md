@@ -173,19 +173,19 @@
       Scenario: A new road
       Interpatch distance: 40 m
         Metric          Baseline Scenario  Change % change
-        Patches              161      165       4     2.48
-        Mesh (ha)            4.2     1.93   -2.27    -54.1
-        P(connected)       0.155   0.0713 -0.0841    -54.1
-        Mean area (m2)      1680     1580     -97    -5.78
+        Patches              140      144       4     2.86
+        Mesh (ha)           4.26     1.96    -2.3      -54
+        P(connected)       0.158   0.0725 -0.0851      -54
+        Mean area (m2)      1930     1810    -118    -6.12
         Total area (ha)       27     26.1  -0.929    -3.44
       
       Scenario: A new road
       Interpatch distance: 80 m
         Metric          Baseline Scenario  Change % change
-        Patches               77       81       4     5.19
+        Patches               73       77       4     5.48
         Mesh (ha)            4.5     2.09   -2.41    -53.6
         P(connected)       0.167   0.0773 -0.0893    -53.6
-        Mean area (m2)      3510     3220    -288     -8.2
+        Mean area (m2)      3700     3390    -313    -8.45
         Total area (ha)       27     26.1  -0.929    -3.44
 
 # a summary cut down past its tables prints as a tibble

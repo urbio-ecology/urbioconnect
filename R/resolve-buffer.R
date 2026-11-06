@@ -64,11 +64,25 @@ representable_distance <- function(interpatch_distance, resolution) {
     )
   }
 
-  # terra::focalMat() includes a cell when its centre is within the radius, so
-  # the number of rings is floor(radius / resolution). Verified empirically:
-  # d = 350 at 500 m cells is 1x1; d = 500 and d = 600 are 3x3. A negative
-  # distance has no rings either.
-  pmax(0, 2 * floor(interpatch_distance / 2 / resolution) * resolution)
+  buffer_radius <- interpatch_distance / 2
+  # whole cells along a row or column whose centres the buffer reaches
+  cells <- floor(allow_for_rounding(buffer_radius) / resolution)
+  pmax(0, 2 * cells * resolution)
+}
+
+#' Allow for rounding at the edge of a buffer
+#'
+#' A cell exactly one radius away is within the buffer, but floating point can
+#' put it just past: 3 * 0.1 is past 0.3. `habitat_buffer()` and
+#' `representable_distance()` both measure against this, so the warning
+#' describes the cells the buffer keeps.
+#'
+#' @param radius Numeric, the buffer radius in metres.
+#' @param tolerance The room left past `radius`, as a fraction of it.
+#' @returns `radius`, stretched by `tolerance`.
+#' @noRd
+allow_for_rounding <- function(radius, tolerance = 1e-9) {
+  radius * (1 + tolerance)
 }
 
 # warn if the distance can't be represented at this res
@@ -78,13 +92,18 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
   # habitat_connectivity(), so they talk in interpatch distances
   interpatch_distance <- buffer_radius * 2
 
-  # Assumes square cells (callers pass terra::res(habitat)[1]).
-  treated_as <- representable_distance(interpatch_distance, resolution)
+  # One per side of the cell, across and then up and down. The buffer reaches
+  # a whole number of cells along each, so on cells that aren't square the two
+  # differ.
+  snapped_distances <- purrr::map_dbl(resolution, function(side) {
+    representable_distance(interpatch_distance, side)
+  })
 
-  if (treated_as == 0) {
+  if (all(snapped_distances == 0)) {
+    smaller_side <- signif(min(resolution), 4)
     cli::cli_warn(c(
       "Can't represent an {.arg interpatch_distance} of \\
-      {interpatch_distance}m at a resolution of {resolution}m.",
+      {interpatch_distance}m at a resolution of {smaller_side}m.",
       "x" = "Half that distance ({buffer_radius}m) is smaller than one raster \\
       cell.",
       "i" = "Gaps between patches aren't bridged; only touching patches are \\
@@ -96,11 +115,21 @@ warn_buffer_resolution <- function(buffer_radius, resolution) {
     return(invisible())
   }
 
-  if (!isTRUE(all.equal(treated_as, interpatch_distance))) {
+  snaps <- !purrr::map_lgl(snapped_distances, function(distance) {
+    isTRUE(all.equal(distance, interpatch_distance))
+  })
+  if (any(snaps)) {
+    multiples <- unique(signif(2 * resolution[snaps], 4))
+    snapped <- signif(snapped_distances, 4)
+    snaps_to <- if (length(unique(snapped)) == 1) {
+      glue::glue("{snapped[1]} m")
+    } else {
+      glue::glue("{snapped[1]} m across and {snapped[2]} m up and down")
+    }
     cli::cli_warn(c(
       "{.arg interpatch_distance} doesn't align with the raster resolution.",
-      "x" = "{interpatch_distance} m isn't a multiple of {2 * resolution} m.",
-      "i" = "It snaps to {treated_as} m.",
+      "x" = "{interpatch_distance} m isn't a multiple of {.or {multiples}} m.",
+      "i" = "It snaps to {snaps_to}.",
       "i" = "Connectivity may shift for patches near the cut-off.",
       "i" = "See {.vignette urbioconnect::interpatch-distance-and-resolution}."
     ))

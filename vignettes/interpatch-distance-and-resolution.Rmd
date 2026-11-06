@@ -97,9 +97,9 @@ lower-level `habitat_buffer()` is an operation and takes the `buffer_radius` dir
 
 ## Buffering happens on a grid
 
-When habitat is stored as a raster, a grid of square cells. `habitat_buffer()` uses a circular focal window of the requested radius, but that circle has to be **discretised** onto the grid. 
+When habitat is stored as a raster, a grid of cells, `habitat_buffer()` keeps every cell whose centre is within the requested radius of habitat, so the circle has to be **discretised** onto the grid.
 
-The number of whole-cell "rings" it can add is `floor(buffer_radius / resolution)`:
+The number of whole-cell "rings" it can add is `floor(buffer_radius / resolution)`, worked out separately for the width and the height of a cell when they differ:
 
 ```{r}
 #| label: windows
@@ -154,7 +154,7 @@ plot_tiles(
 
 ## A sub-cell radius does nothing - and `habitat_buffer()` warns
 
-Because the window collapses, buffering by less than one cell leaves the habitat exactly as it was. `habitat_buffer()` detects this and warns you, then returns the habitat unchanged (rather than letting `terra::focal()` error):
+Because the window collapses, buffering by less than one cell leaves the habitat exactly as it was. `habitat_buffer()` detects this and warns you, then keeps only the habitat itself:
 
 ```{r}
 #| label: rings

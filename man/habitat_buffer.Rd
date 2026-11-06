@@ -7,7 +7,8 @@
 habitat_buffer(habitat, buffer_radius)
 }
 \arguments{
-\item{habitat}{Terra SpatRaster. Habitat raster.}
+\item{habitat}{Terra SpatRaster. Habitat raster, with one layer. Habitat is
+any cell that is neither \code{NA} nor \code{0}.}
 
 \item{buffer_radius}{Numeric. The radius in metres around the habitat.
 Since patches of habitat will be connected when their edge-to-edge gap is
@@ -17,15 +18,17 @@ patches are no longer considered connected. For example, if your
 interpatch distance is 500m, set \code{buffer_radius = 250}. The buffer can only
 be represented if it is at least one raster cell, i.e. keep
 \code{resolution <= interpatch_distance / 2}. Below that the buffer is a no-op:
-\code{habitat_buffer()} warns and returns the habitat unchanged. See
+\code{habitat_buffer()} warns and keeps only the habitat itself. See
 \code{vignette("interpatch-distance-and-resolution")}.}
 }
 \value{
-Terra SpatRaster with buffered habitat.
+Terra SpatRaster, 1 within \code{buffer_radius} of habitat and \code{NA}
+elsewhere.
 }
 \description{
-Buffer around the habitat a given distance in metres using
-\code{terra::focalMat(d = buffer_radius, type = "circle")}. This operation is
+Buffer around the habitat a given distance in metres. Every cell whose
+centre lies within \code{buffer_radius} of a habitat cell's centre is kept,
+measured with the cell's width and height. This operation is
 used to identify connected patches of habitat. Two patches will connect
 when their edge-to-edge gap is <= 2 * \verb{buffer radius}. So, we recommend
 you specify the \code{buffer_radius} value to be half the interpatch distance,

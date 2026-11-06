@@ -179,6 +179,104 @@ test_that("habitat_buffer expands non-NA habitat area", {
   expect_gt(n_after, n_before)
 })
 
+test_that("habitat_buffer() measures rows by the cell height on non-square cells", {
+  # cells 10 m wide and 9.5 m tall: two rows up is 19 m away, within the
+  # radius, and two columns across is 20 m, outside it
+  habitat <- test_raster(5, 5, cell = c(10, 9.5))
+  habitat[3, 3] <- 1
+
+  expect_snapshot(buffered <- habitat_buffer(habitat, 19))
+  expect_snapshot(terra::as.matrix(!is.na(buffered), wide = TRUE))
+})
+
+test_that("habitat_buffer() judges 'below one cell' by the smaller cell side", {
+  habitat <- test_raster(5, 5, cell = c(10, 9.5))
+  habitat[3, 3] <- 1
+
+  # 9.7 m reaches the rows above and below, 9.5 m away, but not the columns
+  # either side, 10 m away
+  expect_snapshot(buffered <- habitat_buffer(habitat, 9.7))
+  expect_snapshot(terra::as.matrix(!is.na(buffered), wide = TRUE))
+})
+
+test_that("habitat_buffer() of a landscape with no habitat is empty", {
+  buffered <- habitat_buffer(test_raster(10, 10), 50)
+
+  expect_all_true(is.na(terra::values(buffered)[, 1]))
+})
+
+test_that("habitat_buffer() handles a raster one cell wide or tall", {
+  one_row <- test_raster(1, 5, fill = c(1, NA, NA, NA, NA))
+  one_column <- test_raster(5, 1, fill = c(1, NA, NA, NA, NA))
+
+  wide <- habitat_buffer(one_row, 20)
+  tall <- habitat_buffer(one_column, 20)
+
+  expect_equal(terra::values(wide)[, 1], c(1, 1, 1, NA, NA))
+  expect_equal(terra::values(tall)[, 1], c(1, 1, 1, NA, NA))
+})
+
+test_that("habitat_buffer() takes a habitat with one layer only", {
+  layer <- test_raster(10, 10)
+
+  expect_snapshot(error = TRUE, habitat_buffer(c(layer, layer), 20))
+})
+
+test_that("habitat_buffer() keeps the cells the focal buffer kept on square cells", {
+  # the lizard as shipped has square 2 m cells, where terra::focalMat() is
+  # right
+  extent <- terra::ext(lizard_habitat)
+  crop <- terra::crop(
+    lizard_habitat,
+    terra::ext(
+      extent$xmin,
+      extent$xmin + 300,
+      extent$ymax - 300,
+      extent$ymax
+    )
+  )
+
+  buffered <- habitat_buffer(crop, 20)
+
+  window <- terra::focalMat(crop, d = 20, type = "circle")
+  window <- window / max(window)
+  focal <- terra::focal(crop, w = window, fun = max, na.rm = TRUE)
+  focal[focal != 1] <- NA
+
+  expect_equal(
+    !is.na(terra::values(buffered)[, 1]),
+    !is.na(terra::values(focal)[, 1])
+  )
+})
+
+test_that("habitat_buffer() keeps a cell exactly one radius away", {
+  # in floating point 3 * 0.1 is past 0.3, and 4.3 / 0.1 is short of 43
+  strip <- test_raster(101, 1, cell = c(0.1, 0.1))
+  strip[51, 1] <- 1
+  radii <- c(0.3, 0.4, 1.1, 4.3)
+
+  expect_no_warning(
+    rows_reached <- purrr::map_dbl(radii, \(radius) {
+      buffered <- habitat_buffer(strip, radius)
+      (sum(!is.na(terra::values(buffered))) - 1) / 2
+    })
+  )
+
+  expect_equal(rows_reached, c(3, 4, 11, 43))
+})
+
+test_that("habitat_buffer() warns below one cell and keeps only the habitat", {
+  layer <- test_raster(10, 10, fill = 0)
+  layer[5, 5] <- 2
+
+  expect_snapshot(buffered <- habitat_buffer(layer, 5))
+
+  expect_equal(
+    which(!is.na(terra::values(buffered)[, 1])),
+    terra::cellFromRowCol(layer, 5, 5)
+  )
+})
+
 test_that("add_patch_area returns a two-layer raster named patch_id and area", {
   result <- add_patch_area(patches)
   expect_equal(terra::nlyr(result), 2)

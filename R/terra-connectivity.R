@@ -125,8 +125,9 @@ prepare_rasters <- function(
 
 #' Buffer habitat raster
 #'
-#' Buffer around the habitat a given distance in metres using
-#'   `terra::focalMat(d = buffer_radius, type = "circle")`. This operation is
+#' Buffer around the habitat a given distance in metres. Every cell whose
+#'   centre lies within `buffer_radius` of a habitat cell's centre is kept,
+#'   measured with the cell's width and height. This operation is
 #'   used to identify connected patches of habitat. Two patches will connect
 #'   when their edge-to-edge gap is <= 2 * `buffer radius`. So, we recommend
 #'   you specify the `buffer_radius` value to be half the interpatch distance,
@@ -134,7 +135,8 @@ prepare_rasters <- function(
 #'   connected. For example, if your interpatch distance is 500m, set
 #'   `buffer_radius = 250`.
 #'
-#' @param habitat Terra SpatRaster. Habitat raster.
+#' @param habitat Terra SpatRaster. Habitat raster, with one layer. Habitat is
+#'   any cell that is neither `NA` nor `0`.
 #' @param buffer_radius Numeric. The radius in metres around the habitat.
 #'   Since patches of habitat will be connected when their edge-to-edge gap is
 #'   <= 2 * `buffer radius`, we recommend you specify `buffer_radius` to be
@@ -143,9 +145,10 @@ prepare_rasters <- function(
 #'   interpatch distance is 500m, set `buffer_radius = 250`. The buffer can only
 #'   be represented if it is at least one raster cell, i.e. keep
 #'   `resolution <= interpatch_distance / 2`. Below that the buffer is a no-op:
-#'   `habitat_buffer()` warns and returns the habitat unchanged. See
+#'   `habitat_buffer()` warns and keeps only the habitat itself. See
 #'   `vignette("interpatch-distance-and-resolution")`.
-#' @returns Terra SpatRaster with buffered habitat.
+#' @returns Terra SpatRaster, 1 within `buffer_radius` of habitat and `NA`
+#'   elsewhere.
 #' @seealso `vignette("interpatch-distance-and-resolution")` for the
 #'   relationship between interpatch distance, buffer radius, and resolution.
 #' @export
@@ -158,34 +161,19 @@ prepare_rasters <- function(
 #' plot(lizard_buff, col = "lightgreen", legend = FALSE)
 #' plot(lizard_habitat, col = "darkgreen", legend = FALSE, add = TRUE)
 habitat_buffer <- function(habitat, buffer_radius) {
+  check_single_layer(habitat)
   check_distance(buffer_radius)
 
-  resolution <- terra::res(habitat)[1]
   warn_buffer_resolution(
     buffer_radius = buffer_radius,
-    resolution = resolution
+    resolution = terra::res(habitat)
   )
-  # A sub-cell radius rounds to zero rings: terra::focalMat() returns a 1x1
-  # window and terra::focal() errors ("not a meaningful window"). The buffer is a
-  # no-op at this resolution, so return the habitat unchanged - the warning above
-  # has already explained the consequence (only touching patches are linked).
-  if (buffer_radius < resolution) {
-    return(habitat)
-  }
-  buffer_window <- terra::focalMat(
-    x = habitat,
-    d = buffer_radius,
-    type = "circle"
+  distance <- distance_to_nearest_habitat(
+    habitat,
+    distance_within = buffer_radius
   )
-  buffer_window <- buffer_window / max(buffer_window)
-  buffered_habitat <- terra::focal(
-    x = habitat,
-    w = buffer_window,
-    fun = max,
-    na.rm = TRUE
-  )
-  buffered_habitat[buffered_habitat != 1] <- NA
-  buffered_habitat
+  within_radius <- distance <= allow_for_rounding(buffer_radius)
+  terra::ifel(within_radius, 1, NA)
 }
 
 #' Create barrier mask
