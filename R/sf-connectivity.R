@@ -51,7 +51,7 @@ sf_habitat_buffer <- function(habitat, buffer_radius) {
 #'   sf::st_as_sf()
 #' lizard_barrier_shp <- example_barrier_shp()
 #' \dontrun{
-#' buffered <- sf_habitat_buffer(lizard_habitat_sf, interpatch_distance = 10)
+#' buffered <- sf_habitat_buffer(lizard_habitat_sf, buffer_radius = 10)
 #' sf_fragment_habitat(buffered, lizard_barrier_shp)
 #' }
 #' @export
@@ -99,7 +99,7 @@ sf_drop_habitat_under_barrier <- function(habitat, barrier) {
 #' @param remaining SF object. Remaining habitat patches after barrier removal.
 #' @param fragment_id SF object. Fragment geometries with IDs.
 #'
-#' @returns SF object with habitat patches labeled by their fragment ID.
+#' @returns SF object with habitat patches labelled by their fragment ID.
 #' @examples
 #' lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
 #'   sf::st_as_sf()
@@ -123,7 +123,7 @@ sf_assign_patches_to_fragments <- function(remaining, fragment_id) {
 #'
 #' @param patches SF object. Habitat patches.
 #'
-#' @returns SF object with added `area` column in square meters.
+#' @returns SF object with added `area` column in square metres.
 #' @examples
 #' lizard_habitat_sf <- terra::as.polygons(example_habitat(), dissolve = TRUE) |>
 #'   sf::st_as_sf()
@@ -178,7 +178,7 @@ sf_aggregate_connected_patches <- function(patch_areas) {
 #' @param habitat SF object. Original habitat spatial data.
 #' @param barrier SF object. Barrier spatial data (e.g., roads, waterways).
 #' @param species character. Species name.
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
+#' @param interpatch_distance Numeric. The distance (in metres) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
 #'   are connected, those 501m apart are not connected. This is passed
 #'   internally to a spatial operation known as "buffering", where this

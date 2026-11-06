@@ -13,22 +13,32 @@ add_patch_area(raster)
 terra SpatRaster with two layers: patch_id and area.
 }
 \description{
-Adds an area layer to the raster of the area of each patch.
+Adds a layer holding the area of each cell, in square metres, and names the
+layers \code{patch_id} and \code{area}.
 }
 \examples{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+interpatch_distance <- 20
+
+# the steps before, in the order habitat_connectivity() runs them
 barrier_mask <- create_barrier_mask(lizard_barrier)
-fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
+  barrier_mask = barrier_mask
+)
+buffered_habitat <- habitat_buffer(
+  remaining_habitat,
+  buffer_radius = interpatch_distance / 2
+)
+fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 fragment_patches <- assign_patches_to_fragments(
   remaining_habitat = remaining_habitat,
   fragment = fragmented
-  )
-library(terra)
-add_patch_area(fragment_patches)
+)
+
+# a second layer holds each cell's area, in square metres
+patch_areas <- add_patch_area(fragment_patches)
+
+patch_areas
 }

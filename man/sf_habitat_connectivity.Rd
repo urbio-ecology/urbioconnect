@@ -13,7 +13,7 @@ sf_habitat_connectivity(habitat, barrier, species, interpatch_distance)
 
 \item{species}{character. Species name.}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
+\item{interpatch_distance}{Numeric. The distance (in metres) where habitat
 patches are considered connected. E.g., if set to 500, patches 498m apart
 are connected, those 501m apart are not connected. This is passed
 internally to a spatial operation known as "buffering", where this

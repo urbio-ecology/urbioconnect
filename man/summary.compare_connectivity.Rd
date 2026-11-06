@@ -34,21 +34,26 @@ per cent change side by side, rounded as \code{\link[=connectivity_display]{conn
 describes.
 }
 \examples{
-baseline <- summarise_connectivity(lizard_areas_connected)
-# a scenario in which five connected patches (the first five rows) are lost
-scenario <- summarise_connectivity(lizard_areas_connected[-(1:5), ])
-
-comparison <- compare_connectivity(
-  scenario = scenario,
-  baseline = baseline,
-  scenario_name = "Bentley Project"
+# a new road through the lizard's habitat, against the landscape today
+lizard_road_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = example_habitat(),
+  barrier_baseline = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  barrier_scenario = example_barrier_scenario(),
+  scenario_name = "New road",
+  verbose = FALSE
 )
 
-comparison_summary <- summary(comparison)
-comparison_summary
+lizard_road_comparison
+
+# a row per metric, the baseline and scenario side by side
+lizard_road_summary <- summary(lizard_road_comparison)
+
+lizard_road_summary
 
 # the values are still numbers
-comparison_summary[["\% change"]]
+lizard_road_summary[["\% change"]]
 }
 \seealso{
 \code{\link[=compare_connectivity]{compare_connectivity()}}, and \code{round_by(connectivity_display(x))},

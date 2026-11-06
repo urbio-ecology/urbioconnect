@@ -62,17 +62,21 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
-#' # a scenario that changes the barrier: the habitat stays as it is today
-#' habitat_connectivity_comparison(
-#'   habitat_baseline = example_wren_habitat(),
-#'   barrier_baseline = example_wren_barrier(),
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
-#'   barrier_scenario = example_wren_barrier_scenario(),
+#' # a new road changes the barrier; the habitat stays as it is today
+#' lizard_road_comparison <- habitat_connectivity_comparison(
+#'   habitat_baseline = example_habitat(),
+#'   barrier_baseline = example_barrier(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
+#'   barrier_scenario = example_barrier_scenario(),
+#'   scenario_name = "New road",
 #'   verbose = FALSE
 #' )
-#' }
+#'
+#' lizard_road_comparison
+#'
+#' # a row per metric, the baseline and scenario side by side
+#' summary(lizard_road_comparison)
 habitat_connectivity_comparison <- function(
   habitat_baseline,
   barrier_baseline,

@@ -21,7 +21,7 @@ neither \code{NA} nor \code{0}.}
 
 \item{species}{Species name. E.g., "Blue-tongued Lizard".}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
+\item{interpatch_distance}{Numeric. The distance (in metres) where habitat
 patches are considered connected. E.g., if set to 500, patches 498m apart
 are connected, those 501m apart are not connected. This is passed
 internally to a spatial operation known as "buffering", where this
@@ -49,15 +49,18 @@ from are stored in a list column, "patch_size" -- retrieve them with
 \code{\link[=patch_sizes]{patch_sizes()}}.
 }
 \description{
-This performs the entire connectivity workflow, returning a dataframe output.
-The steps are:
+This performs the entire connectivity workflow, returning a \code{connectivity}
+summary. The steps are:
 \itemize{
-\item \code{\link[=create_barrier_mask]{create_barrier_mask()}}: Creating barrier mask.
-\item \code{\link[=drop_habitat_under_barrier]{drop_habitat_under_barrier()}}: Removes Habitat underneath barrier.
-\item \code{\link[=habitat_buffer]{habitat_buffer()}}: Buffers the habitat layer by the interpatch distance (m).
-\item \code{\link[=fragment_habitat]{fragment_habitat()}}: Fragments habitat layer along barrier intersection.
-\item \code{\link[=assign_patches_to_fragments]{assign_patches_to_fragments()}}: Assign patch ID to fragments.
-\item \code{\link[=aggregate_connected_patches]{aggregate_connected_patches()}}: Summarise area in each patch.
+\item \code{\link[=create_barrier_mask]{create_barrier_mask()}}: Creates the barrier mask.
+\item \code{\link[=drop_habitat_under_barrier]{drop_habitat_under_barrier()}}: Removes habitat underneath the barrier.
+\item \code{\link[=habitat_buffer]{habitat_buffer()}}: Buffers the remaining habitat by half the interpatch
+distance (m).
+\item \code{\link[=fragment_habitat]{fragment_habitat()}}: Fragments the buffered habitat along the barrier.
+\item \code{\link[=assign_patches_to_fragments]{assign_patches_to_fragments()}}: Assigns a patch ID to each fragment.
+\item \code{\link[=add_patch_area]{add_patch_area()}}: Adds the area of each cell.
+\item \code{\link[=aggregate_connected_patches]{aggregate_connected_patches()}}: Sums the area in each patch.
+\item \code{\link[=summarise_connectivity]{summarise_connectivity()}}: Calculates the connectivity metrics.
 }
 }
 \details{

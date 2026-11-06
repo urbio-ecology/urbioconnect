@@ -9,9 +9,11 @@
 #'   `connectivity` object (both created by [habitat_connectivity()] or
 #'   [summarise_connectivity()]).
 #'
-#'   If you have raster or vector layers rather than `connectivity` objects, use
-#'   [habitat_connectivity_comparison()], which runs [habitat_connectivity()] on
-#'   each scenario for you and then calls this function.
+#'   If you have habitat and barrier rasters rather than `connectivity` objects,
+#'   use [habitat_connectivity_comparison()], which runs
+#'   [habitat_connectivity()] on each scenario for you and then calls this
+#'   function. Put vector layers on a grid first, with [prepare_rasters()] and
+#'   [onto_grid()].
 #'
 #' @param scenario A `connectivity` object (from [habitat_connectivity()] or
 #'   [summarise_connectivity()]). The scenario to compare against `baseline`.
@@ -33,26 +35,50 @@
 #'   `scenario - baseline`, so a positive value means the scenario is higher
 #'   than the baseline; the `pct_change` row expresses that same change as
 #'   `100 * change / baseline`, which puts every metric on the same scale.
-#'   Metric values are held at full precision - they are not rounded - so
-#'   `change` is exact.
+#'   The scenario's `effective_mesh_ha` and `prob_connectedness` are measured
+#'   against the baseline's habitat area, so they can differ from what
+#'   [habitat_connectivity()] gives the scenario on its own. Metric
+#'   values are held at full precision - they are not rounded - so `change` is
+#'   exact.
 #' @seealso [habitat_connectivity_comparison()], which starts from habitat and
 #'   barrier layers instead of `connectivity` objects,
 #'   [habitat_connectivity()], and [summarise_connectivity()].
 #' @export
 #'
 #' @examples
-#' # build `connectivity` objects cheaply (no spatial pipeline) and compare them
-#' baseline <- summarise_connectivity(lizard_areas_connected)
-#' # a scenario in which one connected patch (the first row) is lost
-#' scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
-#' compare_connectivity(scenario = scenario, baseline = baseline)
-#'
-#' # label the scenario so it can be told apart from others
-#' compare_connectivity(
-#'   scenario = scenario,
-#'   baseline = baseline,
-#'   scenario_name = "Bentley Project"
+#' # the lizard's landscape today
+#' lizard_today <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
 #' )
+#'
+#' lizard_today
+#'
+#' # and with a new road through the habitat
+#' lizard_new_road <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier_scenario(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
+#' )
+#'
+#' lizard_new_road
+#'
+#' # against today's habitat, so mesh and connectedness differ from above
+#' lizard_road_comparison <- compare_connectivity(
+#'   scenario = lizard_new_road,
+#'   baseline = lizard_today,
+#'   scenario_name = "New road"
+#' )
+#'
+#' lizard_road_comparison
+#'
+#' # a row per metric, the baseline and scenario side by side
+#' summary(lizard_road_comparison)
 compare_connectivity <- function(scenario, baseline, scenario_name = NULL) {
   check_connectivity(scenario)
   check_connectivity(baseline)
@@ -203,21 +229,26 @@ new_compare_connectivity <- function(x) {
 #' @export
 #'
 #' @examples
-#' baseline <- summarise_connectivity(lizard_areas_connected)
-#' # a scenario in which five connected patches (the first five rows) are lost
-#' scenario <- summarise_connectivity(lizard_areas_connected[-(1:5), ])
-#'
-#' comparison <- compare_connectivity(
-#'   scenario = scenario,
-#'   baseline = baseline,
-#'   scenario_name = "Bentley Project"
+#' # a new road through the lizard's habitat, against the landscape today
+#' lizard_road_comparison <- habitat_connectivity_comparison(
+#'   habitat_baseline = example_habitat(),
+#'   barrier_baseline = example_barrier(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
+#'   barrier_scenario = example_barrier_scenario(),
+#'   scenario_name = "New road",
+#'   verbose = FALSE
 #' )
 #'
-#' comparison_summary <- summary(comparison)
-#' comparison_summary
+#' lizard_road_comparison
+#'
+#' # a row per metric, the baseline and scenario side by side
+#' lizard_road_summary <- summary(lizard_road_comparison)
+#'
+#' lizard_road_summary
 #'
 #' # the values are still numbers
-#' comparison_summary[["% change"]]
+#' lizard_road_summary[["% change"]]
 summary.compare_connectivity <- function(object, ...) {
   rlang::check_dots_empty()
 

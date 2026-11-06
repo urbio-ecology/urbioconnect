@@ -6,7 +6,7 @@
 #' Create Empty terra raster grid
 #'
 #' @param habitat SF object or terra SpatRaster.
-#' @param resolution Numeric. Cell size in meters (default: 10).
+#' @param resolution Numeric. Cell size in metres (default: 10).
 #' @returns Terra SpatRaster. Empty raster grid.
 #' @examples
 #' lizard_barrier_shp <- example_barrier_shp()
@@ -236,12 +236,19 @@ is_habitat <- function(values) {
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
+#'
 #' barrier_mask <- create_barrier_mask(lizard_barrier)
+#'
 #' remaining_habitat <- drop_habitat_under_barrier(
 #'   habitat = lizard_habitat,
-#'   barrier = lizard_barrier
-#'   )
+#'   barrier_mask = barrier_mask
+#' )
+#'
 #' remaining_habitat
+#'
+#' # the habitat under the barrier, in orange, is dropped
+#' terra::plot(lizard_habitat, col = "orange", legend = FALSE)
+#' terra::plot(remaining_habitat, col = "seagreen", legend = FALSE, add = TRUE)
 drop_habitat_under_barrier <- function(habitat, barrier_mask) {
   check_single_layer(habitat)
   barrier_mask <- align_to(barrier_mask, habitat)
@@ -261,9 +268,23 @@ drop_habitat_under_barrier <- function(habitat, barrier_mask) {
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
-#' buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+#' interpatch_distance <- 20
+#'
+#' # the steps before, in the order habitat_connectivity() runs them
 #' barrier_mask <- create_barrier_mask(lizard_barrier)
+#' remaining_habitat <- drop_habitat_under_barrier(
+#'   habitat = lizard_habitat,
+#'   barrier_mask = barrier_mask
+#' )
+#' buffered_habitat <- habitat_buffer(
+#'   remaining_habitat,
+#'   buffer_radius = interpatch_distance / 2
+#' )
+#'
+#' # the barrier cuts the buffered habitat into fragments
 #' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+#'
+#' fragmented
 fragment_habitat <- function(buffered_habitat, barrier_mask) {
   barrier_mask <- align_to(barrier_mask, buffered_habitat)
   buffered_habitat * barrier_mask
@@ -280,19 +301,29 @@ fragment_habitat <- function(buffered_habitat, barrier_mask) {
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
-#' buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+#' interpatch_distance <- 20
+#'
+#' # the steps before, in the order habitat_connectivity() runs them
 #' barrier_mask <- create_barrier_mask(lizard_barrier)
-#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 #' remaining_habitat <- drop_habitat_under_barrier(
 #'   habitat = lizard_habitat,
-#'   barrier = lizard_barrier
-#'   )
+#'   barrier_mask = barrier_mask
+#' )
+#' buffered_habitat <- habitat_buffer(
+#'   remaining_habitat,
+#'   buffer_radius = interpatch_distance / 2
+#' )
+#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+#'
+#' # each habitat cell gets the id of the fragment it is in
 #' fragment_patches <- assign_patches_to_fragments(
 #'   remaining_habitat = remaining_habitat,
 #'   fragment = fragmented
-#'   )
-#' library(terra)
-#' plot(fragment_patches)
+#' )
+#'
+#' fragment_patches
+#'
+#' terra::plot(fragment_patches)
 assign_patches_to_fragments <- function(
   remaining_habitat,
   fragment,
@@ -313,7 +344,8 @@ assign_patches_to_fragments <- function(
 
 #' Add patch area layer
 #'
-#' Adds an area layer to the raster of the area of each patch.
+#' Adds a layer holding the area of each cell, in square metres, and names the
+#' layers `patch_id` and `area`.
 #'
 #' @param raster terra SpatRaster. In the workflow, this is the patch ID raster.
 #' @returns terra SpatRaster with two layers: patch_id and area.
@@ -321,19 +353,28 @@ assign_patches_to_fragments <- function(
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
-#' buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+#' interpatch_distance <- 20
+#'
+#' # the steps before, in the order habitat_connectivity() runs them
 #' barrier_mask <- create_barrier_mask(lizard_barrier)
-#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 #' remaining_habitat <- drop_habitat_under_barrier(
 #'   habitat = lizard_habitat,
-#'   barrier = lizard_barrier
-#'   )
+#'   barrier_mask = barrier_mask
+#' )
+#' buffered_habitat <- habitat_buffer(
+#'   remaining_habitat,
+#'   buffer_radius = interpatch_distance / 2
+#' )
+#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 #' fragment_patches <- assign_patches_to_fragments(
 #'   remaining_habitat = remaining_habitat,
 #'   fragment = fragmented
-#'   )
-#' library(terra)
-#' add_patch_area(fragment_patches)
+#' )
+#'
+#' # a second layer holds each cell's area, in square metres
+#' patch_areas <- add_patch_area(fragment_patches)
+#'
+#' patch_areas
 add_patch_area <- function(raster) {
   raster_with_area <- c(raster, terra::cellSize(raster))
   names(raster_with_area) <- c("patch_id", "area")
@@ -352,19 +393,26 @@ add_patch_area <- function(raster) {
 #' @examples
 #' lizard_habitat <- example_habitat()
 #' lizard_barrier <- example_barrier()
-#' buffered_habitat <- habitat_buffer(lizard_habitat, 5)
+#' interpatch_distance <- 20
+#'
+#' # the steps before, in the order habitat_connectivity() runs them
 #' barrier_mask <- create_barrier_mask(lizard_barrier)
-#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 #' remaining_habitat <- drop_habitat_under_barrier(
 #'   habitat = lizard_habitat,
-#'   barrier = lizard_barrier
-#'   )
-#' fragment_patches <- assign_patches_to_fragments(
+#'   barrier_mask = barrier_mask
+#' )
+#' buffered_habitat <- habitat_buffer(
+#'   remaining_habitat,
+#'   buffer_radius = interpatch_distance / 2
+#' )
+#' fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
+#' patch_areas <- assign_patches_to_fragments(
 #'   remaining_habitat = remaining_habitat,
 #'   fragment = fragmented
-#'   )
-#' library(terra)
-#' patch_areas <- add_patch_area(fragment_patches)
+#' ) |>
+#'   add_patch_area()
+#'
+#' # a row per patch, with its area in square metres
 #' aggregate_connected_patches(patch_areas)
 aggregate_connected_patches <- function(raster) {
   ## TODO check that this raster has the correct names
@@ -388,14 +436,17 @@ aggregate_connected_patches <- function(raster) {
 
 #' Calculate habitat connectivity using terra
 #'
-#' This performs the entire connectivity workflow, returning a dataframe output.
-#'   The steps are:
-#'   * [create_barrier_mask()]: Creating barrier mask.
-#'   * [drop_habitat_under_barrier()]: Removes Habitat underneath barrier.
-#'   * [habitat_buffer()]: Buffers the habitat layer by the interpatch distance (m).
-#'   * [fragment_habitat()]: Fragments habitat layer along barrier intersection.
-#'   * [assign_patches_to_fragments()]: Assign patch ID to fragments.
-#'   * [aggregate_connected_patches()]: Summarise area in each patch.
+#' This performs the entire connectivity workflow, returning a `connectivity`
+#'   summary. The steps are:
+#'   * [create_barrier_mask()]: Creates the barrier mask.
+#'   * [drop_habitat_under_barrier()]: Removes habitat underneath the barrier.
+#'   * [habitat_buffer()]: Buffers the remaining habitat by half the interpatch
+#'     distance (m).
+#'   * [fragment_habitat()]: Fragments the buffered habitat along the barrier.
+#'   * [assign_patches_to_fragments()]: Assigns a patch ID to each fragment.
+#'   * [add_patch_area()]: Adds the area of each cell.
+#'   * [aggregate_connected_patches()]: Sums the area in each patch.
+#'   * [summarise_connectivity()]: Calculates the connectivity metrics.
 #'
 #' @details
 #' By default, patches join through shared edges only (rook's case,
@@ -410,7 +461,7 @@ aggregate_connected_patches <- function(raster) {
 #'   neither `NA` nor `0`.
 #' @param barrier Terra SpatRaster. Barrier raster.
 #' @param species Species name. E.g., "Blue-tongued Lizard".
-#' @param interpatch_distance Numeric. The distance (in meters) where habitat
+#' @param interpatch_distance Numeric. The distance (in metres) where habitat
 #'   patches are considered connected. E.g., if set to 500, patches 498m apart
 #'   are connected, those 501m apart are not connected. This is passed
 #'   internally to a spatial operation known as "buffering", where this
@@ -552,7 +603,7 @@ habitat_connectivity <- function(
 }
 
 # TODO revist this - is this needed for the shiny app?
-#' Calculate habitat connectivity with visualization data
+#' Calculate habitat connectivity with visualisation data
 #'
 #' Like [habitat_connectivity()], but also returns the intermediate rasters
 #' (buffered habitat, patch ID raster, barrier mask, remaining habitat) useful
@@ -567,7 +618,7 @@ habitat_connectivity <- function(
 #' result <- habitat_connectivity_full(
 #'   lizard_habitat,
 #'   lizard_barrier,
-#'   interpatch_distance = 10,
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #' names(result)

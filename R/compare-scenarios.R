@@ -5,9 +5,10 @@
 #'   named list of `connectivity` objects: the names become the
 #'   `scenario_name` column, so a scenario can be identified in the result.
 #'
-#'   If you have raster or vector layers rather than `connectivity` objects,
-#'   run [habitat_connectivity()] on each one first, as in the second example
-#'   below.
+#'   If you have habitat and barrier rasters rather than `connectivity` objects,
+#'   run [habitat_connectivity()] on each one first, as in the example below,
+#'   or give the rasters to [habitat_connectivity_scenarios()]. Put vector
+#'   layers on a grid first, with [prepare_rasters()] and [onto_grid()].
 #'
 #' @param baseline A `connectivity` object (from [habitat_connectivity()] or
 #'   [summarise_connectivity()]) that every scenario is compared against. Must
@@ -25,44 +26,34 @@
 #' @export
 #'
 #' @examples
-#' baseline <- summarise_connectivity(lizard_areas_connected)
-#'
-#' compare_scenarios(
-#'   baseline = baseline,
-#'   scenarios = list(
-#'     "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
-#'     "Barrier upgrade" = summarise_connectivity(
-#'       lizard_areas_connected[-(1:5), ]
-#'     )
-#'   )
-#' )
-#'
-#' \donttest{
-#' # starting from layers: build a `connectivity` object for each first
-#' wren_habitat <- example_wren_habitat()
-#' wren_barrier <- example_wren_barrier()
-#'
-#' wren_baseline <- habitat_connectivity(
-#'   habitat = wren_habitat,
-#'   barrier = wren_barrier,
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#' # a `connectivity` object for the baseline, the lizard's landscape today
+#' lizard_today <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
-#' bentley_project <- habitat_connectivity(
-#'   habitat = example_wren_habitat_scenario(),
-#'   barrier = wren_barrier,
-#'   species = "Superb Fairy Wren",
-#'   interpatch_distance = 200,
+#' # and one for each scenario, here a new road through the habitat
+#' lizard_new_road <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier_scenario(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
 #'   verbose = FALSE
 #' )
 #'
-#' compare_scenarios(
-#'   baseline = wren_baseline,
-#'   scenarios = list("Bentley Project" = bentley_project)
+#' # each scenario is compared against the baseline and labelled by its name
+#' lizard_scenarios <- compare_scenarios(
+#'   baseline = lizard_today,
+#'   scenarios = list("New road" = lizard_new_road)
 #' )
-#' }
+#'
+#' lizard_scenarios
+#'
+#' # a row per metric, the baseline and scenario side by side
+#' summary(lizard_scenarios)
 compare_scenarios <- function(baseline, scenarios) {
   check_connectivity(baseline)
   check_scenarios(scenarios)

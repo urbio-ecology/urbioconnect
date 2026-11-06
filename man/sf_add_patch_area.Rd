@@ -10,7 +10,7 @@ sf_add_patch_area(patches)
 \item{patches}{SF object. Habitat patches.}
 }
 \value{
-SF object with added \code{area} column in square meters.
+SF object with added \code{area} column in square metres.
 }
 \description{
 Add patch area column

@@ -25,7 +25,7 @@ effective_mesh_size <- function(area, area_baseline = area) {
 #' Calculate mean patch size
 #'
 #' This is just a wrapper around `mean()`, however it is written to clearly
-#'   identify it's usage in the context of the area data. Intended for usage
+#'   identify its use in the context of the area data. Intended for usage
 #'   from objects created by [habitat_connectivity()]. See examples below.
 #'
 #' @param area Numeric vector. Area of a connected patch.

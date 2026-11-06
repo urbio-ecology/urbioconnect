@@ -30,8 +30,11 @@ and the same metric columns as \code{\link[=summarise_connectivity]{summarise_co
 \code{scenario - baseline}, so a positive value means the scenario is higher
 than the baseline; the \code{pct_change} row expresses that same change as
 \code{100 * change / baseline}, which puts every metric on the same scale.
-Metric values are held at full precision - they are not rounded - so
-\code{change} is exact.
+The scenario's \code{effective_mesh_ha} and \code{prob_connectedness} are measured
+against the baseline's habitat area, so they can differ from what
+\code{\link[=habitat_connectivity]{habitat_connectivity()}} gives the scenario on its own. Metric
+values are held at full precision - they are not rounded - so \code{change} is
+exact.
 }
 \description{
 We can measure the connectivity of a given habitat and barrier with
@@ -44,23 +47,46 @@ comparing a "scenario" \code{connectivity} object against a "baseline"
 \code{\link[=summarise_connectivity]{summarise_connectivity()}}).
 }
 \details{
-If you have raster or vector layers rather than \code{connectivity} objects, use
-\code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which runs \code{\link[=habitat_connectivity]{habitat_connectivity()}} on
-each scenario for you and then calls this function.
+If you have habitat and barrier rasters rather than \code{connectivity} objects,
+use \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which runs
+\code{\link[=habitat_connectivity]{habitat_connectivity()}} on each scenario for you and then calls this
+function. Put vector layers on a grid first, with \code{\link[=prepare_rasters]{prepare_rasters()}} and
+\code{\link[=onto_grid]{onto_grid()}}.
 }
 \examples{
-# build `connectivity` objects cheaply (no spatial pipeline) and compare them
-baseline <- summarise_connectivity(lizard_areas_connected)
-# a scenario in which one connected patch (the first row) is lost
-scenario <- summarise_connectivity(lizard_areas_connected[-1, ])
-compare_connectivity(scenario = scenario, baseline = baseline)
-
-# label the scenario so it can be told apart from others
-compare_connectivity(
-  scenario = scenario,
-  baseline = baseline,
-  scenario_name = "Bentley Project"
+# the lizard's landscape today
+lizard_today <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  verbose = FALSE
 )
+
+lizard_today
+
+# and with a new road through the habitat
+lizard_new_road <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier_scenario(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  verbose = FALSE
+)
+
+lizard_new_road
+
+# against today's habitat, so mesh and connectedness differ from above
+lizard_road_comparison <- compare_connectivity(
+  scenario = lizard_new_road,
+  baseline = lizard_today,
+  scenario_name = "New road"
+)
+
+lizard_road_comparison
+
+# a row per metric, the baseline and scenario side by side
+summary(lizard_road_comparison)
 }
 \seealso{
 \code{\link[=habitat_connectivity_comparison]{habitat_connectivity_comparison()}}, which starts from habitat and

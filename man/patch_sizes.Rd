@@ -18,3 +18,17 @@ A \code{connectivity} object (from \code{\link[=habitat_connectivity]{habitat_co
 \code{\link[=summarise_connectivity]{summarise_connectivity()}}) carries the underlying per-patch areas in a
 \code{patch_size} list-column. \code{patch_sizes()} returns them.
 }
+\examples{
+lizard_connectivity <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  verbose = FALSE
+)
+
+# a list with a table of patch areas for each row of the summary
+lizard_patch_sizes <- patch_sizes(lizard_connectivity)
+
+lizard_patch_sizes[[1]]
+}

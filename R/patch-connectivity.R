@@ -14,8 +14,8 @@
 #' @param data Data frame of connected patches. Must contain `patch_id` and
 #'   `area` columns.
 #' @param species Character of length 1. Species the analysis was run for.
-#' @param res resolution in pixels - defaults to NA (numeric), not required for
-#'   vector based approaches.
+#' @param res Numeric. The cell size in metres, as [terra::res()] gives it.
+#'   `NA`, the default, for a vector analysis, which has no cells.
 #' @param interpatch_distance Numeric of length 1. The interpatch distance (m)
 #'   the analysis used.
 #' @returns A `patch_size_tbl` object: a tibble with `species` and
@@ -146,7 +146,7 @@ tbl_sum.patch_size_tbl <- function(x) {
 #'
 #' @param x A [patch_size_tbl()] object.
 #' @returns
-#'  * `pc_species()` Returns the species (character, length 1).
+#'  * `pc_species()` returns the species (character, length 1).
 #'  * `pc_interpatch_distance()` returns the interpatch distance (numeric,
 #'   length 1).
 #'  * `pc_res()` returns the resolution (character, length 1 - e.g., "2x2").
@@ -154,6 +154,14 @@ tbl_sum.patch_size_tbl <- function(x) {
 #'  number of rows (numeric, length 1).
 #' @name pc-getters
 #' @export
+#' @examples
+#' # the patch areas behind a lizard analysis
+#' lizard_areas_connected
+#'
+#' pc_species(lizard_areas_connected)
+#' pc_interpatch_distance(lizard_areas_connected)
+#' pc_res(lizard_areas_connected)
+#' pc_patches(lizard_areas_connected)
 pc_species <- function(x) {
   attr(x, "species")
 }
@@ -219,6 +227,19 @@ pc_interpatch_distance <- function(x) {
 #' @returns A list of [patch_size_tbl()] objects, one per row of `x` (always a
 #'   list, even for a single-row summary).
 #' @export
+#' @examples
+#' lizard_connectivity <- habitat_connectivity(
+#'   habitat = example_habitat(),
+#'   barrier = example_barrier(),
+#'   species = "Blue-tongued Lizard",
+#'   interpatch_distance = 20,
+#'   verbose = FALSE
+#' )
+#'
+#' # a list with a table of patch areas for each row of the summary
+#' lizard_patch_sizes <- patch_sizes(lizard_connectivity)
+#'
+#' lizard_patch_sizes[[1]]
 patch_sizes <- function(x) {
   check_connectivity(x)
   x[["patch_size"]]

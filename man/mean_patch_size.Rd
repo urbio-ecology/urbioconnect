@@ -16,7 +16,7 @@ Numeric. Mean patch size.
 }
 \description{
 This is just a wrapper around \code{mean()}, however it is written to clearly
-identify it's usage in the context of the area data. Intended for usage
+identify its use in the context of the area data. Intended for usage
 from objects created by \code{\link[=habitat_connectivity]{habitat_connectivity()}}. See examples below.
 }
 \examples{

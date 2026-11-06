@@ -21,7 +21,7 @@ pc_interpatch_distance(x)
 }
 \value{
 \itemize{
-\item \code{pc_species()} Returns the species (character, length 1).
+\item \code{pc_species()} returns the species (character, length 1).
 \item \code{pc_interpatch_distance()} returns the interpatch distance (numeric,
 length 1).
 \item \code{pc_res()} returns the resolution (character, length 1 - e.g., "2x2").
@@ -31,4 +31,13 @@ number of rows (numeric, length 1).
 }
 \description{
 Metadata from a \code{patch_size_tbl} object
+}
+\examples{
+# the patch areas behind a lizard analysis
+lizard_areas_connected
+
+pc_species(lizard_areas_connected)
+pc_interpatch_distance(lizard_areas_connected)
+pc_res(lizard_areas_connected)
+pc_patches(lizard_areas_connected)
 }

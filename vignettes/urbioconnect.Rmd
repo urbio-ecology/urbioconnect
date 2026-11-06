@@ -228,7 +228,7 @@ The result has two columns:
 results <- summarise_connectivity(
   connectivity = areas_connected$area,
   interpatch_distance = interpatch_distance,
-  data_resolution = 10,
+  data_resolution = terra::res(habitat)[1],
   species = "Blue-tongued Lizard"
 )
 

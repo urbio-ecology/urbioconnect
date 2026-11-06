@@ -2,7 +2,7 @@
 % Please edit documentation in R/terra-connectivity.R
 \name{habitat_connectivity_full}
 \alias{habitat_connectivity_full}
-\title{Calculate habitat connectivity with visualization data}
+\title{Calculate habitat connectivity with visualisation data}
 \usage{
 habitat_connectivity_full(
   habitat,
@@ -18,7 +18,7 @@ neither \code{NA} nor \code{0}.}
 
 \item{barrier}{Terra SpatRaster. Barrier raster.}
 
-\item{interpatch_distance}{Numeric. The distance (in meters) where habitat
+\item{interpatch_distance}{Numeric. The distance (in metres) where habitat
 patches are considered connected. E.g., if set to 500, patches 498m apart
 are connected, those 501m apart are not connected. This is passed
 internally to a spatial operation known as "buffering", where this
@@ -52,7 +52,7 @@ lizard_barrier <- example_barrier()
 result <- habitat_connectivity_full(
   lizard_habitat,
   lizard_barrier,
-  interpatch_distance = 10,
+  interpatch_distance = 20,
   verbose = FALSE
 )
 names(result)
