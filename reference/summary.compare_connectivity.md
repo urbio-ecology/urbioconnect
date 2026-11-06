@@ -53,28 +53,42 @@ plain tibble.
 ## Examples
 
 ``` r
-baseline <- summarise_connectivity(lizard_areas_connected)
-# a scenario in which five connected patches (the first five rows) are lost
-scenario <- summarise_connectivity(lizard_areas_connected[-(1:5), ])
-
-comparison <- compare_connectivity(
-  scenario = scenario,
-  baseline = baseline,
-  scenario_name = "Bentley Project"
+# a new road through the lizard's habitat, against the landscape today
+lizard_road_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = example_habitat(),
+  barrier_baseline = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  barrier_scenario = example_barrier_scenario(),
+  scenario_name = "New road",
+  verbose = FALSE
 )
 
-comparison_summary <- summary(comparison)
-comparison_summary
-#> Scenario: Bentley Project
-#> Interpatch distance: 50 m
-#>   Metric          Baseline Scenario Change % change
-#>   Patches               73       68     -5    -6.85
-#>   Mesh (ha)           4.47    0.815  -3.66    -81.8
-#>   P(connected)        0.17    0.031 -0.139    -81.8
-#>   Mean area (m2)      3600     2340  -1260    -34.9
-#>   Total area (ha)     26.3     15.9  -10.3    -39.4
+lizard_road_comparison
+#> # A tibble: 4 × 10
+#>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 New road      baseline Blue-t…                  20    163                 4.42
+#> 2 New road      scenario Blue-t…                  20    170                 2.09
+#> 3 New road      change   Blue-t…                  20      7                -2.33
+#> 4 New road      pct_cha… Blue-t…                  20      4.29            -52.7 
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
+
+# a row per metric, the baseline and scenario side by side
+lizard_road_summary <- summary(lizard_road_comparison)
+
+lizard_road_summary
+#> Scenario: New road
+#> Interpatch distance: 20 m
+#>   Metric          Baseline Scenario  Change % change
+#>   Patches              163      170       7     4.29
+#>   Mesh (ha)           4.42     2.09   -2.33    -52.7
+#>   P(connected)       0.168   0.0795 -0.0887    -52.7
+#>   Mean area (m2)      1610     1500    -114    -7.05
+#>   Total area (ha)     26.3     25.5  -0.802    -3.05
 
 # the values are still numbers
-comparison_summary[["% change"]]
-#> [1]  -6.85 -81.80 -81.80 -34.90 -39.40
+lizard_road_summary[["% change"]]
+#> [1]   4.29 -52.70 -52.70  -7.05  -3.05
 ```

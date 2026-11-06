@@ -43,6 +43,7 @@ included with the package:
 
 ``` r
 library(terra)
+#> terra 1.9.50
 
 # Load habitat raster
 lizard_habitat <- example_habitat()

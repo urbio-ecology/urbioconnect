@@ -28,46 +28,43 @@ plot_barrier_habitat_interpatch_dist(
 
 - barrier:
 
-  barrier layer
+  Terra SpatRaster. Barrier layer (e.g., roads).
 
 - buffered:
 
-  buffered layer
+  Terra SpatRaster. Buffered habitat layer.
 
 - habitat:
 
-  habitat layer
+  Terra SpatRaster. Original habitat layer. Habitat is any cell that is
+  neither `NA` nor `0`.
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
-  connected. E.g., if set to 500, patches 498m apart are connected,
-  those 501m apart are not connected. This is passed internally to a
-  spatial operation known as "buffering", where this distance is used as
-  a radius from the edge of the habitat zone. This means the specified
-  `interpatch_distance` is halved exactly. So an interpatch distance of
-  500 will be converted to 250.
+  Numeric. The interpatch distance, in metres, that `buffered` was made
+  for. Used only to label the plot and name the file.
 
 - species:
 
-  character, species name, e.g., "Superb Fairy Wren"
+  Character. Species name for plot title.
 
 - col_barrier:
 
-  colour of barrier layer. Defaults to package palette, see
+  Character. Colour for barrier layer. Defaults to the package palette,
+  so a map drawn here matches the app, the downloads and the report. See
   [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md).
 
 - col_interpatch_dist:
 
-  colour of interpatch distance layer
+  Character. Colour for interpatch distance zone.
 
 - col_habitat:
 
-  colour of habitat layer
+  Character. Colour for habitat patches.
 
 - col_paper:
 
-  colour of paper layer of ggplot. Default "grey96".
+  Character. Background colour (default: "grey96").
 
 ## Value
 
@@ -79,13 +76,20 @@ Named character vector. The file path, named by the interpatch distance.
 if (FALSE) { # \dontrun{
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered <- habitat_buffer(lizard_habitat, interpatch_distance = 10)
-# Creates plot-barrier-interpatch-dist-habitat-*.png in the working directory
+interpatch_distance <- 20
+lizard_full <- habitat_connectivity_full(
+  habitat = lizard_habitat,
+  barrier = lizard_barrier,
+  interpatch_distance = interpatch_distance,
+  verbose = FALSE
+)
+# Creates plot-barrier-interpatch-distance-habitat-*.png in the working
+# directory
 plot_barrier_habitat_interpatch_dist(
   barrier = lizard_barrier,
-  buffered = buffered,
+  buffered = lizard_full$buffered_habitat,
   habitat = lizard_habitat,
-  interpatch_distance = 10,
+  interpatch_distance = interpatch_distance,
   species = "Blue-tongued Lizard",
   col_barrier = "white",
   col_interpatch_dist = "lightgreen",

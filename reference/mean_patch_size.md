@@ -2,8 +2,8 @@
 
 This is just a wrapper around
 [`mean()`](https://rspatial.github.io/terra/reference/summarize-generics.html),
-however it is written to clearly identify it's usage in the context of
-the area data. Intended for usage from objects created by
+however it is written to clearly identify its use in the context of the
+area data. Intended for usage from objects created by
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
 See examples below.
 

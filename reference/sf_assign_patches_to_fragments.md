@@ -21,7 +21,7 @@ sf_assign_patches_to_fragments(remaining, fragment_id)
 
 ## Value
 
-SF object with habitat patches labeled by their fragment ID.
+SF object with habitat patches labelled by their fragment ID.
 
 ## Examples
 

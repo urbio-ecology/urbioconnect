@@ -31,11 +31,14 @@ for habitat and `NA` everywhere else.
 ``` r
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
+
 barrier_mask <- create_barrier_mask(lizard_barrier)
+
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
+  barrier_mask = barrier_mask
+)
+
 remaining_habitat
 #> class       : SpatRaster
 #> size        : 763, 766, 1  (nrow, ncol, nlyr)
@@ -47,4 +50,8 @@ remaining_habitat
 #> name        : Pseudo Layer
 #> min value   :            1
 #> max value   :            1
+
+# the habitat under the barrier, in orange, is dropped
+terra::plot(lizard_habitat, col = "orange", legend = FALSE)
+terra::plot(remaining_habitat, col = "seagreen", legend = FALSE, add = TRUE)
 ```

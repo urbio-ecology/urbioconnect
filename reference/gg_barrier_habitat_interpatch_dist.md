@@ -36,13 +36,8 @@ gg_barrier_habitat_interpatch_dist(
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
-  connected. E.g., if set to 500, patches 498m apart are connected,
-  those 501m apart are not connected. This is passed internally to a
-  spatial operation known as "buffering", where this distance is used as
-  a radius from the edge of the habitat zone. This means the specified
-  `interpatch_distance` is halved exactly. So an interpatch distance of
-  500 will be converted to 250.
+  Numeric. The interpatch distance, in metres, that `buffered` was made
+  for. Used only to label the plot.
 
 - species:
 
@@ -64,7 +59,7 @@ gg_barrier_habitat_interpatch_dist(
 
 - col_paper:
 
-  Character. Background color (default: "white").
+  Character. Background colour (default: "grey96").
 
 ## Value
 
@@ -75,12 +70,21 @@ A ggplot2 object.
 ``` r
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-lizard_buffered <- habitat_buffer(lizard_habitat, buffer_radius =10)
-gg_bar_hab_buf <- gg_barrier_habitat_interpatch_dist(
-  barrier = lizard_barrier,
-  buffered = lizard_buffered,
+interpatch_distance <- 20
+
+# the buffer habitat_connectivity() makes
+lizard_full <- habitat_connectivity_full(
   habitat = lizard_habitat,
-  interpatch_distance = 10,
+  barrier = lizard_barrier,
+  interpatch_distance = interpatch_distance,
+  verbose = FALSE
+)
+
+lizard_map <- gg_barrier_habitat_interpatch_dist(
+  barrier = lizard_barrier,
+  buffered = lizard_full$buffered_habitat,
+  habitat = lizard_habitat,
+  interpatch_distance = interpatch_distance,
   species = "Blue Tongue Lizard",
   col_barrier = "black",
   col_interpatch_dist = "lightgreen",
@@ -89,20 +93,15 @@ gg_bar_hab_buf <- gg_barrier_habitat_interpatch_dist(
 #> <SpatRaster> resampled to 500554 cells.
 #> <SpatRaster> resampled to 500554 cells.
 #> <SpatRaster> resampled to 500554 cells.
-gg_bar_hab_buf
 
+# add a north arrow and scale bar with ggspatial, if it is installed
+if (requireNamespace("ggspatial", quietly = TRUE)) {
+  lizard_map <- lizard_map +
+    ggspatial::annotation_north_arrow(
+      style = ggspatial::north_arrow_fancy_orienteering()
+    ) +
+    ggspatial::annotation_scale()
+}
 
-# add north arrow and scale bar with ggspatial
-library(ggspatial)
-library(tidyterra)
-#> 
-#> Attaching package: ‘tidyterra’
-#> The following object is masked from ‘package:stats’:
-#> 
-#>     filter
-gg_bar_hab_buf +
- annotation_north_arrow(
-   style = north_arrow_fancy_orienteering()
-  ) +
-  annotation_scale()
+lizard_map
 ```

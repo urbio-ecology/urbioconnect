@@ -1,25 +1,31 @@
 # Calculate habitat connectivity using terra
 
-This performs the entire connectivity workflow, returning a dataframe
-output. The steps are:
+This performs the entire connectivity workflow, returning a
+`connectivity` summary. The steps are:
 
 - [`create_barrier_mask()`](https://urbio-ecology.github.io/urbioconnect/reference/create_barrier_mask.md):
-  Creating barrier mask.
+  Creates the barrier mask.
 
 - [`drop_habitat_under_barrier()`](https://urbio-ecology.github.io/urbioconnect/reference/drop_habitat_under_barrier.md):
-  Removes Habitat underneath barrier.
+  Removes habitat underneath the barrier.
 
 - [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md):
-  Buffers the habitat layer by the interpatch distance (m).
+  Buffers the remaining habitat by half the interpatch distance (m).
 
 - [`fragment_habitat()`](https://urbio-ecology.github.io/urbioconnect/reference/fragment_habitat.md):
-  Fragments habitat layer along barrier intersection.
+  Fragments the buffered habitat along the barrier.
 
 - [`assign_patches_to_fragments()`](https://urbio-ecology.github.io/urbioconnect/reference/assign_patches_to_fragments.md):
-  Assign patch ID to fragments.
+  Assigns a patch ID to each fragment.
+
+- [`add_patch_area()`](https://urbio-ecology.github.io/urbioconnect/reference/add_patch_area.md):
+  Adds the area of each cell.
 
 - [`aggregate_connected_patches()`](https://urbio-ecology.github.io/urbioconnect/reference/aggregate_connected_patches.md):
-  Summarise area in each patch.
+  Sums the area in each patch.
+
+- [`summarise_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/summarise-connectivity.md):
+  Calculates the connectivity metrics.
 
 ## Usage
 
@@ -51,7 +57,7 @@ habitat_connectivity(
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
+  Numeric. The distance (in metres) where habitat patches are considered
   connected. E.g., if set to 500, patches 498m apart are connected,
   those 501m apart are not connected. This is passed internally to a
   spatial operation known as "buffering", where this distance is used as
@@ -113,22 +119,22 @@ connectivity <- habitat_connectivity(
     interpatch_distance = 12
   )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [26ms]
+#> ✔ Creating barrier mask [24ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [46ms]
+#> ✔ Removing habitat underneath barrier [69ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 12m
-#> ✔ Buffering habitat for an interpatch distance of 12m [175ms]
+#> ✔ Buffering habitat for an interpatch distance of 12m [188ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [17ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [16ms]
 #> 
 #> ℹ Assigning patches ID to fragments
 #> ✔ Assigning patches ID to fragments [2s]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [33ms]
+#> ✔ Summarising area in each patch [30ms]
 #> 
 connectivity
 #> # A tibble: 1 × 9

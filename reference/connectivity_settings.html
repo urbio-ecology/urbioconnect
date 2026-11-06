@@ -96,14 +96,23 @@ the download bundle as <code>summary/settings.csv</code>.</p></div>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="prepare_rasters.html">prepare_rasters</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  data_resolution <span class="op">=</span> <span class="va">resolution</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the analysis records the grid it ran on, but not the resolution asked for,</span></span></span>
+<span class="r-in"><span><span class="co"># so record that</span></span></span>
 <span class="r-in"><span><span class="va">report_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="connectivity_report_data.html">connectivity_report_data</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="va">layers</span><span class="op">$</span><span class="va">habitat_raster</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="va">layers</span><span class="op">$</span><span class="va">barrier_raster</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue Tongue Lizard"</span>,</span></span>
 <span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">250</span>, <span class="fl">400</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    habitat_source <span class="op">=</span> <span class="st">"example data: lizard"</span>,</span></span>
-<span class="r-in"><span>    data_resolution_m <span class="op">=</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span>    data_resolution_m <span class="op">=</span> <span class="va">resolution</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -117,13 +126,13 @@ the download bundle as <code>summary/settings.csv</code>.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> directions            4 (rook's case)         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> habitat_source        example data: lizard    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> data_resolution_m     10                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> grid_resolution_m     2 x 2                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> grid_dimensions       763 x 766               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> grid_resolution_m     10.01307 x 9.973856     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> grid_dimensions       153 x 153               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> crs                   GDA94 / MGA zone 55     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> crs_code              EPSG:28355              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> scenario_kind         none                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> scenario_name         <span style="color: #BB0000;">NA</span>                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> run_time              2026-11-06T03:03:00+0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> run_time              2026-11-06T04:14:01+0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> urbioconnect_version  0.1.0.9000              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> terra_version         1.9.50                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> r_version             4.6.2                   </span>

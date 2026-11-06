@@ -16,7 +16,7 @@ sf_add_patch_area(patches)
 
 ## Value
 
-SF object with added `area` column in square meters.
+SF object with added `area` column in square metres.
 
 ## Examples
 

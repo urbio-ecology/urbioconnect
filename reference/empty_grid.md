@@ -16,7 +16,7 @@ empty_grid(habitat, resolution = 10)
 
 - resolution:
 
-  Numeric. Cell size in meters (default: 10).
+  Numeric. Cell size in metres (default: 10).
 
 ## Value
 

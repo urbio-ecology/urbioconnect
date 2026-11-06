@@ -130,24 +130,36 @@ and
 ## Examples
 
 ``` r
-# \donttest{
-# a scenario that changes the barrier: the habitat stays as it is today
-habitat_connectivity_comparison(
-  habitat_baseline = example_wren_habitat(),
-  barrier_baseline = example_wren_barrier(),
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
-  barrier_scenario = example_wren_barrier_scenario(),
+# a new road changes the barrier; the habitat stays as it is today
+lizard_road_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = example_habitat(),
+  barrier_baseline = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
+  barrier_scenario = example_barrier_scenario(),
+  scenario_name = "New road",
   verbose = FALSE
 )
+
+lizard_road_comparison
 #> # A tibble: 4 × 10
 #>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
 #>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
-#> 1 NA            baseline Superb…                 200   282               334.   
-#> 2 NA            scenario Superb…                 200   283               333.   
-#> 3 NA            change   Superb…                 200     1                -0.965
-#> 4 NA            pct_cha… Superb…                 200     0.355            -0.289
+#> 1 New road      baseline Blue-t…                  20    163                 4.42
+#> 2 New road      scenario Blue-t…                  20    170                 2.09
+#> 3 New road      change   Blue-t…                  20      7                -2.33
+#> 4 New road      pct_cha… Blue-t…                  20      4.29            -52.7 
 #> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
 #> #   patch_area_total_ha <dbl>, data_resolution <chr>
-# }
+
+# a row per metric, the baseline and scenario side by side
+summary(lizard_road_comparison)
+#> Scenario: New road
+#> Interpatch distance: 20 m
+#>   Metric          Baseline Scenario  Change % change
+#>   Patches              163      170       7     4.29
+#>   Mesh (ha)           4.42     2.09   -2.33    -52.7
+#>   P(connected)       0.168   0.0795 -0.0887    -52.7
+#>   Mean area (m2)      1610     1500    -114    -7.05
+#>   Total area (ha)     26.3     25.5  -0.802    -3.05
 ```

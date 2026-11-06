@@ -163,26 +163,38 @@ proportionally longer.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># a scenario that changes the barrier: the habitat stays as it is today</span></span></span>
-<span class="r-in"><span><span class="fu">habitat_connectivity_comparison</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  habitat_baseline <span class="op">=</span> <span class="fu"><a href="example-wren-data.html">example_wren_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  barrier_baseline <span class="op">=</span> <span class="fu"><a href="example-wren-data.html">example_wren_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Superb Fairy Wren"</span>,</span></span>
-<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">200</span>,</span></span>
-<span class="r-in"><span>  barrier_scenario <span class="op">=</span> <span class="fu"><a href="example-wren-data.html">example_wren_barrier_scenario</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># a new road changes the barrier; the habitat stays as it is today</span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span> <span class="op">&lt;-</span> <span class="fu">habitat_connectivity_comparison</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  habitat_baseline <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier_baseline <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue-tongued Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  barrier_scenario <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier_scenario</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"New road"</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>            baseline Superb…                 200   282               334.   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>            scenario Superb…                 200   283               333.   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #BB0000;">NA</span>            change   Superb…                 200     1                -<span style="color: #BB0000;">0.965</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>            pct_cha… Superb…                 200     0.355            -<span style="color: #BB0000;">0.289</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> New road      baseline Blue-t…                  20    163                 4.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> New road      scenario Blue-t…                  20    170                 2.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> New road      change   Blue-t…                  20      7                -<span style="color: #BB0000;">2.33</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> New road      pct_cha… Blue-t…                  20      4.29            -<span style="color: #BB0000;">52.7</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a row per metric, the baseline and scenario side by side</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lizard_road_comparison</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Scenario:</span> New road</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Interpatch distance:</span> 20 m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Patches              163      170       7     4.29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mesh (ha)           4.42     2.09   -2.33    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P(connected)       0.168   0.0795 -0.0887    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean area (m2)      1610     1500    -114    -7.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Total area (ha)     26.3     25.5  -0.802    -3.05</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

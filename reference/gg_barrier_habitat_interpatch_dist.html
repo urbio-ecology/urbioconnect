@@ -81,13 +81,8 @@ that is neither <code>NA</code> nor <code>0</code>.</p></dd>
 
 
 <dt id="arg-interpatch-distance">interpatch_distance<a class="anchor" aria-label="anchor" href="#arg-interpatch-distance"></a></dt>
-<dd><p>Numeric. The distance (in meters) where habitat
-patches are considered connected. E.g., if set to 500, patches 498m apart
-are connected, those 501m apart are not connected. This is passed
-internally to a spatial operation known as "buffering", where this
-distance is used as a radius from the edge of the habitat zone. This means
-the specified <code>interpatch_distance</code> is halved exactly. So an interpatch
-distance of 500 will be converted to 250.</p></dd>
+<dd><p>Numeric. The interpatch distance, in metres,
+that <code>buffered</code> was made for. Used only to label the plot.</p></dd>
 
 
 <dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
@@ -109,7 +104,7 @@ the report. See <code><a href="urbio_colours.html">urbio_colours()</a></code>.</
 
 
 <dt id="arg-col-paper">col_paper<a class="anchor" aria-label="anchor" href="#arg-col-paper"></a></dt>
-<dd><p>Character. Background color (default: "white").</p></dd>
+<dd><p>Character. Background colour (default: "grey96").</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -121,12 +116,21 @@ the report. See <code><a href="urbio_colours.html">urbio_colours()</a></code>.</
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">lizard_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lizard_barrier</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">lizard_buffered</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_buffer.html">habitat_buffer</a></span><span class="op">(</span><span class="va">lizard_habitat</span>, buffer_radius <span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">gg_bar_hab_buf</span> <span class="op">&lt;-</span> <span class="fu">gg_barrier_habitat_interpatch_dist</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  barrier <span class="op">=</span> <span class="va">lizard_barrier</span>,</span></span>
-<span class="r-in"><span>  buffered <span class="op">=</span> <span class="va">lizard_buffered</span>,</span></span>
+<span class="r-in"><span><span class="va">interpatch_distance</span> <span class="op">&lt;-</span> <span class="fl">20</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the buffer habitat_connectivity() makes</span></span></span>
+<span class="r-in"><span><span class="va">lizard_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_connectivity_full.html">habitat_connectivity_full</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  habitat <span class="op">=</span> <span class="va">lizard_habitat</span>,</span></span>
-<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="va">lizard_barrier</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_distance</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_map</span> <span class="op">&lt;-</span> <span class="fu">gg_barrier_habitat_interpatch_dist</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="va">lizard_barrier</span>,</span></span>
+<span class="r-in"><span>  buffered <span class="op">=</span> <span class="va">lizard_full</span><span class="op">$</span><span class="va">buffered_habitat</span>,</span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="va">lizard_habitat</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="va">interpatch_distance</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue Tongue Lizard"</span>,</span></span>
 <span class="r-in"><span>  col_barrier <span class="op">=</span> <span class="st">"black"</span>,</span></span>
 <span class="r-in"><span>  col_interpatch_dist <span class="op">=</span> <span class="st">"lightgreen"</span>,</span></span>
@@ -135,23 +139,18 @@ the report. See <code><a href="urbio_colours.html">urbio_colours()</a></code>.</
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;SpatRaster&gt;</span> resampled to <span style="color: #0000BB;">500554</span> cells.</span>
-<span class="r-in"><span><span class="va">gg_bar_hab_buf</span></span></span>
-<span class="r-plt img"><img src="gg_barrier_habitat_interpatch_dist-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># add north arrow and scale bar with ggspatial</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://paleolimbot.github.io/ggspatial/" class="external-link">ggspatial</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dieghernan.github.io/tidyterra/" class="external-link">tidyterra</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘tidyterra’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:stats’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     filter</span>
-<span class="r-in"><span><span class="va">gg_bar_hab_buf</span> <span class="op">+</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/annotation_north_arrow.html" class="external-link">annotation_north_arrow</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   style <span class="op">=</span> <span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/north_arrow_orienteering.html" class="external-link">north_arrow_fancy_orienteering</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/annotation_scale.html" class="external-link">annotation_scale</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="gg_barrier_habitat_interpatch_dist-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># add a north arrow and scale bar with ggspatial, if it is installed</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggspatial"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">lizard_map</span> <span class="op">&lt;-</span> <span class="va">lizard_map</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="fu">ggspatial</span><span class="fu">::</span><span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/annotation_north_arrow.html" class="external-link">annotation_north_arrow</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      style <span class="op">=</span> <span class="fu">ggspatial</span><span class="fu">::</span><span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/north_arrow_orienteering.html" class="external-link">north_arrow_fancy_orienteering</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="fu">ggspatial</span><span class="fu">::</span><span class="fu"><a href="https://paleolimbot.github.io/ggspatial/reference/annotation_scale.html" class="external-link">annotation_scale</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_map</span></span></span>
+<span class="r-plt img"><img src="gg_barrier_habitat_interpatch_dist-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

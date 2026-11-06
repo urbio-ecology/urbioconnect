@@ -34,8 +34,10 @@ patch_size_tbl(data, species, interpatch_distance, res = NA_real_)
 
 - res:
 
-  resolution in pixels - defaults to NA (numeric), not required for
-  vector based approaches.
+  Numeric. The cell size in metres, as
+  [`terra::res()`](https://rspatial.github.io/terra/reference/dimensions.html)
+  gives it. `NA`, the default, for a vector analysis, which has no
+  cells.
 
 ## Value
 

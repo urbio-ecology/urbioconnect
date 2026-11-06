@@ -1,6 +1,6 @@
-# Convert color name to hexadecimal
+# Convert colour name to hexadecimal
 
-Convert color name to hexadecimal
+Convert colour name to hexadecimal
 
 ## Usage
 
@@ -12,11 +12,11 @@ col2hex(color_name)
 
 - color_name:
 
-  Character. Color name recognized by R.
+  Character. Colour name recognised by R.
 
 ## Value
 
-Character. Hexadecimal color code.
+Character. Hexadecimal colour code.
 
 ## Examples
 

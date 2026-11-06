@@ -70,34 +70,88 @@ for a comparison as a table.
 ## Examples
 
 ``` r
-lizard_habitat <- example_habitat()
-lizard_barrier <- example_barrier()
-results <- purrr::map(
-  c(10, 20),
-  function(d) {
-    full <- habitat_connectivity_full(lizard_habitat, lizard_barrier,
-      interpatch_distance = d, verbose = FALSE)
-    summarise_connectivity(
-      connectivity = full$areas_connected$area,
-      interpatch_distance = d,
-      data_resolution = 10,
-      species = "Blue-tongued Lizard"
+# 10 m cells, as the app uses, keep the example quick
+today <- prepare_rasters(
+  example_habitat(),
+  example_barrier(),
+  data_resolution = 10
+)
+
+lizard_connectivity <- habitat_connectivity(
+  habitat = today$habitat_raster,
+  barrier = today$barrier_raster,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 80,
+  verbose = FALSE
+)
+
+lizard_connectivity
+#> # A tibble: 1 × 9
+#>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
+#>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
+#> 1 Blue-tongu…                  80        77              4.50              0.167
+#> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
+#> #   data_resolution <chr>, patch_size <list>
+
+plot_connectivity(lizard_connectivity)
+
+
+# multiple distances
+distances <- c(40, 80, 160)
+
+# a row per interpatch distance
+lizard_connectivities <- purrr::map(
+  distances,
+  function(distance) {
+    habitat_connectivity(
+      habitat = today$habitat_raster,
+      barrier = today$barrier_raster,
+      species = "Blue-tongued Lizard",
+      interpatch_distance = distance,
+      verbose = FALSE
     )
   }
-) |> purrr::list_rbind()
-plot_connectivity(results)
-
-
-# a scenario against its baseline
-baseline <- summarise_connectivity(lizard_areas_connected)
-compare_scenarios(
-  baseline = baseline,
-  scenarios = list(
-    "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
-    "Barrier upgrade" = summarise_connectivity(
-      lizard_areas_connected[-(1:5), ]
-    )
-  )
 ) |>
-  plot_connectivity()
+  purrr::list_rbind()
+
+plot_connectivity(lizard_connectivities)
+
+
+# a new road through the habitat against the landscape today
+new_road <- onto_grid(
+  example_barrier_scenario(),
+  today$barrier_raster,
+  background = 0
+)
+
+lizard_road_comparison <- habitat_connectivity_comparison(
+  habitat_baseline = today$habitat_raster,
+  barrier_baseline = today$barrier_raster,
+  species = "Blue-tongued Lizard",
+  interpatch_distance = distances,
+  barrier_scenario = new_road,
+  scenario_name = "New road",
+  verbose = FALSE
+)
+
+lizard_road_comparison
+#> # A tibble: 12 × 10
+#>    scenario_name measure species interpatch_distance n_patches effective_mesh_ha
+#>    <chr>         <chr>   <chr>                 <dbl>     <dbl>             <dbl>
+#>  1 New road      baseli… Blue-t…                  40    161                 4.20
+#>  2 New road      scenar… Blue-t…                  40    165                 1.93
+#>  3 New road      change  Blue-t…                  40      4                -2.27
+#>  4 New road      pct_ch… Blue-t…                  40      2.48            -54.1 
+#>  5 New road      baseli… Blue-t…                  80     77                 4.50
+#>  6 New road      scenar… Blue-t…                  80     81                 2.09
+#>  7 New road      change  Blue-t…                  80      4                -2.41
+#>  8 New road      pct_ch… Blue-t…                  80      5.19            -53.6 
+#>  9 New road      baseli… Blue-t…                 160     58                 4.53
+#> 10 New road      scenar… Blue-t…                 160     61                 2.11
+#> 11 New road      change  Blue-t…                 160      3                -2.42
+#> 12 New road      pct_ch… Blue-t…                 160      5.17            -53.5 
+#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
+#> #   patch_area_total_ha <dbl>, data_resolution <chr>
+
+plot_connectivity(lizard_road_comparison)
 ```

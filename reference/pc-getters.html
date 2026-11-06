@@ -67,7 +67,7 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
 
-<ul><li><p><code>pc_species()</code> Returns the species (character, length 1).</p></li>
+<ul><li><p><code>pc_species()</code> returns the species (character, length 1).</p></li>
 <li><p><code>pc_interpatch_distance()</code> returns the interpatch distance (numeric,
 length 1).</p></li>
 <li><p><code>pc_res()</code> returns the resolution (character, length 1 - e.g., "2x2").</p></li>
@@ -75,6 +75,34 @@ length 1).</p></li>
 number of rows (numeric, length 1).</p></li>
 </ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># the patch areas behind a lizard analysis</span></span></span>
+<span class="r-in"><span><span class="va">lizard_areas_connected</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Species:             Blue-tongued Lizard</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Patches:             73</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Resolution:          2x2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Interpatch Distance: 50 m</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   patch_id   area</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>        1   172.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>        2  <span style="text-decoration: underline;">1</span>592.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        3 <span style="text-decoration: underline;">98</span>006.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">2</span>416.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>        5  <span style="text-decoration: underline;">1</span>304.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 68 more rows</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">pc_species</span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Blue-tongued Lizard"</span>
+<span class="r-in"><span><span class="fu">pc_interpatch_distance</span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 50</span>
+<span class="r-in"><span><span class="fu">pc_res</span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2x2"</span>
+<span class="r-in"><span><span class="fu">pc_patches</span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 73</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

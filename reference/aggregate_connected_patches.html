@@ -70,39 +70,41 @@ each row is a unique patch, and its area.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">lizard_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lizard_barrier</span> <span class="op">&lt;-</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">buffered_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_buffer.html">habitat_buffer</a></span><span class="op">(</span><span class="va">lizard_habitat</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`interpatch_distance` doesn't align with the raster resolution.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> 10 m isn't a multiple of 4 m.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> It snaps to 8 m.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Connectivity may shift for patches near the cut-off.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> See `vignette(urbioconnect::interpatch-distance-and-resolution)`.</span>
+<span class="r-in"><span><span class="va">interpatch_distance</span> <span class="op">&lt;-</span> <span class="fl">20</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the steps before, in the order habitat_connectivity() runs them</span></span></span>
 <span class="r-in"><span><span class="va">barrier_mask</span> <span class="op">&lt;-</span> <span class="fu"><a href="create_barrier_mask.html">create_barrier_mask</a></span><span class="op">(</span><span class="va">lizard_barrier</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fragmented</span> <span class="op">&lt;-</span> <span class="fu"><a href="fragment_habitat.html">fragment_habitat</a></span><span class="op">(</span><span class="va">buffered_habitat</span>, <span class="va">barrier_mask</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">remaining_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="drop_habitat_under_barrier.html">drop_habitat_under_barrier</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  habitat <span class="op">=</span> <span class="va">lizard_habitat</span>,</span></span>
-<span class="r-in"><span>  barrier <span class="op">=</span> <span class="va">lizard_barrier</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fragment_patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="assign_patches_to_fragments.html">assign_patches_to_fragments</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  barrier_mask <span class="op">=</span> <span class="va">barrier_mask</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">buffered_habitat</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_buffer.html">habitat_buffer</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">remaining_habitat</span>,</span></span>
+<span class="r-in"><span>  buffer_radius <span class="op">=</span> <span class="va">interpatch_distance</span> <span class="op">/</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fragmented</span> <span class="op">&lt;-</span> <span class="fu"><a href="fragment_habitat.html">fragment_habitat</a></span><span class="op">(</span><span class="va">buffered_habitat</span>, <span class="va">barrier_mask</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">patch_areas</span> <span class="op">&lt;-</span> <span class="fu"><a href="assign_patches_to_fragments.html">assign_patches_to_fragments</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  remaining_habitat <span class="op">=</span> <span class="va">remaining_habitat</span>,</span></span>
 <span class="r-in"><span>  fragment <span class="op">=</span> <span class="va">fragmented</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">patch_areas</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_patch_area.html">add_patch_area</a></span><span class="op">(</span><span class="va">fragment_patches</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="add_patch_area.html">add_patch_area</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a row per patch, with its area in square metres</span></span></span>
 <span class="r-in"><span><span class="fu">aggregate_connected_patches</span><span class="op">(</span><span class="va">patch_areas</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 638 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 163 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    patch_id    area</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>        1    60.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>        2  <span style="text-decoration: underline;">1</span>736. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>        3    12.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>        4  <span style="text-decoration: underline;">1</span>200. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>        5 <span style="text-decoration: underline;">92</span>202. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>        6    40.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>        7   288. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>        8  <span style="text-decoration: underline;">1</span>212. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>        9    64.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>       10   940. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 628 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>        1 <span style="text-decoration: underline;">97</span>878. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>        2  <span style="text-decoration: underline;">2</span>416. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>        3  <span style="text-decoration: underline;">1</span>304. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>        4  <span style="text-decoration: underline;">1</span>592. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>        5     4  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>        6  <span style="text-decoration: underline;">3</span>332. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>        7   132. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>        8   108. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>        9    36.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>       10  <span style="text-decoration: underline;">1</span>112. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 153 more rows</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

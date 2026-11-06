@@ -1,6 +1,7 @@
 # Add patch area layer
 
-Adds an area layer to the raster of the area of each patch.
+Adds a layer holding the area of each cell, in square metres, and names
+the layers `patch_id` and `area`.
 
 ## Usage
 
@@ -23,25 +24,28 @@ terra SpatRaster with two layers: patch_id and area.
 ``` r
 lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
-buffered_habitat <- habitat_buffer(lizard_habitat, 5)
-#> Warning: `interpatch_distance` doesn't align with the raster resolution.
-#> ✖ 10 m isn't a multiple of 4 m.
-#> ℹ It snaps to 8 m.
-#> ℹ Connectivity may shift for patches near the cut-off.
-#> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
+interpatch_distance <- 20
+
+# the steps before, in the order habitat_connectivity() runs them
 barrier_mask <- create_barrier_mask(lizard_barrier)
-fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 remaining_habitat <- drop_habitat_under_barrier(
   habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
+  barrier_mask = barrier_mask
+)
+buffered_habitat <- habitat_buffer(
+  remaining_habitat,
+  buffer_radius = interpatch_distance / 2
+)
+fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
 fragment_patches <- assign_patches_to_fragments(
   remaining_habitat = remaining_habitat,
   fragment = fragmented
-  )
-library(terra)
-#> terra 1.9.50
-add_patch_area(fragment_patches)
+)
+
+# a second layer holds each cell's area, in square metres
+patch_areas <- add_patch_area(fragment_patches)
+
+patch_areas
 #> class       : SpatRaster
 #> size        : 763, 766, 2  (nrow, ncol, nlyr)
 #> resolution  : 2, 2  (x, y)
@@ -52,5 +56,5 @@ add_patch_area(fragment_patches)
 #>               lizard_habitat_raster
 #> names       : patch_id,     area
 #> min values  :        1, 4.000221
-#> max values  :      638, 4.000273
+#> max values  :      163, 4.000273
 ```

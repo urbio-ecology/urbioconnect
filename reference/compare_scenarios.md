@@ -39,10 +39,15 @@ for the columns.
 
 ## Details
 
-If you have raster or vector layers rather than `connectivity` objects,
-run
+If you have habitat and barrier rasters rather than `connectivity`
+objects, run
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
-on each one first, as in the second example below.
+on each one first, as in the example below, or give the rasters to
+[`habitat_connectivity_scenarios()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_scenarios.md).
+Put vector layers on a grid first, with
+[`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md)
+and
+[`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md).
 
 ## See also
 
@@ -55,64 +60,49 @@ objects.
 ## Examples
 
 ``` r
-baseline <- summarise_connectivity(lizard_areas_connected)
-
-compare_scenarios(
-  baseline = baseline,
-  scenarios = list(
-    "Bentley Project" = summarise_connectivity(lizard_areas_connected[-1, ]),
-    "Barrier upgrade" = summarise_connectivity(
-      lizard_areas_connected[-(1:5), ]
-    )
-  )
-)
-#> # A tibble: 8 × 10
-#>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha
-#>   <chr>          <chr>   <chr>                 <dbl>     <dbl>             <dbl>
-#> 1 Bentley Proje… baseli… Blue-t…                  50     73            4.47     
-#> 2 Bentley Proje… scenar… Blue-t…                  50     72            4.47     
-#> 3 Bentley Proje… change  Blue-t…                  50     -1           -0.0000113
-#> 4 Bentley Proje… pct_ch… Blue-t…                  50     -1.37        -0.000252 
-#> 5 Barrier upgra… baseli… Blue-t…                  50     73            4.47     
-#> 6 Barrier upgra… scenar… Blue-t…                  50     68            0.815    
-#> 7 Barrier upgra… change  Blue-t…                  50     -5           -3.66     
-#> 8 Barrier upgra… pct_ch… Blue-t…                  50     -6.85       -81.8      
-#> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
-#> #   patch_area_total_ha <dbl>, data_resolution <chr>
-
-# \donttest{
-# starting from layers: build a `connectivity` object for each first
-wren_habitat <- example_wren_habitat()
-wren_barrier <- example_wren_barrier()
-
-wren_baseline <- habitat_connectivity(
-  habitat = wren_habitat,
-  barrier = wren_barrier,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+# a `connectivity` object for the baseline, the lizard's landscape today
+lizard_today <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 
-bentley_project <- habitat_connectivity(
-  habitat = example_wren_habitat_scenario(),
-  barrier = wren_barrier,
-  species = "Superb Fairy Wren",
-  interpatch_distance = 200,
+# and one for each scenario, here a new road through the habitat
+lizard_new_road <- habitat_connectivity(
+  habitat = example_habitat(),
+  barrier = example_barrier_scenario(),
+  species = "Blue-tongued Lizard",
+  interpatch_distance = 20,
   verbose = FALSE
 )
 
-compare_scenarios(
-  baseline = wren_baseline,
-  scenarios = list("Bentley Project" = bentley_project)
+# each scenario is compared against the baseline and labelled by its name
+lizard_scenarios <- compare_scenarios(
+  baseline = lizard_today,
+  scenarios = list("New road" = lizard_new_road)
 )
+
+lizard_scenarios
 #> # A tibble: 4 × 10
-#>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha
-#>   <chr>          <chr>   <chr>                 <dbl>     <dbl>             <dbl>
-#> 1 Bentley Proje… baseli… Superb…                 200    282                334. 
-#> 2 Bentley Proje… scenar… Superb…                 200    267                280. 
-#> 3 Bentley Proje… change  Superb…                 200    -15                -53.6
-#> 4 Bentley Proje… pct_ch… Superb…                 200     -5.32             -16.1
+#>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha
+#>   <chr>         <chr>    <chr>                 <dbl>     <dbl>             <dbl>
+#> 1 New road      baseline Blue-t…                  20    163                 4.42
+#> 2 New road      scenario Blue-t…                  20    170                 2.09
+#> 3 New road      change   Blue-t…                  20      7                -2.33
+#> 4 New road      pct_cha… Blue-t…                  20      4.29            -52.7 
 #> # ℹ 4 more variables: prob_connectedness <dbl>, patch_area_mean <dbl>,
 #> #   patch_area_total_ha <dbl>, data_resolution <chr>
-# }
+
+# a row per metric, the baseline and scenario side by side
+summary(lizard_scenarios)
+#> Scenario: New road
+#> Interpatch distance: 20 m
+#>   Metric          Baseline Scenario  Change % change
+#>   Patches              163      170       7     4.29
+#>   Mesh (ha)           4.42     2.09   -2.33    -52.7
+#>   P(connected)       0.168   0.0795 -0.0887    -52.7
+#>   Mean area (m2)      1610     1500    -114    -7.05
+#>   Total area (ha)     26.3     25.5  -0.802    -3.05
 ```

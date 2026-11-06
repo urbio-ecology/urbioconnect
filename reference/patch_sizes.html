@@ -70,6 +70,35 @@ patch_size list-column. patch_sizes() returns them."></head><body>
 list, even for a single-row summary).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">lizard_connectivity</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_connectivity.html">habitat_connectivity</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue-tongued Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a list with a table of patch areas for each row of the summary</span></span></span>
+<span class="r-in"><span><span class="va">lizard_patch_sizes</span> <span class="op">&lt;-</span> <span class="fu">patch_sizes</span><span class="op">(</span><span class="va">lizard_connectivity</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_patch_sizes</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># patch_size_tbl:      data.frame</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Species:             Blue-tongued Lizard</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Patches:             163</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Resolution:          2x2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Interpatch Distance: 20 m</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   patch_id   area</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>        1 <span style="text-decoration: underline;">97</span>878.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>        2  <span style="text-decoration: underline;">2</span>416.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>        3  <span style="text-decoration: underline;">1</span>304.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>        4  <span style="text-decoration: underline;">1</span>592.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>        5     4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 158 more rows</span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

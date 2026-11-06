@@ -1,15 +1,10 @@
 # Summarise connectivity metrics
 
-Calculates a comprehensive set of habitat connectivity metrics including
-effective mesh size, probability of connectedness, and patch statistics.
-There are two methods, the default, and one that dispatches on objects
-of class, `patch_size_tbl`, created by
-[`patch_size_tbl()`](https://urbio-ecology.github.io/urbioconnect/reference/new_patch_size_tbl.md),
-which is used mostly internally inside of
-[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
-The default method requires "connectivity" to be a vector of areas, and
-also requires scalar values (values of length 1) of interpatch distance,
-resolution, and species. See examples below.
+Calculates habitat connectivity metrics including effective mesh size,
+probability of connectedness, and patch statistics.
+[`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md)
+runs the analysis and calls this for you, so you only need it to
+summarise patch areas you already have.
 
 ## Usage
 
@@ -30,11 +25,12 @@ summarise_connectivity(
 
 - connectivity:
 
-  data.frame of class "patch_size_tbl", obtained via
+  A `patch_size_tbl`, such as an element of
   [`patch_sizes()`](https://urbio-ecology.github.io/urbioconnect/reference/patch_sizes.md)
-  from a `connectivity` object returned by
-  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md).
-  Contains area measurements of connected patches.
+  (`patch_sizes(x)[[1]]`) or the result of
+  [`sf_habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/sf_habitat_connectivity.md),
+  whose resolution is `"NA"` as it has no cells. Or a numeric vector of
+  connected patch areas, in square metres.
 
 - ...:
 
@@ -42,17 +38,13 @@ summarise_connectivity(
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
-  connected. E.g., if set to 500, patches 498m apart are connected,
-  those 501m apart are not connected. This is passed internally to a
-  spatial operation known as "buffering", where this distance is used as
-  a radius from the edge of the habitat zone. This means the specified
-  `interpatch_distance` is halved exactly. So an interpatch distance of
-  500 will be converted to 250.
+  Numeric. The interpatch distance, in metres, the areas were found
+  with. It is recorded in the summary, not used to calculate it.
 
 - data_resolution:
 
-  Numeric. Data resolution in meters.
+  Numeric. The cell size, in metres, the areas were found at. Recorded
+  in the summary, like `interpatch_distance`.
 
 - species:
 
@@ -64,13 +56,17 @@ A tibble with connectivity metrics including number of patches,
 probability of connectedness, effective mesh size, mean and total patch
 areas.
 
+## Details
+
+A `patch_size_tbl` carries its own species, interpatch distance and
+resolution. For a vector of patch areas, give those three yourself, each
+a single value.
+
 ## Examples
 
 ``` r
-# dispatch on `patch_size_tbl` class - `lizard_areas_connected`
-summarise_connectivity(
-  connectivity = lizard_areas_connected
-)
+# a `patch_size_tbl` carries its species, interpatch distance and resolution
+summarise_connectivity(lizard_areas_connected)
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
@@ -78,18 +74,18 @@ summarise_connectivity(
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 
-# default method
-# manually passing area, interpatch distance, resolution, and species
+# a vector of areas does not: these were found at an interpatch distance of
+# 50 m on the lizard's 2 m cells
 summarise_connectivity(
   connectivity = lizard_areas_connected$area,
-  interpatch_distance = 10,
-  data_resolution = 10,
+  interpatch_distance = 50,
+  data_resolution = 2,
   species = "Blue-tongued Lizard"
 )
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10        73              4.47              0.170
+#> 1 Blue-tongu…                  50        73              4.47              0.170
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <dbl>, patch_size <list>
 ```

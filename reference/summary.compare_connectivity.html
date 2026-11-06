@@ -98,30 +98,44 @@ which gives the same table as a plain tibble.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">baseline</span> <span class="op">&lt;-</span> <span class="fu"><a href="summarise-connectivity.html">summarise_connectivity</a></span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># a scenario in which five connected patches (the first five rows) are lost</span></span></span>
-<span class="r-in"><span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="summarise-connectivity.html">summarise_connectivity</a></span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="compare_connectivity.html">compare_connectivity</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  scenario <span class="op">=</span> <span class="va">scenario</span>,</span></span>
-<span class="r-in"><span>  baseline <span class="op">=</span> <span class="va">baseline</span>,</span></span>
-<span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"Bentley Project"</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># a new road through the lizard's habitat, against the landscape today</span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_connectivity_comparison.html">habitat_connectivity_comparison</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  habitat_baseline <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier_baseline <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue-tongued Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  barrier_scenario <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier_scenario</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"New road"</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">comparison_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">comparison_summary</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Scenario:</span> Bentley Project</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Interpatch distance:</span> 50 m</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="font-weight: bold;">Metric          Baseline Scenario Change % change</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Patches               73       68     -5    -6.85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mesh (ha)           4.47    0.815  -3.66    -81.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P(connected)        0.17    0.031 -0.139    -81.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean area (m2)      3600     2340  -1260    -34.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Total area (ha)     26.3     15.9  -10.3    -39.4</span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> New road      baseline Blue-t…                  20    163                 4.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> New road      scenario Blue-t…                  20    170                 2.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> New road      change   Blue-t…                  20      7                -<span style="color: #BB0000;">2.33</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> New road      pct_cha… Blue-t…                  20      4.29            -<span style="color: #BB0000;">52.7</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a row per metric, the baseline and scenario side by side</span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lizard_road_comparison</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_summary</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Scenario:</span> New road</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Interpatch distance:</span> 20 m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Patches              163      170       7     4.29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mesh (ha)           4.42     2.09   -2.33    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P(connected)       0.168   0.0795 -0.0887    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean area (m2)      1610     1500    -114    -7.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Total area (ha)     26.3     25.5  -0.802    -3.05</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the values are still numbers</span></span></span>
-<span class="r-in"><span><span class="va">comparison_summary</span><span class="op">[[</span><span class="st">"% change"</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  -6.85 -81.80 -81.80 -34.90 -39.40</span>
+<span class="r-in"><span><span class="va">lizard_road_summary</span><span class="op">[[</span><span class="st">"% change"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]   4.29 -52.70 -52.70  -7.05  -3.05</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

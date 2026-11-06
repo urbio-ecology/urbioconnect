@@ -1,4 +1,4 @@
-# Calculate habitat connectivity with visualization data
+# Calculate habitat connectivity with visualisation data
 
 Like
 [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
@@ -31,7 +31,7 @@ habitat_connectivity_full(
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
+  Numeric. The distance (in metres) where habitat patches are considered
   connected. E.g., if set to 500, patches 498m apart are connected,
   those 501m apart are not connected. This is passed internally to a
   spatial operation known as "buffering", where this distance is used as
@@ -68,7 +68,7 @@ lizard_barrier <- example_barrier()
 result <- habitat_connectivity_full(
   lizard_habitat,
   lizard_barrier,
-  interpatch_distance = 10,
+  interpatch_distance = 20,
   verbose = FALSE
 )
 names(result)

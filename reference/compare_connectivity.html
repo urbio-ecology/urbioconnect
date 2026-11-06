@@ -105,14 +105,19 @@ and the same metric columns as <code><a href="summarise-connectivity.html">summa
 <code>scenario - baseline</code>, so a positive value means the scenario is higher
 than the baseline; the <code>pct_change</code> row expresses that same change as
 <code>100 * change / baseline</code>, which puts every metric on the same scale.
-Metric values are held at full precision - they are not rounded - so
-<code>change</code> is exact.</p>
+The scenario's <code>effective_mesh_ha</code> and <code>prob_connectedness</code> are measured
+against the baseline's habitat area, so they can differ from what
+<code><a href="habitat_connectivity.html">habitat_connectivity()</a></code> gives the scenario on its own. Metric
+values are held at full precision - they are not rounded - so <code>change</code> is
+exact.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If you have raster or vector layers rather than <code>connectivity</code> objects, use
-<code><a href="habitat_connectivity_comparison.html">habitat_connectivity_comparison()</a></code>, which runs <code><a href="habitat_connectivity.html">habitat_connectivity()</a></code> on
-each scenario for you and then calls this function.</p>
+    <p>If you have habitat and barrier rasters rather than <code>connectivity</code> objects,
+use <code><a href="habitat_connectivity_comparison.html">habitat_connectivity_comparison()</a></code>, which runs
+<code><a href="habitat_connectivity.html">habitat_connectivity()</a></code> on each scenario for you and then calls this
+function. Put vector layers on a grid first, with <code><a href="prepare_rasters.html">prepare_rasters()</a></code> and
+<code><a href="onto_grid.html">onto_grid()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -123,36 +128,68 @@ barrier layers instead of <code>connectivity</code> objects,
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># build `connectivity` objects cheaply (no spatial pipeline) and compare them</span></span></span>
-<span class="r-in"><span><span class="va">baseline</span> <span class="op">&lt;-</span> <span class="fu"><a href="summarise-connectivity.html">summarise_connectivity</a></span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># a scenario in which one connected patch (the first row) is lost</span></span></span>
-<span class="r-in"><span><span class="va">scenario</span> <span class="op">&lt;-</span> <span class="fu"><a href="summarise-connectivity.html">summarise_connectivity</a></span><span class="op">(</span><span class="va">lizard_areas_connected</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">compare_connectivity</span><span class="op">(</span>scenario <span class="op">=</span> <span class="va">scenario</span>, baseline <span class="op">=</span> <span class="va">baseline</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># the lizard's landscape today</span></span></span>
+<span class="r-in"><span><span class="va">lizard_today</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_connectivity.html">habitat_connectivity</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue-tongued Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_today</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  20       163              4.42              0.168</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># and with a new road through the habitat</span></span></span>
+<span class="r-in"><span><span class="va">lizard_new_road</span> <span class="op">&lt;-</span> <span class="fu"><a href="habitat_connectivity.html">habitat_connectivity</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  habitat <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_habitat</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  barrier <span class="op">=</span> <span class="fu"><a href="example-lizard-data.html">example_barrier_scenario</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Blue-tongued Lizard"</span>,</span></span>
+<span class="r-in"><span>  interpatch_distance <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_new_road</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Blue-tongu…                  20       170              2.16             0.084<span style="text-decoration: underline;">6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: patch_area_mean &lt;dbl&gt;, patch_area_total_ha &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   data_resolution &lt;chr&gt;, patch_size &lt;list&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># against today's habitat, so mesh and connectedness differ from above</span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span> <span class="op">&lt;-</span> <span class="fu">compare_connectivity</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  scenario <span class="op">=</span> <span class="va">lizard_new_road</span>,</span></span>
+<span class="r-in"><span>  baseline <span class="op">=</span> <span class="va">lizard_today</span>,</span></span>
+<span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"New road"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lizard_road_comparison</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name measure  species interpatch_distance n_patches effective_mesh_ha</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>            baseline Blue-t…                  50     73            4.47     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>            scenario Blue-t…                  50     72            4.47     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #BB0000;">NA</span>            change   Blue-t…                  50     -<span style="color: #BB0000;">1</span>           -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>            pct_cha… Blue-t…                  50     -<span style="color: #BB0000;">1.37</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> New road      baseline Blue-t…                  20    163                 4.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> New road      scenario Blue-t…                  20    170                 2.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> New road      change   Blue-t…                  20      7                -<span style="color: #BB0000;">2.33</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> New road      pct_cha… Blue-t…                  20      4.29            -<span style="color: #BB0000;">52.7</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># label the scenario so it can be told apart from others</span></span></span>
-<span class="r-in"><span><span class="fu">compare_connectivity</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  scenario <span class="op">=</span> <span class="va">scenario</span>,</span></span>
-<span class="r-in"><span>  baseline <span class="op">=</span> <span class="va">baseline</span>,</span></span>
-<span class="r-in"><span>  scenario_name <span class="op">=</span> <span class="st">"Bentley Project"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   scenario_name  measure species interpatch_distance n_patches effective_mesh_ha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Bentley Proje… baseli… Blue-t…                  50     73            4.47     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Bentley Proje… scenar… Blue-t…                  50     72            4.47     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Bentley Proje… change  Blue-t…                  50     -<span style="color: #BB0000;">1</span>           -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">011</span><span style="color: #BB0000;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Bentley Proje… pct_ch… Blue-t…                  50     -<span style="color: #BB0000;">1.37</span>        -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">252</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: prob_connectedness &lt;dbl&gt;, patch_area_mean &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   patch_area_total_ha &lt;dbl&gt;, data_resolution &lt;chr&gt;</span></span>
+<span class="r-in"><span><span class="co"># a row per metric, the baseline and scenario side by side</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lizard_road_comparison</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Scenario:</span> New road</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Interpatch distance:</span> 20 m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="font-weight: bold;">Metric          Baseline Scenario  Change % change</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Patches              163      170       7     4.29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mesh (ha)           4.42     2.09   -2.33    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P(connected)       0.168   0.0795 -0.0887    -52.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean area (m2)      1610     1500    -114    -7.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Total area (ha)     26.3     25.5  -0.802    -3.05</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

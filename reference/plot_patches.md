@@ -1,6 +1,6 @@
 # Plot connected habitat patches
 
-Visualizes habitat patches colored by their connected fragment ID.
+Visualises habitat patches coloured by their connected fragment ID.
 
 ## Usage
 
@@ -20,17 +20,16 @@ plot_patches(
 
 - patch_id:
 
-  Terra SpatRaster. Raster with patch IDs.
+  Terra SpatRaster with a layer named `patch_id`, such as the
+  `patch_id_raster` from
+  [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md)
+  or the result of
+  [`add_patch_area()`](https://urbio-ecology.github.io/urbioconnect/reference/add_patch_area.md).
 
 - interpatch_distance:
 
-  Numeric. The distance (in meters) where habitat patches are considered
-  connected. E.g., if set to 500, patches 498m apart are connected,
-  those 501m apart are not connected. This is passed internally to a
-  spatial operation known as "buffering", where this distance is used as
-  a radius from the edge of the habitat zone. This means the specified
-  `interpatch_distance` is halved exactly. So an interpatch distance of
-  500 will be converted to 250.
+  Numeric. The interpatch distance, in metres, the patches were found
+  with. Used only to label the plot.
 
 - species:
 
@@ -38,7 +37,7 @@ plot_patches(
 
 - n_cols:
 
-  Integer. Number of colors to cycle through (default: 7).
+  Integer. Number of colours to cycle through (default: 7).
 
 - barrier:
 
@@ -60,7 +59,7 @@ plot_patches(
 
 ## Value
 
-A ggplot2 object showing patches with distinct colors.
+A ggplot2 object showing patches with distinct colours.
 
 ## Details
 
@@ -72,32 +71,27 @@ Buffer cut off from all habitat joins no patch, so it is left blank.
 ## Examples
 
 ``` r
-lizard_habitat <- example_habitat()
 lizard_barrier <- example_barrier()
 interpatch_distance <- 20
-buffer_radius <- interpatch_distance / 2
-buffered_habitat <- habitat_buffer(lizard_habitat, buffer_radius)
-barrier_mask <- create_barrier_mask(lizard_barrier)
-fragmented <- fragment_habitat(buffered_habitat, barrier_mask)
-remaining_habitat <- drop_habitat_under_barrier(
-  habitat = lizard_habitat,
-  barrier = lizard_barrier
-  )
-fragment_patches <- assign_patches_to_fragments(
-  remaining_habitat = remaining_habitat,
-  fragment = fragmented
-  ) |> add_patch_area()
+
+# the patches habitat_connectivity() finds, and the buffer it finds them with
+lizard_full <- habitat_connectivity_full(
+  habitat = example_habitat(),
+  barrier = lizard_barrier,
+  interpatch_distance = interpatch_distance,
+  verbose = FALSE
+)
 
 plot_patches(
-  patch_id = fragment_patches,
+  patch_id = lizard_full$patch_id_raster,
   interpatch_distance = interpatch_distance
-  )
+)
 #> <SpatRaster> resampled to 500554 cells.
 
 
 # with the barrier
 plot_patches(
-  fragment_patches,
+  lizard_full$patch_id_raster,
   interpatch_distance,
   barrier = lizard_barrier
 )
@@ -105,22 +99,22 @@ plot_patches(
 
 
 # with the barrier, and each patch's connecting zone shaded
-plot_patches(
-  fragment_patches,
+lizard_patch_map <- plot_patches(
+  lizard_full$patch_id_raster,
   interpatch_distance,
   barrier = lizard_barrier,
-  buffered = buffered_habitat
+  buffered = lizard_full$buffered_habitat
 )
 #> <SpatRaster> resampled to 500554 cells.
 
+# add a north arrow and scale bar with ggspatial, if it is installed
+if (requireNamespace("ggspatial", quietly = TRUE)) {
+  lizard_patch_map <- lizard_patch_map +
+    ggspatial::annotation_north_arrow(
+      style = ggspatial::north_arrow_fancy_orienteering()
+    ) +
+    ggspatial::annotation_scale()
+}
 
-#' add north arrow and scale bar with ggspatial
-library(ggspatial)
-library(tidyterra)
-plot_patches(fragment_patches, interpatch_distance = interpatch_distance) +
- annotation_north_arrow(
-   style = north_arrow_fancy_orienteering()
-  ) +
-  annotation_scale()
-#> <SpatRaster> resampled to 500554 cells.
+lizard_patch_map
 ```

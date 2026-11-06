@@ -49,14 +49,23 @@ which writes this into the download bundle as `summary/settings.csv`.
 
 ``` r
 # \donttest{
+resolution <- 10
+layers <- prepare_rasters(
+  example_habitat(),
+  example_barrier(),
+  data_resolution = resolution
+)
+
+# the analysis records the grid it ran on, but not the resolution asked for,
+# so record that
 report_data <- connectivity_report_data(
-  habitat = example_habitat(),
-  barrier = example_barrier(),
+  habitat = layers$habitat_raster,
+  barrier = layers$barrier_raster,
   species = "Blue Tongue Lizard",
   interpatch_distance = c(100, 250, 400),
   settings = list(
     habitat_source = "example data: lizard",
-    data_resolution_m = 10
+    data_resolution_m = resolution
   ),
   verbose = FALSE
 )
@@ -70,13 +79,13 @@ connectivity_settings(report_data)
 #>  3 directions            4 (rook's case)         
 #>  4 habitat_source        example data: lizard    
 #>  5 data_resolution_m     10                      
-#>  6 grid_resolution_m     2 x 2                   
-#>  7 grid_dimensions       763 x 766               
+#>  6 grid_resolution_m     10.01307 x 9.973856     
+#>  7 grid_dimensions       153 x 153               
 #>  8 crs                   GDA94 / MGA zone 55     
 #>  9 crs_code              EPSG:28355              
 #> 10 scenario_kind         none                    
 #> 11 scenario_name         NA                      
-#> 12 run_time              2026-11-06T03:03:00+0000
+#> 12 run_time              2026-11-06T04:14:01+0000
 #> 13 urbioconnect_version  0.1.0.9000              
 #> 14 terra_version         1.9.50                  
 #> 15 r_version             4.6.2                   

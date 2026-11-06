@@ -222,7 +222,7 @@ development of the methods and software.
 - [`total_habitat_area()`](https://urbio-ecology.github.io/urbioconnect/reference/total_habitat_area.md)
   : Calculate total habitat area
 - [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md)
-  : Calculate habitat connectivity with visualization data
+  : Calculate habitat connectivity with visualisation data
 - [`connectivity_report_data()`](https://urbio-ecology.github.io/urbioconnect/reference/connectivity_report_data.md)
   : Everything one connectivity analysis produces
 - [`scenario_layer()`](https://urbio-ecology.github.io/urbioconnect/reference/scenario_layer.md)
@@ -361,7 +361,7 @@ development of the methods and software.
 - [`onto_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/onto_grid.md)
   : Put a layer on a grid, whichever form it arrives in
 - [`col2hex()`](https://urbio-ecology.github.io/urbioconnect/reference/col2hex.md)
-  : Convert color name to hexadecimal
+  : Convert colour name to hexadecimal
 - [`urbio_colours()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_colours.md)
   : The urbioconnect map colours
 - [`urbio_figure_size()`](https://urbio-ecology.github.io/urbioconnect/reference/urbio_figure_size.md)
