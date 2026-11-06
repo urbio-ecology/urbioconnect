@@ -1,19 +1,17 @@
-#' The app's module for a plot at every interpatch distance, one tab each
-#'
-#' `distance_tabs_ui()` leaves the space that `distance_tabs_server()` fills.
-#'
-#' @param id The module's id, the same in both halves.
-#' @noRd
+# The app's module for a plot at every interpatch distance, one tab each
+#
+# `distance_tabs_ui()` leaves the space that `distance_tabs_server()` fills.
+#
+# @param id The module's id, the same in both halves.
 distance_tabs_ui <- function(id) {
   shiny::uiOutput(shiny::NS(id, "tabs"))
 }
 
-#' @param id The module's id, the same in both halves.
-#' @param distances A reactive giving the interpatch distances.
-#' @param plot_for A function of one distance that returns its plot. It runs
-#'   inside `renderPlot()`, so the reactives it reads are tracked, and only for
-#'   a distance `distances()` holds.
-#' @noRd
+# @param id The module's id, the same in both halves.
+# @param distances A reactive giving the interpatch distances.
+# @param plot_for A function of one distance that returns its plot. It runs
+#   inside `renderPlot()`, so the reactives it reads are tracked, and only for
+#   a distance `distances()` holds.
 distance_tabs_server <- function(id, distances, plot_for) {
   stopifnot(shiny::is.reactive(distances))
 
@@ -44,12 +42,11 @@ distance_tabs_server <- function(id, distances, plot_for) {
   })
 }
 
-#' A navset with a tab per interpatch distance
-#'
-#' @param id The navset's id, so the open tab is an input.
-#' @param distances The interpatch distances, a tab each.
-#' @param content A function of one distance that returns what its tab holds.
-#' @noRd
+# A navset with a tab per interpatch distance
+#
+# @param id The navset's id, so the open tab is an input.
+# @param distances The interpatch distances, a tab each.
+# @param content A function of one distance that returns what its tab holds.
 distance_navset <- function(id, distances, content) {
   panels <- purrr::map(distances, function(distance) {
     bslib::nav_panel(

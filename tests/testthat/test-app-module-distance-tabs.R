@@ -1,5 +1,6 @@
 test_that("distance_tabs_server() draws a tab per distance, and empties one dropped", {
-  skip_if_not_installed("bslib")
+  skip_if_no_app()
+  local_app_server()
 
   distances <- shiny::reactiveVal(c(40, 80))
   plot_for <- function(distance) {
