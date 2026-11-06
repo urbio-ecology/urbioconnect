@@ -221,4 +221,13 @@ test_that("the app starts, takes an analysis, and compares the result", {
   )
 
   expect_equal(app$get_js('$("#compare_40 .image-slider img").length'), 2)
+
+  # a plot from the per-distance tabs module, drawn inside the tabs its
+  # renderUI() built, which only a browser shows
+  app$set_inputs(landscape_view = "Baseline")
+  baseline_plot <- app$wait_for_value(
+    output = "baseline_landscape-plot_40",
+    timeout = 60000
+  )
+  expect_match(baseline_plot$src, "^data:image/png")
 })

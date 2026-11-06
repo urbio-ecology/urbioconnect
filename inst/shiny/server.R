@@ -385,31 +385,8 @@ server <- function(input, output, session) {
     getwd()
   })
 
-  # One tab per interpatch distance. Every tabbed view of the analysis is this
-  # shape, so they share it: `content` says what one panel holds, and the tabs
-  # stay empty until `ready()` has a value.
-  distance_tabs <- function(content, id, ready = analysis) {
-    renderUI({
-      req(ready())
-
-      panels <- map(analysis()$interpatch_distance, function(distance) {
-        nav_panel(
-          title = paste0("Interpatch: ", distance, "m"),
-          content(distance)
-        )
-      })
-
-      do.call(navset_tab, c(list(id = id), panels))
-    })
-  }
-
-  # the rasters are only needed by the plots themselves, rendered in the
-  # observers below
-  distance_plot <- function(prefix) {
-    function(distance) {
-      plotOutput(paste0(prefix, "_", distance), height = "500px")
-    }
-  }
+  # every tabbed view of the analysis has a tab per distance the last run used
+  run_distances <- reactive(analysis()$interpatch_distance)
 
   # One landscape at one distance. The baseline maps and both sides of a
   # comparison are all drawn with this, so the only difference you see between
@@ -425,60 +402,34 @@ server <- function(input, output, session) {
     )
   }
 
+  # the run's own landscape, on its own and as a comparison's baseline
+  baseline_landscape <- function(data, distance) {
+    landscape_plot(
+      data$habitat,
+      data$barrier,
+      data$buffered_habitat[[as.character(distance)]],
+      distance,
+      data$species
+    )
+  }
+
   # Output: Habitat, Buffered Habitat, and Barrier - Tabbed Plots ----
-  output$gg_barrier_habitat_buffer_tabs <- distance_tabs(
-    distance_plot("barrier_habitat_interpatch"),
-    id = "barrier_habitat_tabs"
-  )
-
-  # Render each barrier/habitat/interpatch plot dynamically ----
-
-  # Each plot reads analysis() rather than holding its layers, so one left over
-  # from a distance the last run dropped holds nothing, and its req() keeps it
-  # empty. The req() comes before the call: inside a terra argument, S4
-  # dispatch would turn its silent error into a real one.
-  observe({
-    walk(analysis()$interpatch_distance, function(distance) {
-      key <- as.character(distance)
-
-      output[[paste0("barrier_habitat_interpatch_", distance)]] <- renderPlot({
-        data <- analysis()
-        buffered <- req(data$buffered_habitat[[key]])
-        landscape_plot(
-          data$habitat,
-          data$barrier,
-          buffered,
-          distance,
-          data$species
-        )
-      })
-    })
+  distance_tabs_server("barrier_habitat", run_distances, function(distance) {
+    baseline_landscape(analysis(), distance)
   })
 
   # Output: Patch ID - Tabbed Plots ----
-  output$plot_patches_tabs <- distance_tabs(
-    distance_plot("patch_plot"),
-    id = "patch_tabs"
-  )
-
-  # Render each patch plot dynamically ----
-  observe({
-    walk(analysis()$interpatch_distance, function(distance) {
-      key <- as.character(distance)
-
-      output[[paste0("patch_plot_", distance)]] <- renderPlot({
-        data <- analysis()
-        patch_id <- req(data$patch_id_raster[[key]])
-        plot_patches(
-          patch_id = patch_id,
-          interpatch_distance = distance,
-          species = data$species,
-          barrier = data$barrier,
-          buffered = data$buffered_habitat[[key]],
-          directions = data$directions
-        )
-      })
-    })
+  distance_tabs_server("patches", run_distances, function(distance) {
+    data <- analysis()
+    key <- as.character(distance)
+    plot_patches(
+      patch_id = data$patch_id_raster[[key]],
+      interpatch_distance = distance,
+      species = data$species,
+      barrier = data$barrier,
+      buffered = data$buffered_habitat[[key]],
+      directions = data$directions
+    )
   })
 
   # every distance's patches in one table, for the table and its CSV
@@ -770,58 +721,67 @@ server <- function(input, output, session) {
     path
   }
 
-  observe({
+  # both sides at each distance, built once for their tabs and the PNGs
+  compared_landscapes <- reactive({
     data <- analysis()
     req(data$comparison)
 
-    walk(data$interpatch_distance, function(distance) {
-      key <- as.character(distance)
-
-      baseline <- landscape_plot(
-        data$habitat,
-        data$barrier,
-        data$buffered_habitat[[key]],
-        distance,
-        data$species
+    map(setNames(nm = data$interpatch_distance), function(distance) {
+      list(
+        baseline = baseline_landscape(data, distance),
+        scenario = landscape_plot(
+          data$scenario_habitat,
+          data$scenario_barrier,
+          data$scenario_buffered_habitat[[as.character(distance)]],
+          distance,
+          data$species
+        )
       )
-      scenario <- landscape_plot(
-        data$scenario_habitat,
-        data$scenario_barrier,
-        data$scenario_buffered_habitat[[key]],
-        distance,
-        data$species
-      )
+    })
+  })
 
-      output[[paste0("baseline_landscape_", distance)]] <- renderPlot(baseline)
-      output[[paste0("scenario_landscape_", distance)]] <- renderPlot(scenario)
-
+  observe({
+    iwalk(compared_landscapes(), function(pair, distance) {
       output[[paste0("compare_", distance)]] <- visual_diff_render(
         visual_diff(
-          landscape_png(baseline, "baseline", distance),
-          landscape_png(scenario, "scenario", distance)
+          landscape_png(pair$baseline, "baseline", distance),
+          landscape_png(pair$scenario, "scenario", distance)
         )
       )
     })
   })
 
   # One tab per distance, for each way of looking at the pair.
-  output$baseline_landscape_tabs <- distance_tabs(
-    distance_plot("baseline_landscape"),
-    id = "baseline_distance",
-    ready = comparison
-  )
-  output$scenario_landscape_tabs <- distance_tabs(
-    distance_plot("scenario_landscape"),
-    id = "scenario_distance",
-    ready = comparison
-  )
-  output$landscape_compare_tabs <- distance_tabs(
+  compared_distances <- reactive({
+    req(comparison())
+    run_distances()
+  })
+
+  distance_tabs_server(
+    "baseline_landscape",
+    compared_distances,
     function(distance) {
-      visual_diff_output(paste0("compare_", distance), height = "720px")
-    },
-    id = "compare_distance",
-    ready = comparison
+      pair <- compared_landscapes()[[as.character(distance)]]
+      pair$baseline
+    }
   )
+  distance_tabs_server(
+    "scenario_landscape",
+    compared_distances,
+    function(distance) {
+      pair <- compared_landscapes()[[as.character(distance)]]
+      pair$scenario
+    }
+  )
+  output$landscape_compare_tabs <- renderUI({
+    distance_navset(
+      "compare_distance",
+      compared_distances(),
+      function(distance) {
+        visual_diff_output(paste0("compare_", distance), height = "720px")
+      }
+    )
+  })
 
   # Everything: maps, tables, GIS layers and the reports
   output$download_everything <- downloadHandler(
