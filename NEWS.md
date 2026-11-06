@@ -9,6 +9,9 @@
 * The shiny app records the settings an analysis was run with, enough to repeat it, as a CSV on the Results tab and as `summary/settings.csv` in the download bundle. Scenario comparison tables now name the scenario. (#162)
 * The shiny app's plot and areas CSV downloads are named after the species and the date, like the report, so a species with a space no longer puts one in the file name. (#162)
 * The shiny app reports an interpatch distance that isn't a number as an error, rather than dropping it. (#162)
+* The shiny app's results always show the last run, and a run that gives an error empties them rather than closing the app. (#119)
+* The shiny app's GeoTIFF download now holds the patch ids, one layer per interpatch distance, rather than the habitat layer, and is named after the species and the date. (#164)
+* The shiny app asks for an interpatch distance when that box is empty, rather than giving an error with no message.
 * `run_connectivity_app()` now checks for `diffviewer` before launching. The app attaches it for the Scenario tab's compare view, so without it the check passed and the app then failed to start. The check and the tests' skip list are now one vector, which is how they came to disagree.
 * The shiny app offers two example datasets rather than one. The Blue Tongue Lizard landscape is about 150x150 cells and analyses in under a second; the Superb Fairy Wren one is about 1500x1400 and takes tens of seconds, so which you are asking for is now a choice rather than a tick box. Each dataset brings its own scenarios, and the scenario dropdown offers only the ones that go with the landscape in use.
 * New `example_barrier_scenario()` gives the lizard barrier with a new road cut through it, so the small example dataset has a scenario of its own. It is derived from `example_barrier()` rather than shipped as a second file.

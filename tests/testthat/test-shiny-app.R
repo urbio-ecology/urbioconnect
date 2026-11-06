@@ -8,14 +8,13 @@ test_that("the app's analysis path runs and every result output renders", {
   shiny::testServer(server, {
     rlang::exec(session$setInputs, !!!app_lizard_inputs())
 
-    expect_true(results$ready)
-    expect_equal(nrow(results$results_connect_habitat), 1)
-    expect_s3_class(results$results_connect_habitat, "connectivity")
+    expect_equal(nrow(analysis()$connectivity), 1)
+    expect_s3_class(analysis()$connectivity, "connectivity")
 
     # no empty strip beside or below the maps (#178)
     expect_identical(
-      as.vector(terra::ext(results$habitat_raster)),
-      as.vector(terra::ext(results$habitat))
+      as.vector(terra::ext(analysis()$habitat)),
+      as.vector(terra::ext(example_datasets$lizard$habitat()))
     )
 
     # each of these has broken at least once: the tables on the patch_size
@@ -63,8 +62,8 @@ test_that("the app's downloads produce files with content", {
       output$download_summary_csv,
       show_col_types = FALSE
     )
-    patches_csv <- readr::read_csv(
-      output$download_patches_csv,
+    areas_csv <- readr::read_csv(
+      output$download_areas_csv,
       show_col_types = FALSE
     )
 
@@ -74,8 +73,8 @@ test_that("the app's downloads produce files with content", {
     expect_equal(nrow(summary_csv), 1)
     expect_snapshot(names(summary_csv))
 
-    expect_true(all(c("area", "interpatch_distance") %in% names(patches_csv)))
-    expect_gt(nrow(patches_csv), 1)
+    expect_in(c("interpatch", "area"), names(areas_csv))
+    expect_gt(nrow(areas_csv), 1)
 
     settings_csv <- readr::read_csv(
       output$download_settings_csv,
@@ -94,7 +93,7 @@ test_that("the app's downloads produce files with content", {
     expect_equal(setting_value(settings_csv, "data_resolution_m"), "10")
 
     # named after the species and date, not the raw species with its spaces
-    stem <- connectivity_file_stem(results$report_data)
+    stem <- connectivity_file_stem(analysis())
     expect_equal(
       basename(output$download_settings_csv),
       paste0(stem, "-settings.csv")
@@ -107,16 +106,15 @@ test_that("the app's downloads produce files with content", {
       basename(output$download_connectivity_plot),
       paste0(stem, "-over-distance.png")
     )
-
-    patch_raster <- terra::rast(output$download_raster)
-    expect_s4_class(patch_raster, "SpatRaster")
+    expect_equal(
+      basename(output$download_raster),
+      paste0(stem, "-patches.tif")
+    )
 
     # download everything: the same analysis, archived. Asserted here rather
     # than in its own test, which would re-run the pipeline for the same state
-    expect_s3_class(results$report_data, "connectivity_report_data")
-
     contents <- zip::zip_list(output$download_everything)$filename
-    folder <- connectivity_file_stem(results$report_data)
+    folder <- connectivity_file_stem(analysis())
 
     expect_in(
       paste0(
@@ -133,6 +131,31 @@ test_that("the app's downloads produce files with content", {
         )
       ),
       contents
+    )
+  })
+})
+
+test_that("the GeoTIFF download holds each distance's patch ids", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    rlang::exec(
+      session$setInputs,
+      !!!app_lizard_inputs(interpatch_distances = "40, 80")
+    )
+
+    written <- terra::values(terra::rast(output$download_raster))
+    analysed <- analysis()$patch_id_raster
+
+    expect_snapshot(colnames(written))
+    expect_equal(
+      written[, 1],
+      terra::values(analysed[["40"]][["patch_id"]], mat = FALSE)
+    )
+    expect_equal(
+      written[, 2],
+      terra::values(analysed[["80"]][["patch_id"]], mat = FALSE)
     )
   })
 })
@@ -260,22 +283,21 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
       run_analysis = 2
     )
 
-    baseline <- results$barrier_raster
+    baseline <- analysis()$barrier
 
-    expect_true(results$ready)
-    expect_s3_class(results$comparison, "compare_connectivity")
-    expect_equal(results$scenario_kind, "barrier")
-    expect_equal(unique(results$comparison$scenario_name), basename(path))
+    expect_s3_class(analysis()$comparison, "compare_connectivity")
+    expect_equal(analysis()$scenario_kind, "barrier")
+    expect_equal(unique(analysis()$comparison$scenario_name), basename(path))
 
     # connectivity_report_data() put it on the baseline's grid on the way in
     expect_equal(
-      as.vector(terra::ext(results$scenario_barrier)),
+      as.vector(terra::ext(analysis()$scenario_barrier)),
       as.vector(terra::ext(baseline))
     )
-    expect_s4_class(results$scenario_layer, "SpatRaster")
+    expect_s4_class(scenario_layer(analysis()), "SpatRaster")
 
     # the record names what was uploaded, not a temp path
-    settings <- connectivity_settings(results$report_data)
+    settings <- connectivity_settings(analysis())
     expect_equal(
       setting_value(settings, "habitat_source"),
       "lizard_habitat_raster.tif"
@@ -285,7 +307,7 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
       paste(input$barrier_file$name, collapse = ", ")
     )
     expect_equal(setting_value(settings, "scenario_name"), basename(path))
-    expect_snapshot(names(connectivity_display(results$comparison)$data))
+    expect_snapshot(names(connectivity_display(analysis()$comparison)$data))
 
     # everything a comparison drives, rendered here rather than on the wren
     # data above: the tab containers, the per-distance plots they hold, and
@@ -361,7 +383,6 @@ test_that("the Your analysis card describes a scenario without reading it", {
     expect_match(preview, "Blue Tongue Lizard example data", fixed = TRUE)
     expect_match(preview, "250 m is treated as 240 m", fixed = TRUE)
     expect_match(preview, "A new road through the habitat", fixed = TRUE)
-    expect_false(results$ready)
   })
 })
 
@@ -479,15 +500,93 @@ test_that("no scenario chosen means no comparison anywhere", {
   shiny::testServer(server, {
     rlang::exec(session$setInputs, !!!app_lizard_inputs())
 
-    expect_true(results$ready)
-    expect_null(results$comparison)
-
     # so the report and the download have nothing scenario-shaped in them
-    expect_null(results$report_data$comparison)
+    expect_s3_class(analysis(), "connectivity_report_data")
+    expect_null(analysis()$comparison)
+    expect_error(output$comparison_plot, class = "shiny.silent.error")
   })
 })
 
-test_that("downloads named after the analysis do nothing before one has run", {
+test_that("the results show the last run, not inputs changed since", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    rlang::exec(session$setInputs, !!!app_lizard_inputs())
+
+    session$setInputs(species = "Skink", interpatch_distances = "40, 80")
+    expect_equal(output$analysis_species, "Blue Tongue Lizard")
+    expect_equal(output$analysis_buffers, "40")
+
+    session$setInputs(run_analysis = 2)
+    summary_csv <- readr::read_csv(
+      output$download_summary_csv,
+      show_col_types = FALSE
+    )
+
+    expect_equal(output$analysis_species, "Skink")
+    expect_equal(output$analysis_buffers, "40, 80")
+    expect_equal(summary_csv$interpatch_distance, c(40, 80))
+    expect_no_error(output$patch_plot_80)
+  })
+})
+
+test_that("a distance the last run dropped keeps no plot", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    rlang::exec(
+      session$setInputs,
+      !!!app_lizard_inputs(interpatch_distances = "40, 80")
+    )
+    session$setInputs(interpatch_distances = "40", run_analysis = 2)
+
+    expect_error(output$patch_plot_80, class = "shiny.silent.error")
+    expect_error(
+      output$barrier_habitat_interpatch_80,
+      class = "shiny.silent.error"
+    )
+  })
+})
+
+test_that("a run that fails closes its modal and empties the results", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    # testServer() has no browser, so record what the server tells one
+    sent <- new.env()
+    sent$modals <- character()
+    sent$notifications <- character()
+    session$sendModal <- function(type, message) {
+      sent$modals <- c(sent$modals, type)
+    }
+    session$sendNotification <- function(type, message) {
+      sent$notifications <- c(sent$notifications, message$type)
+    }
+
+    rlang::exec(
+      session$setInputs,
+      !!!app_lizard_inputs(interpatch_distances = "40, 80")
+    )
+    expect_equal(output$analysis_buffers, "40, 80")
+
+    # a cell size of 0 gives an error after the new distances are read, so
+    # this run fails partway through
+    session$setInputs(
+      interpatch_distances = "40, 80, 120",
+      data_resolution = 0,
+      run_analysis = 2
+    )
+
+    expect_equal(sent$modals, c("show", "remove", "show", "remove"))
+    expect_equal(sent$notifications, c("message", "error"))
+    expect_error(output$analysis_buffers, class = "shiny.silent.error")
+  })
+})
+
+test_that("downloads do nothing before an analysis has run", {
   skip_if_no_app()
   local_app_server()
 
@@ -501,7 +600,9 @@ test_that("downloads named after the analysis do nothing before one has run", {
         "download_reports_zip",
         "download_settings_csv",
         "download_areas_csv",
-        "download_connectivity_plot"
+        "download_connectivity_plot",
+        "download_summary_csv",
+        "download_raster"
       ),
       function(id) expect_error(output[[id]], class = "shiny.silent.error")
     )
@@ -537,5 +638,29 @@ test_that("empty entries between commas are skipped", {
 
     session$setInputs(interpatch_distances = "100,,250")
     expect_equal(interpatch_distances_parsed(), c(100, 250))
+  })
+})
+
+test_that("an empty interpatch distances box asks for a distance", {
+  skip_if_no_app()
+  local_app_server()
+
+  shiny::testServer(server, {
+    sent <- new.env()
+    session$sendNotification <- function(type, message) {
+      sent$notification <- message$html
+    }
+    asks <- "at least one valid interpatch distance"
+
+    # never set, so NULL
+    session$setInputs(data_resolution = 10)
+    expect_error(output$analysis_preview, asks, class = "validation")
+
+    rlang::exec(
+      session$setInputs,
+      !!!app_lizard_inputs(interpatch_distances = "")
+    )
+    expect_error(output$analysis_preview, asks, class = "validation")
+    expect_match(sent$notification, asks)
   })
 })

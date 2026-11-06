@@ -4,5 +4,5 @@
       app_packages()
     Output
       [1] "bslib"      "conflicted" "diffviewer" "DT"         "fasterize" 
-      [6] "gridExtra"  "shinyjs"   
+      [6] "shinyjs"   
 

@@ -143,6 +143,16 @@ test_that("the app starts, takes an analysis, and compares the result", {
   expect_equal(app$get_value(input = "example_data"), "lizard")
   expect_equal(app$get_value(input = "species"), "Blue Tongue Lizard")
 
+  # the example's layers stand in for the uploads, so those are dimmed as well
+  # as disabled: a disabled file input's Browse button still looks clickable
+  expect_true(app$get_js('$("#habitat_file").prop("disabled")'))
+  expect_equal(
+    app$get_js(
+      'getComputedStyle($("#habitat_file").closest(".form-group")[0]).opacity'
+    ),
+    "0.5"
+  )
+
   app$set_inputs(
     interpatch_distances = "40, 80",
     scenario_choice = "lizard_road"
