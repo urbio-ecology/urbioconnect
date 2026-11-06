@@ -54,6 +54,18 @@
   error, rather than dropping it.
   ([\#162](https://github.com/urbio-ecology/urbioconnect/issues/162))
 
+- The shiny app’s results always show the last run, and a run that gives
+  an error empties them rather than closing the app.
+  ([\#119](https://github.com/urbio-ecology/urbioconnect/issues/119))
+
+- The shiny app’s GeoTIFF download now holds the patch ids, one layer
+  per interpatch distance, rather than the habitat layer, and is named
+  after the species and the date.
+  ([\#164](https://github.com/urbio-ecology/urbioconnect/issues/164))
+
+- The shiny app asks for an interpatch distance when that box is empty,
+  rather than giving an error with no message.
+
 - [`run_connectivity_app()`](https://urbio-ecology.github.io/urbioconnect/reference/run_connectivity_app.md)
   now checks for `diffviewer` before launching. The app attaches it for
   the Scenario tab’s compare view, so without it the check passed and

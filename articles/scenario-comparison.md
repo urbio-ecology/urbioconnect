@@ -22,22 +22,22 @@ lizard_connectivity <- habitat_connectivity(
   species = "Blue-tongued Lizard"
 )
 #> i Creating barrier mask
-#> v Creating barrier mask [2.2s]
+#> v Creating barrier mask [2.3s]
 #> 
 #> i Removing habitat underneath barrier
-#> v Removing habitat underneath barrier [91ms]
+#> v Removing habitat underneath barrier [102ms]
 #> 
 #> i Buffering habitat for an interpatch distance of 100m
-#> v Buffering habitat for an interpatch distance of 100m [6.5s]
+#> v Buffering habitat for an interpatch distance of 100m [5.8s]
 #> 
 #> i Fragmenting habitat layer along barrier intersection
-#> v Fragmenting habitat layer along barrier intersection [28ms]
+#> v Fragmenting habitat layer along barrier intersection [32ms]
 #> 
 #> i Assigning patches ID to fragments
-#> v Assigning patches ID to fragments [522ms]
+#> v Assigning patches ID to fragments [624ms]
 #> 
 #> i Summarising area in each patch
-#> v Summarising area in each patch [162ms]
+#> v Summarising area in each patch [171ms]
 #> 
 
 lizard_connectivity
