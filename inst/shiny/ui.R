@@ -21,6 +21,31 @@ method_figure <- function(step, caption, alt) {
   )
 }
 
+# A help_input() with its picture beside it, the input giving up some of its
+# 300px before the picture drops below it. data-raw/input-pictures.R draws
+# each at twice its 300 by 120, to be sharp on a high-density screen.
+pictured_input <- function(input_fn, id, ...) {
+  picture <- purrr::chuck(input_help, id, "picture")
+  alt <- glue::glue_data(as.list(picture$labels), picture$alt)
+
+  # the card body spaces its own children, so the input's margin goes
+  div(
+    class = "d-flex flex-wrap align-items-start gap-3",
+    tagAppendAttributes(
+      help_input(input_fn, id, ...),
+      class = "mb-0",
+      style = "flex: 1 1 15rem; max-width: 300px;"
+    ),
+    img(
+      src = picture$file,
+      alt = stringr::str_squish(alt),
+      width = 300,
+      height = 120,
+      class = "img-fluid"
+    )
+  )
+}
+
 details_panel <- function() {
   # Opened from the foot of Before you start. What it says about each input
   # comes from help.R, so it can't disagree with that input's "i".
@@ -429,14 +454,14 @@ ui <- page_navbar(
             placeholder = "Enter species name"
           ),
 
-          help_input(
+          pictured_input(
             fileInput,
             "habitat_file",
             accept = spatial_upload_accept,
             multiple = TRUE
           ),
 
-          help_input(
+          pictured_input(
             fileInput,
             "barrier_file",
             accept = spatial_upload_accept,
@@ -476,7 +501,7 @@ ui <- page_navbar(
                 "Habitat (a development, say)" = "habitat"
               )
             ),
-            help_input(
+            pictured_input(
               fileInput,
               "scenario_file",
               accept = spatial_upload_accept,

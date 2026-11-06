@@ -16,6 +16,17 @@ input_help <- list(
       - A raster (GeoTIFF): any cell other than 0 or empty (no data) is
         habitat.",
       "Only the area inside its bounding box is analysed."
+    ),
+    picture = list(
+      file = "input-habitat.png",
+      labels = c(
+        habitat = "habitat: any value but 0 or empty",
+        other = "not habitat: 0 or empty"
+      ),
+      # pictured_input() fills in the labels
+      alt = "A small piece of the lizard example's habitat layer. Patches in
+        dark green are labelled '{habitat}', and the pale ground around them
+        '{other}'."
     )
   ),
   barrier_file = list(
@@ -28,6 +39,15 @@ input_help <- list(
       is removed, and a connection can go around a barrier but never across it.",
       "The analysis stops at the edge of the habitat layer, so draw a barrier
       that carries on beyond your study area past that edge."
+    ),
+    picture = list(
+      file = "input-barrier.png",
+      labels = c(
+        barrier = "barrier: 1",
+        other = "no barrier: 0 or empty"
+      ),
+      alt = "A small piece of the lizard example's barrier layer. Roads in grey
+        are labelled '{barrier}', and the pale ground between them '{other}'."
     )
   ),
   example_data = list(
@@ -63,6 +83,18 @@ input_help <- list(
     help = c(
       "Same formats, place and coordinate reference system as the layer it
       replaces. Its cell size doesn't need to match."
+    ),
+    picture = list(
+      file = "input-scenario.png",
+      labels = c(
+        baseline = "Barrier layer",
+        scenario = "Scenario layer",
+        change = "the new road"
+      ),
+      alt = "A small piece of the lizard example's barrier layer, twice. On the
+        left, '{baseline}': the barrier layer as it is. On the right,
+        '{scenario}': every road on the left, and a new road from top to
+        bottom near its right edge, labelled '{change}'."
     )
   ),
   data_resolution = list(
