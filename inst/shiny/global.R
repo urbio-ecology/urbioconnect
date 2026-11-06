@@ -36,6 +36,14 @@ library(tidyr)
 library(tidyterra)
 library(urbioconnect)
 
+# The app's modules, in R/ but not exported. The app ships inside the package,
+# so it can reach into it.
+# jarl-ignore-start internal_function: the app ships inside the package
+distance_navset <- urbioconnect:::distance_navset
+distance_tabs_ui <- urbioconnect:::distance_tabs_ui
+distance_tabs_server <- urbioconnect:::distance_tabs_server
+# jarl-ignore-end internal_function
+
 # Where the analysis settings start. The Details page states them, so ui.R
 # takes them from here rather than the two drifting apart.
 input_defaults <- list(data_resolution = 10, interpatch_distances = "100")
