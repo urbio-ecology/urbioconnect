@@ -44,11 +44,11 @@ input_defaults <- list(data_resolution = 10, interpatch_distances = "100")
 # few cell sizes by data-raw/cell-size-figures.R
 cell_size_figures <- read.csv("www/cell-size-figures.csv")
 
-# ui.R and server.R are sourced by shiny itself; colours.R, help.R and utils.R
-# are not, so they come in here
+# ui.R and server.R are sourced by shiny itself, and so is every file in R/,
+# after this one: the modules and small helpers. colours.R and help.R are not,
+# so they come in here.
 source("colours.R")
 source("help.R")
-source("utils.R")
 
 # Where the before/after PNGs for diffviewer are written. One directory for
 # the process, cleaned up when it exits: diffviewer compares files, not plots.

@@ -26,10 +26,10 @@ test_that("the app's analysis path runs and every result output renders", {
       "plot_connectivity_output",
       # the tab containers: these broke when the layer lists gained names,
       # because navset_tab() wants its panels unnamed
-      "gg_barrier_habitat_buffer_tabs",
-      "plot_patches_tabs",
-      "barrier_habitat_interpatch_40",
-      "patch_plot_40"
+      "barrier_habitat-tabs",
+      "patches-tabs",
+      "barrier_habitat-plot_40",
+      "patches-plot_40"
     )
 
     purrr::walk(outputs, function(output_name) {
@@ -320,15 +320,21 @@ test_that("uploaded layers and an uploaded scenario reach the analysis", {
         "layer_habitat",
         "layer_barrier",
         "layer_scenario",
-        "baseline_landscape_tabs",
-        "scenario_landscape_tabs",
+        "baseline_landscape-tabs",
+        "scenario_landscape-tabs",
         "landscape_compare_tabs",
-        "baseline_landscape_40",
-        "scenario_landscape_40",
+        "baseline_landscape-plot_40",
+        "scenario_landscape-plot_40",
         "compare_40"
       ),
       function(name) expect_no_error(output[[name]])
     )
+
+    # each tab draws its own side, not the baseline twice. testthat has no
+    # expectation that two values differ
+    baseline <- output[["baseline_landscape-plot_40"]]
+    scenario <- output[["scenario_landscape-plot_40"]]
+    expect_false(identical(baseline$src, scenario$src))
 
     # a PNG's signature names itself in bytes 2 to 4
     signature <- readBin(output$download_comparison_plot, "raw", 4)
@@ -504,6 +510,10 @@ test_that("no scenario chosen means no comparison anywhere", {
     expect_s3_class(analysis(), "connectivity_report_data")
     expect_null(analysis()$comparison)
     expect_error(output$comparison_plot, class = "shiny.silent.error")
+    expect_error(
+      output[["baseline_landscape-tabs"]],
+      class = "shiny.silent.error"
+    )
   })
 })
 
@@ -527,7 +537,7 @@ test_that("the results show the last run, not inputs changed since", {
     expect_equal(output$analysis_species, "Skink")
     expect_equal(output$analysis_buffers, "40, 80")
     expect_equal(summary_csv$interpatch_distance, c(40, 80))
-    expect_no_error(output$patch_plot_80)
+    expect_no_error(output[["patches-plot_80"]])
   })
 })
 
@@ -542,9 +552,9 @@ test_that("a distance the last run dropped keeps no plot", {
     )
     session$setInputs(interpatch_distances = "40", run_analysis = 2)
 
-    expect_error(output$patch_plot_80, class = "shiny.silent.error")
+    expect_error(output[["patches-plot_80"]], class = "shiny.silent.error")
     expect_error(
-      output$barrier_habitat_interpatch_80,
+      output[["barrier_habitat-plot_80"]],
       class = "shiny.silent.error"
     )
   })

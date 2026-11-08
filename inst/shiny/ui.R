@@ -600,7 +600,7 @@ ui <- page_navbar(
             card(
               card_header("Habitat, Buffered Habitat, and Barrier"),
               card_body(
-                uiOutput("gg_barrier_habitat_buffer_tabs")
+                distance_tabs_ui("barrier_habitat")
               )
             )
           ),
@@ -611,7 +611,7 @@ ui <- page_navbar(
             card(
               card_header("Patch ID"),
               card_body(
-                uiOutput("plot_patches_tabs")
+                distance_tabs_ui("patches")
               )
             )
           ),
@@ -769,11 +769,11 @@ ui <- page_navbar(
                     id = "landscape_view",
                     nav_panel(
                       title = "Baseline",
-                      uiOutput("baseline_landscape_tabs")
+                      distance_tabs_ui("baseline_landscape")
                     ),
                     nav_panel(
                       title = "Scenario",
-                      uiOutput("scenario_landscape_tabs")
+                      distance_tabs_ui("scenario_landscape")
                     ),
                     # diffviewer's widget, the one testthat shows for a
                     # changed snapshot: difference, toggle and slider in one

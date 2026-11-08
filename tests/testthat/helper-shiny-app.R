@@ -17,8 +17,10 @@ local_app_server <- function(envir = parent.frame()) {
   app_dir <- app_dir()
 
   suppressMessages({
-    # global.R sources colours.R itself, as it does when shiny runs the app
+    # global.R sources colours.R itself, as it does when shiny runs the app.
+    # shiny then sources R/, as loadSupport() does here.
     withr::with_dir(app_dir, source("global.R", local = envir))
+    shiny::loadSupport(app_dir, renv = envir, globalrenv = NULL)
     source(file.path(app_dir, "server.R"), local = envir)
   })
 
