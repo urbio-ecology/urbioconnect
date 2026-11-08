@@ -28,16 +28,16 @@ lizard_connectivity <- habitat_connectivity(
 #> v Removing habitat underneath barrier [94ms]
 #> 
 #> i Buffering habitat for an interpatch distance of 100m
-#> v Buffering habitat for an interpatch distance of 100m [635ms]
+#> v Buffering habitat for an interpatch distance of 100m [633ms]
 #> 
 #> i Fragmenting habitat layer along barrier intersection
-#> v Fragmenting habitat layer along barrier intersection [26ms]
+#> v Fragmenting habitat layer along barrier intersection [31ms]
 #> 
 #> i Assigning patches ID to fragments
-#> v Assigning patches ID to fragments [501ms]
+#> v Assigning patches ID to fragments [511ms]
 #> 
 #> i Summarising area in each patch
-#> v Summarising area in each patch [156ms]
+#> v Summarising area in each patch [158ms]
 #> 
 
 lizard_connectivity

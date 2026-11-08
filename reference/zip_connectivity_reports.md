@@ -55,12 +55,12 @@ if (quarto_available()) {
 }
 #> Rendering html report...
 #> Wrote
-#> /tmp/RtmpU2Vsax/urbioconnect-zip23211b7d88f3/blue-tongue-lizard-connectivity-2026-11-06/report.html
+#> /tmp/RtmppDTJuh/urbioconnect-zip1ffd4f3d95a/blue-tongue-lizard-connectivity-2026-11-08/report.html
 #> Rendering pdf report...
 #> Wrote
-#> /tmp/RtmpU2Vsax/urbioconnect-zip23211b7d88f3/blue-tongue-lizard-connectivity-2026-11-06/report.pdf
-#> [1] "blue-tongue-lizard-connectivity-2026-11-06/"           
-#> [2] "blue-tongue-lizard-connectivity-2026-11-06/report.html"
-#> [3] "blue-tongue-lizard-connectivity-2026-11-06/report.pdf" 
+#> /tmp/RtmppDTJuh/urbioconnect-zip1ffd4f3d95a/blue-tongue-lizard-connectivity-2026-11-08/report.pdf
+#> [1] "blue-tongue-lizard-connectivity-2026-11-08/"           
+#> [2] "blue-tongue-lizard-connectivity-2026-11-08/report.html"
+#> [3] "blue-tongue-lizard-connectivity-2026-11-08/report.pdf" 
 # }
 ```
