@@ -14,8 +14,8 @@ prepare_rasters(habitat, barrier, data_resolution = 10)
 
 - habitat:
 
-  SF object or `SpatRaster`. Habitat spatial data. In a raster, habitat
-  is any cell that is neither `NA` nor `0`.
+  SF object or `SpatRaster`. Habitat spatial data, projected in metres.
+  In a raster, habitat is any cell that is neither `NA` nor `0`.
 
 - barrier:
 

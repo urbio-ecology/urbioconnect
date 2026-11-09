@@ -159,6 +159,18 @@
   and the other analysis functions now give an error for a negative,
   `NA` or infinite distance.
 
+- [`empty_grid()`](https://urbio-ecology.github.io/urbioconnect/reference/empty_grid.md),
+  [`habitat_buffer()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_buffer.md),
+  [`habitat_connectivity()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity.md),
+  [`habitat_connectivity_full()`](https://urbio-ecology.github.io/urbioconnect/reference/habitat_connectivity_full.md)
+  and
+  [`prepare_rasters()`](https://urbio-ecology.github.io/urbioconnect/reference/prepare_rasters.md),
+  and so the shiny app, now give an error for a habitat layer that isn’t
+  in metres, such as one in longitude and latitude or in feet. Every
+  distance and cell size is in metres, so in longitude and latitude a 10
+  m cell size was read as 10 degrees, which put the whole study area in
+  one cell.
+
 - Functions taking a `dir` to fill create it if it doesn’t exist;
   functions taking a `path` to one file error if that file’s directory
   doesn’t, as

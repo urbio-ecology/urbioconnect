@@ -22,8 +22,8 @@ habitat_connectivity_full(
 
 - habitat:
 
-  Terra SpatRaster. Habitat raster. Habitat is any cell that is neither
-  `NA` nor `0`.
+  Terra SpatRaster. Habitat raster, projected in metres. Habitat is any
+  cell that is neither `NA` nor `0`.
 
 - barrier:
 

@@ -12,7 +12,7 @@ empty_grid(habitat, resolution = 10)
 
 - habitat:
 
-  SF object or terra SpatRaster.
+  SF object or terra SpatRaster, projected in metres.
 
 - resolution:
 
