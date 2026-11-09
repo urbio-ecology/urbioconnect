@@ -30,7 +30,7 @@ library(terra)
 
 > Kirk, H., Soanes, K., Amati, M., Bekessy, S., Harrison, L., Parris, K., Ramalho, C., van de Ree, R., & Threlfall, C. (2023). Ecological connectivity as a planning tool for the conservation of wildlife in cities. *MethodsX*, 10, 101989. <https://doi.org/10.1016/j.mex.2022.101989>
 
-The core idea is two habitat patches are considered connected if an animal can travel between them without crossing a barrier (e.g., a road). We buffer the habitat by a species-specific **interpatch distance**, then cut those buffers wherever barriers exist. The remaining pieces of habitat that are connected become **patches**, and we summarise their areas to compute connectivity metrics. This workflow is represented visually in the figure below, from the paper by Kirk et al.:
+The core idea is that two habitat patches are considered connected if an animal can travel between them without crossing a barrier (e.g., a road). We buffer the habitat by a species-specific **interpatch distance**, then cut those buffers wherever barriers exist. The remaining pieces of habitat that are connected become **patches**, and we summarise their areas to compute connectivity metrics. This workflow is represented visually in the figure below, from the paper by Kirk et al.:
 
 ```{r}
 #| label: "Effective-mesh-demonstration"
@@ -38,11 +38,13 @@ The core idea is two habitat patches are considered connected if an animal can t
 knitr::include_graphics("demo-effective-mesh.jpg")
 ```
 
-This vignette walks through the raster workflow step by step using the built-in Blue-tongued Lizard example data from Darebin Creek, Melbourne. We then show how to run the same workflow in a single function call.
+This vignette walks through the raster workflow step by step using the built-in Blue-tongued Lizard example data from Darebin Creek, Melbourne. 
+
+We then show how to run the same workflow in a single, simplified step.
 
 ## The example data
 
-The package ships with habitat and barrier rasters for a Blue-tongued Lizard study area along Darebin Creek, between Preston and West Heidelberg, Melbourne. 
+The `urbioconnect` package comes with example data for habitat and barrier rasters. This data is from Blue-tongued Lizard study area along Darebin Creek, between Preston and West Heidelberg, Melbourne. 
 
 ```{r}
 #| label: load-data
@@ -60,7 +62,7 @@ The habitat raster has value 1 where lizard habitat exists, NA elsewhere. Any va
 plot(habitat, main = "Lizard Habitat", col = "seagreen", legend = FALSE)
 ```
 
-The barrier raster has value 1 where barriers (roads exist), 0 elsewhere.
+The barrier raster has value 1 where barriers (roads exist), and 0 elsewhere.
 
 ```{r}
 #| label: plot-barrier
@@ -102,7 +104,7 @@ plot(barrier_mask, col = c("grey"), legend = FALSE)
 
 ### Step 2: Remove habitat under barriers
 
-Habitat sitting directly beneath a barrier is removed before analysis. Roads bisecting a habitat patch effectively remove the habitat for connectivity purposes. We can see here below where the habitats have been removed - the green spaces are habitat kep, and the orange ones are habitat that intersected with barriers.
+Habitat sitting directly beneath a barrier is removed before analysis. Roads bisecting a habitat patch effectively remove the habitat for connectivity purposes. 
 
 ```{r}
 #| label: drop-under-barrier
@@ -110,8 +112,11 @@ remaining_habitat <- drop_habitat_under_barrier(
   habitat = habitat,
   barrier_mask = barrier_mask
 )
+
+remaining_habitat
 ```
 
+We can see here below where the habitats have been removed - the green spaces are habitat kept, and the orange ones are habitat that intersected with barriers.
 
 ```{r}
 #| label: plot-drop-under-barrier
@@ -122,11 +127,15 @@ plot(remaining_habitat, col = "#1b9e77", legend = FALSE, add = TRUE)
 
 ### Step 3: Buffer the habitat
 
-`habitat_buffer()` expands the habitat outward, keeping every cell within a circle of the buffer radius. This is the spatial operation of buffering, which we use to represent the interpatch distance - here the **buffer_radius** should be *half* the species' connectivity threshold. For example, if two patches are considered connected when within 200 m of each other, use a 100 m buffer, as the buffers overlap when patches are within 200 m. For the blue-tongued lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500 m. However, we use 10 for a faster demonstration on the small example dataset, and will define both `interpatch_distance` and `buffer_radius` at the same time.
+`habitat_buffer()` expands the habitat outward, keeping every cell within a circle of the buffer radius. This is the spatial operation of **buffering**, which we use to represent the interpatch distance - here the **buffer_radius** should be *half* the species' connectivity threshold. 
+
+For example, if two patches are considered connected when within 200 m of each other, use a 100 m buffer, as the buffers overlap when patches are within 200 m. 
+
+For the blue-tongued lizard in urban Melbourne, the median dispersal distance is 1000 m (Kirk et al., 2023), so we would use a buffer of 500 m. However, we use 12 for a faster demonstration on the small example dataset, and will define both `interpatch_distance` and `buffer_radius` at the same time.
 
 ```{r}
 #| label: interpatch
-interpatch_distance <- 10
+interpatch_distance <- 12
 buffer_radius <- interpatch_distance / 2
 
 buffered_habitat <- habitat_buffer(
@@ -186,7 +195,7 @@ patch_id_raster <- assign_patches_to_fragments(
 ) |>
   add_patch_area()
 
-patch_id_raster
+plot(patch_id_raster$patch_id)
 ```
 
 `add_patch_area()` appends a cell-area layer to the raster, which is needed for the area calculations in the next step.
@@ -200,6 +209,8 @@ We can plot the patches, with each connected patch shown in a distinct colour us
 plot_patches(
   patch_id = patch_id_raster,
   interpatch_distance = interpatch_distance,
+  barrier = barrier,
+  buffered = buffered_habitat,
   species = "Blue-tongued Lizard"
 )
 ```
@@ -294,7 +305,7 @@ names(result)
 
 ## Comparing multiple interpatch distances
 
-A common workflow is to run the analysis at several interpatch distances and compare the results. Use `purrr::map()` to iterate, then `purrr::list_rbind()` to combine:
+You might want to explore running the analysis at several interpatch distances and compare the results. Use `purrr::map()` to iterate, then `purrr::list_rbind()` to combine them:
 
 ```{r}
 #| label: multi-interpatch
@@ -331,7 +342,7 @@ plot_connectivity(all_results)
 
 `plot_connectivity()` produces a faceted ggplot2 figure showing each connectivity metric (number of patches, probability of connectedness, mean patch area, total habitat area) as a function of interpatch distance.
 
-Give it a scenario comparison instead, from `compare_connectivity()`, `compare_scenarios()`, `habitat_connectivity_comparison()` or `habitat_connectivity_scenarios()`, and it draws a bar for the baseline and each scenario, side by side at each interpatch distance, so you can see where a scenario departs from the baseline.
+Give it a scenario comparison instead, from `compare_connectivity()`, `compare_scenarios()`, `habitat_connectivity_comparison()` or `habitat_connectivity_scenarios()`, and it draws a bar for the baseline and each scenario, side by side at each interpatch distance, so you can see where a scenario departs from the baseline. 
 
 ## Summary
 
