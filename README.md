@@ -13,20 +13,51 @@ coverage](https://codecov.io/gh/urbio-ecology/urbioconnect/graph/badge.svg)](htt
 [![build-desktop-app](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml/badge.svg)](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml)
 <!-- badges: end -->
 
-`urbioconnect` provides tools to quantify ecological connectivity for
-different urban wildlife species based on:
+``` r
+library(urbioconnect)
+```
+
+`urbioconnect` provides tools to quantify ecological connectivity of
+wildlife in urban areas. It was designed to facilitate understanding how
+barriers might change or impact how connected species are. The tool uses
+these key inputs:
 
 - wildlife **habitat**
 - urban **barrier**
-- the roaming range (in metres) of the wildlife
-- A few other parameters
+- the roaming range (in metres) of the wildlife - say, 40m.
 
-An example of this is raster grid data on blue tongued-lizard
-**habitat**, raster grid data on road and buildings (**barriers**), and
-how far their roaming range is (say, 100 metres).
+Let’s brief show some examples of this habitat and barrier data:
 
-`urbioconnect` computes metrics for assessing the connectedness of these
-habitat patches:
+- raster grid data on blue tongued-lizard **habitat**
+
+``` r
+library(terra)
+#> terra 1.9.50
+
+habitat <- example_habitat()
+
+plot(habitat, col = "seagreen", legend = FALSE, main = "Lizard Habitat")
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" alt="" width="100%" />
+
+- raster grid data on road and buildings (**barriers**)
+
+``` r
+barrier <- example_barrier()
+plot(barrier, col = c("grey", "white"), legend = FALSE, main = "Lizard Barriers")
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" alt="" width="100%" />
+
+In brief, the method of `urbioconnect` uses this habitat, barrier, and
+interpatch distance (roaming distance) data to identify which habitats
+are connected or not. A species would be connected if the edges of their
+habitat are within range of the interpatch distance - which they may not
+be if there is a subtantial barrier between them.
+
+We can use this method to create metrics on how connected the species
+are, which are:
 
 - effective mesh size
 - probability of connectedness
@@ -37,7 +68,7 @@ habitat patches:
 Note you can use **vector** (shapefile) or **raster** data for habitat
 and barrier formats.
 
-This method is described in:
+The full method is described in:
 
 > Kirk, H., Soanes, K., Amati, M., Bekessy, S., Harrison, L., Parris,
 > K., Ramalho, C., van de Ree, R., & Threlfall, C. (2023). Ecological
@@ -63,7 +94,8 @@ A hosted version is available at:
 <https://njtierney-urbioconnect.share.connect.posit.cloud/>
 
 You do not need the shiny app to perform analyses. All functions have
-been designed to work together in a pipeline - see example usage below.
+been designed to work together in a script. We have examples usages
+below.
 
 ## Installation
 
@@ -85,10 +117,11 @@ pak::pak("urbio-ecology/urbioconnect")
 
 ## Get started
 
+Let’s look at the habitat and barrier data again:
+
 ``` r
 library(urbioconnect)
 library(terra)
-#> terra 1.9.50
 
 # load example habitat and barrier rasters
 habitat <- example_habitat()
@@ -107,68 +140,112 @@ plot(habitat, col = "seagreen", legend = FALSE, add = TRUE)
 
 <img src="man/figures/README-lizard-hab-barrier-1.png" alt="" width="90%" />
 
+You can then run the full raster pipeline at, say, a 40m interpatch
+distance:
+
 ``` r
 # run the full raster pipeline at a 10m interpatch distance
 areas <- habitat_connectivity(
   habitat  = habitat,
   barrier  = barrier,
   species = "Blue-tongued Lizard",
-  interpatch_distance = 10
+  interpatch_distance = 40
 )
 #> ℹ Creating barrier mask
 #> ✔ Creating barrier mask [40ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [19ms]
+#> ✔ Removing habitat underneath barrier [37ms]
 #> 
-#> ℹ Buffering habitat for an interpatch distance of 10m
-#> Warning: `interpatch_distance` doesn't align with the raster resolution.
-#> ✖ 10 m isn't a multiple of 4 m.
-#> ℹ It snaps to 8 m.
-#> ℹ Connectivity may shift for patches near the cut-off.
-#> ℹ See `vignette(urbioconnect::interpatch-distance-and-resolution)`.
-#> ✔ Buffering habitat for an interpatch distance of 10m [76ms]
+#> ℹ Buffering habitat for an interpatch distance of 40m
+#> ✔ Buffering habitat for an interpatch distance of 40m [148ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [15ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [14ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [1.1s]
+#> ✔ Assigning patches ID to fragments [523ms]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [116ms]
+#> ✔ Summarising area in each patch [93ms]
 #> 
 
 areas
 #> # A tibble: 1 × 9
 #>   species     interpatch_distance n_patches effective_mesh_ha prob_connectedness
 #>   <chr>                     <dbl>     <int>             <dbl>              <dbl>
-#> 1 Blue-tongu…                  10       703              3.92              0.149
+#> 1 Blue-tongu…                  40        81              4.45              0.169
 #> # ℹ 4 more variables: patch_area_mean <dbl>, patch_area_total_ha <dbl>,
 #> #   data_resolution <chr>, patch_size <list>
 ```
 
-`areas` already contains the landscape-level summary (effective mesh
-size, probability of connectedness, patch counts, and so on). The
-per-patch areas that summary is built from are stored in a list-column,
-and can be pulled out with `patch_sizes()`:
+`areas` contains the landscape-level summary (effective mesh size,
+probability of connectedness, patch counts, and so on).
+
+If you want to see a plot of the individual patches that were
+identified, use `plot_patches()`
 
 ``` r
 patch_sizes(areas)[[1]]
 #> # patch_size_tbl:      data.frame
 #> # Species:             Blue-tongued Lizard
-#> # Patches:             703
+#> # Patches:             81
 #> # Resolution:          2x2
-#> # Interpatch Distance: 10 m
+#> # Interpatch Distance: 40 m
 #>   patch_id    area
 #>      <dbl>   <dbl>
-#> 1        1    60.0
-#> 2        2  1648. 
-#> 3        7    12.0
-#> 4        8  1200. 
-#> 5       10 92034. 
-#> # ℹ 698 more rows
+#> 1        1 97898. 
+#> 2        2  2416. 
+#> 3        3  1304. 
+#> 4        4    40.0
+#> 5        5  1592. 
+#> # ℹ 76 more rows
 ```
+
+`habitat_connectivity()` runs all the steps of the pipeline - if you
+want the intermediate objects that are created during the analysis, say
+for example if you want to plot some of the rasters, you can use
+`habitat_connectivity_full()`:
+
+``` r
+areas_full <- habitat_connectivity_full(
+  habitat  = habitat,
+  barrier  = barrier,
+  interpatch_distance = 40
+)
+#> ℹ Creating barrier mask
+#> ✔ Creating barrier mask [15ms]
+#> 
+#> ℹ Removing habitat underneath barrier
+#> ✔ Removing habitat underneath barrier [65ms]
+#> 
+#> ℹ Buffering habitat for an interpatch distance of 40m
+#> ✔ Buffering habitat for an interpatch distance of 40m [177ms]
+#> 
+#> ℹ Fragmenting habitat layer along barrier intersection
+#> ✔ Fragmenting habitat layer along barrier intersection [11ms]
+#> 
+#> ℹ Assigning patches ID to fragments
+#> ✔ Assigning patches ID to fragments [591ms]
+#> 
+#> ℹ Summarising area in each patch
+#> ✔ Summarising area in each patch [36ms]
+#> 
+```
+
+And then pass key information along to `plot_patches()`:
+
+``` r
+plot_patches(
+  patch_id = areas_full$patch_id_raster,
+  interpatch_distance = 40,
+  barrier = barrier,
+  buffered = areas_full$buffered_habitat
+  )
+#> <SpatRaster> resampled to 500554 cells.
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" width="100%" />
 
 ## Works with raster and vector (shapefile)
 

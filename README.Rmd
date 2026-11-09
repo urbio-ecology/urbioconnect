@@ -23,16 +23,39 @@ knitr::opts_chunk$set(
 [![build-desktop-app](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml/badge.svg)](https://github.com/urbio-ecology/urbioconnect/actions/workflows/build-desktop-app.yaml)
 <!-- badges: end -->
 
-`urbioconnect` provides tools to quantify ecological connectivity for different urban wildlife species based on:
+```{r}
+library(urbioconnect)
+```
+
+
+`urbioconnect` provides tools to quantify ecological connectivity of wildlife in urban areas. It was designed to facilitate understanding how barriers might change or impact how connected species are. The tool uses these key inputs:
 
 - wildlife **habitat**
 - urban **barrier**
-- the roaming range (in metres) of the wildlife
-- A few other parameters
+- the roaming range (in metres) of the wildlife - say, 40m.
 
-An example of this is raster grid data on blue tongued-lizard **habitat**, raster grid data on road and buildings (**barriers**), and how far their roaming range is (say, 100 metres). 
+Let's brief show some examples of this habitat and barrier data:
 
-`urbioconnect` computes metrics for assessing the connectedness of these habitat patches:
+* raster grid data on blue tongued-lizard **habitat**
+
+```{r}
+library(terra)
+
+habitat <- example_habitat()
+
+plot(habitat, col = "seagreen", legend = FALSE, main = "Lizard Habitat")
+```
+
+* raster grid data on road and buildings (**barriers**)
+
+```{r}
+barrier <- example_barrier()
+plot(barrier, col = c("grey", "white"), legend = FALSE, main = "Lizard Barriers")
+```
+
+In brief, the method of  `urbioconnect` uses this habitat, barrier, and interpatch distance (roaming distance) data to identify which habitats are connected or not. A species would be connected if the edges of their habitat are within range of the interpatch distance - which they may not be if there is a subtantial barrier between them.
+
+We can use this method to create metrics on how connected the species are, which are:
 
 * effective mesh size
 * probability of connectedness
@@ -42,7 +65,7 @@ An example of this is raster grid data on blue tongued-lizard **habitat**, raste
 
 Note you can use **vector** (shapefile) or **raster** data for habitat and barrier formats.
 
-This method is described in:
+The full method is described in:
 
 > Kirk, H., Soanes, K., Amati, M., Bekessy, S., Harrison, L., Parris, K., Ramalho, C., van de Ree, R., & Threlfall, C. (2023). Ecological connectivity as a planning tool for the conservation of wildlife in cities. *MethodsX*, 10, 101989. <https://doi.org/10.1016/j.mex.2022.101989>
 
@@ -59,7 +82,7 @@ run_connectivity_app()
 
 A hosted version is available at: <https://njtierney-urbioconnect.share.connect.posit.cloud/>
 
-You do not need the shiny app to perform analyses. All functions have been designed to work together in a pipeline - see example usage below.
+You do not need the shiny app to perform analyses. All functions have been designed to work together in a script. We have examples usages below.
 
 ## Installation
 
@@ -81,6 +104,8 @@ pak::pak("urbio-ecology/urbioconnect")
 
 ## Get started
 
+Let's look at the habitat and barrier data again:
+
 ```{r get-started, out.width="45%", fig.show='hold'}
 library(urbioconnect)
 library(terra)
@@ -99,6 +124,7 @@ plot(barrier, col = c("grey", "white"), legend = FALSE, main = "Lizard Barriers 
 plot(habitat, col = "seagreen", legend = FALSE, add = TRUE)
 ```
 
+You can then run the full raster pipeline at, say, a 40m interpatch distance:
 
 ```{r areas}
 # run the full raster pipeline at a 10m interpatch distance
@@ -106,19 +132,41 @@ areas <- habitat_connectivity(
   habitat  = habitat,
   barrier  = barrier,
   species = "Blue-tongued Lizard",
-  interpatch_distance = 10
+  interpatch_distance = 40
 )
 
 areas
 ```
 
-`areas` already contains the landscape-level summary (effective mesh size,
-probability of connectedness, patch counts, and so on). The per-patch areas
-that summary is built from are stored in a list-column, and can be pulled
-out with `patch_sizes()`:
+`areas` contains the landscape-level summary (effective mesh size,
+probability of connectedness, patch counts, and so on). 
+
+If you want to see a plot of the individual patches that were identified, use `plot_patches()`
 
 ```{r patch-detail}
 patch_sizes(areas)[[1]]
+```
+
+`habitat_connectivity()` runs all the steps of the pipeline - if you want the intermediate objects that are created during the analysis, say for example if you want to plot some of the rasters, you can use `habitat_connectivity_full()`:
+
+```{r}
+areas_full <- habitat_connectivity_full(
+  habitat  = habitat,
+  barrier  = barrier,
+  interpatch_distance = 40
+)
+
+```
+
+And then pass key information along to `plot_patches()`:
+
+```{r}
+plot_patches(
+  patch_id = areas_full$patch_id_raster,
+  interpatch_distance = 40,
+  barrier = barrier,
+  buffered = areas_full$buffered_habitat
+  )
 ```
 
 
