@@ -342,8 +342,6 @@ plot_connectivity(all_results)
 
 `plot_connectivity()` produces a faceted ggplot2 figure showing each connectivity metric (number of patches, probability of connectedness, mean patch area, total habitat area) as a function of interpatch distance.
 
-Give it a scenario comparison instead, from `compare_connectivity()`, `compare_scenarios()`, `habitat_connectivity_comparison()` or `habitat_connectivity_scenarios()`, and it draws a bar for the baseline and each scenario, side by side at each interpatch distance, so you can see where a scenario departs from the baseline. 
-
 ## Summary
 
 The core raster workflow in `urbioconnect` is:
@@ -357,3 +355,49 @@ The core raster workflow in `urbioconnect` is:
 7. `summarise_connectivity()` - compute effective mesh size and probability of connectedness
 
 Or, equivalently, use `habitat_connectivity()` for the one-row landscape summary (with per-patch data available via `patch_sizes()`), or `habitat_connectivity_full()` when you also need the intermediate rasters.
+
+# Scenario comparison
+
+One of the key features of `urbioconnect` is to compare different scenarios. You can read about this in the vignette, "Comparing scenarios", but briefly, the workflow is as follows.
+
+Say, you have a new road that you want to see the impact on:
+
+```{r}
+new_road <- example_barrier_scenario()
+new_road
+plot(new_road)
+```
+
+You could use, `habitat_connectivity_comparison()` to compare these:
+
+```{r}
+road <- habitat_connectivity_comparison(
+  habitat_baseline = habitat,
+  barrier_baseline = barrier,
+  species = "Blue Tongue Lizard",
+  interpatch_distance = 100,
+  barrier_scenario = new_road,
+  scenario_name = "A new road",
+  verbose = FALSE
+)
+```
+
+This gives us a data frame of the comparison information
+
+```{r}
+road
+```
+
+We can summarise this with `summary()` to get a cleaner comparison, to understand it's impact.
+
+```{r}
+summary(road)
+```
+
+You can also plot it with `plot_connectivity()`:
+
+```{r}
+plot_connectivity(road)
+```
+
+For more information on comparing scenarios, including how to compare multiple different scenarios, see the vignette, "Scenario comparison".

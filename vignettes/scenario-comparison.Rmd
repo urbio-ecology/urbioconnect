@@ -78,9 +78,11 @@ lizard_connectivity
 
 This tells us what the baseline level of connectivity is.
 
-A key addition Kirk et al. brought is in comparing a baseline level of connectivity to a "scenario". This is where, say, you compare the baseline connectivity, to where the habitat is reduced, or grown, or more barriers are added, or removed. This is very useful when designing new urban spaces, as it allows planners to assess the ecological impact a new plan can have on an urban area.
+A key feature of the analysis in Kirk et al. is in comparing a baseline level of connectivity to a "scenario". This is where, say, you compare the baseline connectivity, to where the habitat is reduced, or grown, or more barriers are added, or removed. 
 
-The goal of this vignette is to take a scenario that changes the habitat, the barriers, or both, and then compare its connectivity to the baseline.
+This is very useful when designing new urban spaces, as it allows planners to assess the ecological impact a new plan can have on an urban area.
+
+The goal of this vignette is to take a scenario that changes the habitat, the barriers, or both, and then compare its connectivity to the baseline. We will walk through the process from the beginning.
 
 ## The data
 
@@ -195,8 +197,7 @@ There are four rows, one for baseline, scenario, change, and then percent change
 
 `baseline` and `scenario` are the two landscapes, `change` is the scenario minus the baseline, and `pct_change` is that change as a percentage of the baseline.
 
-Printed like this, the comparison hides the columns that don't fit on the screen.
-`summary()` shows every metric, one per row, with the baseline, the scenario, the change and the per cent change side by side:
+We can use `summary()` on this data to show a cleaner summary of every metric, one per row, with the baseline, scenario, change and per cent change:
 
 ```{r}
 #| label: road-summary
@@ -215,8 +216,15 @@ Here, a development clears all the habitat in the west of the map:
 ```{r}
 #| label: cleared
 cleared <- habitat
-cleared[, 1:60] <- NA
+cleared[, 100:400] <- NA
 
+plot(habitat, col = "seagreen")
+plot(cleared, col = "seagreen")
+```
+
+
+```{r}
+#| label: cleared-comparison
 cleared_comparison <- habitat_connectivity_comparison(
   habitat_baseline = habitat,
   barrier_baseline = barrier,
@@ -261,8 +269,15 @@ Here, every cell in a large block in the north becomes habitat. Habitat under a 
 ```{r}
 #| label: planted
 planted <- habitat
-planted[1:80, 50:100] <- 1
+planted[100:300, 400:600] <- 1
 
+plot(planted, col = "seagreen")
+plot(habitat, col = "seagreen")
+```
+
+
+```{r}
+#| label: planted-compaison
 planted_comparison <- habitat_connectivity_comparison(
   habitat_baseline = habitat,
   barrier_baseline = barrier,
@@ -358,7 +373,8 @@ summary(scenarios)
 ```
 
 The list names become the `scenario_name` column.
-The baseline runs once per distance, and every scenario shares it.
+
+The baseline then runs once per distance, and each of the scenarios share this.
 
 `plot_connectivity()` draws a comparison, with the baseline beside each scenario:
 
