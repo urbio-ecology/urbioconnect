@@ -26,7 +26,7 @@ these key inputs:
 - urban **barrier**
 - the roaming range (in metres) of the wildlife - say, 40m.
 
-Let’s brief show some examples of this habitat and barrier data:
+Let’s briefly show some examples of this habitat and barrier data:
 
 - raster grid data on blue tongued-lizard **habitat**
 
@@ -50,11 +50,18 @@ plot(barrier, col = c("grey", "white"), legend = FALSE, main = "Lizard Barriers"
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" alt="" width="100%" />
 
-In brief, the method of `urbioconnect` uses this habitat, barrier, and
-interpatch distance (roaming distance) data to identify which habitats
-are connected or not. A species would be connected if the edges of their
-habitat are within range of the interpatch distance - which they may not
-be if there is a subtantial barrier between them.
+## Methodology
+
+The core idea is that two habitat patches are considered connected if an
+animal can travel between them without crossing a barrier (e.g., a
+road). We buffer the habitat by a species-specific **interpatch
+distance**, then cut those buffers wherever barriers exist. The
+remaining pieces of habitat that are connected become **patches**, and
+we summarise their areas to compute connectivity metrics. This workflow
+is represented visually in the figure below, from the paper by Kirk et
+al.:
+
+<img src="vignettes/demo-effective-mesh.jpg" alt="" width="100%" />
 
 We can use this method to create metrics on how connected the species
 are, which are:
@@ -152,22 +159,22 @@ areas <- habitat_connectivity(
   interpatch_distance = 40
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [40ms]
+#> ✔ Creating barrier mask [39ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [37ms]
+#> ✔ Removing habitat underneath barrier [33ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 40m
-#> ✔ Buffering habitat for an interpatch distance of 40m [148ms]
+#> ✔ Buffering habitat for an interpatch distance of 40m [141ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
 #> ✔ Fragmenting habitat layer along barrier intersection [14ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [523ms]
+#> ✔ Assigning patches ID to fragments [508ms]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [93ms]
+#> ✔ Summarising area in each patch [95ms]
 #> 
 
 areas
@@ -214,22 +221,22 @@ areas_full <- habitat_connectivity_full(
   interpatch_distance = 40
 )
 #> ℹ Creating barrier mask
-#> ✔ Creating barrier mask [15ms]
+#> ✔ Creating barrier mask [14ms]
 #> 
 #> ℹ Removing habitat underneath barrier
-#> ✔ Removing habitat underneath barrier [65ms]
+#> ✔ Removing habitat underneath barrier [27ms]
 #> 
 #> ℹ Buffering habitat for an interpatch distance of 40m
-#> ✔ Buffering habitat for an interpatch distance of 40m [177ms]
+#> ✔ Buffering habitat for an interpatch distance of 40m [113ms]
 #> 
 #> ℹ Fragmenting habitat layer along barrier intersection
-#> ✔ Fragmenting habitat layer along barrier intersection [11ms]
+#> ✔ Fragmenting habitat layer along barrier intersection [9ms]
 #> 
 #> ℹ Assigning patches ID to fragments
-#> ✔ Assigning patches ID to fragments [591ms]
+#> ✔ Assigning patches ID to fragments [491ms]
 #> 
 #> ℹ Summarising area in each patch
-#> ✔ Summarising area in each patch [36ms]
+#> ✔ Summarising area in each patch [23ms]
 #> 
 ```
 

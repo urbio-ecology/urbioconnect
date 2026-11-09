@@ -34,7 +34,7 @@ library(urbioconnect)
 - urban **barrier**
 - the roaming range (in metres) of the wildlife - say, 40m.
 
-Let's brief show some examples of this habitat and barrier data:
+Let's briefly show some examples of this habitat and barrier data:
 
 * raster grid data on blue tongued-lizard **habitat**
 
@@ -53,7 +53,15 @@ barrier <- example_barrier()
 plot(barrier, col = c("grey", "white"), legend = FALSE, main = "Lizard Barriers")
 ```
 
-In brief, the method of  `urbioconnect` uses this habitat, barrier, and interpatch distance (roaming distance) data to identify which habitats are connected or not. A species would be connected if the edges of their habitat are within range of the interpatch distance - which they may not be if there is a subtantial barrier between them.
+## Methodology
+
+The core idea is that two habitat patches are considered connected if an animal can travel between them without crossing a barrier (e.g., a road). We buffer the habitat by a species-specific **interpatch distance**, then cut those buffers wherever barriers exist. The remaining pieces of habitat that are connected become **patches**, and we summarise their areas to compute connectivity metrics. This workflow is represented visually in the figure below, from the paper by Kirk et al.:
+
+```{r}
+#| label: "Effective-mesh-demonstration"
+#| echo: false
+knitr::include_graphics("vignettes/demo-effective-mesh.jpg")
+```
 
 We can use this method to create metrics on how connected the species are, which are:
 
